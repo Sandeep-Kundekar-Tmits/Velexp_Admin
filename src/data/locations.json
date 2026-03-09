@@ -1,0 +1,347 @@
+ [
+  {
+    "state": "Andhra Pradesh",
+    "cities": [
+      { "name": "AMALAPURAM", "pincode": "533201" },
+      { "name": "ANAKAPALLE", "pincode": "531001" },
+      { "name": "ANANTAPUR", "pincode": "515001" },
+      { "name": "BHIMAVARAM", "pincode": "534201" },
+      { "name": "ELURU", "pincode": "534001" },
+      { "name": "GAJUWAKA", "pincode": "530026" },
+      { "name": "GODAVARIKHANI", "pincode": "505208" },
+      { "name": "GUNTUR", "pincode": "522001" },
+      { "name": "IBRAHIMPATNAM", "pincode": "521456" },
+      { "name": "KAKINADA", "pincode": "533001" },
+      { "name": "MANGALAGIRI", "pincode": "522503" },
+      { "name": "NUZIVEEDU", "pincode": "521201" },
+      { "name": "ONGOLE", "pincode": "523001" },
+      { "name": "RAJAHMUNDRY", "pincode": "533101" },
+      { "name": "TENALI", "pincode": "522201" },
+      { "name": "VIJAYAWADA", "pincode": "520001" },
+      { "name": "VISAKHAPATNAM", "pincode": "530001" },
+      { "name": "VIZIANAGARAM", "pincode": "535001" }
+    ]
+  },
+  {
+    "state": "Telangana",
+    "cities": [
+      { "name": "HYDERABAD", "pincode": "500001" },
+      { "name": "JANGAON", "pincode": "506167" },
+      { "name": "KARIMNAGAR", "pincode": "505001" },
+      { "name": "MAHABUBNAGAR", "pincode": "509001" },
+      { "name": "MIRYALAGUDA", "pincode": "508207" },
+      { "name": "NALGONDA", "pincode": "508001" },
+      { "name": "WARANGAL", "pincode": "506001" },
+      { "name": "MANCHERIAL", "pincode": "504208" },
+      { "name": "NIRMAL", "pincode": "504106" },
+      { "name": "SIDDIPET", "pincode": "502103" }
+    ]
+  },
+  {
+    "state": "Bihar",
+    "cities": [
+      { "name": "PATNA", "pincode": "800001" }
+    ]
+  },
+  {
+    "state": "Chhattisgarh",
+    "cities": [
+      { "name": "AMBIKAPUR", "pincode": "497001" },
+      { "name": "BHILAI", "pincode": "490001" },
+      { "name": "BILASPUR", "pincode": "495001" },
+      { "name": "KORBA", "pincode": "495677" },
+      { "name": "RAIPUR", "pincode": "492001" }
+    ]
+  },
+  {
+    "state": "Delhi",
+    "cities": [
+      { "name": "DELHI", "pincode": "110001" }
+    ]
+  },
+  {
+    "state": "Goa",
+    "cities": [
+      { "name": "GOA", "pincode": "403001" }
+    ]
+  },
+  {
+    "state": "Gujarat",
+    "cities": [
+      { "name": "AHMEDABAD", "pincode": "380001" },
+      { "name": "SURAT", "pincode": "395001" },
+      { "name": "BARODA", "pincode": "390001" },
+      { "name": "ANKLESHWAR", "pincode": "393001" },
+      { "name": "AMRELI", "pincode": "365601" },
+      { "name": "ANAND", "pincode": "388001" },
+      { "name": "BHARUCH", "pincode": "392001" },
+      { "name": "BHAVNAGAR", "pincode": "364001" },
+      { "name": "BOTAD", "pincode": "364710" },
+      { "name": "DHAJADI", "pincode": "365220" },
+      { "name": "DWARKA", "pincode": "361335" },
+      { "name": "GANDHIDHAM", "pincode": "370201" },
+      { "name": "GANDHINAGAR", "pincode": "382010" },
+      { "name": "GODHARA", "pincode": "389001" },
+      { "name": "GONDAL", "pincode": "360311" },
+      { "name": "HIMATNAGAR", "pincode": "383001" },
+      { "name": "JAMNAGAR", "pincode": "361001" },
+      { "name": "JETPUR", "pincode": "360370" },
+      { "name": "JUNAGADH", "pincode": "362001" },
+      { "name": "KADI", "pincode": "382715" },
+      { "name": "KALOL", "pincode": "382721" },
+      { "name": "KESHOD", "pincode": "362220" },
+      { "name": "MAHESANA", "pincode": "384001" },
+      { "name": "MAHUVA", "pincode": "364290" },
+      { "name": "MEHSANA", "pincode": "384001" },
+      { "name": "MORBI", "pincode": "363641" },
+      { "name": "NADIAD", "pincode": "387001" },
+      { "name": "NAVSARI", "pincode": "396445" },
+      { "name": "PALANPUR", "pincode": "385001" },
+      { "name": "PORBANDER", "pincode": "360575" },
+      { "name": "RAJKOT", "pincode": "360001" },
+      { "name": "RAJULA", "pincode": "365560" },
+      { "name": "VALSAD", "pincode": "396001" },
+      { "name": "VAPI", "pincode": "396191" },
+      { "name": "VERAVAL", "pincode": "362265" }
+    ]
+  },
+  {
+    "state": "Haryana",
+    "cities": [
+      { "name": "GURGAON", "pincode": "122001" },
+      { "name": "BAHADURGARH", "pincode": "124507" },
+      { "name": "HISSAR", "pincode": "125001" },
+      { "name": "KARNAL", "pincode": "132001" },
+      { "name": "KUNDLI&SONIPAT", "pincode": "131021" },
+      { "name": "PANIPAT", "pincode": "132103" },
+      { "name": "ROHTAK", "pincode": "124001" }
+    ]
+  },
+  {
+    "state": "Himachal Pradesh",
+    "cities": [
+      { "name": "UNA", "pincode": "174303" },
+      { "name": "BADDI", "pincode": "173205" },
+      { "name": "PARWANOO", "pincode": "173220" }
+    ]
+  },
+  {
+    "state": "Jammu and Kashmir",
+    "cities": [
+      { "name": "JAMMU", "pincode": "180001" }
+    ]
+  },
+  {
+    "state": "Jharkhand",
+    "cities": [
+      { "name": "DHANBAD", "pincode": "826001" },
+      { "name": "JAMSHEDPUR", "pincode": "831001" },
+      { "name": "RANCHI", "pincode": "834001" }
+    ]
+  },
+  {
+    "state": "Karnataka",
+    "cities": [
+      { "name": "BANGALORE", "pincode": "560001" },
+      { "name": "BELGAUM", "pincode": "590001" },
+      { "name": "CHIKAMANGALORE", "pincode": "577101" },
+      { "name": "DAVENGARE", "pincode": "577001" },
+      { "name": "HASSAN", "pincode": "573201" },
+      { "name": "HUBLI", "pincode": "580001" },
+      { "name": "MANGALORE", "pincode": "575001" },
+      { "name": "MANIPAL", "pincode": "576104" },
+      { "name": "MYSORE", "pincode": "570001" },
+      { "name": "SHIMOGA", "pincode": "577201" }
+    ]
+  },
+  {
+    "state": "Kerala",
+    "cities": [
+      { "name": "PALAKKAD", "pincode": "678001" },
+      { "name": "KOZHIKODE", "pincode": "673001" },
+      { "name": "KANNUR", "pincode": "670001" },
+      { "name": "MALAPPURAM", "pincode": "676505" },
+      { "name": "KOCHI-KAKF", "pincode": "682001" },
+      { "name": "ALAPPUZHA", "pincode": "688001" },
+      { "name": "COCHIN", "pincode": "682001" },
+      { "name": "KOLLAM", "pincode": "691001" },
+      { "name": "KOTTAYAM", "pincode": "686001" },
+      { "name": "THIRUVANANTHAPURAM", "pincode": "695001" },
+      { "name": "THRISSUR", "pincode": "680001" }
+    ]
+  },
+  {
+    "state": "Madhya Pradesh",
+    "cities": [
+      { "name": "INDORE", "pincode": "452001" },
+      { "name": "DEWAS", "pincode": "455001" },
+      { "name": "GWALIOR", "pincode": "474001" },
+      { "name": "BHOPAL", "pincode": "462001" },
+      { "name": "JABALPUR", "pincode": "482001" },
+      { "name": "KATNI", "pincode": "483501" },
+      { "name": "PITHAMPUR", "pincode": "454775" },
+      { "name": "REWA", "pincode": "486001" },
+      { "name": "SAGAR", "pincode": "470001" },
+      { "name": "SATNA", "pincode": "485001" },
+      { "name": "UJJAIN", "pincode": "456001" }
+    ]
+  },
+  {
+    "state": "Maharashtra",
+    "cities": [
+      { "name": "MUMBAI", "pincode": "400001" },
+      { "name": "PUNE", "pincode": "411001" },
+      { "name": "AHMEDNAGAR", "pincode": "414001" },
+      { "name": "AKOLA", "pincode": "444001" },
+      { "name": "ALIBAUG", "pincode": "402201" },
+      { "name": "AMRAWATI", "pincode": "444601" },
+      { "name": "AURANGABAD", "pincode": "431001" },
+      { "name": "BARAMATI", "pincode": "413102" },
+      { "name": "BHANDARA", "pincode": "441904" },
+      { "name": "BHIGWAN", "pincode": "413130" },
+      { "name": "CHAKAN", "pincode": "410501" },
+      { "name": "CHANDRAPUR", "pincode": "442401" },
+      { "name": "GONDIA", "pincode": "441601" },
+      { "name": "JALGAON", "pincode": "425001" },
+      { "name": "JEJURI", "pincode": "412303" },
+      { "name": "KARAD", "pincode": "415110" },
+      { "name": "KHAMGAON", "pincode": "444303" },
+      { "name": "KHOPOLI", "pincode": "410203" },
+      { "name": "KOLHAPUR", "pincode": "416001" },
+      { "name": "KOLHAR", "pincode": "413104" },
+      { "name": "LONAVALA", "pincode": "410401" },
+      { "name": "NAGPUR", "pincode": "440001" },
+      { "name": "NANDED", "pincode": "431601" },
+      { "name": "NASIK", "pincode": "422001" },
+      { "name": "PARBHANI", "pincode": "431401" },
+      { "name": "PEN", "pincode": "402107" },
+      { "name": "RATNAGIRI", "pincode": "415612" },
+      { "name": "SANASWADI", "pincode": "412208" },
+      { "name": "SANGLI", "pincode": "416416" },
+      { "name": "SATARA", "pincode": "415001" },
+      { "name": "SHIRWAL", "pincode": "412801" },
+      { "name": "SOLAPUR", "pincode": "413001" },
+      { "name": "TALEGAON", "pincode": "410507" },
+      { "name": "URLIKANCHAN", "pincode": "412202" },
+      { "name": "WARDHA", "pincode": "442001" },
+      { "name": "YAWATMAL", "pincode": "445001" }
+    ]
+  },
+  {
+    "state": "Odisha",
+    "cities": [
+      { "name": "BHUBANESWAR", "pincode": "751001" }
+    ]
+  },
+  {
+    "state": "Punjab",
+    "cities": [
+      { "name": "AMRITSAR", "pincode": "143001" },
+      { "name": "BHATINDA", "pincode": "151001" },
+      { "name": "JULLANDHAR", "pincode": "144001" },
+      { "name": "LUDHIANA", "pincode": "141001" },
+      { "name": "PATIALA", "pincode": "147001" },
+      { "name": "RAJPURA", "pincode": "140401" }
+    ]
+  },
+  {
+    "state": "Rajasthan",
+    "cities": [
+      { "name": "JAIPUR", "pincode": "302001" },
+      { "name": "ALWAR", "pincode": "301001" },
+      { "name": "BHILWARA", "pincode": "311001" },
+      { "name": "BHIWADI", "pincode": "301019" },
+      { "name": "BIKANER", "pincode": "334001" },
+      { "name": "AJMER", "pincode": "305001" },
+      { "name": "JODHPUR", "pincode": "342001" },
+      { "name": "KOTA", "pincode": "324001" },
+      { "name": "UDAIPUR", "pincode": "313001" }
+    ]
+  },
+  {
+    "state": "Tamil Nadu",
+    "cities": [
+      { "name": "CHENNAI", "pincode": "600001" },
+      { "name": "COIMBATORE", "pincode": "641001" },
+      { "name": "ERODE", "pincode": "638001" },
+      { "name": "KARUR", "pincode": "639001" },
+      { "name": "KUMBAKONAM", "pincode": "612001" },
+      { "name": "MADURAI", "pincode": "625001" },
+      { "name": "NAMAKKAL", "pincode": "637001" },
+      { "name": "PONDY", "pincode": "605001" },
+      { "name": "RAJAPALAYAM", "pincode": "626117" },
+      { "name": "RAMANATHAPURAM", "pincode": "623501" },
+      { "name": "SALEM", "pincode": "636001" },
+      { "name": "THENI", "pincode": "625531" },
+      { "name": "TIRUNELVELI", "pincode": "627001" },
+      { "name": "TIRUPUR", "pincode": "641601" },
+      { "name": "TIRUVANNAMALAI", "pincode": "606601" },
+      { "name": "TRICHY", "pincode": "620001" },
+      { "name": "TUTICORIN", "pincode": "628001" },
+      { "name": "VELLORE", "pincode": "632001" },
+      { "name": "VILLUPURAM", "pincode": "605602" },
+      { "name": "VIRUDHUNAGAR", "pincode": "626001" },
+      { "name": "HOSUR", "pincode": "635109" }
+    ]
+  },
+  {
+    "state": "Uttar Pradesh",
+    "cities": [
+      { "name": "LUCKNOW", "pincode": "226001" },
+      { "name": "AGRA", "pincode": "282001" },
+      { "name": "ALIGARH", "pincode": "202001" },
+      { "name": "ALLAHABAD", "pincode": "211001" },
+      { "name": "FAIZABAD", "pincode": "224001" },
+      { "name": "GORAKHPUR", "pincode": "273001" },
+      { "name": "JHANSI", "pincode": "284001" },
+      { "name": "KANPUR", "pincode": "208001" },
+      { "name": "MEERUT", "pincode": "250001" },
+      { "name": "MORADABAD", "pincode": "244001" },
+      { "name": "NOIDA", "pincode": "201301" },
+      { "name": "VARANASI", "pincode": "221001" },
+      { "name": "BHADOHI", "pincode": "221401" },
+      { "name": "ghaziabad", "pincode": "201001" }
+    ]
+  },
+  {
+    "state": "Uttarakhand",
+    "cities": [
+      { "name": "DEHRADUN", "pincode": "248001" },
+      { "name": "HARIDWAR", "pincode": "249401" },
+      { "name": "RUDRAPUR", "pincode": "263153" }
+    ]
+  },
+  {
+    "state": "West Bengal",
+    "cities": [
+      { "name": "KOLKATA", "pincode": "700001" },
+      { "name": "BARASAT", "pincode": "700124" },
+      { "name": "ASANSOL", "pincode": "713301" },
+      { "name": "BANDEL", "pincode": "712123" },
+      { "name": "BARRACKPORE", "pincode": "700120" },
+      { "name": "BURDWAN", "pincode": "713101" },
+      { "name": "COOCHBEHER", "pincode": "736101" },
+      { "name": "DURGAPUR", "pincode": "713201" },
+      { "name": "HERIA", "pincode": "711103" },
+      { "name": "HOOGHLY", "pincode": "712101" },
+      { "name": "KHARAGPUR", "pincode": "721301" },
+      { "name": "MALDA", "pincode": "732101" },
+      { "name": "NANDIGRAM", "pincode": "721650" },
+      { "name": "PANSKURA", "pincode": "721152" },
+      { "name": "REYAPARA", "pincode": "700157" },
+      { "name": "SILIGURI", "pincode": "734001" }
+    ]
+  },
+  {
+    "state": "Chandigarh",
+    "cities": [
+      { "name": "MOHALI/PANCHKULA/CHANDIGARH", "pincode": "160017" }
+    ]
+  },
+  {
+    "state": "Puducherry",
+    "cities": [
+      { "name": "PONDY", "pincode": "605001" }
+    ]
+  }
+]

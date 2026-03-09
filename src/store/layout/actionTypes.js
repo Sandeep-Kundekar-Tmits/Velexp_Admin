@@ -1,0 +1,11 @@
+/* LAYOUT */
+export const CHANGE_SIDEBAR_THEME = "CHANGE_SIDEBAR_THEME"
+export const CHANGE_SIDEBAR_THEME_IMAGE = "CHANGE_SIDEBAR_THEME_IMAGE"
+
+// show sidebar
+export const SHOW_SIDEBAR = "SHOW_SIDEBAR"
+export const TOGGLE_LEFTMENU = "TOGGLE_LEFTMENU"
+
+
+// Layout mode
+export const CHANGE_LAYOUT_MODE = "CHANGE_LAYOUT_MODE";
