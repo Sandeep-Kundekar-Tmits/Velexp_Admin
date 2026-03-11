@@ -126,7 +126,7 @@ const Register = () => {
                     >
                       {user && user ? (
                         <Alert color="success">
-                          Register User Successfully
+                          User Registered Successfully
                         </Alert>
                       ) : null}
 

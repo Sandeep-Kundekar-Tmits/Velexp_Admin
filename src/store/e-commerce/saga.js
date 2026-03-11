@@ -131,7 +131,7 @@ function* onUpdateCustomer({ payload: customer }) {
   try {
     const response = yield call(updateCustomer, customer);
     yield put(updateCustomerSuccess(response));
-    toast.success("Customer Update Successfully", { autoClose: 2000 });
+    toast.success("Customer Updated Successfully", { autoClose: 2000 });
   } catch (error) {
     yield put(updateCustomerFail(error));
     toast.error("Customer Update Failed", { autoClose: 2000 });
@@ -142,7 +142,7 @@ function* onDeleteCustomer({ payload: customer }) {
   try {
     const response = yield call(deleteCustomer, customer);
     yield put(deleteCustomerSuccess(response));
-    toast.success("Customer Delete Successfully", { autoClose: 2000 });
+    toast.success("Customer Deleted Successfully", { autoClose: 2000 });
   } catch (error) {
     yield put(deleteCustomerFail(error));
     toast.error("Customer Delete Failed", { autoClose: 2000 });
@@ -173,7 +173,7 @@ function* onUpdateOrder({ payload: order }) {
   try {
     const response = yield call(updateOrder, order);
     yield put(updateOrderSuccess(response));
-    toast.success("Order Update Successfully", { autoClose: 2000 });
+    toast.success("Order Updated Successfully", { autoClose: 2000 });
   } catch (error) {
     yield put(updateOrderFail(error));
     toast.error("Order Update Failed", { autoClose: 2000 });
@@ -184,7 +184,7 @@ function* onDeleteOrder({ payload: order }) {
   try {
     const response = yield call(deleteOrder, order);
     yield put(deleteOrderSuccess(response));
-    toast.success("Order Delete Successfully", { autoClose: 2000 });
+    toast.success("Order Deleted Successfully", { autoClose: 2000 });
   } catch (error) {
     yield put(deleteOrderFail(error));
     toast.error("Order Delete Failed", { autoClose: 2000 });

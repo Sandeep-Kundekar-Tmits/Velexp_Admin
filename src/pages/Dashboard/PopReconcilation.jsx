@@ -165,7 +165,7 @@ const PopReconcilation = () => {
         <div className='page-content '>
             <div className="container-fluid ">
                 <div className="d-flex pb-1 w-100  m-0 border-bottom justify-content-between align-items-center">
-                    <h3 className="p-0 m-0">POP Reconciliation </h3>
+                    <h3 className="p-0 m-0">POP Reconciliation</h3>
                     <Button className="bg-primary" onClick={() => { setShowPopup(true) }}>Update POP Status</Button>
                 </div>
 

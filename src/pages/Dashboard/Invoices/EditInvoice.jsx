@@ -3,7 +3,7 @@ import SearchableDropdown from "../../../components/Common/SearchableDropdown"
 import { useEffect, useMemo, useState } from "react"
 import { useGetApiCall } from "../../../hooks/useGetApiCall"
 import { FILTER_EDIT_ENVOICE, GET_USER_API, UPDATE_EDIT_ENVOICE } from "../../../api"
-import DateRangePicker from "@paprika/date-range-picker";
+import DateRangeInput from "../../../components/Common/DateRangeInput";
 import { IoMdCloudDownload } from "react-icons/io"
 import TableContainer from "../../../components/Table/TableContainer"
 import formatDateForPayload from "../../../helpers/DateHelper"
@@ -15,6 +15,7 @@ import InvoiceEditModal from "../../../components/Invoices/InvoiceEditModal"
 import { usePutApiCall } from "../../../hooks/usePutApuCall"
 import ViewInvoice from "../../../components/Invoices/ViewInVoice"
 import { downloadExcel } from "../../../helpers/downloadExcel"
+import MainHeaderComp from "../../../components/MainHeaderCom"
 // Convert DD-MM-YYYY to YYYY-MM-DD
 const reformatDate = (dateStr) => {
     const [day, month, year] = dateStr.split('-');
@@ -182,6 +183,7 @@ const EditInvoice = () => {
     });
     const [TableData, setTableData] = useState([])
     const [SelectedInfo, setSelectedInfo] = useState(null)
+    const [ExcleLoading, setExcleLoading] = useState(false)
 
     //  functions
     const handleLocationChange = (value) => {
@@ -296,38 +298,45 @@ const EditInvoice = () => {
     }
 
     // donwload the Edit Envoice Data data
-    const DownloadEditInvoiceData = () => {
-        console.log(TableData, "TableData")
-        // Transform your data with all required fields
-        const exportData = TableData.map(item => ({
-            // Invoice Info
-            'Invoice No': item.invoice_no || '--',
-            'Invoice Date': item.invoice_date ? new Date(item.invoice_date).toLocaleDateString() : '--',
+    const DownloadEditInvoiceData = async () => {
+        setExcleLoading(true)
+        try {
+            console.log(TableData, "TableData")
+            // Transform your data with all required fields
+            const exportData = TableData.map(item => ({
+                // Invoice Info
+                'Invoice No': item.invoice_no || '--',
+                'Invoice Date': item.invoice_date ? new Date(item.invoice_date).toLocaleDateString() : '--',
 
-            // Customer Info
-            'Customer': item.customer?.customer_name || '--',
-            'Invoice_To': item?.to_name || '--',
-            'Customer Type': item.customer?.cust_type?.type_of_cust || '--',
-            'GST No': item?.to_gst_no || '--',
-            'Address': item?.to_address || '--',
-            // Item Details
-            'Item ID': item.items?.[0]?.id || '--',
-            'Description': item.items?.[0]?.description || '--',
-            'Quantity': item.items?.[0]?.quantity ?? 0,
+                // Customer Info
+                'Customer': item.customer?.customer_name || '--',
+                'Invoice_To': item?.to_name || '--',
+                'Customer Type': item.customer?.cust_type?.type_of_cust || '--',
+                'GST No': item?.to_gst_no || '--',
+                'Address': item?.to_address || '--',
+                // Item Details
+                'Item ID': item.items?.[0]?.id || '--',
+                'Description': item.items?.[0]?.description || '--',
+                'Quantity': item.items?.[0]?.quantity ?? 0,
 
-            // Financials
-            'Freight (₹)': item?.total_freight ? `₹${item?.total_freight.toFixed(2)}` : '₹0.00',
-            'CGST (₹)': item?.total_cgst ? `₹${item?.total_cgst.toFixed(2)}` : '₹0.00',
-            'SGST (₹)': item?.total_sgst ? `₹${item?.total_sgst.toFixed(2)}` : '₹0.00',
-            'IGST (₹)': item?.total_igst ? `₹${item?.total_igst.toFixed(2)}` : '₹0.00',
-            'Total (₹)': item.total_amount ? `₹${item?.total_amount.toFixed(2)}` : '₹0.00',
+                // Financials
+                'Freight (₹)': item?.total_freight ? `₹${item?.total_freight.toFixed(2)}` : '₹0.00',
+                'CGST (₹)': item?.total_cgst ? `₹${item?.total_cgst.toFixed(2)}` : '₹0.00',
+                'SGST (₹)': item?.total_sgst ? `₹${item?.total_sgst.toFixed(2)}` : '₹0.00',
+                'IGST (₹)': item?.total_igst ? `₹${item?.total_igst.toFixed(2)}` : '₹0.00',
+                'Total (₹)': item.total_amount ? `₹${item?.total_amount.toFixed(2)}` : '₹0.00',
 
-            // Location Info
-            'From State': item.from_state_code || '--',
-            'To State': item.to_state_code || '--'
-        }));
+                // Location Info
+                'From State': item.from_state_code || '--',
+                'To State': item.to_state_code || '--'
+            }));
 
-        downloadExcel(exportData, 'Invoice_data.xlsx');
+            await downloadExcel(exportData, 'Invoice_data.xlsx');
+        } catch (error) {
+            console.error("Excel download failed:", error);
+        } finally {
+            setExcleLoading(false)
+        }
     };
 
 
@@ -355,8 +364,10 @@ const EditInvoice = () => {
 
     return (
         <div className='page-content'>
+            <div className="bg-white sticky-top " style={{ top: '0px', marginTop: "-10px", zIndex: 1001 }}>
+                <MainHeaderComp title="Edit Invoice" />
+            </div>
             <div className="container-fluid">
-                <h1>Edit Invoice</h1>
                 <div className=" d-flex flex-wrap gap-3 align-items-center">
                     <div className="">
                         <Label className="">Select Customer</Label>
@@ -366,31 +377,13 @@ const EditInvoice = () => {
                         // value={SelectedCustomer}
                         />
                     </div>
-                    <FormGroup style={{ marginTop: "14px" }}>
-                        <Label>Start Date and End Date</Label>
-                        <div style={{ minWidth: "200px" }}>
-                            <DateRangePicker
-                                startDate={selectedRange.startDate}
-                                endDate={selectedRange.endDate}
-                                onChange={handleDateChange}
-                            />
-                        </div>
-                    </FormGroup>
-
-                    <div className="d-flex align-items-center gap-2 mt-4">
-                        <Button color="primary" style={{ height: "2.2rem", width: "4rem" }} onClick={GetFilteredEditInvoiceFunc} >
-                            Check
-                        </Button>
-
+                    <div className="" style={{ marginTop: "1.8rem" }}>
                         <Button
                             color="primary"
-                            className='d-flex justify-content-center align-items-center'
-                            onClick={DownloadEditInvoiceData}
-                            disabled={TableData?.length < 1}
-                            title='Download'
-                            style={{ height: "2.2rem", width: "4rem" }}
+                            style={{ height: "2.2rem", width: "6rem" }}
+                            onClick={GetFilteredEditInvoiceFunc}
                         >
-                            <IoMdCloudDownload style={{ width: "25px", height: "25px" }} />
+                            Check
                         </Button>
                     </div>
                 </div>
@@ -402,7 +395,7 @@ const EditInvoice = () => {
                             TableDataLoading ?
                                 <div style={{ height: "75vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
                                     <GridLoader size={20} />
-                                    <p className="mt-5 h5">Loading Edit Envoice Billing ...</p>
+                                    <p className="mt-5 h5">Loading Edit Invoice Billing ...</p>
                                 </div>
                                 :
                                 <>
@@ -411,10 +404,21 @@ const EditInvoice = () => {
                                         data={TableData || []}
                                         isGlobalFilter={true}
                                         isPagination={true}
+                                        isDownloadExcle={true}
+                                        onDownloadExcle={DownloadEditInvoiceData}
+                                        ExcleLoading={ExcleLoading}
                                         SearchPlaceholder="Search From Table"
                                         pagination="pagination"
                                         paginationWrapper='dataTables_paginate paging_simple_numbers'
                                         tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                                        extraFiled={
+                                            <div style={{ minWidth: "200px" }}>
+                                                <DateRangeInput
+                                                    value={selectedRange}
+                                                    onChange={handleDateChange}
+                                                />
+                                            </div>
+                                        }
                                     />
                                 </>
 

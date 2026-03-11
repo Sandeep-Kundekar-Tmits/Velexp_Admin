@@ -69,7 +69,7 @@ const SidebarContent = (props) => {
       }
       if (parent) {
         const parent2El =
-          parent.childNodes && parent.childNodes.lenght && parent.childNodes[1]
+          parent.childNodes && parent.childNodes.length && parent.childNodes[1]
             ? parent.childNodes[1]
             : null;
         if (parent2El && parent2El.id !== "side-menu") {
@@ -421,7 +421,7 @@ const SidebarContent = (props) => {
               <>
                 {/* <Link to="/delivary-warehouse" className="has-arrow">
                   <i className="bx bx-file"></i>
-                  <span>{props.t("Delivary Warehouse")}</span>
+                  <span>{props.t("Delivery Warehouse")}</span>
                 </Link> */}
                 {/* <li>
                   <Link to="/#" className="has-arrow">
@@ -565,14 +565,14 @@ const SidebarContent = (props) => {
             <li>
               <Link to="/pop-reconcilation" className="has">
                 <i className="bx bx-shuffle"></i>
-                <span>{props.t("POP Reconciliation ")}</span>
+                <span>{props.t("POP Reconciliation")}</span>
               </Link>
             </li>
 
             <li>
               <Link to="/awb-print" className="has">
                 <i className="bx bx-printer"></i>
-                <span>{props.t("AWB Label Print ")}</span>
+                <span>{props.t("AWB Label Print")}</span>
               </Link>
             </li>
 
