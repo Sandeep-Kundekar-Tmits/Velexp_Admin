@@ -229,7 +229,16 @@ const PendingReport = () => {
                     <MainHeaderComp title={"Pending Report"} />
 
                     <Row>
-
+                        <Col md={3}>
+                            <FormGroup className="mb-2">
+                                <Label for="Customer">Select Date Range</Label>
+                                <DateRangeInput
+                                    value={selectedRange}
+                                    onChange={handleChange}
+                                    isBorder={true}
+                                />
+                            </FormGroup>
+                        </Col>
                         <Col md={3}>
                             <FormGroup className="mb-2">
                                 <Label for="Customer">Region</Label>
@@ -239,6 +248,8 @@ const PendingReport = () => {
                                     placeholder={ServiceCenterLoading ? "loading...." : "Search Region"}
                                     onChange={(option) => OnSelectChange("region", option)}
                                     isClearable={true}
+                                    menuPortalTarget={document.body}
+                                    menuPosition="fixed"
                                     styles={customStyles} />
                             </FormGroup>
                         </Col>
@@ -251,6 +262,8 @@ const PendingReport = () => {
                                     placeholder={ServiceCenterLoading ? "loading...." : "Search Service Center"}
                                     onChange={(option) => OnSelectChange("serviceCenter", option)}
                                     isClearable={true}
+                                    menuPortalTarget={document.body}
+                                    menuPosition="fixed"
                                     styles={customStyles} />
                             </FormGroup>
                         </Col>
@@ -275,6 +288,8 @@ const PendingReport = () => {
                                     placeholder="Search Product"
                                     onChange={(option) => OnSelectChange("product", option)}
                                     isClearable={true}
+                                    menuPortalTarget={document.body}
+                                    menuPosition="fixed"
                                     styles={customStyles} />
                             </FormGroup>
                         </Col>
@@ -288,6 +303,8 @@ const PendingReport = () => {
                                         placeholder="Select Payment Mode"
                                         onChange={(option) => OnSelectChange("PaymentMode", option)}
                                         isClearable={true}
+                                        menuPortalTarget={document.body}
+                                        menuPosition="fixed"
                                         styles={customStyles} />
                                 </FormGroup>
                             </FormGroup>
@@ -302,6 +319,8 @@ const PendingReport = () => {
                                         placeholder="Select Mode"
                                         onChange={(option) => OnSelectChange("mode", option)}
                                         isClearable={true}
+                                        menuPortalTarget={document.body}
+                                        menuPosition="fixed"
                                         styles={customStyles} />
                                 </FormGroup>
                             </FormGroup>
@@ -338,16 +357,6 @@ const PendingReport = () => {
                                     isPagination={true}
                                     onDownloadExcle={DownloadExcle}
                                     ExcleLoading={isExporting}
-                                    extraFiled={
-                                        <div style={{ width: "250px" }}>
-                                            <DateRangeInput
-                                                value={selectedRange}
-                                                onChange={handleChange}
-                                                // isBorder={true}
-                                                isBorderRight={true}
-                                            />
-                                        </div>
-                                    }
                                     SearchPlaceholder="Search From Table"
                                     pagination="pagination"
                                     paginationWrapper='dataTables_paginate paging_simple_numbers'

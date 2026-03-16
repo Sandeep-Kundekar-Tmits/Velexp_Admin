@@ -101,16 +101,79 @@ const DateRangeInput = ({
             position: "absolute",
             top: "110%",
             left: "0",
-            zIndex: 10,
+            zIndex: 1002, // Higher z-index to stay above sticky headers
             background: "#fff",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+            boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
             borderRadius: "8px",
+            border: "1px solid #eee",
           }}
+          className="date-range-portal"
         >
+          <style>
+            {`
+              .rdrCalendarWrapper {
+                border-radius: 8px;
+                font-family: inherit;
+              }
+              .rdrMonthAndYearWrapper {
+                padding-top: 10px;
+                height: 50px;
+              }
+              .rdrNextPrevButton {
+                background: #f8f9fa;
+                border: 1px solid #eee;
+                border-radius: 4px;
+              }
+              .rdrMonthAndYearPickers select {
+                padding: 4px 8px;
+                border-radius: 4px;
+                border: 1px solid #eee;
+                font-weight: 500;
+                color: #495057;
+              }
+              .rdrWeekDay {
+                color: #adb5bd;
+                font-weight: 600;
+                text-transform: capitalize;
+              }
+              .rdrDayToday .rdrDayNumber span:after {
+                background: transparent;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+              }
+              .rdrDayNumber span {
+                font-weight: 500;
+              }
+              .rdrSelected, .rdrInRange, .rdrStartEdge, .rdrEndEdge {
+                top: 4px;
+                bottom: 4px;
+              }
+              .rdrDayStartEdge {
+                 border-top-left-radius: 6px;
+                 border-bottom-left-radius: 6px;
+              }
+              .rdrDayEndEdge {
+                 border-top-right-radius: 6px;
+                 border-bottom-right-radius: 6px;
+              }
+              .rdrMonthPicker, .rdrYearPicker {
+                margin: 0 5px;
+              }
+              .rdrMonthsHorizontal {
+                gap: 10px;
+              }
+            `}
+          </style>
           <DateRange
             ranges={range}
             onChange={handleSelect}
             moveRangeOnFirstSelection={false}
+            months={2}
+            direction="horizontal"
+            showDateDisplay={false}
+            rangeColors={["#5b73e8"]}
+            monthDisplayFormat="MMMM yyyy"
+            weekdayDisplayFormat="EE"
           />
         </div>
       )}

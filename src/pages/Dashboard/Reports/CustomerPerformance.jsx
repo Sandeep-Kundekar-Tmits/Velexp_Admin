@@ -18,6 +18,7 @@ import { useExcelExport } from '../../../hooks/useExcelExport';
 import MainHeaderCom from '../../../components/MainHeaderCom';
 import SelectedItemsDisplay from '../../../components/Common/SelectedItemsDisplay';
 import DateRangeInput from '../../../components/Common/DateRangeInput';
+import ToasterProvider from '../../../helpers/ToasterProvider';
 
 const CustomerPerformance = () => {
     useEffect(() => {
@@ -112,6 +113,7 @@ const CustomerPerformance = () => {
         ],
         []
     );
+    const { ErrorToaster, SuccessToaster } = ToasterProvider()
 
     const [username, setUsername] = useState({})
     // to show and hide the filter
@@ -275,11 +277,12 @@ const CustomerPerformance = () => {
                 // enabling the filter
                 setIsShowFilter(true)
             } else {
+                ErrorToaster(Performance?.message)
                 setBookingData([]); // Reset or set to empty array
             }
         } catch (error) {
             console.error("Error in OnCheckClick:", error);
-            alert("An error occurred while fetching booking details");
+            ErrorToaster("An error occurred while fetching booking details");
             setBookingData([]); // Reset on error
         }
     };
@@ -475,54 +478,74 @@ const CustomerPerformance = () => {
                         </Col>
                     </Row>
                     <Row className='gx-3 d-flex align-items-end mt-2'>
+                        {/* select date range */}
+                        <Col md={3}>
+                            <FormGroup className="mb-2">
+                                <Label for="DateRange" className="fw-bold text-muted mb-1">Select Date Range</Label>
+                                <DateRangeInput
+                                    value={selectedRange}
+                                    onChange={handleChange}
+                                    isBorder={true}
+                                />
+                            </FormGroup>
+                        </Col>
+                        {/* select customer */}
+                        <Col md={3}>
+                            <FormGroup className="mb-2">
+                                <Label for="Customer" className="fw-bold text-muted mb-1">Select Customer</Label>
+                                <Select options={UserListOptions}
+                                    placeholder="Search Customer"
+                                    value={username?.value ? username : null}
+                                    onChange={setUsername}
+                                    isClearable={true}
+                                    styles={customStyles} />
+                            </FormGroup>
+                        </Col>
                         {/* mode */}
                         <Col md={3}>
-                            <div style={{ width: "250px" }}>
-                                <FormGroup className="mb-2">
-                                    <Label for="Mode">Select Mode</Label>
-                                    <Select
-                                        options={[
-                                            { label: "forward", value: "forward" },
-                                            { label: "reverse", value: "reverse" }
-                                        ]}
-                                        placeholder="Search Mode"
-                                        value={SelectedMode}
-                                        onChange={setSelectedMode}
-                                        isClearable={true}
-                                        styles={customStyles} />
-                                </FormGroup>
-                            </div>
+                            <FormGroup className="mb-2">
+                                <Label for="Mode" className="fw-bold text-muted mb-1">Select Mode</Label>
+                                <Select
+                                    options={[
+                                        { label: "forward", value: "forward" },
+                                        { label: "reverse", value: "reverse" }
+                                    ]}
+                                    placeholder="Search Mode"
+                                    value={SelectedMode}
+                                    onChange={setSelectedMode}
+                                    isClearable={true}
+                                    styles={customStyles} />
+                            </FormGroup>
                         </Col>
                         {/* product */}
                         <Col md={3}>
-                            <div style={{ width: "250px" }}>
-                                <FormGroup className="mb-2">
-                                    <Label for="Product">Select Product</Label>
-                                    <Select
-                                        options={ProductListOption}
-                                        placeholder="Search Product"
-                                        value={SelectedProduct}
-                                        onChange={setSelectedProduct}
-                                        isClearable={true}
-                                        styles={customStyles} />
-                                </FormGroup>
-                            </div>
+                            <FormGroup className="mb-2">
+                                <Label for="Product" className="fw-bold text-muted mb-1">Select Product</Label>
+                                <Select
+                                    options={ProductListOption}
+                                    placeholder="Search Product"
+                                    value={SelectedProduct}
+                                    onChange={setSelectedProduct}
+                                    isClearable={true}
+                                    styles={customStyles} />
+                            </FormGroup>
                         </Col>
-
-                        <Col md={2} className='d-flex mb-3 align-content-center flex-wrap gap-2 mt-2'>
-                            <Button disabled={customerPerformanceLoading} onClick={OnCheckClick} color="primary" className='mt-3 fw-bold' style={{ height: "2.4rem", width: "100%" }}>
+                    </Row>
+                    <Row className='gx-3 d-flex align-items-center mt-0'>
+                        <Col md={2} className='d-flex mb-3 align-content-center flex-wrap gap-2 mt-0'>
+                            <Button disabled={customerPerformanceLoading} onClick={OnCheckClick} color="primary" className='mt-1 fw-bold' style={{ height: "2.4rem", width: "100%" }}>
                                 Check
                             </Button>
                         </Col>
                         {
-                            isShowFilter && <>
+                            isShowFilter && <Col md={10}>
                                 <AdminBookingFilter
                                     AllEntries={AllEntries}
                                     ApplyFilter={ApplyFilter}
                                     BookingList={BookingData}
                                     avarageData={customerPerformance}
                                 />
-                            </>
+                            </Col>
                         }
                     </Row>
                 </div>
@@ -551,43 +574,6 @@ const CustomerPerformance = () => {
                                     isStickyHeader={true}
                                     stickyTop={0}
                                     tableHeight="60vh"
-                                    extraFiled={
-                                        <div className="d-flex align-items-center">
-                                            <div style={{ width: "250px", borderRight: "1px solid #B0ACAC" }}>
-                                                <Select options={UserListOptions}
-                                                    placeholder="Search Customer"
-                                                    value={username?.value ? username : null}
-                                                    onChange={setUsername}
-                                                    isClearable={true}
-                                                    styles={{
-                                                        ...customStyles,
-                                                        control: (base) => ({
-                                                            ...base,
-                                                            border: "none",
-                                                            boxShadow: "none",
-                                                            height: "45px",
-                                                            minHeight: "45px",
-                                                            backgroundColor: "transparent",
-                                                            cursor: "pointer",
-                                                        }),
-                                                        valueContainer: (base) => ({
-                                                            ...base,
-                                                            padding: "0 8px"
-                                                        }),
-                                                        indicatorSeparator: () => ({
-                                                            display: "none"
-                                                        })
-                                                    }} />
-                                            </div>
-                                            <div style={{ width: "250px" }}>
-                                                <DateRangeInput
-                                                    value={selectedRange}
-                                                    onChange={handleChange}
-                                                    isBorderRight={false}
-                                                />
-                                            </div>
-                                        </div>
-                                    }
                                 />
                         }
                     </div>

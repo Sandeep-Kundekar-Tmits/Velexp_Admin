@@ -165,22 +165,34 @@ const ShipmentCheckpoint = () => {
             </div>
             <div className="container-fluid">
                 <div>
-                    <Row className='gx-3 d-flex align-items-center pt-2'>
+                    <Row className='gx-3 d-flex align-items-end pt-2'>
                         <Col md={3}>
                             <FormGroup className="mb-2">
-                                <Label for="Customer" className="fw-bold text-muted mb-1">Region</Label>
+                                <Label className="fw-bold text-muted mb-1">Select Date Range</Label>
+                                <DateRangeInput
+                                    value={selectedRange}
+                                    onChange={handleChange}
+                                    isBorder={true}
+                                />
+                            </FormGroup>
+                        </Col>
+                        <Col md={3}>
+                            <FormGroup className="mb-2">
+                                <Label for="Region" className="fw-bold text-muted mb-1">Region</Label>
                                 <Select
                                     name="region"
                                     options={Regions}
                                     placeholder={ServiceCenterLoading ? "loading...." : "Search Region"}
                                     onChange={(option) => OnSelectChange("region", option)}
                                     isClearable={true}
+                                    menuPortalTarget={document.body}
+                                    menuPosition="fixed"
                                     styles={customStyles} />
                             </FormGroup>
                         </Col>
                         <Col md={3}>
                             <FormGroup className="mb-2">
-                                <Label for="Customer" className="fw-bold text-muted mb-1">Service Center</Label>
+                                <Label for="ServiceCenter" className="fw-bold text-muted mb-1">Service Center</Label>
                                 <Select
                                     value={ShipmentCheckpointPayload?.service_center}
                                     name="service_center"
@@ -188,11 +200,13 @@ const ShipmentCheckpoint = () => {
                                     placeholder={ServiceCenterLoading ? "loading...." : "Search Service Center"}
                                     onChange={(option) => OnSelectChange("service_center", option)}
                                     isClearable={true}
+                                    menuPortalTarget={document.body}
+                                    menuPosition="fixed"
                                     styles={customStyles} />
                             </FormGroup>
                         </Col>
                         <Col md={2}>
-                            <Button color="primary" className="fw-bold" style={{ height: "2.4rem", width: "100%", marginTop: "10px" }} onClick={GetDataFunctionCall}>
+                            <Button color="primary" className="fw-bold mb-3" style={{ height: "38px", width: "100%" }} onClick={GetDataFunctionCall}>
                                 Get Data
                             </Button>
                         </Col>
@@ -222,15 +236,6 @@ const ShipmentCheckpoint = () => {
                                         isStickyHeader={true}
                                         stickyTop={0}
                                         tableHeight="60vh"
-                                        extraFiled={
-                                            <div style={{ width: "260px" }}>
-                                                <DateRangeInput
-                                                    value={selectedRange}
-                                                    onChange={handleChange}
-                                                    isBorderRight={false}
-                                                />
-                                            </div>
-                                        }
                                     />
                             }
                         </div>

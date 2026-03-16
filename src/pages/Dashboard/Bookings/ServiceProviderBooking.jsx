@@ -64,8 +64,6 @@ const ServiceProviderBooking = () => {
     const { apifunc: GetShipperLabelDownload, data: ShipperDownloadLableData, error: ShipperDownloadLablErr, loading: ShipperDownloadLabelLoading } = usePostApiCall()
     useEffect(() => {
 
-
-
         const today = new Date();               // e.g. 2025-12-20
         const start = new Date();
         start.setDate(today.getDate() - 6);     // 6 days before today => 7-day window

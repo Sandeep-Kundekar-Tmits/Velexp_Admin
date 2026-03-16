@@ -237,11 +237,23 @@ const PerformanceReport = () => {
 
             <div className="container-fluid">
                 <Row className="gx-3 d-flex align-items-center pt-2">
-                    <Col md={6}>
+                    <Col md={4}>
+                        <FormGroup className="mb-2">
+                            <Label for="Region" className="fw-bold text-muted mb-1">Select Region</Label>
+                            <Select
+                                value={selectedRegion}
+                                onChange={setSelectedRegion}
+                                options={regionOptions}
+                                placeholder="Search Region"
+                                styles={customStyles}
+                            />
+                        </FormGroup>
+                    </Col>
+                    <Col md={4}>
                         <FormGroup className="mb-2">
                             <Label for="ServiceCenter" className="fw-bold text-muted mb-1">Select Service Center</Label>
                             <div className="d-flex align-items-center">
-                                <div style={{ width: "250px", minWidth: "200px" }}>
+                                <div className="flex-grow-1">
                                     <Select
                                         value={selectedServiceCentre}
                                         onChange={setSelectedServiceCentre}
@@ -261,11 +273,11 @@ const PerformanceReport = () => {
                             </div>
                         </FormGroup>
                     </Col>
-                    <Col md={6}>
+                    <Col md={4}>
                         <FormGroup className="mb-2">
                             <Label for="Division" className="fw-bold text-muted mb-1">Select Division</Label>
                             <div className="d-flex align-items-center">
-                                <div style={{ width: "250px", minWidth: "200px" }}>
+                                <div className="flex-grow-1">
                                     <Select
                                         value={selectedDivision}
                                         onChange={setSelectedDivision}
@@ -288,25 +300,32 @@ const PerformanceReport = () => {
                 </Row>
 
                 <Row className="gx-3 d-flex align-items-end mt-2">
-                    <Col md={3}>
-                        <div style={{ width: "250px" }}>
-                            <FormGroup className="mb-2">
-                                <Label className="fw-bold text-muted mb-1">Employee Code</Label>
-                                <Input
-                                    type="text"
-                                    placeholder="Enter Employee Code"
-                                    value={employeeCode}
-                                    onChange={(e) => setEmployeeCode(e.target.value)}
-                                />
-                            </FormGroup>
-                        </div>
+                    <Col md={4}>
+                        <FormGroup className="mb-2">
+                            <Label className="fw-bold text-muted mb-1">Date Range</Label>
+                            <DateRangeInput
+                                value={selectedRange}
+                                onChange={(range) => setSelectedRange(range)}
+                                isBorder={true}
+                            />
+                        </FormGroup>
                     </Col>
-                    <Col md={2} className='d-flex mb-3 align-content-center flex-wrap gap-2 mt-2'>
-                        <Button color="primary" className="mt-3 fw-bold" style={{ height: "2.4rem", width: "100%" }}>
+                    <Col md={3}>
+                        <FormGroup className="mb-2">
+                            <Label className="fw-bold text-muted mb-1">Employee Code</Label>
+                            <Input
+                                type="text"
+                                placeholder="Enter Employee Code"
+                                value={employeeCode}
+                                onChange={(e) => setEmployeeCode(e.target.value)}
+                            />
+                        </FormGroup>
+                    </Col>
+                    <Col md={2} className='d-flex mb-2 align-content-center flex-wrap gap-2'>
+                        <Button color="primary" className="fw-bold" style={{ height: "2.4rem", width: "100%" }}>
                             Get Data
                         </Button>
                     </Col>
-
                 </Row>
 
                 <TableContainer
@@ -322,46 +341,6 @@ const PerformanceReport = () => {
                     isStickyHeader={true}
                     stickyTop={0}
                     tableHeight="60vh"
-                    extraFiled={
-                        <Fragment>
-                            <div className="d-flex align-items-center">
-                                <div style={{ width: "200px", borderRight: "1px solid #B0ACAC" }}>
-                                    <Select
-                                        value={selectedRegion}
-                                        onChange={setSelectedRegion}
-                                        options={regionOptions}
-                                        placeholder="Search Region"
-                                        styles={{
-                                            ...customStyles,
-                                            control: (base) => ({
-                                                ...base,
-                                                border: "none",
-                                                boxShadow: "none",
-                                                height: "45px",
-                                                minHeight: "45px",
-                                                backgroundColor: "transparent",
-                                                cursor: "pointer",
-                                            }),
-                                            valueContainer: (base) => ({
-                                                ...base,
-                                                padding: "0 8px"
-                                            }),
-                                            indicatorSeparator: () => ({
-                                                display: "none"
-                                            })
-                                        }}
-                                    />
-                                </div>
-                                <div style={{ width: "260px" }}>
-                                    <DateRangeInput
-                                        value={selectedRange}
-                                        onChange={(range) => setSelectedRange(range)}
-                                        isBorderRight={false}
-                                    />
-                                </div>
-                            </div>
-                        </Fragment>
-                    }
                 />
 
                 {ReturnComponent(activeComponent)}

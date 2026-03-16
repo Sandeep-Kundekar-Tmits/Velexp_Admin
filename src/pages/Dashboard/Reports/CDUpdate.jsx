@@ -5,7 +5,8 @@ import { Button, Card, Col, FormGroup, Label, Row } from "reactstrap"
 import Select from 'react-select'
 import { customStyles } from "../../../helpers/CustomStyle"
 import TableContainer from "../../../components/Table/TableContainer"
-import DateRangePicker from "@paprika/date-range-picker"
+import DateRangeInput from "../../../components/Common/DateRangeInput";
+import MainHeaderCom from "../../../components/MainHeaderCom";
 import usePostApiCall from "../../../hooks/usePostApiCall"
 import { useExcelExport } from "../../../hooks/useExcelExport"
 import ToasterProvider from "../../../helpers/ToasterProvider"
@@ -186,44 +187,42 @@ const CDUpdate = () => {
     }
     return (
         (
-            <div className='page-content'>
+            <div className='page-content py-0'>
+                <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
+                    <MainHeaderCom title="CD Update" />
+                </div>
                 <div className="container-fluid">
                     {/* head */}
-                    <div className="d-flex justify-content-between mb-2 align-items-center border-bottom">
-                        <h3 className=''>CD Update</h3>
-                    </div>
-                    {/*  */}
 
                     {/*  cards */}
-                    <Row>
-                        <Col md={4}>
+                    <Row className='gx-3 d-flex align-items-end pt-2'>
+                        <Col md={3}>
                             <FormGroup className="mb-2">
-                                <Label>Start Date and End Date</Label>
-                                <div style={{ minWidth: "200px" }}>
-                                    <DateRangePicker
-                                        startDate={selectedRange.startDate}
-                                        endDate={selectedRange.endDate}
-                                        onChange={handleChange}
-                                        className="h-100"
-                                    />
-                                </div>
+                                <Label className="fw-bold text-muted mb-1">Select Date Range</Label>
+                                <DateRangeInput
+                                    value={selectedRange}
+                                    onChange={handleChange}
+                                    isBorder={true}
+                                />
                             </FormGroup>
                         </Col>
                         <Col md={3}>
                             <FormGroup className="mb-2">
-                                <Label for="Customer">Region</Label>
+                                <Label for="Region" className="fw-bold text-muted mb-1">Region</Label>
                                 <Select
                                     name="region"
                                     options={Regions}
                                     placeholder={ServiceCenterLoading ? "loading...." : "Search Region"}
                                     onChange={(option) => OnSelectChange("region", option)}
                                     isClearable={true}
+                                    menuPortalTarget={document.body}
+                                    menuPosition="fixed"
                                     styles={customStyles} />
                             </FormGroup>
                         </Col>
                         <Col md={3}>
                             <FormGroup className="mb-2">
-                                <Label for="Customer">Service Center</Label>
+                                <Label for="ServiceCenter" className="fw-bold text-muted mb-1">Service Center</Label>
                                 <Select
                                     value={CdUpdatePayload?.service_center}
                                     name="service_center"
@@ -231,12 +230,13 @@ const CDUpdate = () => {
                                     placeholder={ServiceCenterLoading ? "loading...." : "Search Service Center"}
                                     onChange={(option) => OnSelectChange("service_center", option)}
                                     isClearable={true}
-
+                                    menuPortalTarget={document.body}
+                                    menuPosition="fixed"
                                     styles={customStyles} />
                             </FormGroup>
                         </Col>
                         <Col md={2}>
-                            <Button color="primary" className="" style={{ height: "2.3rem", width: "100%", marginTop: "28px" }}
+                            <Button color="primary" className="fw-bold mb-2" style={{ height: "38px", width: "100%" }}
                                 onClick={GetDataFunctionCall}
                             >
                                 {

@@ -314,8 +314,14 @@ const StatusUpdateAudit = () => {
                         </FormGroup>
                     </Col>
                 </Row>
-                <Row className="mb-4">
-                    <Col md={3} className="">
+                <Row className="mb-4 align-items-end">
+                    <Col md={3}>
+                        <FormGroup className="mb-0">
+                            <Label className="fw-bold text-muted mb-1">Date Range</Label>
+                            <DateRangeInput value={selectedRange} onChange={setSelectedRange} isBorder={true} />
+                        </FormGroup>
+                    </Col>
+                    <Col md={3} className="mb-3">
                         <Button
                             color="primary"
                             className="w-100"
@@ -340,13 +346,6 @@ const StatusUpdateAudit = () => {
                                 columns={columns}
                                 data={auditData || []}
                                 isGlobalFilter={true}
-                                extraFiled={
-                                    <React.Fragment>
-                                        <div className="me-2" style={{ minWidth: "250px" }}>
-                                            <DateRangeInput value={selectedRange} onChange={setSelectedRange} isBorderRight={true} />
-                                        </div>
-                                    </React.Fragment>
-                                }
                                 isDownloadExcle={true}
                                 onDownloadExcle={handleDownloadExcel}
                                 ExcleLoading={isExporting}
