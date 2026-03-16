@@ -222,7 +222,7 @@ const InvoicePdfGenerater = React.forwardRef(({ invoiceData }, ref) => {
             <p className="mb-1"><strong>Corporate Identity Number:</strong> U53200PN2024PTC231459</p>
             <p className="mb-1"><strong>SAC CODE:</strong> 996812</p>
             <p className="mb-1"><strong>Whether the tax is payable on reverse charge basis:</strong> NO</p>
-            <p className="mb-0"><em>* This is a Computer Generated Invoice * For inquiries, contact us at yalesp.com</em></p>
+            <p className="mb-0"><em>* This is a Computer Generated Invoice * For inquiries, contact us at velexp.com</em></p>
           </div>
         </div>
       </div>

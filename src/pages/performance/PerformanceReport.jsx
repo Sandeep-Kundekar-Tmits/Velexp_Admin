@@ -227,113 +227,145 @@ const PerformanceReport = () => {
     ];
 
     return (
-        <div className="page-content">
-            <MainHeaderComp
-                title="Performance Report"
-            // subTitle="Performance Report"
-            />
+        <div className="page-content py-0">
+            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
+                <MainHeaderComp
+                    title="Performance Report"
+                // subTitle="Performance Report"
+                />
+            </div>
 
-            <Row className="mb-3 mt-4">
-                <Col md={6}>
-                    <FormGroup className='d-flex align-items-center gap-0 mb-0'>
-                        <div style={{ width: "250px" }}>
-                            <Select
-                                value={selectedServiceCentre}
-                                onChange={setSelectedServiceCentre}
-                                options={serviceCentreOptions}
-                                placeholder="Select Service Centre"
-                                styles={customStyles}
-                                isMulti
-                                controlShouldRenderValue={false}
-                            />
-                        </div>
-                        <SelectedItemsDisplay
-                            selectedItems={selectedServiceCentre}
-                            onRemove={(item) => setSelectedServiceCentre(selectedServiceCentre.filter(i => i.value !== item.value))}
-                            targetId="popoverSC"
-                            maxDisplay={3}
-                        />
-                    </FormGroup>
-                </Col>
-                <Col md={6}>
-                    <FormGroup className='d-flex align-items-center gap-0 mb-0'>
-                        <div style={{ width: "250px" }}>
-                            <Select
-                                value={selectedDivision}
-                                onChange={setSelectedDivision}
-                                options={divisionOptions}
-                                placeholder="Select Division"
-                                styles={customStyles}
-                                isMulti
-                                controlShouldRenderValue={false}
-                            />
-                        </div>
-                        <SelectedItemsDisplay
-                            selectedItems={selectedDivision}
-                            onRemove={(item) => setSelectedDivision(selectedDivision.filter(i => i.value !== item.value))}
-                            targetId="popoverDiv"
-                            maxDisplay={3}
-                        />
-                    </FormGroup>
-                </Col>
-            </Row>
+            <div className="container-fluid">
+                <Row className="gx-3 d-flex align-items-center pt-2">
+                    <Col md={6}>
+                        <FormGroup className="mb-2">
+                            <Label for="ServiceCenter" className="fw-bold text-muted mb-1">Select Service Center</Label>
+                            <div className="d-flex align-items-center">
+                                <div style={{ width: "250px", minWidth: "200px" }}>
+                                    <Select
+                                        value={selectedServiceCentre}
+                                        onChange={setSelectedServiceCentre}
+                                        options={serviceCentreOptions}
+                                        placeholder="Search Service Center"
+                                        styles={customStyles}
+                                        isMulti
+                                        controlShouldRenderValue={false}
+                                    />
+                                </div>
+                                <SelectedItemsDisplay
+                                    selectedItems={selectedServiceCentre || []}
+                                    onRemove={(item) => setSelectedServiceCentre(selectedServiceCentre.filter(i => i.value !== item.value))}
+                                    targetId="popoverSC"
+                                    maxDisplay={3}
+                                />
+                            </div>
+                        </FormGroup>
+                    </Col>
+                    <Col md={6}>
+                        <FormGroup className="mb-2">
+                            <Label for="Division" className="fw-bold text-muted mb-1">Select Division</Label>
+                            <div className="d-flex align-items-center">
+                                <div style={{ width: "250px", minWidth: "200px" }}>
+                                    <Select
+                                        value={selectedDivision}
+                                        onChange={setSelectedDivision}
+                                        options={divisionOptions}
+                                        placeholder="Search Division"
+                                        styles={customStyles}
+                                        isMulti
+                                        controlShouldRenderValue={false}
+                                    />
+                                </div>
+                                <SelectedItemsDisplay
+                                    selectedItems={selectedDivision || []}
+                                    onRemove={(item) => setSelectedDivision(selectedDivision.filter(i => i.value !== item.value))}
+                                    targetId="popoverDiv"
+                                    maxDisplay={3}
+                                />
+                            </div>
+                        </FormGroup>
+                    </Col>
+                </Row>
 
-            <Row className="mb-3 align-items-end">
-                <Col md={3}>
-                    <FormGroup>
-                        <Label>Employee Code</Label>
-                        <Input
-                            type="text"
-                            placeholder="Enter Employee Code"
-                            value={employeeCode}
-                            onChange={(e) => setEmployeeCode(e.target.value)}
-                        />
-                    </FormGroup>
-                </Col>
-                <Col md={2}>
-                    <FormGroup>
-                        <Button color="primary" className="w-100">
+                <Row className="gx-3 d-flex align-items-end mt-2">
+                    <Col md={3}>
+                        <div style={{ width: "250px" }}>
+                            <FormGroup className="mb-2">
+                                <Label className="fw-bold text-muted mb-1">Employee Code</Label>
+                                <Input
+                                    type="text"
+                                    placeholder="Enter Employee Code"
+                                    value={employeeCode}
+                                    onChange={(e) => setEmployeeCode(e.target.value)}
+                                />
+                            </FormGroup>
+                        </div>
+                    </Col>
+                    <Col md={2} className='d-flex mb-3 align-content-center flex-wrap gap-2 mt-2'>
+                        <Button color="primary" className="mt-3 fw-bold" style={{ height: "2.4rem", width: "100%" }}>
                             Get Data
                         </Button>
-                    </FormGroup>
-                </Col>
+                    </Col>
 
-            </Row>
+                </Row>
 
-            <hr />
+                <TableContainer
+                    columns={columns}
+                    data={data}
+                    isGlobalFilter={true}
+                    isPagination={true}
+                    handleUserClick={handleRowClick}
+                    SearchPlaceholder="Search across all columns..."
+                    pagination="pagination"
+                    paginationWrapper='dataTables_paginate paging_simple_numbers'
+                    tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                    isStickyHeader={true}
+                    stickyTop={0}
+                    tableHeight="60vh"
+                    extraFiled={
+                        <Fragment>
+                            <div className="d-flex align-items-center">
+                                <div style={{ width: "200px", borderRight: "1px solid #B0ACAC" }}>
+                                    <Select
+                                        value={selectedRegion}
+                                        onChange={setSelectedRegion}
+                                        options={regionOptions}
+                                        placeholder="Search Region"
+                                        styles={{
+                                            ...customStyles,
+                                            control: (base) => ({
+                                                ...base,
+                                                border: "none",
+                                                boxShadow: "none",
+                                                height: "45px",
+                                                minHeight: "45px",
+                                                backgroundColor: "transparent",
+                                                cursor: "pointer",
+                                            }),
+                                            valueContainer: (base) => ({
+                                                ...base,
+                                                padding: "0 8px"
+                                            }),
+                                            indicatorSeparator: () => ({
+                                                display: "none"
+                                            })
+                                        }}
+                                    />
+                                </div>
+                                <div style={{ width: "260px" }}>
+                                    <DateRangeInput
+                                        value={selectedRange}
+                                        onChange={(range) => setSelectedRange(range)}
+                                        isBorderRight={false}
+                                    />
+                                </div>
+                            </div>
+                        </Fragment>
+                    }
+                />
 
-            <TableContainer
-                extraFiled={
-                    <Fragment>
-                        <div className="me-2" style={{ minWidth: "250px" }}>
-                            <DateRangeInput
-                                value={selectedRange}
-                                onChange={(range) => setSelectedRange(range)}
-                            />
-                        </div>
-                        <div className="me-2" style={{ minWidth: "200px" }}>
-                            <Select
-                                value={selectedRegion}
-                                onChange={setSelectedRegion}
-                                options={regionOptions}
-                                placeholder="Select Region"
-                                styles={customStyles}
-                            />
-                        </div>
-                    </Fragment>
-                }
-                columns={columns}
-                data={data}
-                isGlobalFilter={true}
-                isPagination={true}
-                handleUserClick={handleRowClick}
-                SearchPlaceholder="Search across all columns..."
-                pagination="pagination"
-                paginationWrapper='dataTables_paginate paging_simple_numbers'
-                tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
-            />
-
-            {ReturnComponent(activeComponent)}
+                {ReturnComponent(activeComponent)}
+            </div>
         </div>
     );
 };

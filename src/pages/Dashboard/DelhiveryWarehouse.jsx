@@ -8,6 +8,7 @@ import TableContainer from "../../components/Table/TableContainer"
 import { GridLoader } from 'react-spinners';
 import AddWareHouseModel from "../../components/WareHouse/AddWareHouseModel"
 import usePostApiCall from "../../hooks/usePostApiCall"
+import MainHeaderComp from "../../components/MainHeaderCom"
 
 const DelhiveryWarehouse = () => {
     const columns = useMemo(
@@ -101,14 +102,18 @@ const DelhiveryWarehouse = () => {
         }
     }, [Warehouselist])
     return (
-        <div className="page-content">
-            <div className="container-fluid">
-                <div className="d-flex justify-content-between">
-                    <h3 className="mb-4">Delhivery Warehouse</h3>
-                    <Button color="primary" onClick={() => {
-                        setSelectedTitle("add_warehouse")
-                    }} style={{ height: "40px" }}>Add Delhivery</Button>
-                </div>
+        <div className="page-content py-0">
+            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
+                <MainHeaderComp
+                    title="Delhivery Warehouse"
+                    extraFields={
+                        <Button color="primary" onClick={() => {
+                            setSelectedTitle("add_warehouse")
+                        }} style={{ height: "40px" }}>Add Delhivery</Button>
+                    }
+                />
+            </div>
+            <div className="container-fluid mt-4">
 
                 {/* tabel */}
                 <div className='mt-1'>

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Row, Col, FormGroup, Spinner } from 'reactstrap';
 import { Button, FormFeedback, Input, Label, Table } from "reactstrap";
-import DateRangePicker from "@paprika/date-range-picker";
+import DateRangeInput from '../../../components/Common/DateRangeInput';
 import TableContainer from '../../../components/Table/TableContainer';
 import Select from 'react-select'
 import { customStyles } from '../../../helpers/CustomStyle';
@@ -11,6 +11,8 @@ import usePostApiCall from '../../../hooks/usePostApiCall';
 import formatDateForPayload from '../../../helpers/DateHelper';
 import { GridLoader } from 'react-spinners';
 import { IoMdCloudDownload } from "react-icons/io";
+import SelectedItemsDisplay from '../../../components/Common/SelectedItemsDisplay';
+import MainHeaderCom from '../../../components/MainHeaderCom';
 import PickupPerformanceFilter from '../../../components/Report/PickupPerformanceFilter';
 import { FaCloudDownloadAlt } from 'react-icons/fa';
 import { downloadExcel } from '../../../helpers/downloadExcel';
@@ -369,96 +371,111 @@ const PickupPeformance = () => {
         return filteredBooking;
     };
     return (
-        <div className='page-content'>
+        <div className='page-content py-0'>
+            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
+                <MainHeaderCom title="Pickup Performance" />
+            </div>
             <div className="container-fluid">
                 <div>
-                    <h3 className='pb-3 border-bottom'>Pickup Performance</h3>
-                    <Row className='gx-3 d-flex align-items-center '>
-                        <Col md={4}>
-                            <FormGroup className="mb-2">
-                                <Label for="Customer">Select Customer</Label>
-                                <Select options={UserListOptions}
-                                    placeholder="Search Customer"
-                                    // value={username}
-                                    onChange={setUsername}
-                                    isClearable={true}
-                                    styles={customStyles} />
-                            </FormGroup>
-                        </Col>
-                        {/*  service centers list */}
-                        <Col md={4}>
-                            <FormGroup className="mb-2">
-                                <Label for="Customer">Select Service Center</Label>
-                                <Select options={ServiceCenterOption}
-                                    placeholder="Search"
-                                    isMulti={true}
-                                    value={SelectedServiceCenters}
-                                    onChange={setSelectedServiceCenters}
-                                    isClearable={true}
-                                    styles={customStyles} />
-                            </FormGroup>
-                        </Col>
-                        {/* select region  */}
-                        <Col md={2}>
-                            <FormGroup className="mb-2">
-                                <Label for="Customer">Select Region</Label>
-                                <Select
-                                    options={AllRegions}
-                                    placeholder="Search Region"
-                                    isMulti={true}
-                                    value={SelectedRegion}
-                                    onChange={setSelectedRegion}
-                                    isClearable={true}
-                                    styles={customStyles} />
-                            </FormGroup>
+                    <Row className='gx-3 d-flex align-items-center pt-2'>
+                        {/* Select Customer moved to table head */}
+                        <Col md={12}>
+                            <Row>
+                                {/*  service centers list */}
+                                <Col md={6}>
+                                    <FormGroup className="mb-2">
+                                        <Label for="ServiceCenter">Select Service Center</Label>
+                                        <div className="d-flex align-items-center">
+                                            <div style={{ width: "250px", minWidth: "200px" }}>
+                                                <Select options={ServiceCenterOption}
+                                                    placeholder="Search"
+                                                    isMulti={true}
+                                                    value={SelectedServiceCenters}
+                                                    onChange={setSelectedServiceCenters}
+                                                    isClearable={true}
+                                                    controlShouldRenderValue={false}
+                                                    hideSelectedOptions={false}
+                                                    styles={customStyles} />
+                                            </div>
+                                            <SelectedItemsDisplay
+                                                selectedItems={SelectedServiceCenters || []}
+                                                onRemove={(itemToRemove) => {
+                                                    setSelectedServiceCenters(prev => prev.filter(item => item.value !== itemToRemove.value));
+                                                }}
+                                                targetId="serviceCenterPopover"
+                                            />
+                                        </div>
+                                    </FormGroup>
+                                </Col>
+                                {/* select region  */}
+                                <Col md={6}>
+                                    <FormGroup className="mb-2">
+                                        <Label for="Region">Select Region</Label>
+                                        <div className="d-flex align-items-center">
+                                            <div style={{ width: "250px", minWidth: "200px" }}>
+                                                <Select
+                                                    options={AllRegions}
+                                                    placeholder="Search Region"
+                                                    isMulti={true}
+                                                    value={SelectedRegion}
+                                                    onChange={setSelectedRegion}
+                                                    isClearable={true}
+                                                    controlShouldRenderValue={false}
+                                                    hideSelectedOptions={false}
+                                                    styles={customStyles} />
+                                            </div>
+                                            <SelectedItemsDisplay
+                                                selectedItems={SelectedRegion || []}
+                                                onRemove={(itemToRemove) => {
+                                                    setSelectedRegion(prev => prev.filter(item => item.value !== itemToRemove.value));
+                                                }}
+                                                targetId="regionPopover"
+                                            />
+                                        </div>
+                                    </FormGroup>
+                                </Col>
+                            </Row>
                         </Col>
 
+                    </Row>
+                    <Row className='gx-3 d-flex align-items-end mt-2'>
                         {/* mode */}
 
-                        <Col md={2}>
-                            <FormGroup className="mb-2">
-                                <Label for="Customer">Select Mode</Label>
-                                <Select
-                                    options={[
-                                        { label: "forward", value: "forward" },
-                                        { label: "reverse", value: "reverse" }
-                                    ]}
-                                    placeholder="Search Mode"
-                                    value={SelectedMode}
-                                    onChange={setSelectedMode}
-                                    isClearable={true}
-                                    styles={customStyles} />
-                            </FormGroup>
+                        <Col md={3}>
+                            <div style={{ width: "250px" }}>
+                                <FormGroup className="mb-2">
+                                    <Label for="Mode">Select Mode</Label>
+                                    <Select
+                                        options={[
+                                            { label: "forward", value: "forward" },
+                                            { label: "reverse", value: "reverse" }
+                                        ]}
+                                        placeholder="Search Mode"
+                                        value={SelectedMode}
+                                        onChange={setSelectedMode}
+                                        isClearable={true}
+                                        styles={customStyles} />
+                                </FormGroup>
+                            </div>
                         </Col>
 
-                        <Col md={4}>
-                            <FormGroup className="mb-2">
-                                <Label for="Customer">Select Product</Label>
-                                <Select
-                                    options={ProductListOption}
-                                    placeholder="Search Product"
-                                    value={SelectedProduct}
-                                    onChange={setSelectedProduct}
-                                    isClearable={true}
-                                    styles={customStyles} />
-                            </FormGroup>
+                        <Col md={3}>
+                            <div style={{ width: "250px" }}>
+                                <FormGroup className="mb-2">
+                                    <Label for="Product">Select Product</Label>
+                                    <Select
+                                        options={ProductListOption}
+                                        placeholder="Search Product"
+                                        value={SelectedProduct}
+                                        onChange={setSelectedProduct}
+                                        isClearable={true}
+                                        styles={customStyles} />
+                                </FormGroup>
+                            </div>
                         </Col>
-                        {/* Date Range Picker */}
-                        <Col md={4}>
-                            <FormGroup className="mb-2">
-                                <Label>Start Date and End Date</Label>
-                                <div style={{ minWidth: "200px" }}>
-                                    <DateRangePicker
-                                        startDate={selectedRange.startDate}
-                                        endDate={selectedRange.endDate}
-                                        onChange={handleChange}
-                                        className="my-custom-range-picker"
-                                    />
-                                </div>
-                            </FormGroup>
-                        </Col>
+                        {/* Date Range Picker moved to table head */}
 
-                        <Col md={4} className=' d-flex align-items-center align-items-center gap-2 mt-2'>
+                        <Col md={3} className=' d-flex align-items-center gap-2 ' style={{ marginBottom: "18px" }}>
                             {/* <div className="d-flex "> */}
                             <Button color="primary" disabled={PerformanceLoading} style={{ height: "2.2rem", width: "100%" }} onClick={OnCheckClick}>
                                 Check
@@ -516,6 +533,47 @@ const PickupPeformance = () => {
                                     tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
                                     onDownloadExcle={DownloadPickupPerformanceDetails}
                                     ExcleLoading={isExporting}
+                                    isStickyHeader={true}
+                                    stickyTop={0}
+                                    tableHeight="60vh"
+                                    extraFiled={
+                                        <div className="d-flex align-items-center">
+                                            <div style={{ width: "250px", borderRight: "1px solid #B0ACAC" }}>
+                                                <Select options={UserListOptions}
+                                                    placeholder="Search Customer"
+                                                    value={username?.value ? username : null}
+                                                    onChange={setUsername}
+                                                    isClearable={true}
+                                                    styles={{
+                                                        ...customStyles,
+                                                        control: (base) => ({
+                                                            ...base,
+                                                            border: "none",
+                                                            boxShadow: "none",
+                                                            height: "45px",
+                                                            minHeight: "45px",
+                                                            backgroundColor: "transparent",
+                                                            cursor: "pointer",
+                                                        }),
+                                                        valueContainer: (base) => ({
+                                                            ...base,
+                                                            padding: "0 8px"
+                                                        }),
+                                                        indicatorSeparator: () => ({
+                                                            display: "none"
+                                                        })
+                                                    }} />
+                                            </div>
+                                            <div style={{ width: "250px" }}>
+                                                <DateRangeInput
+                                                    value={selectedRange}
+                                                    onChange={handleChange}
+                                                    // isBorder={true}
+                                                    isBorderRight={true}
+                                                />
+                                            </div>
+                                        </div>
+                                    }
                                 />
                         }
                     </div>

@@ -12,6 +12,7 @@ import usePostApiCall from "../../../hooks/usePostApiCall";
 import { useGetApiCall } from "../../../hooks/useGetApiCall";
 import { GridLoader } from "react-spinners";
 import SimpleModal from "../../../components/SimpleModal";
+import MainHeaderComp from "../../../components/MainHeaderCom";
 
 /**
  * Required vertical labels that must exist in the first column "Country"
@@ -340,18 +341,28 @@ const InternationRateData = () => {
     }, [isViewingCustomerData]);
 
     return (
-        <div className="page-content">
+        <div className="page-content py-0">
+            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
+                <MainHeaderComp
+                    title="International Rate Data"
+                    extraFields={
+                        <div className="d-flex align-items-center">
+                            <h6 className="text-black fw-bold mb-0 me-2" style={{ fontSize: "14px" }}>Template</h6>
+                            <Button
+                                color="success"
+                                outline
+                                onClick={downloadTemplate}
+                                className="d-flex align-items-center justify-content-center p-2"
+                                style={{ borderRadius: "7px", width: "180px", fontWeight: "500", fontSize: "12px", height: "35px" }}
+                            >
+                                {isExportingTemplate ? "Generating..." : "Download"}
+                                <FaFileExcel size={14} className="ms-2" />
+                            </Button>
+                        </div>
+                    }
+                />
+            </div>
             <div className="container-fluid">
-                <div className="d-flex pb-3 border-bottom justify-content-between align-items-center sticky-top bg-white" style={{ zIndex: 10, top: "0px", paddingTop: "10px" }}>
-                    <h2>International Rate Data</h2>
-                    <div className="d-flex align-items-center">
-                        <span className="me-2 text-black" style={{ fontSize: "14px" }}>Rate Template</span>
-                        <Button color="success" outline onClick={downloadTemplate} className="d-flex align-items-center justify-content-center p-2" style={{ borderRadius: "7px", width: "180px", fontWeight: "500" }}>
-                            {isExportingTemplate ? "Generating..." : "Download Template"}
-                            <FaFileExcel size={16} className="ms-2" />
-                        </Button>
-                    </div>
-                </div>
 
                 <Row className="mt-4">
                     <Col md={4}>

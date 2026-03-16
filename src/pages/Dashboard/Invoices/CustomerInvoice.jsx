@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import SearchableDropdown from "../../../components/Common/SearchableDropdown"
 import { Button, Col, FormGroup, FormText, Input, Label, Row, Spinner } from "reactstrap";
-import DateRangePicker from "@paprika/date-range-picker";
+import DateRangeInput from "../../../components/Common/DateRangeInput";
 import TableContainer from "../../../components/Table/TableContainer";
+import MainHeaderComp from "../../../components/MainHeaderCom";
 import { IoMdCloudDownload } from "react-icons/io";
 import { useGetApiCall } from "../../../hooks/useGetApiCall";
 import { GET_FRANCHISE_INVOICE, GET_USER_API, UPLOAD_FRANCHISE_INVOICE } from "../../../api";
@@ -375,65 +376,40 @@ const CustomerInvoice = () => {
         }
     }
     return (
-        <div className='page-content'>
+        <div className='page-content py-0'>
+            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
+                <MainHeaderComp
+                    title="Generate Franchise Bills"
+                />
+            </div>
             <div className="container-fluid">
-                <h2 className="border-bottom pb-2">Generate Franchise Bills</h2>
-                <div className="">
-                    <Row className="pt-3">
+                <div className="mt-3">
+                    <Row className="border-bottom pb-3">
                         <Col md={4}>
-                            <FormGroup>
-                                <Label className="">Select Customer</Label>
-                                <SearchableDropdown
-                                    onChange={handleLocationChange}
-                                    locations={Customes}
-                                    // value={SelectedCustomer}
-                                    className="w-100"
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={4}>
-                            <FormGroup >
-                                <Label>Start Date and End Date</Label>
-
-                                <DateRangePicker
-                                    startDate={selectedRange.startDate}
-                                    endDate={selectedRange.endDate}
-                                    onChange={handleDateChange}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={4}>
-                            <div className="d-flex align-items-center gap-2 ">
-                                <Button color="primary" className="d-flex justify-content-center align-items-center" style={{ height: "2.0rem", width: "100%", marginTop: "28px" }} onClick={CheckFranchiseDetails}>
-                                    Check
-                                </Button>
-                            </div>
-                        </Col>
-                    </Row>
-                    <Row className="border-bottom ">
-                        <Col md={4}>
-                            <FormGroup >
+                            <FormGroup className="mb-0">
                                 <Label for="gstUpload">Upload Invoice</Label>
                                 <Input type="file" id="gstUpload" onChange={UploadInvoiceChange} />
                                 {
-                                    JsonLoadingError && <Spinner size="sm" className="">
+                                    JsonLoadingError && <Spinner size="sm" className="ms-2">
                                         Loading...
                                     </Spinner>
                                 }
-
-                                <FormText color="muted">Upload Invoice file if available</FormText>
+                                <FormText color="muted" className="mb-0">Upload Invoice file if available</FormText>
                             </FormGroup>
                         </Col>
-                        <Col md={3}>
-                            {
-                                <Button color="primary" onClick={UploadInvoice} disabled={!showUploadBtn || !UploadedFile} className=" d-flex justify-content-center " style={{ height: "2.2rem", width: "100%", marginTop: "28px" }} >
-                                    {
-                                        UploadFranchiseInvoiceLoading ? <Spinner size="sm" className="">
-                                            Loading...
-                                        </Spinner> : "Upload"
-                                    }
-                                </Button>
-                            }
+                        <Col md={2}>
+                            <Button color="primary" className="w-100" style={{ height: "38px", marginTop: "28px" }} onClick={CheckFranchiseDetails}>
+                                Check
+                            </Button>
+                        </Col>
+                        <Col md={2}>
+                            <Button color="primary" onClick={UploadInvoice} disabled={!showUploadBtn || !UploadedFile} className="w-100" style={{ height: "38px", marginTop: "28px" }} >
+                                {
+                                    UploadFranchiseInvoiceLoading ? <Spinner size="sm">
+                                        Loading...
+                                    </Spinner> : "Upload"
+                                }
+                            </Button>
                         </Col>
                     </Row>
                 </div>
@@ -460,6 +436,25 @@ const CustomerInvoice = () => {
                                             isCustomPageSize={true}
                                             isDownloadExcle={true}
                                             onDownloadExcle={DownloadBookingDetails}
+                                            extraFiled={
+                                                <div className="d-flex align-items-center gap-3">
+                                                    <div style={{ width: '220px' }}>
+                                                        <SearchableDropdown
+                                                            onChange={handleLocationChange}
+                                                            locations={Customes}
+                                                            placeholder="Select Customer"
+                                                            className="w-100"
+                                                        />
+                                                    </div>
+                                                    <div style={{ width: '270px', borderLeft: "1px solid #ccc" }}>
+                                                        <DateRangeInput
+                                                            onChange={handleDateChange}
+                                                            value={selectedRange}
+                                                            isBorderRight={true}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            }
                                             SearchPlaceholder="Search From Table"
                                             pagination="pagination"
                                             paginationWrapper='dataTables_paginate paging_simple_numbers'

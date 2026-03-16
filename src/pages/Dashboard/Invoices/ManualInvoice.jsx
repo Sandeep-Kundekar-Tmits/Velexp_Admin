@@ -11,6 +11,7 @@ import { usePDF } from 'react-to-pdf';
 import Loader from "../../../Loaders/Loader";
 import InvoicePdfGenerater from "../../../PdfComponents/InvoicePdfGenerater";
 import ToasterProvider from "../../../helpers/ToasterProvider";
+import MainHeaderComp from "../../../components/MainHeaderCom";
 
 const ManualInvoice = () => {
     const { toPDF, targetRef } = usePDF({
@@ -242,222 +243,224 @@ const ManualInvoice = () => {
 
     }, [InvoiceAddresses])
     return <>
-        <div className='page-content'>
-            <div className="container-fluid border-bottom">
-                <h1>Generate Manual Bills</h1>
+        <div className='page-content py-0'>
+            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
+                <MainHeaderComp
+                    title="Generate Manual Bills"
+                />
             </div>
-
-            <div className="mt-2">
-                {/*  new design */}
-                <Row>
-                    {/* row 1 */}
+            <div className="container-fluid mt-3">
+                <div className="mt-2">
+                    {/*  new design */}
                     <Row>
-                        <Col md={4}>
-                            <FormGroup>
-                                <Label for="name">Name :</Label>
-                                <Input id="name" name="to_name" type="text" invalid={!!InvoiceErors?.to_name} value={ManualInvoiceData?.to_name} onChange={onManualInvoiceChange} />
-                                <FormFeedback>{InvoiceErors?.to_name}</FormFeedback>
-                            </FormGroup>
-                        </Col>
-                        <Col md={4}>
-                            <FormGroup>
-                                <Label for="gst_no">Customer GST No.:</Label>
-                                <Input id="gst_no" type="text" name="gst_no" placeholder="GST No." value={ManualInvoiceData?.gst_no} invalid={!!InvoiceErors?.gst_no} onChange={onManualInvoiceChange} />
-                                <FormFeedback>{InvoiceErors?.gst_no}</FormFeedback>
-                            </FormGroup>
-                        </Col>
-                        <Col md={4}>
-                            <FormGroup>
-                                <Label for="pan_no">Customer PAN No.:</Label>
-                                <Input id="pan_no" type="text" name="pan_no" placeholder="PAN No." value={ManualInvoiceData?.pan_no} invalid={!!InvoiceErors?.pan_no} onChange={onManualInvoiceChange} />
-                                <FormFeedback>{InvoiceErors?.pan_no}</FormFeedback>
-                            </FormGroup>
+                        {/* row 1 */}
+                        <Row>
+                            <Col md={4}>
+                                <FormGroup>
+                                    <Label for="name">Name :</Label>
+                                    <Input id="name" name="to_name" type="text" invalid={!!InvoiceErors?.to_name} value={ManualInvoiceData?.to_name} onChange={onManualInvoiceChange} />
+                                    <FormFeedback>{InvoiceErors?.to_name}</FormFeedback>
+                                </FormGroup>
+                            </Col>
+                            <Col md={4}>
+                                <FormGroup>
+                                    <Label for="gst_no">Customer GST No.:</Label>
+                                    <Input id="gst_no" type="text" name="gst_no" placeholder="GST No." value={ManualInvoiceData?.gst_no} invalid={!!InvoiceErors?.gst_no} onChange={onManualInvoiceChange} />
+                                    <FormFeedback>{InvoiceErors?.gst_no}</FormFeedback>
+                                </FormGroup>
+                            </Col>
+                            <Col md={4}>
+                                <FormGroup>
+                                    <Label for="pan_no">Customer PAN No.:</Label>
+                                    <Input id="pan_no" type="text" name="pan_no" placeholder="PAN No." value={ManualInvoiceData?.pan_no} invalid={!!InvoiceErors?.pan_no} onChange={onManualInvoiceChange} />
+                                    <FormFeedback>{InvoiceErors?.pan_no}</FormFeedback>
+                                </FormGroup>
+                            </Col>
+                        </Row>
+                        {/* row 2 */}
+                        <Row>
+                            <Col md={4}>
+                                {/* sub row 1 */}
+                                <Row>
+                                    <Col md={12}>
+                                        <FormGroup>
+                                            <Label for="address">Address:</Label>
+                                            <Input id="address" name="to_address" type="textarea" style={{ height: "110px" }} value={ManualInvoiceData?.to_address} invalid={!!InvoiceErors?.to_address} onChange={onManualInvoiceChange} />
+                                            <FormFeedback>{InvoiceErors?.to_address}</FormFeedback>
+                                        </FormGroup>
+                                    </Col>
+                                </Row>
+                            </Col>
+                            <Col md={8}>
+                                {/* sub 2 */}
+                                <Row>
+                                    <Col md={6}>
+                                        <FormGroup>
+                                            <Label for="city">City:</Label>
+                                            <Input id="city" name="to_city" type="text" value={ManualInvoiceData?.to_city} invalid={!!InvoiceErors?.to_city} onChange={onManualInvoiceChange} />
+                                            <FormFeedback>{InvoiceErors?.to_city}</FormFeedback>
+                                        </FormGroup>
+                                    </Col>
+                                    <Col md={6}>
+                                        <FormGroup>
+                                            <Label for="state">State:</Label>
+                                            <Input id="state" name="to_state" type="text" value={ManualInvoiceData?.to_state} invalid={!!InvoiceErors?.to_state} onChange={onManualInvoiceChange} />
+                                            <FormFeedback>{InvoiceErors?.to_state}</FormFeedback>
+                                        </FormGroup>
+                                    </Col>
+                                    <Col md={6}>
+                                        <FormGroup>
+                                            <Label for="company_address">Select Company Address:</Label>
+                                            <SearchableDropdown
+                                                className="w-100"
+                                                onChange={handleLocationChange}
+                                                locations={CompanyAddresses}
+                                                value={SelectedAddress}
+                                            />
+                                            <small className="text-danger ">{InvoiceErors?.SelectedAddress}</small>
+                                        </FormGroup>
+                                    </Col>
+                                    <Col md={6}>
+                                        <FormGroup>
+                                            <Label for="pincode">Pincode :</Label>
+                                            <Input id="name" type="text" name="to_pincode" placeholder="Pincode" value={ManualInvoiceData?.to_pincode} invalid={!!InvoiceErors?.to_pincode} onChange={onManualInvoiceChange} />
+                                            <FormFeedback>{InvoiceErors?.to_pincode}</FormFeedback>
+                                        </FormGroup>
+                                    </Col>
+                                </Row>
+                            </Col>
+                        </Row>
+                    </Row>
+                    {/* table to display the Description and Qty and Amount */}
+                    <Row>
+                    </Row>
+
+                    {/* cards */}
+                    <Row>
+                        <Col md={5} className="mt-0">
+                            <Label for="Invoice_date">Invoice Date</Label>
+                            <Input type="date" name="invoice_date" value={ManualInvoiceData?.invoice_date} onChange={onManualInvoiceChange} />
                         </Col>
                     </Row>
-                    {/* row 2 */}
-                    <Row>
-                        <Col md={4}>
-                            {/* sub row 1 */}
-                            <Row>
+                    <Row className="d-flex gap-4 m-auto">
+                        <Col md={5} className="">
+                            {/* box */}
+                            <Row className="border border-2 mt-3 px-2 py-3" >
                                 <Col md={12}>
                                     <FormGroup>
-                                        <Label for="address">Address:</Label>
-                                        <Input id="address" name="to_address" type="textarea" style={{ height: "110px" }} value={ManualInvoiceData?.to_address} invalid={!!InvoiceErors?.to_address} onChange={onManualInvoiceChange} />
-                                        <FormFeedback>{InvoiceErors?.to_address}</FormFeedback>
+                                        <Label>Description</Label>
+                                        <Input type="textarea" name="Description"
+                                            placeholder="Description" onChange={OnInputChange} value={Info.Description}
+                                            invalid={!!Errors?.Description} />
+                                        <FormFeedback>{Errors?.Description}</FormFeedback>
                                     </FormGroup>
+                                </Col>
+                                <Col md={12}>
+                                    <FormGroup>
+                                        <Label>Qty</Label>
+                                        <Input type="number" name="Quantity"
+                                            placeholder="Quantity" onChange={OnInputChange} value={Info.Quantity}
+                                            invalid={!!Errors?.Quantity} />
+                                        <FormFeedback>{Errors?.Quantity}</FormFeedback>
+                                    </FormGroup>
+                                </Col>
+                                <Col md={12}>
+                                    <FormGroup>
+                                        <Label>Amount</Label>
+                                        <Input type="number" name="Amount"
+                                            placeholder="Amount" onChange={OnInputChange} value={Info.Amount} invalid={!!Errors?.Amount} />
+                                        <FormFeedback>{Errors?.Amount}</FormFeedback>
+                                    </FormGroup>
+                                </Col>
+
+                                <Col md={12}>
+                                    <Button color="primary" className="mt-2 w-100" onClick={OnAddInfoTable}>Add</Button>
                                 </Col>
                             </Row>
                         </Col>
-                        <Col md={8}>
-                            {/* sub 2 */}
-                            <Row>
+                        <Col
+                            md={6}
+                            className="border border-2 rounded-2"
+                            style={{ marginTop: "16px", height: "340px" }}
+                        >
+                            <div style={{ maxHeight: "290px", height: "290px", overflowY: "auto" }}>
+                                <Table hover>
+                                    <thead className="bg-light" style={{ position: "sticky", top: 0, zIndex: 1 }}>
+                                        <tr>
+                                            <th>Description</th>
+                                            <th>Quantity</th>
+                                            <th>Amount</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {Infotable?.length >= 1 &&
+                                            Infotable.map((ele, index) => (
+                                                <tr key={index}>
+                                                    <td>{ele?.Description || "—"}</td>
+                                                    <td>{ele?.Quantity || "—"}</td>
+                                                    <td>{ele?.Amount || "—"}</td>
+                                                    <td>
+                                                        <div className="d-flex gap-3">
+                                                            <Button
+                                                                color="light"
+                                                                aria-label="Delete"
+                                                                onClick={() => {
+                                                                    DeleteItem(ele?.id);
+                                                                }}
+                                                            >
+                                                                <MdDelete
+                                                                    style={{ width: "16px", height: "16px" }}
+                                                                    className="text-danger"
+                                                                />
+                                                            </Button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                    </tbody>
+                                </Table>
+                            </div>
+
+                            {/* bottom section */}
+                            <Row className="mt-0">
                                 <Col md={6}>
-                                    <FormGroup>
-                                        <Label for="city">City:</Label>
-                                        <Input id="city" name="to_city" type="text" value={ManualInvoiceData?.to_city} invalid={!!InvoiceErors?.to_city} onChange={onManualInvoiceChange} />
-                                        <FormFeedback>{InvoiceErors?.to_city}</FormFeedback>
-                                    </FormGroup>
-                                </Col>
-                                <Col md={6}>
-                                    <FormGroup>
-                                        <Label for="state">State:</Label>
-                                        <Input id="state" name="to_state" type="text" value={ManualInvoiceData?.to_state} invalid={!!InvoiceErors?.to_state} onChange={onManualInvoiceChange} />
-                                        <FormFeedback>{InvoiceErors?.to_state}</FormFeedback>
-                                    </FormGroup>
-                                </Col>
-                                <Col md={6}>
-                                    <FormGroup>
-                                        <Label for="company_address">Select Company Address:</Label>
-                                        <SearchableDropdown
-                                            className="w-100"
-                                            onChange={handleLocationChange}
-                                            locations={CompanyAddresses}
-                                            value={SelectedAddress}
+                                    <FormGroup className="d-flex align-items-center">
+                                        <Input
+                                            type="checkbox"
+                                            name="retail_invoice"
+                                            style={{ width: "20px", height: "20px" }}
+                                            placeholder="retail_invoice"
+                                            className="d-block me-2 border-danger border-2"
+                                            onChange={onManualInvoiceChange}
+                                            value={Info.retail_invoice}
                                         />
-                                        <small className="text-danger ">{InvoiceErors?.SelectedAddress}</small>
+                                        <span className="text-danger fw-bolder">Is Retail Invoice</span>
                                     </FormGroup>
                                 </Col>
                                 <Col md={6}>
-                                    <FormGroup>
-                                        <Label for="pincode">Pincode :</Label>
-                                        <Input id="name" type="text" name="to_pincode" placeholder="Pincode" value={ManualInvoiceData?.to_pincode} invalid={!!InvoiceErors?.to_pincode} onChange={onManualInvoiceChange} />
-                                        <FormFeedback>{InvoiceErors?.to_pincode}</FormFeedback>
-                                    </FormGroup>
+                                    <div style={{ width: "300px" }}>
+                                        <Button
+                                            disabled={Infotable.length < 1}
+                                            onClick={OnGenerateInvoiceClick}
+                                            className="bg-primary w-75 d-flex justify-content-center align-items-center"
+                                        >
+                                            {GenerateInvoiceLoading ? (
+                                                <Spinner>Loading...</Spinner>
+                                            ) : (
+                                                "Generate Invoice"
+                                            )}
+                                        </Button>
+                                    </div>
                                 </Col>
                             </Row>
                         </Col>
+
                     </Row>
-                </Row>
-                {/* table to display the Description and Qty and Amount */}
-                <Row>
-                </Row>
-
-                {/* cards */}
-                <Row>
-                    <Col md={5} className="mt-0">
-                        <Label for="Invoice_date">Invoice Date</Label>
-                        <Input type="date" name="invoice_date" value={ManualInvoiceData?.invoice_date} onChange={onManualInvoiceChange} />
-                    </Col>
-                </Row>
-                <Row className="d-flex gap-4 m-auto">
-                    <Col md={5} className="">
-                        {/* box */}
-                        <Row className="border border-2 mt-3 px-2 py-3" >
-                            <Col md={12}>
-                                <FormGroup>
-                                    <Label>Description</Label>
-                                    <Input type="textarea" name="Description"
-                                        placeholder="Description" onChange={OnInputChange} value={Info.Description}
-                                        invalid={!!Errors?.Description} />
-                                    <FormFeedback>{Errors?.Description}</FormFeedback>
-                                </FormGroup>
-                            </Col>
-                            <Col md={12}>
-                                <FormGroup>
-                                    <Label>Qty</Label>
-                                    <Input type="number" name="Quantity"
-                                        placeholder="Quantity" onChange={OnInputChange} value={Info.Quantity}
-                                        invalid={!!Errors?.Quantity} />
-                                    <FormFeedback>{Errors?.Quantity}</FormFeedback>
-                                </FormGroup>
-                            </Col>
-                            <Col md={12}>
-                                <FormGroup>
-                                    <Label>Amount</Label>
-                                    <Input type="number" name="Amount"
-                                        placeholder="Amount" onChange={OnInputChange} value={Info.Amount} invalid={!!Errors?.Amount} />
-                                    <FormFeedback>{Errors?.Amount}</FormFeedback>
-                                </FormGroup>
-                            </Col>
-
-                            <Col md={12}>
-                                <Button color="primary" className="mt-2 w-100" onClick={OnAddInfoTable}>Add</Button>
-                            </Col>
-                        </Row>
-                    </Col>
-                    <Col
-                        md={6}
-                        className="border border-2 rounded-2"
-                        style={{ marginTop: "16px", height: "340px" }}
-                    >
-                        <div style={{ maxHeight: "290px", height: "290px", overflowY: "auto" }}>
-                            <Table hover>
-                                <thead className="bg-light" style={{ position: "sticky", top: 0, zIndex: 1 }}>
-                                    <tr>
-                                        <th>Description</th>
-                                        <th>Quantity</th>
-                                        <th>Amount</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-                                    {Infotable?.length >= 1 &&
-                                        Infotable.map((ele, index) => (
-                                            <tr key={index}>
-                                                <td>{ele?.Description || "—"}</td>
-                                                <td>{ele?.Quantity || "—"}</td>
-                                                <td>{ele?.Amount || "—"}</td>
-                                                <td>
-                                                    <div className="d-flex gap-3">
-                                                        <Button
-                                                            color="light"
-                                                            aria-label="Delete"
-                                                            onClick={() => {
-                                                                DeleteItem(ele?.id);
-                                                            }}
-                                                        >
-                                                            <MdDelete
-                                                                style={{ width: "16px", height: "16px" }}
-                                                                className="text-danger"
-                                                            />
-                                                        </Button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                </tbody>
-                            </Table>
-                        </div>
-
-                        {/* bottom section */}
-                        <Row className="mt-0">
-                            <Col md={6}>
-                                <FormGroup className="d-flex align-items-center">
-                                    <Input
-                                        type="checkbox"
-                                        name="retail_invoice"
-                                        style={{ width: "20px", height: "20px" }}
-                                        placeholder="retail_invoice"
-                                        className="d-block me-2 border-danger border-2"
-                                        onChange={onManualInvoiceChange}
-                                        value={Info.retail_invoice}
-                                    />
-                                    <span className="text-danger fw-bolder">Is Retail Invoice</span>
-                                </FormGroup>
-                            </Col>
-                            <Col md={6}>
-                                <div style={{ width: "300px" }}>
-                                    <Button
-                                        disabled={Infotable.length < 1}
-                                        onClick={OnGenerateInvoiceClick}
-                                        className="bg-primary w-75 d-flex justify-content-center align-items-center"
-                                    >
-                                        {GenerateInvoiceLoading ? (
-                                            <Spinner>Loading...</Spinner>
-                                        ) : (
-                                            "Generate Invoice"
-                                        )}
-                                    </Button>
-                                </div>
-                            </Col>
-                        </Row>
-                    </Col>
-
-                </Row>
 
 
-                {/* <Col md={2}>
+                    {/* <Col md={2}>
                     <FormGroup>
                         <Label>Is Retail Invoice</Label>
                         <Input type="checkbox" name="retail_invoice" style={{ width: "20px", height: "20px" }}
@@ -469,16 +472,17 @@ const ManualInvoice = () => {
 
 
 
-                {/*  showing the downloading message and loader */}
-                {
-                    isGenerating && <Loader message="Generating the Pdf....." />
-                }
-                {
-                    PdfData && <InvoicePdfGenerater invoiceData={PdfData} ref={targetRef} />
-                }
+                    {/*  showing the downloading message and loader */}
+                    {
+                        isGenerating && <Loader message="Generating the Pdf....." />
+                    }
+                    {
+                        PdfData && <InvoicePdfGenerater invoiceData={PdfData} ref={targetRef} />
+                    }
 
-                {/* pdf which is already hidden */}
+                    {/* pdf which is already hidden */}
 
+                </div>
             </div>
         </div>
     </>

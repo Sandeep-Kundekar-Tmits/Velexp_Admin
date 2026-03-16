@@ -58,17 +58,17 @@ const DebouncedInput = ({
     }, [debounce, onChange, value]);
 
     return (
-        <div className="position-relative d-flex align-items-center w-100">
+        <div className="position-relative d-flex align-items-center w-100 " style={{ borderLeft: "1px solid #B0ACAC", paddingLeft: "10px", height: "45px" }}>
             <FaSearch
-                className="position-absolute ms-2 text-muted"
+                className="position-absolute ms-1 text-muted"
                 style={{ zIndex: 1, fontSize: "14px" }}
             />
             <input
                 {...props}
                 value={value}
                 onChange={e => setValue(e.target.value)}
-                className={`${props.className} ps-4 pe-4`}
-                style={{ ...props.style, borderRadius: "8px", height: "38px" }}
+                className={`${props.className} ps-4 pe-4 border-none`}
+                style={{ ...props.style, height: "38px" }}
             />
             {value && (
                 <FaTimes
@@ -177,15 +177,16 @@ const TableContainer = ({
     // }, [customPageSize, setPageSize]);
 
     return (
-        <Fragment >
-            <div style={{ border: "solid #B0ACAC 1px" }} className="rounded-1 mt-2">
-                <div className="d-flex flex-wrap mb-0 align-items-center  p-2 justify-content-between" >
+        <div style={{ border: "solid #B0ACAC 1px" }}>
+            <div className="rounded-1 mt-0">
+                <div className="d-flex flex-wrap mb-0 align-items-center  p-0 justify-content-between" style={{ height: "45px" }} >
                     {/* Left section (Page size + Excel download) */}
-                    <div className="d-flex  align-items-center w-75">
+                    <div className="d-flex  align-items-center w-75 mb-0 p-0">
                         {isCustomPageSize && defaultPageSize === 10 && (
-                            <div className="me-2 mb-1" style={{ minWidth: "140px" }}>
+                            <div className=" mb-0 d-flex align-items-center" style={{ minWidth: "90px", borderRight: "solid #B0ACAC 1px", height: "45px", marginLeft: "10px", marginRight: "10px" }}>
                                 <select
-                                    className="form-select pageSize rounded-3"
+                                    className="form-select pageSize  border-0 "
+
                                     value={table.getState().pagination.pageSize}
                                     onChange={e => {
                                         table.setPageSize(Number(e.target.value));
@@ -199,18 +200,25 @@ const TableContainer = ({
                                 </select>
                             </div>
                         )}
+                        {
+                            <div style={{ marginRight: "10px" }}>
+                                {
+                                    extraFiled && extraFiled
+                                }
+                            </div>
+                        }
 
                         {isDownloadExcle && (
-                            <div className="me-2 mb-1">
+                            <div className="me-2 mb-0 my-0 d-flex align-items-center">
                                 <Button
                                     disabled={data.length < 1}
                                     onClick={onDownloadExcle}
                                     className="d-flex align-items-center px-2 bg-transparent border-success text-success"
                                     style={{
-                                        borderRadius: "10px",
+                                        height: "35px",
+                                        borderRadius: "4px",
                                         fontWeight: "500",
-                                        paddingTop: "7px",
-                                        paddingBottom: "7px",
+                                        // marginLeft: "10px"
                                     }}
                                 >
                                     {
@@ -259,22 +267,20 @@ const TableContainer = ({
                             );
                         })}
 
-                        {
-                            extraFiled && extraFiled
-                        }
+
                     </div>
 
                     {/* Right section (Search) */}
                     <div className="w-25 d-flex justify-content-end align-items-center">
                         {
-                            ShowClearBtn && <Button onClick={OnClearClick} className="bg-danger border-0 mb-1 me-2" style={{ height: "34px", width: "100px" }}>Clear</Button>
+                            ShowClearBtn && <Button onClick={OnClearClick} className="bg-danger border-0 mb-0 me-2" style={{ height: "34px", width: "100px" }}>Clear</Button>
                         }
-                        <div className="mb-1 w-100" >
+                        <div className="mb-0 w-100" >
                             {isGlobalFilter && (
                                 <DebouncedInput
                                     value={globalFilter ?? ""}
                                     onChange={value => setGlobalFilter(String(value))}
-                                    className="form-control search-box"
+                                    className="form-control border-0"
                                     placeholder={SearchPlaceholder}
                                 />
                             )}
@@ -286,7 +292,7 @@ const TableContainer = ({
 
                 <div
                     style={{
-                        borderTop: "solid #B0ACAC 1px",
+                        // borderTop: "solid #B0ACAC 1px",
                         ...(tableHeight ? { maxHeight: tableHeight, overflow: 'auto' } : {})
                     }}
                     className={divClassName ? divClassName : "table-responsive"}
@@ -294,7 +300,7 @@ const TableContainer = ({
                     <Table hover className={tableClass} bordered={isBordered}>
                         <thead
                             className={`${theadClass} bg-light`}
-                            style={isStickyHeader ? { position: 'sticky', top: stickyTop, zIndex: 2 } : {}}
+                            style={isStickyHeader ? { position: 'sticky', borderTop: "1px solid #B0ACAC", top: stickyTop, zIndex: 2 } : {}}
                         >
                             {table.getHeaderGroups().map(headerGroup => (
                                 <tr key={headerGroup.id}>
@@ -406,8 +412,8 @@ const TableContainer = ({
 
             {
                 isPagination && (
-                    <Row>
-                        <Col sm={12} md={5}>
+                    <Row className=" mx-2" style={{ marginTop: "0px" }}>
+                        <Col sm={12} md={5} style={{ alignItems: "center", display: "flex", marginLeft: "0px" }}>
                             <div className="dataTables_info">Showing {getState().pagination.pageIndex * getState().pagination.pageSize + 1} to {Math.min((getState().pagination.pageIndex + 1) * getState().pagination.pageSize, data.length)} of {data.length} Results</div>
                         </Col>
                         <Col sm={12} md={7}>
@@ -469,7 +475,7 @@ const TableContainer = ({
                     </Row>
                 )
             }
-        </Fragment >
+        </div >
     );
 };
 

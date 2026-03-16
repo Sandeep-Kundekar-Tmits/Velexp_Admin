@@ -6,11 +6,13 @@ import { useEffect, useMemo, useState } from "react";
 import { useGetApiCall } from "../../../hooks/useGetApiCall";
 import { GET_USER_API, SERVICE_CENTER, UPLOAD_GET_REVENUE_API } from "../../../api";
 import TableContainer from "../../../components/Table/TableContainer";
-import DateRangePicker from "@paprika/date-range-picker";
 import usePostApiCall from "../../../hooks/usePostApiCall";
 import { GridLoader } from "react-spinners";
 import { downloadExcel } from "../../../helpers/downloadExcel";
 import { useExcelExport } from "../../../hooks/useExcelExport";
+import MainHeaderComp from "../../../components/MainHeaderCom";
+import DateRangeInput from "../../../components/Common/DateRangeInput";
+import { format } from "date-fns";
 
 const RevenueReport = () => {
 
@@ -228,17 +230,17 @@ const RevenueReport = () => {
     }
 
     const DownloadRevenueDetails = async () => {
-        if (selectedRange.startDate === "" && selectedRange.endDate === "") {
+        if (!selectedRange.startDate && !selectedRange.endDate) {
             alert("select the range")
             return
         }
 
         const formattedRange = {
-            start: selectedRange?.startDate?.isValid()
-                ? selectedRange.startDate?.format('DD-MM-YYYY')
+            start: selectedRange?.startDate
+                ? format(selectedRange.startDate, 'dd-MM-yyyy')
                 : "",
-            end: selectedRange?.endDate?.isValid()
-                ? selectedRange.endDate?.format('DD-MM-YYYY')
+            end: selectedRange?.endDate
+                ? format(selectedRange.endDate, 'dd-MM-yyyy')
                 : "",
         };
 
@@ -279,25 +281,26 @@ const RevenueReport = () => {
         }), payload)
     }
     return (
-        <div className='page-content'>
+        <div className='page-content py-0'>
+            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
+                <MainHeaderComp title="Revenue Report" />
+            </div>
             <div className="container-fluid">
-                <div>
-                    <h3 className='pb-3 border-bottom'>Revenue Report</h3>
+                <div className="mt-4">
                     <Row>
-                        <Col md={4}>
+                        <Col md={3}>
                             <FormGroup className="mb-2">
                                 <Label for="Customer">Select Customer</Label>
                                 <Select
                                     name="customer"
                                     options={Customers}
-                                    // value={{ value: SelectedInfo?.customer, label: SelectedInfo?.customer }}
                                     placeholder={CustomerLoading ? "Loading..." : "Search Customer"}
                                     isClearable={true}
                                     onChange={(option) => OnSelectChange("customer", option)}
                                     styles={customStyles} />
                             </FormGroup>
                         </Col>
-                        <Col md={4}>
+                        <Col md={3}>
                             <FormGroup className="mb-2">
                                 <Label for="Customer">Service Center</Label>
                                 <Select
@@ -309,7 +312,7 @@ const RevenueReport = () => {
                                     styles={customStyles} />
                             </FormGroup>
                         </Col>
-                        <Col md={2}>
+                        <Col md={3}>
                             <FormGroup className="mb-2">
                                 <Label for="Customer">Region</Label>
                                 <Select
@@ -321,47 +324,19 @@ const RevenueReport = () => {
                                     styles={customStyles} />
                             </FormGroup>
                         </Col>
-                        <Col md={2}>
+                        <Col md={3}>
                             <FormGroup className="mb-2 " >
-                                <FormGroup className="mb-2">
-                                    <Label for="Mode">Mode</Label>
-                                    <Select
-                                        name="mode"
-                                        options={Modes}
-                                        placeholder="Payment Mode"
-                                        onChange={(option) => OnSelectChange("mode", option)}
-                                        isClearable={true}
-                                        styles={customStyles} />
-                                </FormGroup>
-                            </FormGroup>
-                        </Col>
-                        <Col md={4}>
-                            <FormGroup className="mb-2">
-                                <Label>Start Date and End Date</Label>
-                                <div style={{ minWidth: "200px" }}>
-                                    <DateRangePicker
-                                        startDate={selectedRange.startDate}
-                                        endDate={selectedRange.endDate}
-                                        onChange={handleChange}
-                                    />
-                                </div>
-                            </FormGroup>
-                        </Col>
-
-
-                        {/* <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label for="Customer">Payment Mode</Label>
+                                <Label for="Mode">Mode</Label>
                                 <Select
-                                    options={PaymentModes}
-                                    name="paymentMode"
-                                    onChange={(option) => OnSelectChange("paymentMode", option)}
+                                    name="mode"
+                                    options={Modes}
                                     placeholder="Payment Mode"
+                                    onChange={(option) => OnSelectChange("mode", option)}
                                     isClearable={true}
                                     styles={customStyles} />
                             </FormGroup>
-                        </Col> */}
-                        <Col md={4}>
+                        </Col>
+                        <Col md={3}>
                             <FormGroup className="mb-2">
                                 <Label for="Customer">Products</Label>
                                 <Select
@@ -373,37 +348,13 @@ const RevenueReport = () => {
                                     styles={customStyles} />
                             </FormGroup>
                         </Col>
-
-
-
-                        {/* buttons */}
-                        <Col md={4} className='d-flex mb-3 align-content-center flex-wrap gap-2 mt-4'>
-                            {/* <div className="d-flex "> */}
-                            <Button color="primary" onClick={CheckClick} style={{ width: "100%" }}>
+                        <Col md={3} className='d-flex mt-2 align-content-center flex-wrap gap-2'>
+                            <Button color="primary" onClick={CheckClick} style={{ width: "100%", height: "38px" }}>
                                 {
                                     RevenueDataLoading ? "Checking..." : "Check"
                                 }
                             </Button>
-
-                            {/* <Button
-                                    color="primary"
-                                    disabled={RevenueListData?.bookings?.length < 1 || !RevenueListData}
-                                    // disabled={RevenueListData?.bookings?.length < 1}
-                                    onClick={DownloadRevenueDetails}
-                                    style={{ height: "2.2rem", width: "3rem" }}
-                                >
-                                    {isExporting ? (
-                                        <>
-                                            <span className="spinner"></span>
-                                            Exporting...
-                                        </>
-                                    ) : (
-                                        <FaCloudDownloadAlt style={{ width: "20px", height: "20px" }} />
-                                    )}
-                                </Button> */}
-                            {/* </div> */}
                         </Col>
-
                     </Row>
 
                     {/*  filter section */}
@@ -469,6 +420,15 @@ const RevenueReport = () => {
                                     isDownloadExcle={true}
                                     ExcleLoading={isExporting}
                                     onDownloadExcle={DownloadRevenueDetails}
+                                    extraFiled={
+                                        <div style={{ minWidth: "200px" }}>
+                                            <DateRangeInput
+                                                value={selectedRange}
+                                                onChange={handleChange}
+                                                isBorderRight={true}
+                                            />
+                                        </div>
+                                    }
                                 />
                         }
                     </div>

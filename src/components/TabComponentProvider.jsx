@@ -29,7 +29,7 @@ const TabComponentProvider = ({ tabs, defaultActive = 1 }) => {
         ))}
       </Nav>
 
-      <TabContent activeTab={activeTab} className="p-4">
+      <TabContent activeTab={activeTab} className="p-0">
         {tabs.map((tab) => (
           <TabPane key={tab.id} tabId={tab.id}>
             {tab.component}

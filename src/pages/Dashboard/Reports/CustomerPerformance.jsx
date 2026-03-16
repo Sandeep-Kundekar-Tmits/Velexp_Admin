@@ -2,7 +2,6 @@ import React, { useEffect, useMemo } from 'react';
 import { Pagination, PaginationItem, PaginationLink, Container, Row, Col, FormGroup, Spinner, Card, CardBody } from 'reactstrap';
 
 import { Button, FormFeedback, Input, Label, Table } from "reactstrap";
-import DateRangePicker from "@paprika/date-range-picker";
 import { useState } from "react";
 import TableContainer from '../../../components/Table/TableContainer';
 import Select from 'react-select'
@@ -16,6 +15,10 @@ import AdminBookingFilter from '../../../components/AdminBooking/AdminBookingFil
 import { GridLoader } from 'react-spinners';
 import { downloadExcel } from '../../../helpers/downloadExcel';
 import { useExcelExport } from '../../../hooks/useExcelExport';
+import MainHeaderCom from '../../../components/MainHeaderCom';
+import SelectedItemsDisplay from '../../../components/Common/SelectedItemsDisplay';
+import DateRangeInput from '../../../components/Common/DateRangeInput';
+
 const CustomerPerformance = () => {
     useEffect(() => {
         document.title = "Customer Performance";
@@ -409,153 +412,118 @@ const CustomerPerformance = () => {
         return filteredBooking;
     };
     return (
-        <div className='page-content'>
+        <div className='page-content py-0'>
+            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
+                <MainHeaderCom title="Customer Performance" />
+            </div>
             <div className="container-fluid">
                 <div>
-                    <h3 className='pb-3 border-bottom'>Customer Performance</h3>
-                    <Row className='pt-2'>
-                        <Col md={4}>
-                            <FormGroup className="mb-2">
-                                <Label for="Customer">Select Customer</Label>
-                                <Select options={UserListOptions}
-                                    placeholder="Search Customer"
-                                    // value={username || "All"}
-                                    onChange={setUsername}
-                                    isClearable={true}
-                                    styles={customStyles} />
-                            </FormGroup>
-                        </Col>
+                    <Row className='gx-3 d-flex align-items-center pt-2'>
                         {/*  service centers list */}
-                        <Col md={4}>
+                        <Col md={6}>
                             <FormGroup className="mb-2">
-                                <Label for="Customer">Select Service Center</Label>
-                                <Select
-                                    options={ServiceCenterOption}
-                                    placeholder="Search Service Center"
-                                    isMulti={true}
-                                    value={SelectedServiceCenters}
-                                    onChange={setSelectedServiceCenters}
-                                    isClearable={true}
-                                    styles={customStyles} />
-                            </FormGroup>
-                        </Col>
-                        {/* select region  */}
-                        <Col md={2}>
-                            <FormGroup className="mb-2">
-                                <Label for="Customer">Select Region</Label>
-                                <Select
-                                    options={AllRegions}
-                                    placeholder="Search Region"
-                                    isMulti={true}
-                                    value={SelectedRegion}
-                                    onChange={setSelectedRegion}
-                                    isClearable={true}
-                                    styles={customStyles} />
-                            </FormGroup>
-                        </Col>
-                        {/* mode */}
-
-                        <Col md={2}>
-                            <FormGroup className="mb-2">
-                                <Label for="Customer">Select Mode</Label>
-                                <Select
-                                    options={[
-                                        { label: "forward", value: "forward" },
-                                        { label: "reverse", value: "reverse" }
-                                    ]}
-                                    placeholder="Search Mode"
-                                    value={SelectedMode}
-                                    onChange={setSelectedMode}
-                                    isClearable={true}
-                                    styles={customStyles} />
-                            </FormGroup>
-                        </Col>
-                        {/* product */}
-                        <Col md={4}>
-                            <FormGroup className="mb-2">
-                                <Label for="Customer">Select Product</Label>
-                                <Select
-                                    options={ProductListOption}
-                                    placeholder="Search Product"
-                                    value={SelectedProduct}
-                                    onChange={setSelectedProduct}
-                                    isClearable={true}
-                                    styles={customStyles} />
-                            </FormGroup>
-                        </Col>
-                        {/* Date Range Picker */}
-                        <Col md={4}>
-                            <FormGroup className="mb-2">
-                                <Label>Start Date and End Date</Label>
-                                <div style={{ minWidth: "200px" }}>
-                                    <DateRangePicker
-                                        startDate={selectedRange.startDate}
-                                        endDate={selectedRange.endDate}
-                                        onChange={handleChange}
+                                <Label for="ServiceCenter" className="fw-bold text-muted mb-1">Select Service Center</Label>
+                                <div className="d-flex align-items-center">
+                                    <div style={{ width: "250px", minWidth: "200px" }}>
+                                        <Select
+                                            options={ServiceCenterOption}
+                                            placeholder="Search Service Center"
+                                            isMulti={true}
+                                            value={SelectedServiceCenters}
+                                            onChange={setSelectedServiceCenters}
+                                            isClearable={true}
+                                            controlShouldRenderValue={false}
+                                            hideSelectedOptions={false}
+                                            styles={customStyles} />
+                                    </div>
+                                    <SelectedItemsDisplay
+                                        selectedItems={SelectedServiceCenters || []}
+                                        onRemove={(itemToRemove) => {
+                                            setSelectedServiceCenters(prev => prev.filter(item => item.value !== itemToRemove.value));
+                                        }}
+                                        targetId="serviceCenterPopover"
                                     />
                                 </div>
                             </FormGroup>
                         </Col>
+                        {/* select region  */}
+                        <Col md={6}>
+                            <FormGroup className="mb-2">
+                                <Label for="Region" className="fw-bold text-muted mb-1">Select Region</Label>
+                                <div className="d-flex align-items-center">
+                                    <div style={{ width: "250px", minWidth: "200px" }}>
+                                        <Select
+                                            options={AllRegions}
+                                            placeholder="Search"
+                                            isMulti={true}
+                                            value={SelectedRegion}
+                                            onChange={setSelectedRegion}
+                                            isClearable={true}
+                                            controlShouldRenderValue={false}
+                                            hideSelectedOptions={false}
+                                            styles={customStyles} />
+                                    </div>
+                                    <SelectedItemsDisplay
+                                        selectedItems={SelectedRegion || []}
+                                        onRemove={(itemToRemove) => {
+                                            setSelectedRegion(prev => prev.filter(item => item.value !== itemToRemove.value));
+                                        }}
+                                        targetId="regionPopover"
+                                    />
+                                </div>
+                            </FormGroup>
+                        </Col>
+                    </Row>
+                    <Row className='gx-3 d-flex align-items-end mt-2'>
+                        {/* mode */}
+                        <Col md={3}>
+                            <div style={{ width: "250px" }}>
+                                <FormGroup className="mb-2">
+                                    <Label for="Mode">Select Mode</Label>
+                                    <Select
+                                        options={[
+                                            { label: "forward", value: "forward" },
+                                            { label: "reverse", value: "reverse" }
+                                        ]}
+                                        placeholder="Search Mode"
+                                        value={SelectedMode}
+                                        onChange={setSelectedMode}
+                                        isClearable={true}
+                                        styles={customStyles} />
+                                </FormGroup>
+                            </div>
+                        </Col>
+                        {/* product */}
+                        <Col md={3}>
+                            <div style={{ width: "250px" }}>
+                                <FormGroup className="mb-2">
+                                    <Label for="Product">Select Product</Label>
+                                    <Select
+                                        options={ProductListOption}
+                                        placeholder="Search Product"
+                                        value={SelectedProduct}
+                                        onChange={setSelectedProduct}
+                                        isClearable={true}
+                                        styles={customStyles} />
+                                </FormGroup>
+                            </div>
+                        </Col>
 
-                        <Col md={4} className='d-flex mb-3 align-content-center flex-wrap gap-2 mt-2'>
-                            {/* <div className="d-flex "> */}
-                            <Button disabled={customerPerformanceLoading} onClick={OnCheckClick} color="primary" className='mt-3' style={{ height: "2.2rem", width: "100%" }}>
+                        <Col md={2} className='d-flex mb-3 align-content-center flex-wrap gap-2 mt-2'>
+                            <Button disabled={customerPerformanceLoading} onClick={OnCheckClick} color="primary" className='mt-3 fw-bold' style={{ height: "2.4rem", width: "100%" }}>
                                 Check
                             </Button>
-
-                            {/* <Button
-                                    color="primary"
-                                    disabled={BookingData.length < 1}
-                                    onClick={DownloadBookingDetails}
-                                    style={{ height: "2.2rem", width: "10rem" }}
-                                >
-                                    {isExporting ? (
-                                        <>
-                                            <span className="spinner"></span>
-                                            Exporting...
-                                        </>
-                                    ) : (
-                                        'Download'
-                                    )}
-
-                                </Button> */}
-                            {/* </div> */}
                         </Col>
                         {
                             isShowFilter && <>
-                                {/* <div className="d-flex justify-content-between align-items-center mb-4">
-                                    <h3 className="m-0">Filters</h3>
-                                </div>
-                                <div>
-                                    <Row>
-                                        <Col md="3">
-                                            <Card className="mb-3 shadow-sm">
-                                                <CardBody className="py-3">
-                                                    <h6 className="text-muted text-center">Average Attempts</h6>
-                                                    <h3 className="my-2 text-center">{customerPerformance?.average_attempts}</h3>
-                                                </CardBody>
-                                            </Card>
-                                        </Col>
-                                        <Col md="3">
-                                            <Card className="mb-3 shadow-sm">
-                                                <CardBody className="py-3">
-                                                    <h6 className="text-muted text-center">Average PUD To SPD Days</h6>
-                                                    <h3 className="my-2 text-center">{customerPerformance?.average_pud_to_spd_days}</h3>
-                                                </CardBody>
-                                            </Card>
-                                        </Col>
-                                    </Row>
-                                </div> */}
                                 <AdminBookingFilter
                                     AllEntries={AllEntries}
                                     ApplyFilter={ApplyFilter}
                                     BookingList={BookingData}
                                     avarageData={customerPerformance}
                                 />
-
                             </>
                         }
-
                     </Row>
                 </div>
 
@@ -580,6 +548,46 @@ const CustomerPerformance = () => {
                                     isDownloadExcle={true}
                                     onDownloadExcle={DownloadBookingDetails}
                                     ExcleLoading={isExporting}
+                                    isStickyHeader={true}
+                                    stickyTop={0}
+                                    tableHeight="60vh"
+                                    extraFiled={
+                                        <div className="d-flex align-items-center">
+                                            <div style={{ width: "250px", borderRight: "1px solid #B0ACAC" }}>
+                                                <Select options={UserListOptions}
+                                                    placeholder="Search Customer"
+                                                    value={username?.value ? username : null}
+                                                    onChange={setUsername}
+                                                    isClearable={true}
+                                                    styles={{
+                                                        ...customStyles,
+                                                        control: (base) => ({
+                                                            ...base,
+                                                            border: "none",
+                                                            boxShadow: "none",
+                                                            height: "45px",
+                                                            minHeight: "45px",
+                                                            backgroundColor: "transparent",
+                                                            cursor: "pointer",
+                                                        }),
+                                                        valueContainer: (base) => ({
+                                                            ...base,
+                                                            padding: "0 8px"
+                                                        }),
+                                                        indicatorSeparator: () => ({
+                                                            display: "none"
+                                                        })
+                                                    }} />
+                                            </div>
+                                            <div style={{ width: "250px" }}>
+                                                <DateRangeInput
+                                                    value={selectedRange}
+                                                    onChange={handleChange}
+                                                    isBorderRight={false}
+                                                />
+                                            </div>
+                                        </div>
+                                    }
                                 />
                         }
                     </div>

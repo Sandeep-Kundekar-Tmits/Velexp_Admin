@@ -391,30 +391,32 @@ const CorporateRateData = () => {
     );
 
     return (
-        <div className='page-content'>
-            <div className="container-fluid">
-                {/*  header */}
-                <MainHeaderComp title="Corporate Rate Data"
-                    extraFields={<div className="d-flex justify-content-between align-items-center">
-                        <div className="d-flex flex-column me-1">
-                            <span className="text-black" style={{ fontSize: "12px" }}>Rate Data</span>
-                            <span className="text-black" style={{ fontSize: "12px" }}>Templates</span>
+        <div className='page-content py-0'>
+            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
+                <MainHeaderComp
+                    title="Corporate Rate Data"
+                    extraFields={
+                        <div className="d-flex align-items-center">
+                            <h6 className="text-black fw-bold mb-0 me-2" style={{ fontSize: "14px" }}>Template</h6>
+                            {["Default", "ASUS"]?.map((ele) => (
+                                <div className="ms-2" key={ele}>
+                                    <Button
+                                        onClick={() => converToExcel(ele)}
+                                        className="d-flex align-items-center justify-content-center p-2 m-auto bg-transparent border-success text-success"
+                                        style={{ borderRadius: "7px", width: "100px", fontWeight: "500", fontSize: "12px" }}
+                                    >
+                                        {(ConvertingEmptyExcelLoading && SelectedTypeOfExcel === ele)
+                                            ? <span>Exporting...</span>
+                                            : <span>{ele}</span>}
+                                        <FaFileExcel size={14} className="ms-1" />
+                                    </Button>
+                                </div>
+                            ))}
                         </div>
-                        {["Default ", "ASUS"]?.map((ele) => (
-                            <div className="ms-2" key={ele}>
-                                <Button
-                                    onClick={() => converToExcel(ele)}
-                                    className="d-flex align-items-center justify-content-center p-2 m-auto bg-transparent border-success text-success"
-                                    style={{ borderRadius: "7px", width: "100px", fontWeight: "500" }}
-                                >
-                                    {(ConvertingEmptyExcelLoading && SelectedTypeOfExcel === ele)
-                                        ? <span>Exporting...</span>
-                                        : <span>{ele}</span>}
-                                    <FaFileExcel size={16} className="ms-1" />
-                                </Button>
-                            </div>
-                        ))}
-                    </div>} />
+                    }
+                />
+            </div>
+            <div className="container-fluid">
 
                 {/* filters */}
                 <div className="mainfilter">

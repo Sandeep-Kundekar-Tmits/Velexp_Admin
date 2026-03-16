@@ -4,12 +4,14 @@ import { Button, Col, FormGroup, Label, Row } from "reactstrap";
 import Select from "react-select";
 import DateRangeInput from "../../../components/Common/DateRangeInput";
 import TableContainer from "../../../components/Table/TableContainer";
+import MainHeaderComp from "../../../components/MainHeaderCom";
 import { GridLoader } from "react-spinners";
 import usePostApiCall from "../../../hooks/usePostApiCall";
 import { GET_ALL_SERVICE_PROVIDER_BOOKING, GET_DELIVARY_B2C_LABEL_GENERATION } from "../../../api";
 import ToasterProvider from "../../../helpers/ToasterProvider";
 import { useExcelExport } from "../../../hooks/useExcelExport";
 import { useNavigate } from "react-router-dom";
+import { customStyles } from "../../../helpers/CustomStyle";
 // Updated formatDateLocal to handle both Date objects and strings
 function formatDateLocal(d) {
     if (!d) return '';
@@ -250,56 +252,42 @@ const ServiceProviderBooking = () => {
         }
     }, [ServiceProviderBookings])
     return (
-        <div className='page-content'>
+        <div className='page-content py-0'>
+            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
+                <MainHeaderComp
+                    title="Bookings"
+                    extraFields={
+                        <Button color="primary" className="px-4 py-2" onClick={() => {
+                            navigate("/corporate-booking")
+                        }} >
+                            New Booking
+                        </Button>
+                    }
+                />
+            </div>
             <div className="container-fluid">
-                <div className="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
-                    <h3 className="m-0">Bookings</h3>
 
-                    <button className="btn btn-primary px-4 py-2" onClick={() => {
-                        navigate("/corporate-booking")
-                    }} >
-                        New Booking
-                    </button>
-                </div>
-
-                {/*  filters */}
-                <Row>
-                    <Col md={4}>
-                        <FormGroup>
-                            <Label>Start Date and End Date</Label>
-
-                            <DateRangeInput
-                                onChange={handleDateChange}
-                                value={selectedRange}
-                                className="h-100"
-                            />
-                        </FormGroup>
-                    </Col>
-
+                <Row className="mt-3">
                     <Col md={4}>
                         <FormGroup>
                             <Label>Service Provider</Label>
-
                             <Select
                                 options={[
                                     { value: "Delhivery", label: "Delhivery" }
                                 ]}
-                                placeholder="service_provider"
+                                placeholder="Service Provider"
                                 className="basic-select"
                                 onChange={(value) => setSelectedOption(value)}
                                 classNamePrefix="select"
                                 defaultValue={{ value: "Delhivery", label: "Delhivery" }}
+                                styles={customStyles}
                             />
                         </FormGroup>
                     </Col>
-
-                    <Col md={2}>
-                        <div style={{ marginTop: "28px" }}>
-                            <Button color="primary" style={{ height: "2.2rem", width: "100%" }} onClick={OnGetBookings} >
-                                Get Data
-                            </Button>
-
-                        </div>
+                    <Col md={2} className="d-flex align-items-end mb-3">
+                        <Button color="primary" className="w-100" style={{ height: "35px" }} onClick={OnGetBookings} >
+                            Get Data
+                        </Button>
                     </Col>
                 </Row>
 
@@ -317,6 +305,16 @@ const ServiceProviderBooking = () => {
                                         data={ServiceProviderData || []}
                                         isGlobalFilter={true}
                                         isPagination={true}
+                                        extraFiled={
+                                            <div style={{ width: '250px' }}>
+                                                <DateRangeInput
+                                                    onChange={handleDateChange}
+                                                    value={selectedRange}
+                                                    className="h-100"
+                                                    isBorderRight={true}
+                                                />
+                                            </div>
+                                        }
                                         isCustomPageSize={true}
                                         isDownloadExcle={true}
                                         onDownloadExcle={DownloadBookingDetails}

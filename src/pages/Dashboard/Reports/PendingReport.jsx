@@ -4,12 +4,14 @@ import { customStyles } from "../../../helpers/CustomStyle"
 import { FaCloudDownloadAlt } from "react-icons/fa";
 import { useEffect, useMemo, useState } from "react";
 import { useGetApiCall } from "../../../hooks/useGetApiCall";
+import MainHeaderComp from "../../../components/MainHeaderCom";
 import { GET_USER_API, PENDING_UPLOAD_REPORT, SERVICE_CENTER, UPLOAD_GET_REVENUE_API } from "../../../api";
 import TableContainer from "../../../components/Table/TableContainer";
-import DateRangePicker from "@paprika/date-range-picker";
+import DateRangeInput from '../../../components/Common/DateRangeInput';
 import usePostApiCall from "../../../hooks/usePostApiCall";
 import { GridLoader } from "react-spinners";
 import { useExcelExport } from "../../../hooks/useExcelExport";
+import YMD_DateFormate from '../../../helpers/YMD_DateFormate';
 
 const PendingReport = () => {
     const columns = useMemo(
@@ -163,23 +165,15 @@ const PendingReport = () => {
     // functions
     const CheckClick = async () => {
 
-        if (selectedRange.startDate === "" && selectedRange.endDate === "") {
+        const formattedRange = YMD_DateFormate(selectedRange);
+        if (formattedRange?.from_date === "" || formattedRange?.to_date === "") {
             alert("select the range")
             return
         }
 
-        const formattedRange = {
-            start: selectedRange?.startDate?.isValid()
-                ? selectedRange.startDate?.format('YYYY-MM-DD')
-                : "",
-            end: selectedRange?.endDate?.isValid()
-                ? selectedRange.endDate?.format('YYYY-MM-DD')
-                : "",
-        };
-
         let payload = {
-            "start_date": formattedRange?.start,
-            "end_date": formattedRange?.end,
+            "start_date": formattedRange.from_date,
+            "end_date": formattedRange.to_date,
             "product_name": SelectedInfo?.product,
             "service_center_name": SelectedInfo?.serviceCenter,
             "region": SelectedInfo?.region,
@@ -197,21 +191,14 @@ const PendingReport = () => {
 
     const DownloadExcle = () => {
 
-        if (selectedRange.startDate === "" && selectedRange.endDate === "") {
+        const formattedRange = YMD_DateFormate(selectedRange);
+        if (formattedRange?.from_date === "" || formattedRange?.to_date === "") {
             alert("select the range")
             return
         }
-        const formattedRange = {
-            start: selectedRange?.startDate?.isValid()
-                ? selectedRange.startDate?.format('YYYY-MM-DD')
-                : "",
-            end: selectedRange?.endDate?.isValid()
-                ? selectedRange.endDate?.format('YYYY-MM-DD')
-                : "",
-        };
         let payload = {
-            "start_date": formattedRange?.start,
-            "end_date": formattedRange?.end,
+            "start_date": formattedRange.from_date,
+            "end_date": formattedRange.to_date,
             "product_name": SelectedInfo?.product,
             "service_center_name": SelectedInfo?.serviceCenter,
             "region": SelectedInfo?.region,
@@ -236,24 +223,14 @@ const PendingReport = () => {
         }), payload);
     }
     return (
-        <div className='page-content'>
+        <div className='page-content py-0'>
             <div className="container-fluid">
-                <div>
-                    <h3 className='mb-3  pb-3 border-bottom'>Pending Report</h3>
+                <div className="position-sticky bg-white" style={{ top: "0px", zIndex: 100 }}>
+                    <MainHeaderComp title={"Pending Report"} />
+
                     <Row>
-                        <Col md={4}>
-                            <FormGroup className="mb-2">
-                                <Label>Start Date and End Date</Label>
-                                <div style={{ minWidth: "200px" }}>
-                                    <DateRangePicker
-                                        startDate={selectedRange.startDate}
-                                        endDate={selectedRange.endDate}
-                                        onChange={handleChange}
-                                    />
-                                </div>
-                            </FormGroup>
-                        </Col>
-                        <Col md={4}>
+
+                        <Col md={3}>
                             <FormGroup className="mb-2">
                                 <Label for="Customer">Region</Label>
                                 <Select
@@ -265,7 +242,7 @@ const PendingReport = () => {
                                     styles={customStyles} />
                             </FormGroup>
                         </Col>
-                        <Col md={4}>
+                        <Col md={3}>
                             <FormGroup className="mb-2">
                                 <Label for="Customer">Service Center</Label>
                                 <Select
@@ -339,24 +316,6 @@ const PendingReport = () => {
                                     Pending_ReportLoading ? "Checking..." : "Check"
                                 }
                             </Button>
-
-                            {/* <Button
-                                    color="primary"
-                                    disabled={BookingData.length < 1}
-                                    onClick={DownloadBookingDetails}
-                                    style={{ height: "2.2rem", width: "3rem" }}
-                                >
-                                    {isExporting ? (
-                                        <>
-                                            <span className="spinner"></span>
-                                            Exporting...
-                                        </>
-                                    ) : (
-                                        'Download'
-                                    )}
-                                    <FaCloudDownloadAlt style={{ width: "20px", height: "20px" }} />
-
-                                </Button> */}
                         </Col>
 
                     </Row>
@@ -379,6 +338,16 @@ const PendingReport = () => {
                                     isPagination={true}
                                     onDownloadExcle={DownloadExcle}
                                     ExcleLoading={isExporting}
+                                    extraFiled={
+                                        <div style={{ width: "250px" }}>
+                                            <DateRangeInput
+                                                value={selectedRange}
+                                                onChange={handleChange}
+                                                // isBorder={true}
+                                                isBorderRight={true}
+                                            />
+                                        </div>
+                                    }
                                     SearchPlaceholder="Search From Table"
                                     pagination="pagination"
                                     paginationWrapper='dataTables_paginate paging_simple_numbers'

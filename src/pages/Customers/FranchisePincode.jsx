@@ -12,6 +12,7 @@ import { GridLoader } from "react-spinners";
 import usePostApiCall from "../../hooks/usePostApiCall";
 import ToasterProvider from "../../helpers/ToasterProvider";
 import SimpleModal from "../../components/SimpleModal";
+import MainHeaderCom from "../../components/MainHeaderCom";
 const FranchisePincode = () => {
     // selected pincode
     const [selectedPincodeOption, setSelectedPincodeOption] = useState(null);
@@ -160,7 +161,7 @@ const FranchisePincode = () => {
 
     // convert to excel
     const converToExcel = (type) => {
-        console.log(type,"type")
+        console.log(type, "type")
         const emptyData = [
             {
                 ...(type === "customer" && { customer: "" }),
@@ -340,7 +341,7 @@ const FranchisePincode = () => {
                 enableColumnFilter: false,
                 enableSorting: true,
             },
-             {
+            {
                 header: 'Service Provider',
                 accessorKey: 'service_provider',
                 enableColumnFilter: false,
@@ -384,49 +385,47 @@ const FranchisePincode = () => {
         ExportAllPincodes(data, "Franchise_Pincode");
     };
     return (
-        <div className='page-content'>
-            <div className="container-fluid">
-                {/* heading */}
-                <div className="d-flex pb-3 border-bottom justify-content-between align-items-center">
-                    <h2 className="">Franchise Pincode</h2>
-                    <div className="d-flex justify-content-between align-items-center">
-                        <div className="d-flex flex-column me-1">
-                            <span className="text-black d-inline " style={{ fontSize: "12px" }}>Pincode </span>
-                            <span className="text-black d-inline " style={{ fontSize: "12px" }}>Templates </span>
+        <div className='page-content py-0'>
+            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
+                <MainHeaderCom
+                    title="Franchise Pincode"
+                    extraFields={
+                        <div className="d-flex align-items-center">
+                            <h6 className="text-black fw-bold mb-0 me-2" style={{ fontSize: "14px" }}>Template</h6>
+                            {
+                                ["Deafult", "Customer"]?.map((ele, index) => {
+                                    return (
+                                        <div className="ms-2" key={index}>
+                                            <Button
+                                                onClick={() => {
+                                                    setSelectedtemplate(ele)
+                                                    converToExcel(ele === "Customer" ? "customer" : "")
+                                                }}
+                                                className="d-flex align-items-center justify-content-center p-2 m-auto bg-transparent border-success text-success"
+                                                style={{
+                                                    borderRadius: "7px",
+                                                    width: "100px",
+                                                    fontWeight: "500",
+                                                    fontSize: "12px"
+                                                }}
+                                            >
+                                                {
+                                                    (ConvertingEmptyExcelLoading && selectedTemplate === ele) ?
+                                                        <span className="me-0">Exporting...</span> :
+                                                        <span className="me-0">{ele}</span>
+                                                }
+                                                <FaFileExcel size={14} className="ms-1" />
+                                            </Button>
+
+                                        </div>
+                                    )
+                                })
+                            }
                         </div>
-
-                        {
-                            ["Deafult ", "Customer"]?.map((ele, index) => {
-                                return (
-                                    <div className="ms-2">
-                                        <Button
-                                            onClick={() => {
-                                                setSelectedtemplate(ele)
-                                                converToExcel(ele === "Customer" ? "customer" : "")
-                                            }}
-                                            className="d-flex align-items-center justify-content-center p-2 m-auto bg-transparent border-success text-success"
-                                            style={{
-                                                borderRadius: "7px",
-                                                width: "100px",
-                                                fontWeight: "500",
-                                            }}
-                                        >
-                                            {
-                                                (ConvertingEmptyExcelLoading && selectedTemplate === ele) ?
-                                                    <span className="me-0">Exporting...</span> :
-                                                    <span className="me-0">{ele}</span>
-                                            }
-                                            <FaFileExcel size={16} className="ms-1" />
-                                        </Button>
-
-                                    </div>
-                                )
-                            })
-                        }
-
-                    </div>
-                    {/*  */}
-                </div>
+                    }
+                />
+            </div>
+            <div className="container-fluid mt-3">
                 {/* end heading */}
                 {/* filter */}
                 <Row className=" mt-3">

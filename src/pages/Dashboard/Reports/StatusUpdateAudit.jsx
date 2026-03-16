@@ -265,7 +265,7 @@ const StatusUpdateAudit = () => {
                         <FormGroup className="mb-0">
                             <Label className="fw-bold text-muted  mb-1">Region</Label>
                             <div className="d-flex align-items-center">
-                                <div style={{ width: "350px" }}>
+                                <div style={{ width: "250px" }}>
                                     <Select
                                         options={regionOptions}
                                         value={selectedRegion}
@@ -282,6 +282,7 @@ const StatusUpdateAudit = () => {
                                     selectedItems={selectedRegion}
                                     onRemove={(item) => setSelectedRegion(selectedRegion.filter(r => r.value !== item.value))}
                                     targetId="region-overflow"
+                                    placeholder='No Region Selected'
                                 />
                             </div>
                         </FormGroup>
@@ -290,7 +291,7 @@ const StatusUpdateAudit = () => {
                         <FormGroup className="mb-0">
                             <Label className="fw-bold text-muted mb-1">Service Center</Label>
                             <div className="d-flex align-items-center">
-                                <div style={{ width: "350px" }}>
+                                <div style={{ width: "250px" }}>
                                     <Select
                                         options={serviceCenterOptions}
                                         value={selectedServiceCenter}
@@ -307,6 +308,7 @@ const StatusUpdateAudit = () => {
                                     selectedItems={selectedServiceCenter}
                                     onRemove={(item) => setSelectedServiceCenter(selectedServiceCenter.filter(s => s.value !== item.value))}
                                     targetId="sc-overflow"
+                                    placeholder='No Service Center Selected'
                                 />
                             </div>
                         </FormGroup>
@@ -341,7 +343,7 @@ const StatusUpdateAudit = () => {
                                 extraFiled={
                                     <React.Fragment>
                                         <div className="me-2" style={{ minWidth: "250px" }}>
-                                            <DateRangeInput value={selectedRange} onChange={setSelectedRange} />
+                                            <DateRangeInput value={selectedRange} onChange={setSelectedRange} isBorderRight={true} />
                                         </div>
                                     </React.Fragment>
                                 }

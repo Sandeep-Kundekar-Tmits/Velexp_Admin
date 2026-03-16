@@ -1,8 +1,8 @@
-import DateRangePicker from '@paprika/date-range-picker';
+import DateRangeInput from '../../../components/Common/DateRangeInput';
 import "react-datepicker/dist/react-datepicker.css";
 import Select from 'react-select'
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Card, CardHeader, CardBody, Col, FormGroup, Label, Row, Spinner, Alert } from 'reactstrap';
+import { Button, Card, CardHeader, CardBody, Col, FormGroup, Label, Row, Spinner, Alert, Offcanvas, OffcanvasHeader, OffcanvasBody } from 'reactstrap';
 import { customStyles } from '../../../helpers/CustomStyle';
 import { useGetApiCall } from '../../../hooks/useGetApiCall';
 import { GET_MISSING_POD, POST_USER_API } from '../../../api';
@@ -44,29 +44,6 @@ const MissingPod = ({ onClose }) => {
                 enableColumnFilter: false,
                 enableSorting: true,
             },
-            // {
-            //     header: 'Status',
-            //     accessorKey: 'status',
-            //     enableColumnFilter: false,
-            //     enableSorting: true,
-            //     cell: ({ row }) => {
-            //         const deliveryDate = new Date(row.original['Delivery Date'].split('-').reverse().join('-'));
-            //         const today = new Date();
-            //         const status = today > deliveryDate ? 'Delivered' : 'In Transit';
-
-            //         return (
-            //             <span
-            //                 style={{
-            //                     color: status === 'Delivered' ? '#28a745' : '#ffc107',
-            //                     fontWeight: '500',
-            //                     fontSize: '0.875rem'
-            //                 }}
-            //             >
-            //                 {status}
-            //             </span>
-            //         );
-            //     },
-            // },
         ],
         []
     );
@@ -179,44 +156,37 @@ const MissingPod = ({ onClose }) => {
         }
     };
     return (
-        <Card className="mb-4 mt-2">
-            <CardHeader className="d-flex justify-content-between align-items-center">
-                <h5 className="mb-0 ps-0" style={{ marginLeft: "-15px" }}>Find Missing Pod</h5>
-            </CardHeader>
-            <CardBody>
-                <Row>
+        <Offcanvas isOpen={true} toggle={onClose} direction="end" style={{ width: '650px' }}>
+            <OffcanvasHeader toggle={onClose}>Find Missing Pod</OffcanvasHeader>
+            <OffcanvasBody>
+                <div className="mb-4 w-75 mx-auto">
                     {/* select customer id */}
-                    <Col md={4}>
-                        <FormGroup className="mb-3">
-                            <Label className='pb-0'>Select Customer</Label>
-                            <Select
-                                options={CustomerOptions}
-                                placeholder="Search Customer"
-                                value={selectedCustomer}
-                                onChange={setSelectedCustomer}
-                                isClearable={true}
-                                styles={customStyles}
-                            />
-                        </FormGroup>
-                    </Col>
-                    <Col>
-                        {/* range selector */}
-                        <FormGroup className="mb-3">
-                            <Label className='pb-0 d-block'>Select Date</Label>
-                            <DateRangePicker
-                                startDate={selectedRange.startDate}
-                                endDate={selectedRange.endDate}
-                                onChange={handleChange}
-                            />
-                        </FormGroup>
-                    </Col>
+                    <FormGroup className="mb-3">
+                        <Label className='pb-0 fw-bold'>Select Customer</Label>
+                        <Select
+                            options={CustomerOptions}
+                            placeholder="Search Customer"
+                            value={selectedCustomer}
+                            onChange={setSelectedCustomer}
+                            isClearable={true}
+                            styles={customStyles}
+                        />
+                    </FormGroup>
 
-                    <Col className='d-flex justify-content-start align-items-center'>
-                        <Button color="primary" onClick={CheckPod}>
-                            Check
-                        </Button>
-                    </Col>
-                </Row>
+                    {/* range selector */}
+                    <FormGroup className="mb-3">
+                        <Label className='pb-1 d-block fw-bold'>Select Date Range</Label>
+                        <DateRangeInput
+                            value={selectedRange}
+                            onChange={handleChange}
+                            isBorder={true}
+                        />
+                    </FormGroup>
+
+                    <Button color="primary" onClick={CheckPod} block className="mt-2" style={{ height: "40px" }}>
+                        Check Missing POD
+                    </Button>
+                </div>
 
                 {/* desplaying missing pods */}
                 <div className='d-flex justify-content-center align-items-center w-100'>
@@ -242,15 +212,8 @@ const MissingPod = ({ onClose }) => {
                         )
                     }
                 </div>
-                {onClose && (
-                    <div className="text-end">
-                        <Button color="secondary" onClick={onClose}>
-                            Close
-                        </Button>
-                    </div>
-                )}
-            </CardBody>
-        </Card>
+            </OffcanvasBody>
+        </Offcanvas>
     )
 }
 

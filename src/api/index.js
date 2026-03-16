@@ -18,7 +18,6 @@ export const GET_FILTERED_PRODUCT_LIST = `${BASE_URL}/accounts-created-by/filter
 export const UPDATE_ACTIVE_STATUS = `${BASE_URL}/users/change-account-status/` // POST
 // updated get All User List
 export const GET_ALL_USER_LIST = `${BASE_URL}/users/created-users/`
-
 //post the user 
 export const POST_USER_API = `${BASE_URL}/users/`
 

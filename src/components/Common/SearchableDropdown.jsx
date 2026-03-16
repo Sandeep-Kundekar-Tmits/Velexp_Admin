@@ -82,7 +82,7 @@ const SearchableDropdown = ({ onChange, className, locations = [], value = "sele
                             onChange={(e) => setSearchedItem(e.target.value)}
                             className="form-control border border-dark-subtle form-control-sm"
                             style={{ height: '30px', position: "absolute", top: -35, left: 0 }}
-                            placeholder={placeholder ?placeholder :"Search..."}
+                            placeholder={placeholder ? placeholder : "Search..."}
                             autoFocus
                         />
 

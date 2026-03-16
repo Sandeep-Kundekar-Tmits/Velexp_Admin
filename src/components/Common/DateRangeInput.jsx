@@ -8,6 +8,9 @@ const DateRangeInput = ({
   value,
   onChange,
   className = "",
+  isBorder = false,
+  isBorderRight = false,
+  height = "38px",
 }) => {
   const [range, setRange] = useState([
     {
@@ -62,15 +65,22 @@ const DateRangeInput = ({
     <div
       ref={wrapperRef}
       className={className}
-      style={{ position: "relative", width: "100%" }}
+      style={{
+        position: "relative",
+        width: "100%",
+        borderRight: isBorderRight ? "solid #B0ACAC 1px" : "none",
+        height: height,
+        paddingRight: isBorderRight ? "10px" : "0px"
+      }}
     >
       {/* Input Box */}
       <div
         onClick={() => setOpen((p) => !p)}
         style={{
-          border: "1px solid #dcdcdc",
-          borderRadius: "6px",
-          padding: "8px 10px",
+          border: isBorder ? "1px solid #dcdcdc" : "none",
+          borderRadius: isBorder ? "6px" : "0px",
+          padding: "5px 10px",
+          height: height,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",

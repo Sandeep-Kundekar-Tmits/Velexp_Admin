@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 //import components
 import Breadcrumbs from '../../components/Common/Breadcrumb';
 import { Button, FormFeedback, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Spinner, Table } from "reactstrap";
-import DateRangePicker from "@paprika/date-range-picker";
+import DateRangeInput from "../../components/Common/DateRangeInput";
 import TableContainer from "../../components/Table/TableContainer";
 import AddPodModal from "../../components/UserManagement/AddPOD/AddPodModal";
 import usePostApiCall from "../../hooks/usePostApiCall";
@@ -16,6 +16,8 @@ import MissingPod from "../../components/UserManagement/AddPOD/MissingPod";
 import useExcelParser from "../../hooks/useExcelParser";
 import { downloadExcel } from "../../helpers/downloadExcel";
 import CollapsibleSideBar from "../../components/CollapsibleSideBar";
+import MainHeaderComp from "../../components/MainHeaderCom";
+import { GridLoader } from "react-spinners";
 
 const AddPod = () => {
 
@@ -258,6 +260,16 @@ const AddPod = () => {
   document.title = "Add POD";
   return (
     <div className="page-content">
+      <div className="bg-white sticky-top" style={{ top: '0px', marginTop: "-10px", zIndex: 1001 }}>
+        <MainHeaderComp
+          title="POD Reports"
+          extraFields={
+            <Button color="primary" onClick={RangeCheckPodDetails} style={{ height: "38px", width: "100px" }}>
+              Check
+            </Button>
+          }
+        />
+      </div>
       <div className="container-fluid">
         {/* <Breadcrumbs title="Tables" breadcrumbItem="Data Tables" /> */}
 
@@ -272,51 +284,37 @@ const AddPod = () => {
           {ReturnComponent(selectedTitle)}
 
         </div>
-       
-
-        <h2>POD Reports</h2>
-        <p>Select POD Date Range</p>
-        <div className="d-flex justify-content-between ">
-          {/* select date  */}
-          <div className="ml-3">
-            {/* range selector */}
-            <DateRangePicker
-              startDate={selectedRange.startDate}
-              endDate={selectedRange.endDate}
-              onChange={handleChange}
-
-            />
-          </div>
-
-          <div className="d-flex justify-content-between">
-            <Button color="primary" onClick={RangeCheckPodDetails}>
-              Check
-            </Button>
-            {" "}
-            <Button color="primary" style={{ marginLeft: "12px" }} onClick={DownloadPod}>
-              Download
-            </Button>
-          </div>
-
-        </div>
-
 
         <div className="mt-4">
           {
-            PodDataLoading ? <div className="d-flex justify-content-center align-content-between">
-              <Spinner>
-                Loading...
-              </Spinner>
-            </div> :
+            PodDataLoading ?
+              <div style={{ height: "75vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+                <GridLoader size={20} />
+                <p className="mt-5 h5">Loading POD Details ...</p>
+              </div> :
               <TableContainer
                 columns={columns}
                 data={PodDetails || []}
+                isCustomPageSize={10}
                 isGlobalFilter={true}
                 isPagination={true}
+                isDownloadExcle={true}
+                onDownloadExcle={DownloadPod}
                 SearchPlaceholder="Search From Table"
                 pagination="pagination"
                 paginationWrapper='dataTables_paginate paging_simple_numbers'
                 tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                isStickyHeader={true}
+                tableHeight="500px"
+                extraFiled={
+                  <div style={{ minWidth: "250px" }}>
+                    <DateRangeInput
+                      value={selectedRange}
+                      isBorderRight={true}
+                      onChange={handleChange}
+                    />
+                  </div>
+                }
               />
           }
         </div>

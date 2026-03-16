@@ -1,4 +1,3 @@
-import DateRangePicker from "@paprika/date-range-picker"
 import { useEffect, useMemo, useState } from "react";
 import { Button, Col, FormGroup, Label, Row } from "reactstrap";
 import Select from 'react-select'
@@ -11,6 +10,8 @@ import usePostApiCall from "../../../hooks/usePostApiCall";
 import ToasterProvider from "../../../helpers/ToasterProvider";
 import { useExcelExport } from "../../../hooks/useExcelExport";
 import YMD_DateFormate from "../../../helpers/YMD_DateFormate";
+import DateRangeInput from "../../../components/Common/DateRangeInput";
+import MainHeaderCom from "../../../components/MainHeaderCom";
 const ShipmentCheckpoint = () => {
     const columns = useMemo(
         () => [
@@ -158,29 +159,16 @@ const ShipmentCheckpoint = () => {
         console.log(data, "data")
     }
     return (
-        <>
-            <div className='page-content'>
-                <div className="container-fluid">
-                    <div>
-                        <h3 className='pb-3 border-bottom'>Status Update</h3>
-                    </div>
-                    <Row>
-                        <Col md={4}>
-                            <FormGroup className="mb-2">
-                                <Label>Start Date and End Date</Label>
-                                <div style={{ minWidth: "200px" }}>
-                                    <DateRangePicker
-                                        startDate={selectedRange.startDate}
-                                        endDate={selectedRange.endDate}
-                                        onChange={handleChange}
-                                        className="h-100"
-                                    />
-                                </div>
-                            </FormGroup>
-                        </Col>
+        <div className='page-content py-0'>
+            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
+                <MainHeaderCom title="Status Update" />
+            </div>
+            <div className="container-fluid">
+                <div>
+                    <Row className='gx-3 d-flex align-items-center pt-2'>
                         <Col md={3}>
                             <FormGroup className="mb-2">
-                                <Label for="Customer">Region</Label>
+                                <Label for="Customer" className="fw-bold text-muted mb-1">Region</Label>
                                 <Select
                                     name="region"
                                     options={Regions}
@@ -192,7 +180,7 @@ const ShipmentCheckpoint = () => {
                         </Col>
                         <Col md={3}>
                             <FormGroup className="mb-2">
-                                <Label for="Customer">Service Center</Label>
+                                <Label for="Customer" className="fw-bold text-muted mb-1">Service Center</Label>
                                 <Select
                                     value={ShipmentCheckpointPayload?.service_center}
                                     name="service_center"
@@ -200,12 +188,11 @@ const ShipmentCheckpoint = () => {
                                     placeholder={ServiceCenterLoading ? "loading...." : "Search Service Center"}
                                     onChange={(option) => OnSelectChange("service_center", option)}
                                     isClearable={true}
-
                                     styles={customStyles} />
                             </FormGroup>
                         </Col>
                         <Col md={2}>
-                            <Button color="primary" className="" style={{ height: "2.3rem", width: "100%", marginTop: "28px" }} onClick={GetDataFunctionCall}>
+                            <Button color="primary" className="fw-bold" style={{ height: "2.4rem", width: "100%", marginTop: "10px" }} onClick={GetDataFunctionCall}>
                                 Get Data
                             </Button>
                         </Col>
@@ -216,7 +203,7 @@ const ShipmentCheckpoint = () => {
                             {
                                 UploadShipmentCheckpointLoading ? <div style={{ height: "40vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
                                     <GridLoader size={20} />
-                                    <p className="mt-5 h5">Loading Pending Report Booking ...</p>
+                                    <p className="mt-5 h5">Loading Status Update Report ...</p>
                                 </div>
                                     :
                                     <TableContainer
@@ -232,13 +219,25 @@ const ShipmentCheckpoint = () => {
                                         pagination="pagination"
                                         paginationWrapper='dataTables_paginate paging_simple_numbers'
                                         tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                                        isStickyHeader={true}
+                                        stickyTop={0}
+                                        tableHeight="60vh"
+                                        extraFiled={
+                                            <div style={{ width: "260px" }}>
+                                                <DateRangeInput
+                                                    value={selectedRange}
+                                                    onChange={handleChange}
+                                                    isBorderRight={false}
+                                                />
+                                            </div>
+                                        }
                                     />
                             }
                         </div>
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     )
 }
 export default ShipmentCheckpoint

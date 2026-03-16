@@ -3,7 +3,7 @@ import TableContainer from "../../components/Table/TableContainer";
 import { IoMdCloudDownload } from "react-icons/io";
 import { Button, Col, FormGroup, Label, Row } from "reactstrap";
 import SearchableDropdown from "../../components/Common/SearchableDropdown";
-import DateRangePicker from "@paprika/date-range-picker";
+import DateRangeInput from "../../components/Common/DateRangeInput";
 import { GET_PAYMENT_DEATILS, GET_USER_API, GET_WALLET_TRASACTION_DETAILS } from "../../api";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
 import usePostApiCall from "../../hooks/usePostApiCall";
@@ -13,6 +13,7 @@ import TabComponentProvider from "../../components/TabComponentProvider";
 import { useExcelExport } from "../../hooks/useExcelExport";
 import ToasterProvider from "../../helpers/ToasterProvider";
 import SimpleModal from "../../components/SimpleModal";
+import MainHeaderComp from "../../components/MainHeaderCom";
 function toYYYYMMDD(dateStr) {
     const [day, month, year] = dateStr.split("-");
     return `${year}-${month}-${day}`;
@@ -549,10 +550,12 @@ const PaymentDeatils = () => {
         }
     ];
     return (
-        <div className='page-content'>
+        <div className='page-content py-0'>
+            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
+                <MainHeaderComp title="Payment Details" />
+            </div>
             <div className="container-fluid">
-                <div className=" justify-content-between">
-                    <h3 className='mb-2 border-bottom pb-3'>Payment Details</h3>
+                <div className=" justify-content-between mt-3">
                     <Row>
                         <Col md={4} className="">
                             <FormGroup>
@@ -569,10 +572,10 @@ const PaymentDeatils = () => {
                             <FormGroup >
                                 <Label>Start Date and End Date</Label>
                                 <div >
-                                    <DateRangePicker
-                                        startDate={selectedRange.startDate}
-                                        endDate={selectedRange.endDate}
+                                    <DateRangeInput
+                                        value={selectedRange}
                                         onChange={handleDateChange}
+                                        isBorder={true}
                                     />
                                 </div>
                             </FormGroup>

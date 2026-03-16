@@ -43,6 +43,17 @@ const TrackAWB = () => {
                 return;
             }
             if (res) {
+                // adding the total boxes key if its a parent
+                const isParent = res.some(ele => ele?.multipiece_type === "parent");
+                if (isParent) {
+                    const totalBoxes = res.length;
+                    res.forEach(ele => {
+                        if (ele?.multipiece_type === "parent" || ele?.multipiece_type === "airwaybill" || ele?.multipiece_type === "thermalprinter") {
+                            ele["Total Boxes"] = totalBoxes;
+                        }
+                    });
+                }
+
                 let details = res.find(ele => ele?.multipiece_type === "parent" || ele?.multipiece_type === "single");
                 setShipmentDetails({ ...details, edd: trackRes[0]?.Parent[0]?.EDD } || {});
                 let pieces = res.map((ele, index) => {

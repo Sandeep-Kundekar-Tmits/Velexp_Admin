@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Row, Col, FormGroup, Spinner } from 'reactstrap';
 import { Button, FormFeedback, Input, Label, Table } from "reactstrap";
-import DateRangePicker from "@paprika/date-range-picker";
+import DateRangeInput from "../../../../components/Common/DateRangeInput";
 
 import Select from 'react-select'
 import { GET_ADMIN_BOOKING_DETAILS, GET_CUSTOMER_SERVICE, GET_OPERATION_PERFORMANCE, GET_USER_API, PRODUCT_LIST, SERVICE_CENTER, SPD_OPERATION_PERFORMANCE, GET_ALL_REGION, GET_CUSTOMER_PERFORMANCE_FPDR } from '../../../../api';
@@ -20,6 +20,8 @@ import { useOFDExcel } from '../../../../hooks/useOFDExcel';
 import { useOperationFDSR } from '../../../../hooks/useOperationFDSR';
 import { useNewOperationPickupStrikeRate } from '../../../../hooks/useNewOperationPickupStrikeRate';
 import StatsCard from '../../../../components/StatsCard';
+import SelectedItemsDisplay from '../../../../components/Common/SelectedItemsDisplay';
+import MainHeaderComp from '../../../../components/MainHeaderCom';
 const CustomerFirstMileOperation = () => {
     useEffect(() => {
         document.title = "Customer Performance Report (FPSR)";
@@ -335,7 +337,7 @@ const CustomerFirstMileOperation = () => {
     };
 
 
-    const [username, setUsername] = useState({})
+    const [username, setUsername] = useState(null)
     const [FirstMiles, setFirstMiles] = useState([])
     const [SecondMiles, setSecondMiles] = useState([])
     // to show and hide the filter
@@ -360,7 +362,7 @@ const CustomerFirstMileOperation = () => {
     // service center option dropdown
     const [ServiceCenterOption, setServiceCenterOption] = useState([])
     // region state
-    const [SelectedRegion, setSelectedRegion] = useState()
+    const [SelectedRegion, setSelectedRegion] = useState([])
     const [SelectedMode, setSelectedMode] = useState()
     // onCheck button click
     const [BookingData, setBookingData] = useState([])
@@ -993,110 +995,118 @@ const CustomerFirstMileOperation = () => {
     }, [SelectedRegion, AllServiceCenterOption]);
 
     return (
-        <div className='page-content'>
+        <div className='page-content py-0'>
+            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
+                <MainHeaderComp title=" Customer Pickup Strike Rate (FPSR)" subTitle="" />
+            </div>
             <div className="container-fluid">
                 <div>
-                    <h3 className='pb-3 border-bottom '>Pickup Strike Rate (FPSR)</h3>
-                    <Row className='gx-3 d-flex align-items-center pt-2'>
-                        <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label for="Customer">Select Customer</Label>
-                                <Select options={UserListOptions}
-                                    placeholder="Search Customer"
-                                    value={username}
-                                    onChange={setUsername}
-                                    isClearable={true}
-                                    styles={customStyles} />
-                            </FormGroup>
-                        </Col>
-                        <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label for="Customer">Payment Mode</Label>
-                                <Select options={paymentModeOptions}
-                                    placeholder="Search Customer"
-                                    value={PaymentMode}
-                                    onChange={setPaymentMode}
-                                    isClearable={true}
-                                    styles={customStyles} />
-                            </FormGroup>
-                        </Col>
+                    <Row className='gx-3 d-flex align-items-end pt-2 border-bottom pb-2'>
                         {/* select region  */}
-                        <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label for="Customer">Select Region</Label>
-                                <Select
-                                    options={AllRegions}
-                                    placeholder="Search Region"
-                                    isMulti={true}
-                                    value={SelectedRegion}
-                                    onChange={setSelectedRegion}
-                                    isClearable={true}
-                                    styles={customStyles} />
-                            </FormGroup>
-                        </Col>
-                        {/*  service centers list */}
-                        <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label for="Customer">Select Service Center</Label>
-                                <Select options={ServiceCenterOption}
-                                    placeholder="Search"
-                                    isMulti={true}
-                                    value={SelectedServiceCenters}
-                                    onChange={setSelectedServiceCenters}
-                                    isClearable={true}
-                                    styles={customStyles} />
-                            </FormGroup>
-                        </Col>
-                        {/* mode */}
-                        {/* Date Range Picker */}
-                        <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label>Start Date and End Date</Label>
-                                <div style={{ minWidth: "200px" }}>
-                                    <DateRangePicker
-                                        startDate={selectedRange.startDate}
-                                        endDate={selectedRange.endDate}
-                                        onChange={handleChange}
-                                        className="my-custom-range-picker"
+                        <Col md={6}>
+                            <FormGroup className="mb-0">
+                                <Label for="Customer" className="fw-bold text-muted mb-1">Select Region</Label>
+                                <div className="d-flex align-items-center">
+                                    <div style={{ width: "250px" }}>
+                                        <Select
+                                            options={AllRegions}
+                                            placeholder="Search Region"
+                                            isMulti={true}
+                                            value={SelectedRegion}
+                                            onChange={setSelectedRegion}
+                                            isClearable={true}
+                                            menuPortalTarget={document.body}
+                                            menuPosition="fixed"
+                                            styles={customStyles}
+                                            controlShouldRenderValue={false}
+                                            hideSelectedOptions={true}
+                                        />
+                                    </div>
+                                    <SelectedItemsDisplay
+                                        selectedItems={SelectedRegion}
+                                        onRemove={(item) => setSelectedRegion(SelectedRegion.filter(r => r.value !== item.value))}
+                                        targetId="region-overflow"
+                                        placeholder="No Region Selected"
                                     />
                                 </div>
                             </FormGroup>
                         </Col>
+                        {/*  service centers list */}
+                        <Col md={6}>
+                            <FormGroup className="mb-0">
+                                <Label for="Customer" className="fw-bold text-muted mb-1">Select Service Center</Label>
+                                <div className="d-flex align-items-center">
+                                    <div style={{ width: "250px" }}>
+                                        <Select options={ServiceCenterOption}
+                                            placeholder="Search Service Center"
+                                            isMulti={true}
+                                            value={SelectedServiceCenters}
+                                            onChange={setSelectedServiceCenters}
+                                            isClearable={true}
+                                            menuPortalTarget={document.body}
+                                            menuPosition="fixed"
+                                            styles={customStyles}
+                                            controlShouldRenderValue={false}
+                                            hideSelectedOptions={true}
+                                        />
+                                    </div>
+                                    <SelectedItemsDisplay
+                                        selectedItems={SelectedServiceCenters}
+                                        onRemove={(item) => setSelectedServiceCenters(SelectedServiceCenters.filter(s => s.value !== item.value))}
+                                        targetId="sc-overflow"
+                                        placeholder="No Service Center Selected"
+                                    />
+                                </div>
+                            </FormGroup>
+                        </Col>
+                    </Row>
 
+                    <Row className='gx-3 d-flex align-items-center pt-2'>
+                        <Col md={3}>
+                            <FormGroup className="mb-2">
+                                <Label className='mb-1'>Select Date Range</Label>
+                                <DateRangeInput
+                                    value={selectedRange}
+                                    isBorder={true}
+                                    onChange={handleChange}
+                                />
+                            </FormGroup>
+                        </Col>
+                        <Col md={3}>
+                            <FormGroup className="mb-2">
+                                <Label className='mb-1' for="Customer">Customer</Label>
+                                <Select
+                                    options={UserListOptions}
+                                    placeholder="Search Customer"
+                                    value={username}
+                                    onChange={setUsername}
+                                    isClearable={true}
+                                    menuPortalTarget={document.body}
+                                    menuPosition="fixed"
+                                    styles={customStyles}
+                                />
+                            </FormGroup>
+                        </Col>
 
-                        <Col md={3} className=' d-flex align-items-cente align-items-center gap-2 mt-2'>
-                            {/* <div className="d-flex 2"> */}
-                            <Button color="primary" disabled={bookingLoading} style={{ height: "2.2rem", width: "100%" }} onClick={OnCheckClick}>
+                        <Col md={3}>
+                            <FormGroup className="mb-2">
+                                <Label className='mb-1' for="Customer">Payment Mode</Label>
+                                <Select options={paymentModeOptions}
+                                    placeholder="Search Payment Mode"
+                                    value={PaymentMode}
+                                    onChange={setPaymentMode}
+                                    isClearable={true}
+                                    menuPortalTarget={document.body}
+                                    menuPosition="fixed"
+                                    styles={customStyles} />
+                            </FormGroup>
+                        </Col>
+
+                        <Col md={3} className=' d-flex align-items-center gap-2 mt-2'>
+                            <Button color="primary" disabled={bookingLoading} style={{ height: "38px", width: "100%" }} onClick={OnCheckClick}>
                                 Check
                             </Button>
-
-                            {/* <Button
-                                    color="primary"
-                                    className='d-flex justify-content-center align-items-center'
-                                    disabled={BookingData.length < 1}
-                                    onClick={DownloadPerformanceDetails}
-                                    title='Download'
-                                    style={{ height: "2.2rem", width: "6rem" }}
-                                >
-                                    {isExporting ? (
-                                        <>
-                                            <span className="spinner"></span>
-                                            Exporting...
-                                        </>
-                                    ) : (
-                                        <FaCloudDownloadAlt style={{ width: "20px", height: "20px" }} />
-                                    )}
-                                </Button> */}
-                            {/* </div> */}
                         </Col>
-                        {/* {
-                            isShowFilter && <OperationPerformanceFilter
-                                AllEntries={AllEntries}
-                                ApplyFilter={ApplyFilter}
-                                BookingList={() => { }}
-                            />
-                        } */}
-
                     </Row>
                     <div className='d-flex gap-4'>
                         {
@@ -1131,6 +1141,9 @@ const CustomerFirstMileOperation = () => {
                                         tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
                                         isCustomPageSize={true}
                                         isDownloadExcle={true}
+                                        isStickyHeader={true}
+                                        stickyTop={0}
+
                                         onDownloadExcle={async () => {
                                             const toTitleCase = (str) =>
                                                 str

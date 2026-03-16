@@ -1,28 +1,19 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Row, Col, FormGroup, Spinner } from 'reactstrap';
-import { Button, FormFeedback, Input, Label, Table } from "reactstrap";
-import DateRangePicker from "@paprika/date-range-picker";
+import { Row, Col, FormGroup } from 'reactstrap';
+import { Button, Label } from "reactstrap";
+import DateRangeInput from '../../../components/Common/DateRangeInput';
 import TableContainer from '../../../components/Table/TableContainer';
 import Select from 'react-select'
 import { customStyles } from '../../../helpers/CustomStyle';
 import { useGetApiCall } from '../../../hooks/useGetApiCall';
-import { GET_ADMIN_BOOKING_DETAILS, GET_ALL_REGION, GET_CUSTOMER_SERVICE, GET_OPERATION_PERFORMANCE, GET_USER_API, PRODUCT_LIST, SERVICE_CENTER, SPD_OPERATION_PERFORMANCE } from '../../../api';
+import { GET_ALL_REGION, SERVICE_CENTER, SPD_OPERATION_PERFORMANCE } from '../../../api';
 import usePostApiCall from '../../../hooks/usePostApiCall';
 import formatDateForPayload from '../../../helpers/DateHelper';
 import { GridLoader } from 'react-spinners';
-import { IoMdCloudDownload } from "react-icons/io";
-// import CustomerServiceFilter from '../../../components/CustomerService/CustomerServiceFilter';
-import OperationPerformanceFilter from '../../../components/Report/OperationPerformanceFilter';
-import { downloadExcel } from '../../../helpers/downloadExcel';
-import { FaCloudDownloadAlt } from 'react-icons/fa';
-import { useExcelExport } from '../../../hooks/useExcelExport';
-import { useFirstMileExcel } from '../../../hooks/useFirstMileExcel';
-import TabsProvider from '../../../components/TabsProvider';
-import { useSecondMileExcel } from '../../../hooks/useSecondMileExcel';
-import renderCountWithPercent from '../../../components/renderCountWithPercent';
-import { useOperationFDSR } from '../../../hooks/useOperationFDSR';
 import { useNewOperationDelivaryStrikeRate } from '../../../hooks/useNewOperationDelivaryStrikeRate';
 import StatsCard from '../../../components/StatsCard';
+import SelectedItemsDisplay from '../../../components/Common/SelectedItemsDisplay';
+import MainHeaderComp from '../../../components/MainHeaderCom';
 const LastMileOperations = () => {
     useEffect(() => {
         document.title = "Operation Performance Report";
@@ -31,8 +22,6 @@ const LastMileOperations = () => {
         enableColumnFilter: false,
         enableSorting: true,
     };
-
-
     const [FinalStatusCount, setFinalStatusCount] = useState({})
     const [selectedRange, setSelectedRange] = useState({
         startDate: "",
@@ -45,8 +34,6 @@ const LastMileOperations = () => {
 
     const [SelectedPayload, setSelectedPayload] = useState()
 
-    const [username, setUsername] = useState({})
-    const [FirstMiles, setFirstMiles] = useState([])
     const [SecondMiles, setSecondMiles] = useState([])
     const [paymentModeOptions, setpaymentModeOptions] = useState([
         {
@@ -596,18 +583,8 @@ const LastMileOperations = () => {
     ], [lastMileTotals]);
 
 
-    // to show and hide the filter
-    const [isShowFilter, setIsShowFilter] = useState(false)
     // to store all entries
-    const [AllEntries, setAllEntries] = useState({})
-    // select user option
-    const [UserListOptions, setUserListOption] = useState([])
-    // product list
-    const [ProductListOption, setProductListOption] = useState([])
-    const [SelectedProduct, setSelectedProduct] = useState()
     const [AllRegions, setAllRegions] = useState([])
-    // defining get user api
-    const { apifunc: GetUserList, data: UserList } = useGetApiCall()
 
     // definging the get service center api
     const { apifunc: GetServiceCenter, data: ServiceCenters } = useGetApiCall()
@@ -627,53 +604,18 @@ const LastMileOperations = () => {
 
     //  defining the get booking list 
     const { apifunc: GetBookingList, data: BookingList, loading: bookingLoading } = usePostApiCall()
-    //  defining the get product api
-    const { apifunc: GetProductsList, data: ProductList, loading: ProductListLoading } = useGetApiCall()
 
-    //  first mile report
-    const { downloadExcel, loading: FirstMileLoading, error } = useFirstMileExcel();
     //  first mile report
     const { downloadExcel: SecondMileReport, loading: SecondMileLoading, error: SecondMileError } = useNewOperationDelivaryStrikeRate();
     // defining the get regions api
     const { apifunc: GetAllRegions, data: Regions } = useGetApiCall()
-    const { exportToExcel, isExporting, exportProgress } = useExcelExport();
     //  calling user api
     useEffect(() => {
-        GetUserList(`${GET_USER_API}/`)
         GetServiceCenter(SERVICE_CENTER)
-        //  calling the get product list api
-        GetProductsList(PRODUCT_LIST)
         //  calling the regions api
         GetAllRegions(GET_ALL_REGION)
     }, [])
 
-    useEffect(() => {
-        if (UserList) {
-            let updatedOptions = UserList
-                .filter(ele => {
-                    const name = ele?.customer_name?.trim();
-                    return name != null &&
-                        name !== "null" &&
-                        name !== "undefined" &&
-                        name !== "";
-                })
-                .map((ele) => ({
-                    value: ele.customer_name,
-                    label: ele.customer_name
-                }));
-            setUserListOption(updatedOptions);
-        }
-
-        if (ProductList) {
-            let updatedProductList = ProductList?.map((ele) => {
-                return {
-                    value: ele?.name,
-                    label: ele?.name
-                }
-            })
-            setProductListOption(updatedProductList)
-        }
-    }, [UserList, ProductList]);
 
     useEffect(() => {
         if (Regions) {
@@ -709,18 +651,7 @@ const LastMileOperations = () => {
 
 
     const OnCheckClick = async () => {
-        setIsShowFilter(false)
         try {
-            // Validate username exists before proceeding
-
-            // if (SelectedServiceCenters.length < 1) {
-            //     alert("Select The Service Centers");
-            //     return;
-            // }
-            if (!username?.value) {
-                setUsername({ value: "All", label: "All" })
-            }
-
             // Format dates
             const updatedDate = formatDateForPayload(selectedRange);
             if (updatedDate?.from_date === "" || updatedDate?.to_date === "") {
@@ -730,11 +661,11 @@ const LastMileOperations = () => {
 
             // Prepare payload
             const payload = {
-                customer_name: username.value ? username.value : "All",
+                customer_name: "All",
                 start_date: updatedDate.from_date,
                 end_date: updatedDate.to_date,
                 service_center: SelectedServiceCenters.map((ele) => ele?.value) || [],
-                product: SelectedProduct?.value || "",
+                product: "",
                 payment_mode: PaymentMode?.value || "",
                 region: SelectedRegion?.map(ele => ele?.value) || []
             };
@@ -744,12 +675,8 @@ const LastMileOperations = () => {
 
             if (records?.bookings) {
                 setBookingData(records?.bookings);
-                setAllEntries(records)
-                setFirstMiles(records?.first_mile_summary_list || [])
                 setSecondMiles(records?.date_wise_summary || [])
                 setFinalStatusCount(records?.final_status_counter || {})
-                // enabling the filter
-                setIsShowFilter(true)
             } else {
                 setBookingData([]); // Reset or set to empty array
             }
@@ -783,80 +710,95 @@ const LastMileOperations = () => {
 
 
     return (
-        <div className='page-content'>
+        <div className='page-content py-0'>
+            <div className="bg-white sticky-top" style={{ top: '0px', zIndex: 1001 }}>
+                <MainHeaderComp title="Delivery Strike Rate (FDSR)" subTitle="" />
+            </div>
             <div className="container-fluid">
                 <div>
-                    <h3 className='pb-3 border-bottom '>Delivery Strike Rate (FDSR)</h3>
-                    <Row className='gx-3 d-flex align-items-center pt-2'>
-                        {/* <Col md={4}>
-                            <FormGroup className="mb-2">
-                                <Label for="Customer">Select Customer</Label>
-                                <Select options={UserListOptions}
-                                    placeholder="Search Customer"
-                                    // value={username}
-                                    onChange={setUsername}
-                                    isClearable={true}
-                                    styles={customStyles} />
-                            </FormGroup>
-                        </Col> */}
-
+                    <Row className='gx-3 d-flex align-items-end pt-2 border-bottom pb-2'>
                         {/* select region  */}
-                        <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label for="Customer">Select Region</Label>
-                                <Select
-                                    options={AllRegions}
-                                    placeholder="Search Region"
-                                    isMulti={true}
-                                    value={SelectedRegion}
-                                    onChange={setSelectedRegion}
-                                    isClearable={true}
-                                    styles={customStyles} />
-                            </FormGroup>
-                        </Col>
-                        {/*  service centers list */}
-                        <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label for="Customer">Select Service Center</Label>
-                                <Select options={ServiceCenterOption}
-                                    placeholder="Search"
-                                    isMulti={true}
-                                    value={SelectedServiceCenters}
-                                    onChange={setSelectedServiceCenters}
-                                    isClearable={true}
-                                    styles={customStyles} />
-                            </FormGroup>
-                        </Col>
-                        <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label for="Customer">Payment Mode</Label>
-                                <Select options={paymentModeOptions}
-                                    placeholder="Search Customer"
-                                    value={PaymentMode}
-                                    onChange={setPaymentMode}
-                                    isClearable={true}
-                                    styles={customStyles} />
-                            </FormGroup>
-                        </Col>
-                        {/* mode */}
-                        {/* Date Range Picker */}
-                        <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label>Start Date and End Date</Label>
-                                <div style={{ minWidth: "200px" }}>
-                                    <DateRangePicker
-                                        startDate={selectedRange.startDate}
-                                        endDate={selectedRange.endDate}
-                                        onChange={handleChange}
-                                        className="my-custom-range-picker"
+                        <Col md={6}>
+                            <FormGroup className="mb-0">
+                                <Label for="Customer" className="fw-bold text-muted mb-1">Select Region</Label>
+                                <div className="d-flex align-items-center">
+                                    <div style={{ width: "250px" }}>
+                                        <Select
+                                            options={AllRegions}
+                                            placeholder="Search Region"
+                                            isMulti={true}
+                                            value={SelectedRegion}
+                                            onChange={setSelectedRegion}
+                                            isClearable={true}
+                                            styles={customStyles}
+                                            controlShouldRenderValue={false}
+                                            hideSelectedOptions={true}
+                                        />
+                                    </div>
+                                    <SelectedItemsDisplay
+                                        selectedItems={SelectedRegion}
+                                        onRemove={(item) => setSelectedRegion(SelectedRegion.filter(r => r.value !== item.value))}
+                                        targetId="region-overflow"
+                                        placeholder='No Region Selected'
                                     />
                                 </div>
                             </FormGroup>
                         </Col>
+                        {/*  service centers list */}
+                        <Col md={6}>
+                            <FormGroup className="mb-0">
+                                <Label for="Customer" className="fw-bold text-muted mb-1">Select Service Center</Label>
+                                <div className="d-flex align-items-center">
+                                    <div style={{ width: "250px" }}>
+                                        <Select options={ServiceCenterOption}
+                                            placeholder="Search Service Center"
+                                            isMulti={true}
+                                            value={SelectedServiceCenters}
+                                            onChange={setSelectedServiceCenters}
+                                            isClearable={true}
+                                            styles={customStyles}
+                                            controlShouldRenderValue={false}
+                                            hideSelectedOptions={true}
+                                        />
+                                    </div>
+                                    <SelectedItemsDisplay
+                                        selectedItems={SelectedServiceCenters}
+                                        onRemove={(item) => setSelectedServiceCenters(SelectedServiceCenters.filter(s => s.value !== item.value))}
+                                        targetId="sc-overflow"
+                                        placeholder='No Service Center Selected'
+                                    />
+                                </div>
+                            </FormGroup>
+                        </Col>
+                    </Row>
 
+                    <Row className='gx-3 d-flex align-items-center pt-2'>
+                        <Col md={3}>
+                            <FormGroup className="mb-2">
+                                <Label for="DateRange">Date Range</Label>
+                                <DateRangeInput
+                                    isBorder={true}
+                                    value={selectedRange}
+                                    onChange={handleChange}
+                                />
+                            </FormGroup>
+                        </Col>
+                        <Col md={3}>
+                            <div style={{ width: "250px" }}>
+                                <FormGroup className="mb-2">
+                                    <Label for="Customer">Payment Mode</Label>
+                                    <Select
+                                        options={paymentModeOptions}
+                                        placeholder="Search Customer"
+                                        value={PaymentMode}
+                                        onChange={setPaymentMode}
+                                        isClearable={true}
+                                        styles={customStyles} />
+                                </FormGroup>
+                            </div>
+                        </Col>
 
                         <Col md={3} className=' d-flex align-items-cente align-items-center gap-2 mt-2'>
-                            {/* <div className="d-flex 2"> */}
                             <Button color="primary" disabled={bookingLoading} style={{ height: "2.2rem", width: "100%" }} onClick={OnCheckClick}>
                                 Check
                             </Button>
@@ -877,7 +819,7 @@ const LastMileOperations = () => {
 
                 <div className=''>
 
-                    <div className='mt-1'>
+                    <div className='mt-0'>
                         {
                             bookingLoading ? <div style={{ height: "40vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
                                 <GridLoader size={20} />

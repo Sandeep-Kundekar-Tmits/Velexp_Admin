@@ -1,4 +1,4 @@
-import { Button, FormGroup, Label } from "reactstrap"
+import { Button, Col, FormGroup, Label, Row } from "reactstrap"
 import SearchableDropdown from "../../../components/Common/SearchableDropdown"
 import { useEffect, useMemo, useState } from "react"
 import { useGetApiCall } from "../../../hooks/useGetApiCall"
@@ -363,30 +363,23 @@ const EditInvoice = () => {
     }, [UserList]);
 
     return (
-        <div className='page-content'>
-            <div className="bg-white sticky-top " style={{ top: '0px', marginTop: "-10px", zIndex: 1001 }}>
+        <div className='page-content py-0'>
+            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
                 <MainHeaderComp title="Edit Invoice" />
             </div>
             <div className="container-fluid">
-                <div className=" d-flex flex-wrap gap-3 align-items-center">
-                    <div className="">
-                        <Label className="">Select Customer</Label>
-                        <SearchableDropdown
-                            onChange={handleLocationChange}
-                            locations={Customes}
-                        // value={SelectedCustomer}
-                        />
-                    </div>
-                    <div className="" style={{ marginTop: "1.8rem" }}>
+                <Row className="mt-3">
+                    <Col md={2}>
                         <Button
                             color="primary"
-                            style={{ height: "2.2rem", width: "6rem" }}
+                            className="w-100"
+                            style={{ height: "38px" }}
                             onClick={GetFilteredEditInvoiceFunc}
                         >
                             Check
                         </Button>
-                    </div>
-                </div>
+                    </Col>
+                </Row>
 
                 <div className=" mt-4">
                     <h3>Details</h3>
@@ -412,11 +405,21 @@ const EditInvoice = () => {
                                         paginationWrapper='dataTables_paginate paging_simple_numbers'
                                         tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
                                         extraFiled={
-                                            <div style={{ minWidth: "200px" }}>
-                                                <DateRangeInput
-                                                    value={selectedRange}
-                                                    onChange={handleDateChange}
-                                                />
+                                            <div className="d-flex align-items-center gap-2">
+                                                <div style={{ minWidth: "250px" }} className="border-end pe-2 ps-2">
+                                                    <SearchableDropdown
+                                                        onChange={handleLocationChange}
+                                                        locations={Customes}
+                                                        placeholder="Select Customer"
+                                                    />
+                                                </div>
+                                                <div style={{ minWidth: "200px", borderLeft: "1px solid #ccc" }}>
+                                                    <DateRangeInput
+                                                        value={selectedRange}
+                                                        onChange={handleDateChange}
+                                                        isBorderRight={true}
+                                                    />
+                                                </div>
                                             </div>
                                         }
                                     />

@@ -130,70 +130,70 @@ const InvoiceGenerator = ({ invoiceData }) => {
     // console.log(labelColSpan, "labelColSpan")
 
     return (
-      <Table  className="mb-0 text-black table-hover" style={{borderColor:"black", color:"black !important"}}>
-        <thead style={{border:"solid black 1px"}}>
+      <Table className="mb-0 text-black table-hover" style={{ borderColor: "black", color: "black !important" }}>
+        <thead style={{ border: "solid black 1px" }}>
           <tr>
-            {isVisible('srno') && <th className='text-center' style={{border:"solid black 1px"}}>S.No.</th>}
-            {isVisible('description') && <th className='text-center w-25'  style={{border:"solid black 1px"}}>Description</th>}
-            {isVisible('origin') && <th className='text-center w-25' style={{border:"solid black 1px"}}>Origin</th>}
-            {isVisible('shipments') && <th className='text-center' style={{border:"solid black 1px"}}> Shipments</th>}
-            {isVisible('quantity') && <th className='text-center' style={{border:"solid black 1px"}}>Quantity</th>}
+            {isVisible('srno') && <th className='text-center' style={{ border: "solid black 1px" }}>S.No.</th>}
+            {isVisible('description') && <th className='text-center w-25' style={{ border: "solid black 1px" }}>Description</th>}
+            {isVisible('origin') && <th className='text-center w-25' style={{ border: "solid black 1px" }}>Origin</th>}
+            {isVisible('shipments') && <th className='text-center' style={{ border: "solid black 1px" }}> Shipments</th>}
+            {isVisible('quantity') && <th className='text-center' style={{ border: "solid black 1px" }}>Quantity</th>}
             {/* {isVisible('rate') && <th>Rate</th>} */}
 
             {type === "corporate"
-              ? isVisible('freight') && <th className='text-center' style={{border:"solid black 1px"}}>Total Freight (Rs)</th>
-              : isVisible('total') && <th className='text-center' style={{border:"solid black 1px"}}>Total</th>}
+              ? isVisible('freight') && <th className='text-center' style={{ border: "solid black 1px" }}>Total Freight (Rs)</th>
+              : isVisible('total') && <th className='text-center' style={{ border: "solid black 1px" }}>Total</th>}
 
-            {isVisible('cgst') && <th className='text-center' style={{border:"solid black 1px"}}>CGST (9%)</th>}
-            {isVisible('sgst') && <th className='text-center' style={{border:"solid black 1px"}}>SGST (9%)</th>}
-            {isVisible('igst') && <th className='text-center' style={{border:"solid black 1px"}}>IGST</th>}
-            <th className='text-center' style={{border:"solid black 1px"}}>Total.Inv.Amount</th>
+            {isVisible('cgst') && <th className='text-center' style={{ border: "solid black 1px" }}>CGST (9%)</th>}
+            {isVisible('sgst') && <th className='text-center' style={{ border: "solid black 1px" }}>SGST (9%)</th>}
+            {isVisible('igst') && <th className='text-center' style={{ border: "solid black 1px" }}>IGST</th>}
+            <th className='text-center' style={{ border: "solid black 1px" }}>Total.Inv.Amount</th>
           </tr>
         </thead>
         <tbody>
           {invoiceData.items.map((item, index) => (
             <tr key={item.id}>
-              {isVisible('srno') && <td style={{border:"solid black 1px"}}>{index + 1}.</td>}
-              {isVisible('description') && <td style={{border:"solid black 1px"}}>{item?.description}</td>}
-              {isVisible('origin') && <td style={{border:"solid black 1px"}}>{item?.origin}</td>}
-              {isVisible('shipments') && <td className='text-end text-black' style={{border:"solid black 1px"}}>{item?.shipments || 0}</td>}
-              {isVisible('quantity') && <td className='text-end text-black' style={{border:"solid black 1px"}}>{item?.quantity}</td>}
+              {isVisible('srno') && <td style={{ border: "solid black 1px" }}>{index + 1}.</td>}
+              {isVisible('description') && <td style={{ border: "solid black 1px" }}>{item?.description}</td>}
+              {isVisible('origin') && <td style={{ border: "solid black 1px" }}>{item?.origin}</td>}
+              {isVisible('shipments') && <td className='text-end text-black' style={{ border: "solid black 1px" }}>{item?.shipments || 0}</td>}
+              {isVisible('quantity') && <td className='text-end text-black' style={{ border: "solid black 1px" }}>{item?.quantity}</td>}
               {/* {isVisible('rate') && <td>{item?.rate?.toFixed(2)}</td>} */}
 
               {type === "corporate"
-                ? isVisible('freight') && <td className='text-end text-black' style={{border:"solid black 1px"}}>{(item?.freight ?? 0).toFixed(2)}</td>
-                : isVisible('total') && <td className='text-end text-black' style={{border:"solid black 1px"}}>{(item?.freight ?? 0).toFixed(2)}</td>}
+                ? isVisible('freight') && <td className='text-end text-black' style={{ border: "solid black 1px" }}>{(item?.freight ?? 0).toFixed(2)}</td>
+                : isVisible('total') && <td className='text-end text-black' style={{ border: "solid black 1px" }}>{(item?.freight ?? 0).toFixed(2)}</td>}
 
-              {isVisible('cgst') && <td className='text-end text-black' style={{border:"solid black 1px"}}>{item?.cgst?.toFixed(2)}</td>}
-              {isVisible('sgst') && <td className='text-end text-black' style={{border:"solid black 1px"}}>{item?.sgst?.toFixed(2)}</td>}
-              {isVisible('igst') && <td className='text-end text-black' style={{border:"solid black 1px"}}>{item?.igst?.toFixed(2)}</td>}
+              {isVisible('cgst') && <td className='text-end text-black' style={{ border: "solid black 1px" }}>{item?.cgst?.toFixed(2)}</td>}
+              {isVisible('sgst') && <td className='text-end text-black' style={{ border: "solid black 1px" }}>{item?.sgst?.toFixed(2)}</td>}
+              {isVisible('igst') && <td className='text-end text-black' style={{ border: "solid black 1px" }}>{item?.igst?.toFixed(2)}</td>}
 
-              <td className='text-end' style={{border:"solid black 1px"}}>{item?.total?.toFixed(2)}</td>
+              <td className='text-end' style={{ border: "solid black 1px" }}>{item?.total?.toFixed(2)}</td>
             </tr>
           ))}
 
           {/* Grand Total Row */}
           <tr className="fw-bold" >
             {/* Empty for Sr No. */}
-            {isVisible('srno') && <td style={{border:"solid black 1px"}}></td>}
+            {isVisible('srno') && <td style={{ border: "solid black 1px" }}></td>}
 
             {/* Put label inside Description/Origin */}
-            {isVisible('description') && <td style={{border:"solid black 1px"}} className="text-end">Grand Total</td>}
-            {isVisible('origin') && <td style={{border:"solid black 1px"}} className="text-end ">Grand Total</td>}
+            {isVisible('description') && <td style={{ border: "solid black 1px" }} className="text-end">Grand Total</td>}
+            {isVisible('origin') && <td style={{ border: "solid black 1px" }} className="text-end ">Grand Total</td>}
 
-            {isVisible('shipments') && <td className='text-end' style={{border:"solid black 1px"}}>{totals.shipments}</td>}
-            {isVisible('quantity') && <td className='text-end' style={{border:"solid black 1px"}}>{totals.quantity}</td>}
+            {isVisible('shipments') && <td className='text-end' style={{ border: "solid black 1px" }}>{totals.shipments}</td>}
+            {isVisible('quantity') && <td className='text-end' style={{ border: "solid black 1px" }}>{totals.quantity}</td>}
             {/* {isVisible('rate') && <td>{totals?.rate?.toFixed(2)}</td>} */}
             {type === "corporate"
-              ? isVisible('freight') && <td className='text-end' style={{border:"solid black 1px"}}>{(totals.freight ?? 0).toFixed(2)}</td>
+              ? isVisible('freight') && <td className='text-end' style={{ border: "solid black 1px" }}>{(totals.freight ?? 0).toFixed(2)}</td>
               : isVisible('total') && <td className='text-end'>{(totals.freight ?? 0).toFixed(2)}</td>}
 
-            {isVisible('cgst') && <td className='text-end' style={{border:"solid black 1px"}}>{totals.cgst?.toFixed(2)}</td>}
-            {isVisible('sgst') && <td className='text-end' style={{border:"solid black 1px"}}>{totals.sgst?.toFixed(2)}</td>}
-            {isVisible('igst') && <td className='text-end' style={{border:"solid black 1px"}}>{totals.igst?.toFixed(2)}</td>}
+            {isVisible('cgst') && <td className='text-end' style={{ border: "solid black 1px" }}>{totals.cgst?.toFixed(2)}</td>}
+            {isVisible('sgst') && <td className='text-end' style={{ border: "solid black 1px" }}>{totals.sgst?.toFixed(2)}</td>}
+            {isVisible('igst') && <td className='text-end' style={{ border: "solid black 1px" }}>{totals.igst?.toFixed(2)}</td>}
 
             {/* Always show final invoice amount */}
-            <td className='text-end' style={{border:"solid black 1px"}}>{totals.total?.toFixed(2)}</td>
+            <td className='text-end' style={{ border: "solid black 1px" }}>{totals.total?.toFixed(2)}</td>
           </tr>
 
 
@@ -210,7 +210,7 @@ const InvoiceGenerator = ({ invoiceData }) => {
   }, [CheckInvoice(invoiceData)])
   return (
     <Container className="my-2">
-      <div className="invoice-container text-black" style={{fontSize:"16px"}} ref={targetRef}>
+      <div className="invoice-container text-black" style={{ fontSize: "16px" }} ref={targetRef}>
         <div>
           <Row className="mb-4">
             {/* pdf icons */}
@@ -232,7 +232,7 @@ const InvoiceGenerator = ({ invoiceData }) => {
                 <h5>To,</h5>
                 <p className="mb-1"><strong>{invoiceData?.to_name === "null" ? '(Name not provided)' : invoiceData?.to_name || '(Name not provided)'}</strong></p>
                 {invoiceData?.to_address && (
-                  <p className="mb-1" style={{width:""}}>{invoiceData?.to_address}</p>
+                  <p className="mb-1" style={{ width: "" }}>{invoiceData?.to_address}</p>
                 )}
                 {(invoiceData?.to_city ||
                   invoiceData?.to_state ||
@@ -256,7 +256,7 @@ const InvoiceGenerator = ({ invoiceData }) => {
               <div className="d-flex flex-column justify-content-end align-items-end">
                 <h5>From,</h5>
                 <p className="mb-1"><strong>{invoiceData?.from_name}</strong></p>
-                {invoiceData?.from_address && <p className="mb-1" style={{textAlign:"end"}}>{invoiceData.from_address}</p>}
+                {invoiceData?.from_address && <p className="mb-1" style={{ textAlign: "end" }}>{invoiceData.from_address}</p>}
                 <p className="mb-1">
                   {[
                     invoiceData?.from_city,
@@ -286,7 +286,7 @@ const InvoiceGenerator = ({ invoiceData }) => {
 
           {/* <p className="mb-1"><strong>Total Amount:</strong> {invoiceData.total_amount.toFixed(2)}</p> */}
           {/* <p className='border ps-2 py-2'><strong>Amount in words:</strong> {invoiceData.amount_in_words}</p> */}
-          <p className=" ps-2 py-2" style={{border:"solid black 1px",borderTop:0}}>
+          <p className=" ps-2 py-2" style={{ border: "solid black 1px", borderTop: 0 }}>
             <strong>Amount in words:</strong>{" "}
             {(() => {
               const result = amountToWords(invoiceData?.total_amount || 0, 2);
@@ -338,7 +338,7 @@ const InvoiceGenerator = ({ invoiceData }) => {
             <p className="mb-1"><strong>Corporate Identity Number:</strong> U53200PN2024PTC231459</p>
             <p className="mb-1"><strong>SAC CODE:</strong> 996812</p>
             <p className="mb-1"><strong>Whether the tax is payable on reverse charge basis:</strong> NO</p>
-            <p className="mb-0"><em>* This is a Computer Generated Invoice * For inquiries, contact us at yalesp.com</em></p>
+            <p className="mb-0"><em>* This is a Computer Generated Invoice * For inquiries, contact us at velexp.com</em></p>
           </div>
         </div>
       </div>

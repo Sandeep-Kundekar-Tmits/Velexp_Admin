@@ -4,6 +4,10 @@
       backgroundColor: 'white', // fixes transparent dropdown
       zIndex: 9999,
     }),
+    menuPortal: (base) => ({
+      ...base,
+      zIndex: 99999,
+    }),
     control: (provided) => ({
       ...provided,
       backgroundColor: 'white', // fixes transparent control box

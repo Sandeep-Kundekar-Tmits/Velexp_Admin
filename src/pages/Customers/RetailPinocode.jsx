@@ -10,6 +10,7 @@ import { DELETE_RETAIL_PINCODE, GET_ALL_PICKUP_PINCODES, UPLOAD_PINCODES } from 
 import usePostApiCall from "../../hooks/usePostApiCall"
 import ToasterProvider from "../../helpers/ToasterProvider"
 import SimpleModal from "../../components/SimpleModal"
+import MainHeaderCom from "../../components/MainHeaderCom"
 
 const RetailPincode = () => {
     const [RetailPincodeExcelData, setRetailPincodeExcelData] = useState([])
@@ -290,42 +291,54 @@ const RetailPincode = () => {
     };
 
     return (
-        <div className='page-content'>
-            <div className="container-fluid">
-                <div className="d-flex pb-3 border-bottom justify-content-between">
-                    <h2 className="">Retail Pincode</h2>
-                    {/*  */}
-                    <div className="d-flex  align-items-center">
-                        <div className="d-flex align-items-center me-4">
-                            {/*  upload file */}
-                            <Input type="file" onChange={UploadChange} />
-                            {
-                                RetailPincodeExcelData?.length >= 1 && <Button onClick={UploadPincode} className="bg-primary text-white ms-2 d-flex align-items-center">{
-                                    UploadPincodeLoading ? <span className="me-2">Uploading...</span> : <span className="me-2">Upload</span>
-                                }</Button>
-                            }
+        <div className='page-content py-0'>
+            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
+                <MainHeaderCom
+                    title="Retail Pincode"
+                    extraFields={
+                        <div className="d-flex align-items-center">
+                            <h6 className="text-black fw-bold mb-0 me-2" style={{ fontSize: "14px" }}>Template</h6>
+                            <Button
+                                // disabled={data.length < 1}
+                                onClick={converToExcel}
+                                className="d-flex align-items-center px-2 bg-transparent border-success text-success"
+                                style={{
+                                    borderRadius: "7px",
+                                    fontWeight: "500",
+                                    fontSize: "12px",
+                                    height: "35px"
+                                }}
+                            >
+                                {
+                                    ConvertingEmptyExcelLoading ? <span className="me-2">Exporting...</span> : <span className="me-2">Download</span>
+                                }
+                                <FaFileExcel size={14} className="me-1" />
+                            </Button>
                         </div>
-                        <div>
-                            {
-                                JsonLoading && <Spinner size="sm">loading...</Spinner>
-                            }
+                    }
+                />
+            </div>
+            <div className="container-fluid mt-3">
+                <div className="d-flex pb-3 border-bottom justify-content-between align-items-center">
+                    <div className="d-flex align-items-center me-auto">
+                        {/* <h2 className="">Retail Pincode</h2> */}
+                        <div className="d-flex align-items-center">
+                            <div className="d-flex align-items-center me-2">
+                                {/*  upload file */}
+                                <Input type="file" onChange={UploadChange} style={{ width: "250px" }} />
+                                {
+                                    RetailPincodeExcelData?.length >= 1 && <Button onClick={UploadPincode} className="bg-primary text-white ms-2 d-flex align-items-center">{
+                                        UploadPincodeLoading ? <span className="me-2">Uploading...</span> : <span className="me-2">Upload</span>
+                                    }</Button>
+                                }
+                            </div>
+                            <div>
+                                {
+                                    JsonLoading && <Spinner size="sm">loading...</Spinner>
+                                }
+                            </div>
                         </div>
-                        <Button
-                            // disabled={data.length < 1}
-                            onClick={converToExcel}
-                            className="d-flex align-items-center px-1 bg-transparent border-success text-success py-2"
-                            style={{
-                                borderRadius: "7px",
-                                fontWeight: "500",
-                            }}
-                        >
-                            {
-                                ConvertingEmptyExcelLoading ? <span className="me-2">Exporting...</span> : <span className="me-2">Download Template</span>
-                            }
-                            <FaFileExcel size={18} className="me-2" />
-                        </Button>
                     </div>
-
                 </div>
             </div>
             <div className=''>

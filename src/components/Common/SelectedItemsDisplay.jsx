@@ -6,8 +6,27 @@ import PropTypes from "prop-types";
  * A reusable component to display selected items from a multi-select dropdown as removable tags.
  * If the number of items exceeds a limit, it shows an overflow indicator with a popover.
  */
-const SelectedItemsDisplay = ({ selectedItems, onRemove, targetId, maxDisplay = 2 }) => {
-    if (!selectedItems || selectedItems.length === 0) return null;
+const SelectedItemsDisplay = ({ selectedItems, onRemove, targetId, maxDisplay = 2, placeholder = "All" }) => {
+    if (!selectedItems || selectedItems.length === 0) {
+        return (
+            <div 
+                className="d-flex align-items-center justify-content-center flex-grow-1" 
+                style={{ 
+                    marginLeft: "10px", 
+                    color: "#9da7b1", 
+                    fontSize: "13px", 
+                    fontWeight: "500",
+                    border: "1px dashed #ced4da",
+                    borderRadius: "8px",
+                    padding: "8px 15px",
+                    backgroundColor: "#f8f9fa",
+                    minHeight: "38px"
+                }}
+            >
+                {placeholder}
+            </div>
+        );
+    }
 
     const displayItems = selectedItems.slice(0, maxDisplay);
     const overflowItems = selectedItems.slice(maxDisplay);
