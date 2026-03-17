@@ -368,12 +368,33 @@ const EditInvoice = () => {
                 <MainHeaderComp title="Edit Invoice" />
             </div>
             <div className="container-fluid">
-                <Row className="mt-3">
+                <Row className="mt-3 align-items-end">
+                    <Col md={4} lg={3}>
+                        <FormGroup className="mb-0">
+                            <Label className="form-label fw-bold">Select Customer</Label>
+                            <SearchableDropdown
+                                onChange={handleLocationChange}
+                                locations={Customes}
+                                placeholder="Select Customer"
+                                height="38px"
+                            />
+                        </FormGroup>
+                    </Col>
+                    <Col md={4} lg={3}>
+                        <FormGroup className="mb-0">
+                            <Label className="form-label fw-bold">Select Date Range</Label>
+                            <DateRangeInput
+                                value={selectedRange}
+                                onChange={handleDateChange}
+                                isBorder={true}
+                            />
+                        </FormGroup>
+                    </Col>
                     <Col md={2}>
                         <Button
                             color="primary"
                             className="w-100"
-                            style={{ height: "38px" }}
+                            style={{ height: "38px", marginBottom: "15px" }}
                             onClick={GetFilteredEditInvoiceFunc}
                         >
                             Check
@@ -381,7 +402,7 @@ const EditInvoice = () => {
                     </Col>
                 </Row>
 
-                <div className=" mt-4">
+                <div className=" mt-2">
                     <h3>Details</h3>
                     <div className='mt-3'>
                         {
@@ -404,24 +425,6 @@ const EditInvoice = () => {
                                         pagination="pagination"
                                         paginationWrapper='dataTables_paginate paging_simple_numbers'
                                         tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
-                                        extraFiled={
-                                            <div className="d-flex align-items-center gap-2">
-                                                <div style={{ minWidth: "250px" }} className="border-end pe-2 ps-2">
-                                                    <SearchableDropdown
-                                                        onChange={handleLocationChange}
-                                                        locations={Customes}
-                                                        placeholder="Select Customer"
-                                                    />
-                                                </div>
-                                                <div style={{ minWidth: "200px", borderLeft: "1px solid #ccc" }}>
-                                                    <DateRangeInput
-                                                        value={selectedRange}
-                                                        onChange={handleDateChange}
-                                                        isBorderRight={true}
-                                                    />
-                                                </div>
-                                            </div>
-                                        }
                                     />
                                 </>
 

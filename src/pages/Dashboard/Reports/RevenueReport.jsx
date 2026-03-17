@@ -130,7 +130,7 @@ const RevenueReport = () => {
     // useEffects
     useEffect(() => {
         // calling the customer api
-        GetAllCustomers(GET_USER_API)
+        GetAllCustomers(`${GET_USER_API}/`)
         // calling the service Center api
         GetServiceCenter(SERVICE_CENTER)
     }, [])
@@ -204,11 +204,11 @@ const RevenueReport = () => {
         }
 
         const formattedRange = {
-            start: selectedRange?.startDate?.isValid()
-                ? selectedRange.startDate?.format('DD-MM-YYYY')
+            start: selectedRange?.startDate
+                ? format(selectedRange.startDate, 'dd-MM-yyyy')
                 : "",
-            end: selectedRange?.endDate?.isValid()
-                ? selectedRange.endDate?.format('DD-MM-YYYY')
+            end: selectedRange?.endDate
+                ? format(selectedRange.endDate, 'dd-MM-yyyy')
                 : "",
         };
 
@@ -348,7 +348,17 @@ const RevenueReport = () => {
                                     styles={customStyles} />
                             </FormGroup>
                         </Col>
-                        <Col md={3} className='d-flex mt-2 align-content-center flex-wrap gap-2'>
+                        <Col md={3}>
+                            <FormGroup className="mb-2">
+                                <Label for="Customer">Select Date Range</Label>
+                                <DateRangeInput
+                                    value={selectedRange}
+                                    onChange={handleChange}
+                                    isBorder={true}
+                                />
+                            </FormGroup>
+                        </Col>
+                        <Col md={3} className='d-flex mt-4 align-content-center flex-wrap gap-2'>
                             <Button color="primary" onClick={CheckClick} style={{ width: "100%", height: "38px" }}>
                                 {
                                     RevenueDataLoading ? "Checking..." : "Check"
@@ -420,15 +430,6 @@ const RevenueReport = () => {
                                     isDownloadExcle={true}
                                     ExcleLoading={isExporting}
                                     onDownloadExcle={DownloadRevenueDetails}
-                                    extraFiled={
-                                        <div style={{ minWidth: "200px" }}>
-                                            <DateRangeInput
-                                                value={selectedRange}
-                                                onChange={handleChange}
-                                                isBorderRight={true}
-                                            />
-                                        </div>
-                                    }
                                 />
                         }
                     </div>

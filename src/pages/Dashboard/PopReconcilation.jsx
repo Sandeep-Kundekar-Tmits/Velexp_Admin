@@ -4,14 +4,13 @@ import { customStyles } from "../../helpers/CustomStyle";
 import { useEffect, useMemo, useState } from "react";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
 import { GET_POP_RECONSILATION_PAYMENT_REPORT, GET_USER_API, POP_RECONCILATION_PAYMENT_CONFIRMATION, SERVICE_CENTER } from "../../api";
-import DateRangePicker from "@paprika/date-range-picker";
+import DateRangeInput from "../../components/Common/DateRangeInput";
 import TableContainer from "../../components/Table/TableContainer";
 import UpdatedReconcilation from "../../components/POP_Reconcilation/UpdatedReconcilation";
 import usePostApiCall from "../../hooks/usePostApiCall";
 import YMD_DateFormate from "../../helpers/YMD_DateFormate";
 import { GridLoader } from "react-spinners";
 import { useExcelExport } from "../../hooks/useExcelExport";
-import moment from 'moment';
 // Use local date methods instead of toISOString()
 const formatDate = (date) => {
     const y = date.getFullYear();
@@ -26,8 +25,8 @@ const PopReconcilation = () => {
     // selected service center
     const [SelectedServiceCenter, setSelectedServiceCenters] = useState({ label: "All", value: "All" })
     const [selectedRange, setSelectedRange] = useState({
-        startDate: "",
-        endDate: "",
+        startDate: null,
+        endDate: null,
     });
     const [showPopup, setShowPopup] = useState(false)
     // service center option dropdown
@@ -77,8 +76,8 @@ const PopReconcilation = () => {
         const firstDay = new Date(year, month, 1);
         const lastDay = new Date(year, month + 1, 0);
         setSelectedRange({
-            startDate: moment(firstDay),  // Convert to Moment object
-            endDate: moment(lastDay)      // Convert to Moment object
+            startDate: firstDay,
+            endDate: lastDay
         });
         POP_Get_AllReconcilation(GET_POP_RECONSILATION_PAYMENT_REPORT, {
             service_center: "All",
@@ -137,8 +136,8 @@ const PopReconcilation = () => {
             const firstDay = new Date(year, month, 1);
             const lastDay = new Date(year, month + 1, 0);
             setSelectedRange({
-                startDate: moment(firstDay),
-                endDate: moment(lastDay)
+                startDate: firstDay,
+                endDate: lastDay
             });
             POP_Get_AllReconcilation(GET_POP_RECONSILATION_PAYMENT_REPORT, {
                 service_center: "All",
@@ -170,42 +169,43 @@ const PopReconcilation = () => {
                 </div>
 
                 {/* filter */}
-                <Row className=" mt-2 border-bottom">
-                    <Col md={5}>
-                        <FormGroup className="mb-2">
-                            <Label for="Customer">Select Service Center</Label>
-                            <Select options={ServiceCenterOption}
+                <Row className="mt-3 align-items-end border-bottom pb-3">
+                    <Col md={4}>
+                        <FormGroup className="mb-0">
+                            <Label for="Customer" className="fw-bold">Select Service Center</Label>
+                            <Select
+                                options={ServiceCenterOption}
                                 placeholder="Search"
                                 value={SelectedServiceCenter}
                                 onChange={setSelectedServiceCenters}
                                 isClearable={true}
-
-                                styles={customStyles} />
+                                styles={customStyles}
+                            />
                         </FormGroup>
                     </Col>
-                    <Col md={5}>
-                        <FormGroup >
-                            <Label>Start Date and End Date</Label>
-                            <div >
-                                <DateRangePicker
-                                    startDate={selectedRange.startDate}
-                                    endDate={selectedRange.endDate}
-                                    onChange={handleDateChange}
-                                />
-                            </div>
+                    <Col md={4}>
+                        <FormGroup className="mb-0">
+                            <Label className="fw-bold">Start Date and End Date</Label>
+                            <DateRangeInput
+                                value={selectedRange}
+                                onChange={handleDateChange}
+                                isBorder={true}
+                            />
                         </FormGroup>
                     </Col>
                     <Col md={2}>
-                        <div style={{ marginTop: "25px" }}>
-                            <Button color="primary" onClick={onCheckClick} style={{ height: "2.2rem", width: "100%" }} >
-                                {ReconcilationListLoading ? "Checking.." : "Check"}
-                            </Button>
-                        </div>
+                        <Button
+                            color="primary"
+                            onClick={onCheckClick}
+                            style={{ height: "38px", width: "100%", marginBottom: "15px" }}
+                        >
+                            {ReconcilationListLoading ? "Checking.." : "Check"}
+                        </Button>
                     </Col>
                 </Row>
 
                 {/*  main table */}
-                <div className="mt-3">
+                <div className="mt-2">
                     {
                         ReconcilationListLoading ?
                             <div style={{ height: "40vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">

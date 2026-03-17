@@ -24,7 +24,8 @@ const REQUIRED_VERTICAL_KEYS = [
     "Max Box Weight",
     "One Box One AWB",
     "Volumetric Divisor",
-    "Max Liability"
+    "Max Liability",
+    "FSC"
 ];
 
 const InternationRateData = () => {
@@ -138,7 +139,7 @@ const InternationRateData = () => {
                 countryAttribs[country] = {
                     country, tat_days: 0, duty_paid: false, add_kg: 0,
                     max_box_weight: 0, one_box_one_awb: false,
-                    volumetric_divisor: 0, max_liability: 0, rate_slabs: []
+                    volumetric_divisor: 0, max_liability: 0, FSC: 0, rate_slabs: []
                 };
             });
 
@@ -164,6 +165,8 @@ const InternationRateData = () => {
                         countryAttribs[country].volumetric_divisor = parseInt(value) || 0;
                     } else if (lowerLabel.includes("max liability")) {
                         countryAttribs[country].max_liability = parseFloat(value) || 0;
+                    } else if (lowerLabel === "fsc") {
+                        countryAttribs[country].FSC = parseFloat(value) || 0;
                     } else if (!isNaN(parseFloat(label))) {
                         const weight_kg = parseFloat(label);
                         const rate = parseFloat(value);
@@ -201,6 +204,8 @@ const InternationRateData = () => {
             countries: uploadedData
         };
 
+
+
         const response = await uploadBulkData(UPLOAD_INTERNATIONAL_RATE_DATA_CUSTOMER, payload);
         if (response?.status === "success" || response?.status === 1) {
             setUploadedData([]);
@@ -220,6 +225,7 @@ const InternationRateData = () => {
             { "Country": "One Box One AWB (Yes/No)", ...exampleCountries.reduce((acc, c) => ({ ...acc, [c]: "" }), {}) },
             { "Country": "Volumetric Divisor", ...exampleCountries.reduce((acc, c) => ({ ...acc, [c]: "" }), {}) },
             { "Country": "Max Liability (INR)", ...exampleCountries.reduce((acc, c) => ({ ...acc, [c]: "" }), {}) },
+            { "Country": "FSC", ...exampleCountries.reduce((acc, c) => ({ ...acc, [c]: "" }), {}) },
             { "Country": "--- Weight Slabs (Kg) ---", ...exampleCountries.reduce((acc, c) => ({ ...acc, [c]: "Rates ↓" }), {}) },
             { "Country": "", ...exampleCountries.reduce((acc, c) => ({ ...acc, [c]: "" }), {}) },
             { "Country": "", ...exampleCountries.reduce((acc, c) => ({ ...acc, [c]: "" }), {}) },
@@ -283,6 +289,7 @@ const InternationRateData = () => {
             { "Country": "One Box One AWB (Yes/No)", ...countries.reduce((acc, c) => ({ ...acc, [c]: formatBool(getMeta(c, ["one_box_one_awb", "one_box"])) }), {}) },
             { "Country": "Volumetric Divisor", ...countries.reduce((acc, c) => ({ ...acc, [c]: getMeta(c, ["volumentric_divisor", "divisor"]) }), {}) },
             { "Country": "Max Liability (INR)", ...countries.reduce((acc, c) => ({ ...acc, [c]: getMeta(c, ["max_liability", "liability"]) }), {}) },
+            { "Country": "FSC", ...countries.reduce((acc, c) => ({ ...acc, [c]: getMeta(c, ["FSC", "fsc"]) }), {}) },
             { "Country": "--- Weight Slabs (Kg) ---", ...countries.reduce((acc, c) => ({ ...acc, [c]: "Rates ↓" }), {}) },
         ];
 

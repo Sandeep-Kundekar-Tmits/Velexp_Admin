@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import PropTypes from 'prop-types';
 //import components
 import Breadcrumbs from '../../components/Common/Breadcrumb';
-import { Button, FormFeedback, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Spinner, Table } from "reactstrap";
+import { Button, Col, FormFeedback, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Row, Spinner, Table } from "reactstrap";
 import DateRangeInput from "../../components/Common/DateRangeInput";
 import TableContainer from "../../components/Table/TableContainer";
 import AddPodModal from "../../components/UserManagement/AddPOD/AddPodModal";
@@ -259,33 +259,52 @@ const AddPod = () => {
   //meta title
   document.title = "Add POD";
   return (
-    <div className="page-content">
-      <div className="bg-white sticky-top" style={{ top: '0px', marginTop: "-10px", zIndex: 1001 }}>
+    <div className="page-content py-0 px-0">
+      <div className="bg-white shadow-sm" style={{ position: "sticky", top: "0px", zIndex: 1001, width: "100%" }}>
         <MainHeaderComp
           title="POD Reports"
           extraFields={
-            <Button color="primary" onClick={RangeCheckPodDetails} style={{ height: "38px", width: "100px" }}>
-              Check
-            </Button>
+            <div className="d-flex gap-2">
+              <Button color="primary" onClick={() => setSelectedTitle("add_pod")}>
+                Add POD
+              </Button>
+              <Button color="primary" onClick={() => { setSelectedTitle("Missing_pod") }} >
+                Find Missing POD
+              </Button>
+            </div>
           }
         />
       </div>
       <div className="container-fluid">
         {/* <Breadcrumbs title="Tables" breadcrumbItem="Data Tables" /> */}
 
-        {/* add pod section */}
-        <div className="mt-2 mb-3">
-          <Button color="primary" onClick={() => setSelectedTitle("add_pod")}>
-            Add POD
-          </Button>
-          <Button color="primary" className="ms-4" onClick={() => { setSelectedTitle("Missing_pod") }} >
-            Find Missing POD
-          </Button>
-          {ReturnComponent(selectedTitle)}
+        {ReturnComponent(selectedTitle)}
 
-        </div>
+        {/* Filters Section */}
+        <Row className="mt-3 align-items-end mx-0">
+          <Col md={4} lg={3}>
+            <FormGroup className="mb-0">
+              <Label className="form-label fw-bold">Select Date Range</Label>
+              <DateRangeInput
+                value={selectedRange}
+                onChange={handleChange}
+                isBorder={true}
+              />
+            </FormGroup>
+          </Col>
+          <Col md={2}>
+            <Button
+              color="primary"
+              className="w-100"
+              onClick={RangeCheckPodDetails}
+              style={{ height: "38px", marginBottom: "15px" }}
+            >
+              Check
+            </Button>
+          </Col>
+        </Row>
 
-        <div className="mt-4">
+        <div className="mt-2">
           {
             PodDataLoading ?
               <div style={{ height: "75vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
@@ -304,17 +323,7 @@ const AddPod = () => {
                 pagination="pagination"
                 paginationWrapper='dataTables_paginate paging_simple_numbers'
                 tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
-                isStickyHeader={true}
-                tableHeight="500px"
-                extraFiled={
-                  <div style={{ minWidth: "250px" }}>
-                    <DateRangeInput
-                      value={selectedRange}
-                      isBorderRight={true}
-                      onChange={handleChange}
-                    />
-                  </div>
-                }
+
               />
           }
         </div>

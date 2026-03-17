@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from "react";
-import { Button, Input } from "reactstrap";
+import React, { useEffect, useMemo, useState } from "react";
+import { Button, Col, FormGroup, Input, Label, Row } from "reactstrap";
 import Select from "react-select";
 import MainHeaderComp from "../../components/MainHeaderCom";
 import TableContainer from "../../components/Table/TableContainer";
@@ -11,7 +11,6 @@ import ViewRtoApproval from "../../components/RTO_Approval/ViewRtoApproval";
 import { UPDATE_CUSTOMER_SERVICE_REMARK, BULK_RTS_STATUS_UPDATE, GET_USER_API, GET_UNDELIVERED_SHIPMENTS, GET_DELIVERY_ATTEMPTS_REMARKS } from "../../api/index";
 import usePostApiCall from "../../hooks/usePostApiCall";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
-import { useEffect } from "react";
 import YMD_DateFormate from "../../helpers/YMD_DateFormate";
 import { toast } from "react-toastify";
 
@@ -74,21 +73,22 @@ const RtoApproval = () => {
     }, [shipmentsData, selectedCustomer, selectedRange.startDate, selectedRange.endDate]);
 
     /**
-     * Automatically fetch undelivered shipments when both customer
-     * and date range are fully selected.
+     * Manually fetch undelivered shipments when "Check" is clicked.
      */
-    useEffect(() => {
-        if (selectedCustomer && selectedRange.startDate && selectedRange.endDate) {
-            const datePayload = YMD_DateFormate(selectedRange);
-            const payload = {
-                // customer_id: selectedCustomer.value,
-                customer_id: 670,
-                from_date: datePayload.from_date,
-                to_date: datePayload.to_date
-            };
-            GetUndeliveredShipments(GET_UNDELIVERED_SHIPMENTS, payload);
+    const handleCheck = () => {
+        if (!selectedCustomer || !selectedRange.startDate || !selectedRange.endDate) {
+            toast.error("Please select both a customer and a date range.");
+            return;
         }
-    }, [selectedCustomer, selectedRange.startDate, selectedRange.endDate]);
+
+        const datePayload = YMD_DateFormate(selectedRange);
+        const payload = {
+            customer_id: selectedCustomer.value,
+            from_date: datePayload.from_date,
+            to_date: datePayload.to_date
+        };
+        GetUndeliveredShipments(GET_UNDELIVERED_SHIPMENTS, payload);
+    };
 
     // Clear row selections whenever filters change
     useEffect(() => {
@@ -279,53 +279,67 @@ const RtoApproval = () => {
     ], [selectedCustomer, filteredShipments]);
 
 
-    // Extra header fields
-    const extraHeaderFields = (
-        <div className="d-flex align-items-center justify-content-between w-100 pe-2">
-            <div style={{ width: "280px" }}>
-                <DateRangeInput
-                    value={selectedRange}
-                    onChange={(range) => setSelectedRange(range)}
-                />
-            </div>
-            <div style={{ width: "250px" }}>
-                <Select
-                    options={userListOptions}
-                    placeholder="Select Customer"
-                    value={selectedCustomer}
-                    onChange={(val) => setSelectedCustomer(val)}
-                    isClearable={true}
-                    styles={customStyles}
-                />
-            </div>
-        </div>
-    );
 
     const selectedRowCount = Object.keys(rowSelection).length;
 
     return (
-        <div className='mt-2 position-relative mb-5 mx-0'>
-            <MainHeaderComp
-                title="RTO Approval"
-            // subTitle="Quickly access insights and monitor key metrics in one place."
-            />
+        <div className='page-content py-0'>
+            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
+                <MainHeaderComp title="RTO Approval" />
+            </div>
 
-            <div className="mx-1 mt-0" style={{ height: "85vh", overflowY: "auto", overflowX: "hidden" }}>
-                <TableContainer
-                    columns={columns}
-                    data={filteredShipments}
-                    isGlobalFilter={true}
-                    loading={shipmentsLoading}
-                    isPagination={true}
-                    // isCustomPageSize={true}
-                    SearchPlaceholder="Search across all columns..."
-                    extraFiled={extraHeaderFields}
-                    pagination="pagination"
-                    paginationWrapper='dataTables_paginate paging_simple_numbers'
-                    tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
-                    rowSelection={rowSelection}
-                    onRowSelectionChange={setRowSelection}
-                />
+            <div className="container-fluid">
+                <Row className="mt-3 align-items-end">
+                    <Col md={4} lg={3}>
+                        <FormGroup className="mb-0">
+                            <Label className="form-label fw-bold">Select Customer</Label>
+                            <Select
+                                options={userListOptions}
+                                placeholder="Select Customer"
+                                value={selectedCustomer}
+                                onChange={(val) => setSelectedCustomer(val)}
+                                isClearable={true}
+                                styles={customStyles}
+                            />
+                        </FormGroup>
+                    </Col>
+                    <Col md={4} lg={3}>
+                        <FormGroup className="mb-0">
+                            <Label className="form-label fw-bold">Select Date Range</Label>
+                            <DateRangeInput
+                                value={selectedRange}
+                                onChange={(range) => setSelectedRange(range)}
+                                isBorder={true}
+                            />
+                        </FormGroup>
+                    </Col>
+                    <Col md={2}>
+                        <Button
+                            color="primary"
+                            className="w-100"
+                            style={{ height: "38px", marginBottom: "17px" }}
+                            onClick={handleCheck}
+                        >
+                            {shipmentsLoading ? "Checking.." : "Check"}
+                        </Button>
+                    </Col>
+                </Row>
+
+                <div className="mt-2" style={{ height: "75vh", overflowY: "auto", overflowX: "hidden" }}>
+                    <TableContainer
+                        columns={columns}
+                        data={filteredShipments}
+                        isGlobalFilter={true}
+                        loading={shipmentsLoading}
+                        isPagination={true}
+                        SearchPlaceholder="Search across all columns..."
+                        pagination="pagination"
+                        paginationWrapper='dataTables_paginate paging_simple_numbers'
+                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                        rowSelection={rowSelection}
+                        onRowSelectionChange={setRowSelection}
+                    />
+                </div>
             </div>
 
             {

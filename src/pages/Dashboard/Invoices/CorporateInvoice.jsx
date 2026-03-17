@@ -477,8 +477,8 @@ const CorporateInvoice = () => {
             </div>
             <div className="container-fluid">
                 <div className="mt-3">
-                    <Row className="border-bottom pb-3">
-                        <Col md={4} className="">
+                    <Row className="pb-0 align-items-end border-bottom">
+                        <Col md={4}>
                             <FormGroup className="mb-0">
                                 <Label for="gstUpload">Upload Invoice</Label>
                                 <Input type="file" id="gstUpload" onChange={UploadInvoiceChange} />
@@ -491,18 +491,41 @@ const CorporateInvoice = () => {
                             </FormGroup>
                         </Col>
                         <Col md={2}>
-                            <Button color="primary" onClick={CheckCustomerBillings} className="w-100" style={{ height: "38px", marginTop: "28px" }} >
-                                {
-                                    CorporateBillingLoading ? "Checking.." : "Check"
-                                }
-                            </Button>
-                        </Col>
-                        <Col md={2}>
-                            <Button color="primary" disabled={!showUploadBtn || !UploadedFile} onClick={UploadInvoice} className="w-100" style={{ height: "38px", marginTop: "28px" }} >
+                            <Button color="primary" disabled={!showUploadBtn || !UploadedFile} onClick={UploadInvoice} className="w-100" style={{ height: "38px", marginBottom: "35px" }} >
                                 {
                                     UploadcorporateInvoiceLoading ? <Spinner size="sm">
                                         Loading...
                                     </Spinner> : "Upload"
+                                }
+                            </Button>
+                        </Col>
+                    </Row>
+                    <Row className="pt-3 pb-3 align-items-end border-bottom">
+                        <Col md={4}>
+                            <FormGroup className="mb-0">
+                                <Label>Select Customer</Label>
+                                <SearchableDropdown
+                                    onChange={handleLocationChange}
+                                    locations={Customes}
+                                    placeholder={GetuserLoading ? "loading..." : "Select Customer"}
+                                    className="w-100"
+                                />
+                            </FormGroup>
+                        </Col>
+                        <Col md={4}>
+                            <FormGroup className="mb-0">
+                                <Label>Select Date Range</Label>
+                                <DateRangeInput
+                                    onChange={handleDateChange}
+                                    value={selectedRange}
+                                    isBorder={true}
+                                />
+                            </FormGroup>
+                        </Col>
+                        <Col md={2}>
+                            <Button color="primary" onClick={CheckCustomerBillings} className="w-100" style={{ height: "38px", marginBottom: "15px" }} >
+                                {
+                                    CorporateBillingLoading ? "Checking.." : "Check"
                                 }
                             </Button>
                         </Col>
@@ -527,25 +550,6 @@ const CorporateInvoice = () => {
                                     isCustomPageSize={true}
                                     isDownloadExcle={true}
                                     onDownloadExcle={DownloadBookingDetails}
-                                    extraFiled={
-                                        <div className="d-flex align-items-center gap-3">
-                                            <div style={{ width: '220px' }}>
-                                                <SearchableDropdown
-                                                    onChange={handleLocationChange}
-                                                    locations={Customes}
-                                                    placeholder={GetuserLoading ? "loading..." : "Select Customer"}
-                                                    className="w-100"
-                                                />
-                                            </div>
-                                            <div style={{ width: '270px', borderLeft: "1px solid #ccc" }}>
-                                                <DateRangeInput
-                                                    onChange={handleDateChange}
-                                                    value={selectedRange}
-                                                    isBorderRight={true}
-                                                />
-                                            </div>
-                                        </div>
-                                    }
                                     SearchPlaceholder="Search From Table"
                                     pagination="pagination"
                                     paginationWrapper='dataTables_paginate paging_simple_numbers'

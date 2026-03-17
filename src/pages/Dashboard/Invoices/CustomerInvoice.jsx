@@ -384,7 +384,7 @@ const CustomerInvoice = () => {
             </div>
             <div className="container-fluid">
                 <div className="mt-3">
-                    <Row className="border-bottom pb-3">
+                    <Row className="pb-0 align-items-end border-bottom">
                         <Col md={4}>
                             <FormGroup className="mb-0">
                                 <Label for="gstUpload">Upload Invoice</Label>
@@ -394,21 +394,44 @@ const CustomerInvoice = () => {
                                         Loading...
                                     </Spinner>
                                 }
-                                <FormText color="muted" className="mb-0">Upload Invoice file if available</FormText>
+                                <FormText color="muted" className="mb-0">Upload Invoice file</FormText>
                             </FormGroup>
                         </Col>
                         <Col md={2}>
-                            <Button color="primary" className="w-100" style={{ height: "38px", marginTop: "28px" }} onClick={CheckFranchiseDetails}>
-                                Check
-                            </Button>
-                        </Col>
-                        <Col md={2}>
-                            <Button color="primary" onClick={UploadInvoice} disabled={!showUploadBtn || !UploadedFile} className="w-100" style={{ height: "38px", marginTop: "28px" }} >
+                            <Button color="primary" onClick={UploadInvoice} disabled={!showUploadBtn || !UploadedFile} className="w-100" style={{ height: "38px", marginBottom: "35px" }} >
                                 {
                                     UploadFranchiseInvoiceLoading ? <Spinner size="sm">
                                         Loading...
                                     </Spinner> : "Upload"
                                 }
+                            </Button>
+                        </Col>
+                    </Row>
+                    <Row className="pt-3 pb-3 align-items-end border-bottom">
+                        <Col md={4}>
+                            <FormGroup className="mb-0">
+                                <Label>Select Customer</Label>
+                                <SearchableDropdown
+                                    onChange={handleLocationChange}
+                                    locations={Customes}
+                                    placeholder="Select Customer"
+                                    className="w-100"
+                                />
+                            </FormGroup>
+                        </Col>
+                        <Col md={4}>
+                            <FormGroup className="mb-0">
+                                <Label>Select Date Range</Label>
+                                <DateRangeInput
+                                    onChange={handleDateChange}
+                                    value={selectedRange}
+                                    isBorder={true}
+                                />
+                            </FormGroup>
+                        </Col>
+                        <Col md={2}>
+                            <Button color="primary" className="w-100" style={{ height: "38px", marginBottom: "15px" }} onClick={CheckFranchiseDetails}>
+                                Check
                             </Button>
                         </Col>
                     </Row>
@@ -436,25 +459,6 @@ const CustomerInvoice = () => {
                                             isCustomPageSize={true}
                                             isDownloadExcle={true}
                                             onDownloadExcle={DownloadBookingDetails}
-                                            extraFiled={
-                                                <div className="d-flex align-items-center gap-3">
-                                                    <div style={{ width: '220px' }}>
-                                                        <SearchableDropdown
-                                                            onChange={handleLocationChange}
-                                                            locations={Customes}
-                                                            placeholder="Select Customer"
-                                                            className="w-100"
-                                                        />
-                                                    </div>
-                                                    <div style={{ width: '270px', borderLeft: "1px solid #ccc" }}>
-                                                        <DateRangeInput
-                                                            onChange={handleDateChange}
-                                                            value={selectedRange}
-                                                            isBorderRight={true}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            }
                                             SearchPlaceholder="Search From Table"
                                             pagination="pagination"
                                             paginationWrapper='dataTables_paginate paging_simple_numbers'

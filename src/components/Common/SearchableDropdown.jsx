@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { MdArrowDropDown, MdClose } from "react-icons/md";
 import PropTypes from 'prop-types';
 
-const SearchableDropdown = ({ onChange, className, locations = [], value = "select", placeholder = null
+const SearchableDropdown = ({ onChange, className, locations = [], value = "select", placeholder = null, height = "32px"
 }) => {
     const [showInputDropdown, setShowInputDropdown] = useState(false);
     const dropdownRef = useRef(null);
@@ -42,11 +42,11 @@ const SearchableDropdown = ({ onChange, className, locations = [], value = "sele
         <div
             className={`position-relative bg-white ${className}`}
             ref={dropdownRef}
-            style={{ width: "18rem", zIndex: "999" }}
+            style={{ width: "100%", zIndex: "999" }}
         >
             <div
                 className="d-flex align-items-center rounded px-2 border border-dark-subtle cursor-pointer"
-                style={{ height: '32px' }}
+                style={{ height: height }}
                 onClick={() => setShowInputDropdown(!showInputDropdown)}
                 aria-haspopup="listbox"
                 aria-expanded={showInputDropdown}

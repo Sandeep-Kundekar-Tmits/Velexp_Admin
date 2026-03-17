@@ -268,6 +268,17 @@ const ServiceProviderBooking = () => {
                 <Row className="mt-3">
                     <Col md={4}>
                         <FormGroup>
+                            <Label>Select Date Range</Label>
+                            <DateRangeInput
+                                onChange={handleDateChange}
+                                value={selectedRange}
+                                className="h-100"
+                                isBorder={true}
+                            />
+                        </FormGroup>
+                    </Col>
+                    <Col md={4}>
+                        <FormGroup>
                             <Label>Service Provider</Label>
                             <Select
                                 options={[
@@ -303,16 +314,6 @@ const ServiceProviderBooking = () => {
                                         data={ServiceProviderData || []}
                                         isGlobalFilter={true}
                                         isPagination={true}
-                                        extraFiled={
-                                            <div style={{ width: '250px' }}>
-                                                <DateRangeInput
-                                                    onChange={handleDateChange}
-                                                    value={selectedRange}
-                                                    className="h-100"
-                                                    isBorderRight={true}
-                                                />
-                                            </div>
-                                        }
                                         isCustomPageSize={true}
                                         isDownloadExcle={true}
                                         onDownloadExcle={DownloadBookingDetails}
