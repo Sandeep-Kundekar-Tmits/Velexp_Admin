@@ -7,10 +7,11 @@ import { useEffect, useMemo, useState } from "react";
 import { useGetApiCall } from "../../../hooks/useGetApiCall";
 import { COD_UPLOAD_REPORTS, GET_USER_API, SERVICE_CENTER, UPLOAD_GET_REVENUE_API } from "../../../api";
 import TableContainer from "../../../components/Table/TableContainer";
-import DateRangePicker from "@paprika/date-range-picker";
+import DateRangeInput from "../../../components/Common/DateRangeInput";
 import usePostApiCall from "../../../hooks/usePostApiCall";
 import { GridLoader } from "react-spinners";
 import { useExcelExport } from "../../../hooks/useExcelExport";
+import { format } from "date-fns";
 const CODReport = () => {
     const columns = useMemo(
         () => [
@@ -127,11 +128,11 @@ const CODReport = () => {
         }
 
         const formattedRange = {
-            start: selectedRange?.startDate?.isValid()
-                ? selectedRange.startDate?.format('DD-MM-YYYY')
+            start: selectedRange?.startDate
+                ? format(selectedRange.startDate, 'dd-MM-yyyy')
                 : "",
-            end: selectedRange?.endDate?.isValid()
-                ? selectedRange.endDate?.format('DD-MM-YYYY')
+            end: selectedRange?.endDate
+                ? format(selectedRange.endDate, 'dd-MM-yyyy')
                 : "",
         };
 
@@ -152,7 +153,7 @@ const CODReport = () => {
     // useEffects
     useEffect(() => {
         // calling the customer api
-        GetAllCustomers(GET_USER_API)
+        GetAllCustomers(`${GET_USER_API}/`)
     }, [])
 
     useEffect(() => {
@@ -181,11 +182,11 @@ const CODReport = () => {
             return
         }
         const formattedRange = {
-            start: selectedRange?.startDate?.isValid()
-                ? selectedRange.startDate?.format('DD-MM-YYYY')
+            start: selectedRange?.startDate
+                ? format(selectedRange.startDate, 'dd-MM-yyyy')
                 : "",
-            end: selectedRange?.endDate?.isValid()
-                ? selectedRange.endDate?.format('DD-MM-YYYY')
+            end: selectedRange?.endDate
+                ? format(selectedRange.endDate, 'dd-MM-yyyy')
                 : "",
         };
 
@@ -225,7 +226,7 @@ const CODReport = () => {
                 <div>
                     <h3 className='pb-3 border-bottom'>COD Report</h3>
                     <Row>
-                        <Col md={5}>
+                        <Col md={4}>
                             <FormGroup className="mb-2">
                                 <Label for="Customer">Select Customer</Label>
                                 <Select
@@ -238,16 +239,14 @@ const CODReport = () => {
                                     styles={customStyles} />
                             </FormGroup>
                         </Col>
-                        <Col md={5}>
+                        <Col md={4}>
                             <FormGroup className="mb-2">
                                 <Label>Start Date and End Date</Label>
-                                <div style={{ minWidth: "200px" }}>
-                                    <DateRangePicker
-                                        startDate={selectedRange.startDate}
-                                        endDate={selectedRange.endDate}
-                                        onChange={handleChange}
-                                    />
-                                </div>
+                                <DateRangeInput
+                                    value={selectedRange}
+                                    onChange={handleChange}
+                                    isBorder={true}
+                                />
                             </FormGroup>
                         </Col>
 
