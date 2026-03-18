@@ -213,7 +213,7 @@ const TableContainer = ({
                                 <Button
                                     disabled={data.length < 1}
                                     onClick={onDownloadExcle}
-                                    className="d-flex align-items-center px-2 bg-transparent border-success text-success"
+                                    className="d-flex align-items-center px-2 bg-success border-success text-white"
                                     style={{
                                         height: "35px",
                                         borderRadius: "4px",
@@ -360,16 +360,17 @@ const TableContainer = ({
                                     })
                                 }
                             </tbody>
-                                : <tr>
-                                    <td
-                                        colSpan={table.getVisibleLeafColumns().length}
-                                        className="text-center fw-bold p-3 border-0"
-                                        style={{ background: "#DBDBDB" }}
-                                    >
-                                        No Data
-                                    </td>
-                                </tr>
-
+                                : <tbody>
+                                    <tr >
+                                        <td
+                                            colSpan={table.getVisibleLeafColumns().length}
+                                            className="text-center fw-bold p-3 border-0"
+                                            style={{ background: "#DBDBDB" }}
+                                        >
+                                            No Data
+                                        </td>
+                                    </tr>
+                                </tbody>
                         }
                         {hasFooter && (
                             <tfoot

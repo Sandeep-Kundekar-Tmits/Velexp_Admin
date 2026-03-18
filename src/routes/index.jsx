@@ -74,6 +74,7 @@ import InternationRateData from "../pages/Dashboard/RateData/InternationRateData
 import InternationPincode from "../pages/Dashboard/RateData/InternationPincode";
 import PerformanceReport from "../pages/performance/PerformanceReport";
 import StatusUpdateAudit from "../pages/Dashboard/Reports/StatusUpdateAudit";
+import ProductivityReport from "../pages/Dashboard/Reports/ProductivityReport";
 
 
 const getPermissions = () => {
@@ -120,6 +121,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/performance-report", component: <PerformanceReport /> },
     { path: "/status-update-audit", component: <StatusUpdateAudit /> },
     { path: "/operation-attempt-wise-pickup-performance", component: <AttemptWiseOperationPickupReport /> },
+    { path: "/productivity-report", component: <ProductivityReport /> },
     // customer performance
     // { path: "/last-mile-customer-performance", component: <CustomerLastMileOperation /> },
     { path: "/last-mile-customer-performance", component: <CustomerLastMileOperationClone /> },

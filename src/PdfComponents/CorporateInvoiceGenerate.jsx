@@ -6,6 +6,7 @@ import { numberToWords, amountToWords } from "amount-to-words";
 // Logo and signature imports (you'll need to have these files in your assets)
 import VellocityExpressIcon from "../assets/images/vellocity-express-logo.png";
 import Signature from "../assets/images/PDFsignature.png";
+import QR from "../assets/images/qrcode.jpeg";
 
 const CorporateInvoiceGenerate = React.forwardRef(({ invoiceData }, ref) => {
   // const { toPDF, targetRef } = usePDF({
@@ -50,7 +51,7 @@ const CorporateInvoiceGenerate = React.forwardRef(({ invoiceData }, ref) => {
 
   return (
     <Container className="my-2" style={{ position: 'absolute', left: '-9999px' }} >
-      <div className="invoice-container" ref={ref} >
+      <div className="invoice-container text-black" style={{ fontSize: "16px" }} ref={ref} >
         <div>
           {/* Header Section */}
           <Row className="mb-4">
@@ -58,16 +59,16 @@ const CorporateInvoiceGenerate = React.forwardRef(({ invoiceData }, ref) => {
               <img src={VellocityExpressIcon} style={{ width: "220px", height: "70px" }} alt="Vellocity Express" />
             </Col>
             <Col className='d-flex flex-column justify-content-end align-items-end'>
-              <h6 className="mb-1 fw-bolder">TAX INVOICE</h6>
-              <p className="mb-1 small"><strong>Inv. No:</strong> {invoiceData?.invoice_no || 'N/A'}</p>
-              <p className='small'><strong>Inv. Date:</strong> {formatDate(invoiceData?.invoice_date)}</p>
+              <h6 className="mb-1 font-size-16 fw-bolder">TAX INVOICE</h6>
+              <p className="mb-1"><strong>Inv. No:</strong> {invoiceData?.invoice_no || 'N/A'}</p>
+              <p className=''><strong>Inv. Date:</strong> {formatDate(invoiceData?.invoice_date)}</p>
             </Col>
           </Row>
 
           {/* From/To Sections */}
           <Row className="mb-4">
             <Col md={6}>
-              <div className="small">
+              <div className="">
                 <h5>To,</h5>
                 <p className="mb-1"><strong>{invoiceData?.to_name || '(Name not provided)'}</strong></p>
                 {invoiceData?.to_address && <p className="mb-1">{invoiceData.to_address}</p>}
@@ -84,10 +85,10 @@ const CorporateInvoiceGenerate = React.forwardRef(({ invoiceData }, ref) => {
               </div>
             </Col>
             <Col md={6}>
-              <div className="small d-flex flex-column justify-content-end align-items-end">
+              <div className="d-flex flex-column justify-content-end align-items-end">
                 <h5>From,</h5>
                 <p className="mb-1"><strong>{invoiceData?.from_name}</strong></p>
-                {invoiceData?.from_address && <p className="mb-1">{invoiceData.from_address}</p>}
+                {invoiceData?.from_address && <p className="mb-1" style={{ textAlign: "end" }}>{invoiceData.from_address}</p>}
                 <p className="mb-1">
                   {[
                     invoiceData?.from_city,
@@ -103,78 +104,72 @@ const CorporateInvoiceGenerate = React.forwardRef(({ invoiceData }, ref) => {
           </Row>
 
           {/* Invoice Table */}
-          <Table bordered className="mb-0 small table-hover">
-            <thead>
+          <Table className="mb-0 text-black table-hover" style={{ borderColor: "black", color: "black !important" }}>
+            <thead style={{ border: "solid black 1px" }}>
               <tr>
-                <th>S.No.</th>
-                {/* <th className="w-25">Description</th> */}
-                <th>Quantity</th>
-                <th>Total</th>
+                <th style={{ border: "solid black 1px" }}>S.No.</th>
+                {/* <th className="w-25" style={{ border: "solid black 1px" }}>Description</th> */}
+                <th style={{ border: "solid black 1px" }}>Quantity</th>
+                <th style={{ border: "solid black 1px" }}>Total</th>
 
                 {/* Conditional Tax Columns */}
                 {invoiceData?.total_igst > 0 ? (
-                  <th>IGST (18%)</th>
+                  <th style={{ border: "solid black 1px" }}>IGST (18%)</th>
                 ) : (
                   <>
-                    <th>CGST (9%)</th>
-                    <th>SGST (9%)</th>
+                    <th style={{ border: "solid black 1px" }}>CGST (9%)</th>
+                    <th style={{ border: "solid black 1px" }}>SGST (9%)</th>
                   </>
                 )}
 
-                <th>Total.Inv.Amount</th>
+                <th style={{ border: "solid black 1px" }}>Total.Inv.Amount</th>
               </tr>
             </thead>
 
             <tbody>
               {invoiceData?.items?.map((item, index) => (
                 <tr key={item.id}>
-                  <td>{index + 1}.</td>
-                  {/* <td>{item?.description || "N/A"}</td> */}
-                  <td>{item?.quantity || 0}</td>
-                  <td>{item?.freight?.toFixed(2) || "0.00"}</td>
-
-                  {/* Conditional Tax Values */}
+                  <td style={{ border: "solid black 1px" }}>{index + 1}.</td>
+                  <td style={{ border: "solid black 1px" }}>{item?.quantity || 0}</td>
+                  <td style={{ border: "solid black 1px" }}>{item?.freight?.toFixed(2) || "0.00"}</td>
+                  
                   {invoiceData?.total_igst > 0 ? (
-                    <td>{item?.igst?.toFixed(2) || "0.00"}</td>
+                    <td style={{ border: "solid black 1px" }}>{item?.igst?.toFixed(2) || "0.00"}</td>
                   ) : (
                     <>
-                      <td>{item?.cgst?.toFixed(2) || "0.00"}</td>
-                      <td>{item?.sgst?.toFixed(2) || "0.00"}</td>
+                      <td style={{ border: "solid black 1px" }}>{item?.cgst?.toFixed(2) || "0.00"}</td>
+                      <td style={{ border: "solid black 1px" }}>{item?.sgst?.toFixed(2) || "0.00"}</td>
                     </>
                   )}
-
-                  <td>{item?.total?.toFixed(2) || "0.00"}</td>
+                  
+                  <td style={{ border: "solid black 1px" }}>{item?.total?.toFixed(2) || "0.00"}</td>
                 </tr>
               ))}
-
-              {/* Grand Total Row */}
+              
               <tr className="fw-bold">
-                {/* Merge first two columns for label */}
-                <td colSpan={1} className="text-end">
+                <td colSpan={1} className="text-end" style={{ border: "solid black 1px" }}>
                   Grand Total
                 </td>
-
-                <td>{invoiceData?.total_quantity || 0}</td>
-                <td>{invoiceData?.total_freight?.toFixed(2) || "0.00"}</td>
-
-                {/* Conditional Total Tax */}
+                <td style={{ border: "solid black 1px" }}>{invoiceData?.total_quantity || 0}</td>
+                <td style={{ border: "solid black 1px" }}>{invoiceData?.total_freight?.toFixed(2) || "0.00"}</td>
+                
                 {invoiceData?.total_igst > 0 ? (
-                  <td>{invoiceData?.total_igst?.toFixed(2) || "0.00"}</td>
+                  <td style={{ border: "solid black 1px" }}>{invoiceData?.total_igst?.toFixed(2) || "0.00"}</td>
                 ) : (
                   <>
-                    <td>{invoiceData?.total_cgst?.toFixed(2) || "0.00"}</td>
-                    <td>{invoiceData?.total_sgst?.toFixed(2) || "0.00"}</td>
+                    <td style={{ border: "solid black 1px" }}>{invoiceData?.total_cgst?.toFixed(2) || "0.00"}</td>
+                    <td style={{ border: "solid black 1px" }}>{invoiceData?.total_sgst?.toFixed(2) || "0.00"}</td>
                   </>
                 )}
-
-                <td>{invoiceData?.total_amount?.toFixed(2) || "0.00"}</td>
+                
+                <td style={{ border: "solid black 1px" }}>{invoiceData?.total_amount?.toFixed(2) || "0.00"}</td>
               </tr>
             </tbody>
           </Table>
 
 
           {/* Amount in Words */}
-          <p className='border ps-2 py-2'>
+          <p className="ps-2 py-2" style={{ border: "solid black 1px", borderTop: 0 }}>
             <strong>Amount in words:</strong>{" "}
             {(() => {
               const result = amountToWords(totals?.total || 0, 2);
@@ -203,7 +198,7 @@ const CorporateInvoiceGenerate = React.forwardRef(({ invoiceData }, ref) => {
               </div>
             </Col>
             <Col md={4}>
-              <div className="border p-3 small">
+              <div className="p-3" style={{ border: "solid black 1px" }}>
                 <h5>Bank Detail for Payment</h5>
                 <p className="mb-1"><strong>Account Title:</strong> PNSO Technology Private Limited</p>
                 <p className="mb-1"><strong>Bank Name:</strong> HDFC Bank</p>
@@ -216,16 +211,26 @@ const CorporateInvoiceGenerate = React.forwardRef(({ invoiceData }, ref) => {
           </Row>
 
           {/* Additional Information */}
-          <div className="pt-3 mb-4 small">
-            {/* <p className="mb-1">{invoiceData?.created_by?.first_name} {invoiceData?.created_by?.last_name}</p> */}
-            <p className="mb-1"><strong>GST No:</strong> {invoiceData?.from_gst_no || 'N/A'}</p>
-            <p className="mb-1"><strong>Category:</strong> COURIER SERVICE</p>
-            <p className="mb-1"><strong>PAN No:</strong>AAOCP7860J</p>
-            <p className="mb-1"><strong>Corporate Identity Number:</strong> U53200PN2024PTC231459</p>
-            <p className="mb-1"><strong>SAC CODE:</strong> 996812</p>
-            <p className="mb-1"><strong>Whether the tax is payable on reverse charge basis:</strong> NO</p>
-            <p className="mb-0"><em>* This is a Computer Generated Invoice * For inquiries, contact us at velexp.com</em></p>
-          </div>
+          <Row>
+            <Col md={8}>
+              <div className="pt-3 mb-4">
+                {/* <p className="mb-1">{invoiceData?.created_by?.first_name} {invoiceData?.created_by?.last_name}</p> */}
+                <p className="mb-1"><strong>GST No:</strong> {invoiceData?.from_gst_no || 'N/A'}</p>
+                <p className="mb-1"><strong>Category:</strong> COURIER SERVICE</p>
+                <p className="mb-1"><strong>PAN No:</strong>AAOCP7860J</p>
+                <p className="mb-1"><strong>Corporate Identity Number:</strong> U53200PN2024PTC231459</p>
+                <p className="mb-1"><strong>SAC CODE:</strong> 996812</p>
+                <p className="mb-1"><strong>Whether the tax is payable on reverse charge basis:</strong> NO</p>
+                <p className="mb-0"><em>* This is a Computer Generated Invoice * For inquiries, contact us at velexp.com</em></p>
+              </div>
+            </Col>
+            <Col md={4}>
+              <div className=" ">
+                <p className="mt-3 mb-0 ms-4">Scan for Payment</p>
+                <img src={QR} alt="QR Code" style={{ width: "220px", height: "auto" }} />
+              </div>
+            </Col>
+          </Row>
         </div>
       </div>
 

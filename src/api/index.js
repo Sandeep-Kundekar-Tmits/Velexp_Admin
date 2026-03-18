@@ -1,7 +1,7 @@
 // const BASE_URL = "http://192.168.1.151:8000"
 // const BASE_URL = "https://velexp.com"
-// const BASE_URL = "http://velexp.com:8000"
-const BASE_URL = "https://velexp.com"
+const BASE_URL = "http://velexp.com:8000"
+// const BASE_URL = "https://velexp.com"
 // const BASE_URL = "http://192.168.1.166:8000"
 // const BASE_URL = "http://103.108.57.51:8001"
 
@@ -465,4 +465,7 @@ export const UPDATE_BOOKING_EDD = `${BASE_URL}/update-booking-edd/`; // POST pay
 
 // status update api
 export const STATUS_UPDATE = `${BASE_URL}/status_update_report/` // POST
+
+// productivity report api
+export const PRODUCTIVITY_REPORT = `${BASE_URL}/reports/productivity-report/` // POST
 

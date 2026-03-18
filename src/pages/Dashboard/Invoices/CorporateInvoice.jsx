@@ -531,49 +531,49 @@ const CorporateInvoice = () => {
                         </Col>
                     </Row>
                 </div>
-            {/*  */}
+                {/*  */}
 
-            <div className=" mt-1">
-                <div className='mt-2'>
+                <div className=" mt-1">
+                    <div className='mt-2'>
+                        {
+                            CorporateBillingLoading ? <div style={{ height: "75vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+                                <GridLoader size={20} />
+                                <p className="mt-5 h5">Loading Corpotate Billing ...</p>
+                            </div>
+                                :
+                                <>{
+                                    <TableContainer
+                                        columns={columns}
+                                        data={BillData || []}
+                                        isGlobalFilter={true}
+                                        isPagination={true}
+                                        isCustomPageSize={true}
+                                        isDownloadExcle={true}
+                                        onDownloadExcle={DownloadBookingDetails}
+                                        SearchPlaceholder="Search From Table"
+                                        pagination="pagination"
+                                        paginationWrapper='dataTables_paginate paging_simple_numbers'
+                                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                                    />
+                                }
+                                </>
+
+                        }
+                    </div>
+                    {/*  showing the downloading message and loader */}
                     {
-                        CorporateBillingLoading ? <div style={{ height: "75vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
-                            <GridLoader size={20} />
-                            <p className="mt-5 h5">Loading Corpotate Billing ...</p>
-                        </div>
-                            :
-                            <>{
-                                <TableContainer
-                                    columns={columns}
-                                    data={BillData || []}
-                                    isGlobalFilter={true}
-                                    isPagination={true}
-                                    isCustomPageSize={true}
-                                    isDownloadExcle={true}
-                                    onDownloadExcle={DownloadBookingDetails}
-                                    SearchPlaceholder="Search From Table"
-                                    pagination="pagination"
-                                    paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                    tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
-                                />
-                            }
-                            </>
-
+                        isGenerating && <Loader message="Generating the Pdf....." />
                     }
+
+                    {/* download pdf and it will be hidden */}
+                    {
+                        PdfData && <CorporateInvoiceGenerate targetRef={targetRef} invoiceData={PdfData} />
+                    }
+
+
                 </div>
-                {/*  showing the downloading message and loader */}
-                {
-                    isGenerating && <Loader message="Generating the Pdf....." />
-                }
-
-                {/* download pdf and it will be hidden */}
-                {
-                    PdfData && <CorporateInvoiceGenerate targetRef={targetRef} invoiceData={PdfData} />
-                }
-
-
             </div>
         </div>
-    </div>
     )
 }
 export default CorporateInvoice

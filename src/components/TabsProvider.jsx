@@ -15,7 +15,7 @@ const TabsProvider = ({
   tabs = [],
   defaultActiveTab,
   navClassName = "nav-tabs-custom nav-justified rounded-top bg-light",
-  tabContentClassName = "p-2",
+  tabContentClassName = "pt-2",
 }) => {
   const [activeTab, setActiveTab] = useState(
     defaultActiveTab ?? tabs?.[0]?.id
@@ -36,9 +36,8 @@ const TabsProvider = ({
         {tabs.map((tab) => (
           <NavItem key={tab.id}>
             <NavLink
-              className={`nav-link py-3 ${
-                activeTab === tab.id ? "active bg-light" : ""
-              }`}
+              className={`nav-link py-3 ${activeTab === tab.id ? "active bg-light" : ""
+                }`}
               onClick={() => toggleTab(tab.id)}
               role="tab"
               aria-selected={activeTab === tab.id}

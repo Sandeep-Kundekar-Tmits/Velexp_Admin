@@ -3,6 +3,7 @@ import { Container, Row, Col, Table, Button } from 'reactstrap';
 import VellocityExpressIcon from "../assets/images/vellocity-express-logo.png"
 import Signature from "../assets/images/PDFsignature.png"
 import { usePDF } from 'react-to-pdf';
+import QR from "../assets/images/qrcode.jpeg"
 import { numberToWords, amountToWords } from "amount-to-words";
 const CheckInvoice = (invoice) => {
   let obj = {
@@ -331,15 +332,28 @@ const InvoiceGenerator = ({ invoiceData }) => {
               </div>
             </Col>
           </Row>
-          <div className=" pt-3 mb-4 ">
-            <p className="mb-1"><strong>GST No:</strong> {invoiceData?.from_gst_no}</p>
-            <p className="mb-1"><strong>Category:</strong> COURIER SERVICE</p>
-            <p className="mb-1"><strong>PAN No:</strong> {invoiceData?.from_pan_no || '(Not Provided)'}</p>
-            <p className="mb-1"><strong>Corporate Identity Number:</strong> U53200PN2024PTC231459</p>
-            <p className="mb-1"><strong>SAC CODE:</strong> 996812</p>
-            <p className="mb-1"><strong>Whether the tax is payable on reverse charge basis:</strong> NO</p>
-            <p className="mb-0"><em>* This is a Computer Generated Invoice * For inquiries, contact us at velexp.com</em></p>
-          </div>
+          <Row>
+            <Col md={8}>
+              <div className=" pt-3 mb-4 ">
+                <p className="mb-1"><strong>GST No:</strong> {invoiceData?.from_gst_no}</p>
+                <p className="mb-1"><strong>Category:</strong> COURIER SERVICE</p>
+                <p className="mb-1"><strong>PAN No:</strong> {invoiceData?.from_pan_no || '(Not Provided)'}</p>
+                <p className="mb-1"><strong>Corporate Identity Number:</strong> U53200PN2024PTC231459</p>
+                <p className="mb-1"><strong>SAC CODE:</strong> 996812</p>
+                <p className="mb-1"><strong>Whether the tax is payable on reverse charge basis:</strong> NO</p>
+                <p className="mb-0"><em>* This is a Computer Generated Invoice * For inquiries, contact us at velexp.com</em></p>
+              </div>
+            </Col>
+            <Col md={4}>
+
+              <div className=" ">
+                <p className="mt-3 mb-0 ms-4">Scan for Payment</p>
+                <img src={QR} alt="QR Code" style={{ width: "220px", height: "auto" }} />
+              </div>
+            </Col>
+          </Row>
+
+
         </div>
       </div>
       <Button

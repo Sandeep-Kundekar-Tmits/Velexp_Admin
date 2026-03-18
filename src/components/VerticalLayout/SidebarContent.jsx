@@ -331,6 +331,9 @@ const SidebarContent = (props) => {
                   <li>
                     <Link to="/status-update-audit">{props.t("Status Update Audit")}</Link>
                   </li>
+                  <li>
+                    <Link to="/productivity-report">{props.t("Productivity Report")}</Link>
+                  </li>
                 </ul>
               </li>
             }
