@@ -14,8 +14,8 @@ const DateRangeInput = ({
 }) => {
   const [range, setRange] = useState([
     {
-      startDate: value?.startDate || null,
-      endDate: value?.endDate || null,
+      startDate: value?.startDate ? new Date(value.startDate) : new Date(),
+      endDate: value?.endDate ? new Date(value.endDate) : new Date(),
       key: "selection",
     },
   ]);
@@ -25,15 +25,13 @@ const DateRangeInput = ({
 
   // 🔥 Sync when parent value changes
   useEffect(() => {
-    if (value?.startDate || value?.endDate) {
-      setRange([
-        {
-          startDate: value.startDate || null,
-          endDate: value.endDate || null,
-          key: "selection",
-        },
-      ]);
-    }
+    setRange([
+      {
+        startDate: value?.startDate ? new Date(value.startDate) : new Date(),
+        endDate: value?.endDate ? new Date(value.endDate) : new Date(),
+        key: "selection",
+      },
+    ]);
   }, [value]);
 
   const handleSelect = (item) => {
@@ -89,8 +87,8 @@ const DateRangeInput = ({
         }}
       >
         <span style={{ color: "#6b6b6b", fontSize: "14px" }}>
-          {formatDate(range[0].startDate)} &nbsp;–&nbsp;
-          {formatDate(range[0].endDate)}
+          {value?.startDate ? formatDate(range[0].startDate) : "DD/MM/YYYY"} &nbsp;–&nbsp;
+          {value?.endDate ? formatDate(range[0].endDate) : "DD/MM/YYYY"}
         </span>
         <FaRegCalendarAlt size={18} color="#8b8b8b" />
       </div>

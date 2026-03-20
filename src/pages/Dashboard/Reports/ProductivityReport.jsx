@@ -144,11 +144,11 @@ const ProductivityReport = () => {
                 sheetName: "Raw Data",
                 data: reportData.raw_data.map(item => ({
                     "AWB No": item.awbno,
-                    "AWB Date": item.awb_date,
+                    "AWB Date": item.awb_date ? format(new Date(item.awb_date), 'dd-MM-yyyy') : "-",
                     "Customer": item.customer_name,
                     "Pincode": item.drop_pincode,
                     "City": item.drop_city,
-                    "Status Date": item.statdate,
+                    "Status Date": item.statdate ? format(new Date(item.statdate), 'dd-MM-yyyy') : "-",
                     "Status": item.status,
                     "Service Center": item.service_center,
                     "Emp ID": item.empid,
@@ -187,11 +187,19 @@ const ProductivityReport = () => {
 
     const rawDataColumns = useMemo(() => [
         { header: "AWB No", accessorKey: "awbno" },
-        { header: "AWB Date", accessorKey: "awb_date" },
+        { 
+            header: "AWB Date", 
+            accessorKey: "awb_date",
+            cell: (info) => info.getValue() ? format(new Date(info.getValue()), 'dd-MM-yyyy') : "-"
+        },
         { header: "Customer", accessorKey: "customer_name" },
         { header: "Pincode", accessorKey: "drop_pincode" },
         { header: "City", accessorKey: "drop_city" },
-        { header: "Status Date", accessorKey: "statdate" },
+        { 
+            header: "Status Date", 
+            accessorKey: "statdate",
+            cell: (info) => info.getValue() ? format(new Date(info.getValue()), 'dd-MM-yyyy') : "-"
+        },
         { header: "Status", accessorKey: "status" },
         { header: "Service Center", accessorKey: "service_center" },
         { header: "Emp ID", accessorKey: "empid" },
@@ -297,7 +305,7 @@ const ProductivityReport = () => {
                                                 selectedItems={filters.region}
                                                 onRemove={(item) => handleRemoveItem("region", item)}
                                                 targetId="region-display"
-                                                placeholder="No "
+                                                placeholder="No Region Selected"
                                             />
                                         </div>
                                     </div>
@@ -323,6 +331,7 @@ const ProductivityReport = () => {
                                                 selectedItems={filters.service_center}
                                                 onRemove={(item) => handleRemoveItem("service_center", item)}
                                                 targetId="sc-display"
+                                                placeholder="No Service Center Selected"
                                             />
                                         </div>
                                     </div>

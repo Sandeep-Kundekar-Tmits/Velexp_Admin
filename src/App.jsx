@@ -31,31 +31,31 @@ const App = () => {
     return <div>Loading...</div>; // Or your custom loader
   }
 
- const authRoutes = getAuthProtectedRoutes();
+  const authRoutes = getAuthProtectedRoutes();
   return (
     <React.Fragment>
 
-        <Routes>
-          {publicRoutes.map((route, idx) => (
-            <Route
-              path={route.path}
-              element={<NonAuthLayout>{route.component}</NonAuthLayout>}
-              key={idx}
-            />
-          ))}
+      <Routes>
+        {publicRoutes.map((route, idx) => (
+          <Route
+            path={route.path}
+            element={<NonAuthLayout>{route.component}</NonAuthLayout>}
+            key={idx}
+          />
+        ))}
 
-          {authRoutes.map((route, idx) => (
-            <Route
-              path={route.path}
-              element={
-                <Authmiddleware>
-                  <VerticalLayout>{route.component}</VerticalLayout>
-                </Authmiddleware>
-              }
-              key={idx}
-            />
-          ))}
-        </Routes>
+        {authRoutes.map((route, idx) => (
+          <Route
+            path={route.path}
+            element={
+              <Authmiddleware>
+                <VerticalLayout>{route.component}</VerticalLayout>
+              </Authmiddleware>
+            }
+            key={idx}
+          />
+        ))}
+      </Routes>
     </React.Fragment>
   );
 };

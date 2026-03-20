@@ -3,7 +3,7 @@ import { Container, Row, Col, Table, Button } from 'reactstrap';
 import VellocityExpressIcon from "../assets/images/vellocity-express-logo.png"
 import Signature from "../assets/images/PDFsignature.png"
 import { usePDF } from 'react-to-pdf';
-import QR from "../assets/images/qrcode.jpeg"
+// import QR from "../assets/images/qrcode.jpeg"
 import { numberToWords, amountToWords } from "amount-to-words";
 const CheckInvoice = (invoice) => {
   let obj = {
@@ -345,11 +345,26 @@ const InvoiceGenerator = ({ invoiceData }) => {
               </div>
             </Col>
             <Col md={4}>
+              {(() => {
+                const awb = invoiceData?.invoice_no || "";
+                const amount = (invoiceData?.total_amount || 0).toFixed(2);
 
-              <div className=" ">
-                <p className="mt-3 mb-0 ms-4">Scan for Payment</p>
-                <img src={QR} alt="QR Code" style={{ width: "220px", height: "auto" }} />
-              </div>
+                const upiUrl = `upi://pay?pa=Vyapar.171035895923@hdfcbank&pn=PNSO%20TECHNOLOGY%20PRIVATE&cu=INR&mc=4215&mode=02&mam=STQD4554092172622489623&tid=STQD4554092172622489623&tn=Inv%20${awb}`;
+
+                const qrCodeDataUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiUrl)}`;
+
+                return (
+                  <div className="mt-4 d-flex flex-column align-items-start border-top pt-4">
+                    <p className="fw-bold mb-1 text-primary" style={{ fontSize: "16px" }}>Scan for Payment</p>
+                    <img
+                      src={qrCodeDataUrl}
+                      alt="QR Code"
+                      style={{ width: "176px", height: "176px", objectFit: "contain" }}
+                    />
+                    <p className="text-muted fw-bold text-uppercase mt-1" style={{ fontSize: "12px" }}>AWB: {awb}</p>
+                  </div>
+                );
+              })()}
             </Col>
           </Row>
 

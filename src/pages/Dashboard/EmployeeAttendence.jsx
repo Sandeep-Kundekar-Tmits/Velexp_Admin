@@ -141,6 +141,7 @@ const EmployeeAttendence = () => {
                                 onChange={handleDateChange}
                                 value={selectedRange}
                                 className="h-100"
+                                isBorder={true}
                             />
                         </FormGroup>
                     </Col>
