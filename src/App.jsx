@@ -11,6 +11,9 @@ import Authmiddleware from "./routes/route";
 import VerticalLayout from "./components/VerticalLayout/";
 import NonAuthLayout from "./components/NonAuthLayout";
 
+// Loader
+import Loader from "./Loaders/Loader";
+
 // Import scss
 import "./assets/scss/theme.scss";
 
@@ -28,34 +31,35 @@ const App = () => {
   }, []);
 
   if (!routesReady) {
-    return <div>Loading...</div>; // Or your custom loader
+    return <Loader message="Initializing App..." />;
   }
 
   const authRoutes = getAuthProtectedRoutes();
   return (
     <React.Fragment>
+      <Suspense fallback={<Loader message="Loading Page..." />}>
+        <Routes>
+          {publicRoutes.map((route, idx) => (
+            <Route
+              path={route.path}
+              element={<NonAuthLayout>{route.component}</NonAuthLayout>}
+              key={idx}
+            />
+          ))}
 
-      <Routes>
-        {publicRoutes.map((route, idx) => (
-          <Route
-            path={route.path}
-            element={<NonAuthLayout>{route.component}</NonAuthLayout>}
-            key={idx}
-          />
-        ))}
-
-        {authRoutes.map((route, idx) => (
-          <Route
-            path={route.path}
-            element={
-              <Authmiddleware>
-                <VerticalLayout>{route.component}</VerticalLayout>
-              </Authmiddleware>
-            }
-            key={idx}
-          />
-        ))}
-      </Routes>
+          {authRoutes.map((route, idx) => (
+            <Route
+              path={route.path}
+              element={
+                <Authmiddleware>
+                  <VerticalLayout>{route.component}</VerticalLayout>
+                </Authmiddleware>
+              }
+              key={idx}
+            />
+          ))}
+        </Routes>
+      </Suspense>
     </React.Fragment>
   );
 };
@@ -64,3 +68,4 @@ const App = () => {
 
 
 export default App;
+

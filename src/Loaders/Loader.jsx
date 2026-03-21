@@ -2,12 +2,10 @@ import React from 'react';
 import { Spinner } from 'reactstrap';
 
 const Loader = ({
-    message = "Processing...",
-    spinnerColor = "primary",
-    textColor = "#ffffff",
-    overlayColor = "rgba(0, 0, 0, 0.7)",
-    spinnerSize = "3rem",
-    fontSize = "1.25rem"
+    message = "Loading...",
+    spinnerColor = "#556ee6", // Theme primary color
+    textColor = "#556ee6",
+    overlayColor = "rgba(255, 255, 255, 0.8)", // Clean light overlay
 }) => {
     return (
         <div style={{
@@ -21,38 +19,22 @@ const Loader = ({
             flexDirection: 'column',
             justifyContent: 'center',
             alignItems: 'center',
-            zIndex: 100,
-            backdropFilter: 'blur(2px)'
+            zIndex: 9999,
         }}>
-            <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '1.5rem',
-                padding: '2rem',
-                borderRadius: '0.5rem',
-                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)'
-            }}>
+            <div style={{ textAlign: 'center' }}>
                 <Spinner
-                    color={spinnerColor}
                     style={{
-                        width: spinnerSize,
-                        height: spinnerSize,
-                        borderWidth: '0.25em',
-                        margin: "auto"
+                        width: '3rem',
+                        height: '3rem',
+                        color: spinnerColor
                     }}
                 />
-
                 {message && (
                     <div style={{
+                        marginTop: '1rem',
                         color: textColor,
-                        fontSize: fontSize,
-                        fontWeight: 500,
-                        textAlign: 'center',
-                        textShadow: '0 1px 3px rgba(0, 0, 0, 0.3)',
-                        maxWidth: '300px',
-                        lineHeight: '1.5'
+                        fontWeight: '500',
+                        fontSize: '1rem'
                     }}>
                         {message}
                     </div>
