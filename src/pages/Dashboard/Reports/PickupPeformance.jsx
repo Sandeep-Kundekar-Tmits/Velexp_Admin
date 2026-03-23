@@ -34,7 +34,7 @@ const PickupPeformance = () => {
                 accessorKey: 'awbdate',
                 enableColumnFilter: false,
                 enableSorting: true,
-                size: 300,
+                size: 150,
             },
             {
                 header: 'AWB No.',
@@ -371,13 +371,13 @@ const PickupPeformance = () => {
         return filteredBooking;
     };
     return (
-        <div className='page-content py-0'>
+        <div className='page-content py-0 px-0' style={{ overflowX: 'hidden' }}>
             <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
                 <MainHeaderCom title="Pickup Performance" />
             </div>
-            <div className="container-fluid">
+            <div className="container-fluid px-2">
                 <div>
-                    <Row className='gx-3 d-flex align-items-center pt-2'>
+                    <Row className='gx-3 d-flex align-items-center pt-2 border-bottom pb-1'>
                         {/* Select Customer moved to table head */}
                         <Col md={12}>
                             <Row>
@@ -517,7 +517,7 @@ const PickupPeformance = () => {
 
                 <div className=''>
 
-                    <div className='mt-1'>
+                    <div className='mt-3'>
                         {
                             PerformanceLoading ? <div style={{ height: "40vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
                                 <GridLoader size={20} />

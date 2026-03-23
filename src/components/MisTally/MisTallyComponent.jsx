@@ -10,6 +10,7 @@ import { FaRegEye } from "react-icons/fa";
 import MisTallyViewModel from "./MisTallyViewModel";
 import MisTallyFilter from "./MisTallyFilter";
 import StatsCard from "../StatsCard";
+import MainHeaderComp from "../MainHeaderCom";
 
 function excelSerialToDate(serial) {
     // Excel's date system starts from January 1, 1900 (with a bug treating 1900 as a leap year)
@@ -267,47 +268,49 @@ const MisTallyComponent = () => {
         }
     }
     return (
-
-        <div className="container-fluid">
-            <div className="d-flex justify-content-between align-items-center ">
-                <h3>Tally MIS Report</h3>
-                <div className="d-flex align-items-center">
-                    <FormGroup className="mb-2">
-                        <Input type="file" id="gstUpload" onChange={UploadMISOnChange} />
-                        {
-                            JsonLoading && <Spinner size="sm" className="">
-                                Loading...
-                            </Spinner>
-                        }
-                    </FormGroup>
-                    {
-                        MISJsondata.length >= 1 &&
-                        <Button color="primary" className="ms-5 d-flex justify-content-center align-items-center mb-3" onClick={MISBulkUpoad} style={{ height: "2.2rem", width: "5rem" }} >
+        <>
+            <div className="bg-white sticky-top" style={{ top: '0px', zIndex: 1001, width: '100%' }}>
+                <MainHeaderComp
+                    title="Tally MIS Report"
+                    extraFields={
+                        <div className="d-flex align-items-center">
+                            <FormGroup className="mb-0">
+                                <Input type="file" id="gstUpload" onChange={UploadMISOnChange} />
+                            </FormGroup>
                             {
-                                MISBulkUpoadLoading ? <Spinner size="sm" className="">
+                                JsonLoading && <Spinner size="sm" className="ms-2">
                                     Loading...
-                                </Spinner> : "Upload"
+                                </Spinner>
                             }
-                        </Button>
+                            {
+                                MISJsondata.length >= 1 &&
+                                <Button color="primary" className="ms-3 d-flex justify-content-center align-items-center" onClick={MISBulkUpoad} style={{ height: "2.2rem", width: "5rem" }} >
+                                    {
+                                        MISBulkUpoadLoading ? <Spinner size="sm" className="">
+                                            Loading...
+                                        </Spinner> : "Upload"
+                                    }
+                                </Button>
+                            }
+                        </div>
                     }
-
-
-                </div>
+                />
             </div>
+            <div className="container-fluid px-3 mt-3">
 
-            {/* displaying the filters */}
-            <MisTallyFilter RecallInfo={RecallInfo} FilterData={FilterData} Removefilter={() => {
-                setIsFiltered(false)
-                setShowMisData(false)
-                //  calling the get MIS Data
-                GetMISDataFunc(GET_MIS_TALLY_MAIN)
-            }} />
+                {/* displaying the filters */}
+                <MisTallyFilter RecallInfo={RecallInfo} FilterData={FilterData} Removefilter={() => {
+                    setIsFiltered(false)
+                    setShowMisData(false)
+                    //  calling the get MIS Data
+                    GetMISDataFunc(GET_MIS_TALLY_MAIN)
+                }} />
 
-            <div className="mt-3 border-top">
-                {/* <div className="d-flex justify-content-between align-items-center">
+                <div className="mt-3 border-top">
+                    {/* <div className="d-flex justify-content-between align-items-center">
                     <h5>MIS Tally</h5>
                 </div> */}
-                {/* {MISData.map((item, index) => (
+                    {/* {MISData.map((item, index) => (
                     <Card key={index} className="border-2 shadow-none rounded-3 text-center">
                         <CardBody>
                             <h5 className="fw-bold mb-1">{item.value}</h5>
@@ -315,135 +318,136 @@ const MisTallyComponent = () => {
                         </CardBody>
                     </Card>
                 ))} */}
-                {
-                    ShowMisData && (
-                        <>
-                            <Row className="gx-0 gy-0 mt-4">
-                                <Col md={2} className="rounded-3 text-center">
+                    {
+                        ShowMisData && (
+                            <>
+                                <Row className="gx-0 gy-0 mt-4">
+                                    <Col md={2} className="rounded-3 text-center">
 
-                                    <Card className="shadow-none border ">
-                                        <CardBody className="p-0">
-                                            {/* Common Key (Bottom) */}
+                                        <Card className="shadow-none border ">
+                                            <CardBody className="p-0">
+                                                {/* Common Key (Bottom) */}
 
-                                            <p
-                                                className="mt-2 pt-0 py-2 text-white mb-0 fw-semibold text-dark "
-                                                style={{ fontSize: "14px" }}
-                                            >
-                                                inviisble
-                                            </p>
-
-                                            <div className="d-flex justify-content-between border-bottom border-top py-2 px-3" >
                                                 <p
-                                                    className="mb-0 text-muted small fw-bold"
-                                                    style={{ fontSize: "13px" }}
+                                                    className="mt-2 pt-0 py-2 text-white mb-0 fw-semibold text-dark "
+                                                    style={{ fontSize: "14px" }}
                                                 >
-                                                    Count
-                                                </p>
-                                            </div>
-                                            <div className="d-flex justify-content-between border-bottom py-2 px-3"
-                                            >
-                                                <p
-                                                    className="mb-0 text-muted small fw-bold"
-                                                    style={{ fontSize: "13px" }}
-                                                >
-                                                    Delivared
+                                                    inviisble
                                                 </p>
 
-                                            </div>
-                                        </CardBody>
-                                    </Card>
-                                </Col>
-                                {
-                                    Object.values(
-                                        MISData.filter(item => item.groupId)
-                                            .reduce((acc, curr) => {
-                                                if (!acc[curr.groupId]) acc[curr.groupId] = [];
-                                                acc[curr.groupId].push(curr);
-                                                return acc;
-                                            }, {})
-                                    ).map((group, groupIndex) => (
-                                        <Col md={2} key={groupIndex} className="rounded-3 text-center">
+                                                <div className="d-flex justify-content-between border-bottom border-top py-2 px-3" >
+                                                    <p
+                                                        className="mb-0 text-muted small fw-bold"
+                                                        style={{ fontSize: "13px" }}
+                                                    >
+                                                        Count
+                                                    </p>
+                                                </div>
+                                                <div className="d-flex justify-content-between border-bottom py-2 px-3"
+                                                >
+                                                    <p
+                                                        className="mb-0 text-muted small fw-bold"
+                                                        style={{ fontSize: "13px" }}
+                                                    >
+                                                        Delivared
+                                                    </p>
 
-                                            <Card className="shadow-none border border-start-0 ">
-                                                <CardBody className="p-0">
-                                                       {/* Common Key (Bottom) */}
-                                                    {group[0]?.commanKey && (
-                                                        <p
-                                                            className="mt-2 pt-0 py-2 mb-0 fw-semibold text-dark"
-                                                            style={{ fontSize: "14px" }}
-                                                        >
-                                                            {group[0].commanKey}
-                                                        </p>
-                                                    )}
-                                                    {/* Count + Delivered rows one below another */}
-                                                    {group.map((item, index) => (
-                                                        <div
-                                                            key={index}
-                                                            className="d-flex justify-content-center text-center border-top py-2 px-3"
-                                                        >
+                                                </div>
+                                            </CardBody>
+                                        </Card>
+                                    </Col>
+                                    {
+                                        Object.values(
+                                            MISData.filter(item => item.groupId)
+                                                .reduce((acc, curr) => {
+                                                    if (!acc[curr.groupId]) acc[curr.groupId] = [];
+                                                    acc[curr.groupId].push(curr);
+                                                    return acc;
+                                                }, {})
+                                        ).map((group, groupIndex) => (
+                                            <Col md={2} key={groupIndex} className="rounded-3 text-center">
+
+                                                <Card className="shadow-none border border-start-0 ">
+                                                    <CardBody className="p-0">
+                                                        {/* Common Key (Bottom) */}
+                                                        {group[0]?.commanKey && (
                                                             <p
-                                                                className="mb-0  fw-bold text-center"
-                                                                style={{ fontSize: "13px" }}
+                                                                className="mt-2 pt-0 py-2 mb-0 fw-semibold text-dark"
+                                                                style={{ fontSize: "14px" }}
                                                             >
-                                                                {item.value}
+                                                                {group[0].commanKey}
                                                             </p>
-                                                            {/* <h6 className="fw-bold mb-0">{item.value}</h6> */}
-                                                        </div>
-                                                    ))}
-
-                            
-                                                </CardBody>
-                                            </Card>
-                                        </Col>
-
-                                    ))
-                                }
-
-                                {/* Standalone (no groupId) */}
-                                <Col md={8}>
-                                    <Row>
-                                        {
-                                            MISData.filter(item => !item.groupId).map((item, index) => (
-                                                <Col md={4}>
-                                                    <StatsCard label={item.label} value={item.value} />
-                                                </Col>
-                                            ))
-                                        }
-                                    </Row>
-                                </Col>
-                            </Row>
+                                                        )}
+                                                        {/* Count + Delivered rows one below another */}
+                                                        {group.map((item, index) => (
+                                                            <div
+                                                                key={index}
+                                                                className="d-flex justify-content-center text-center border-top py-2 px-3"
+                                                            >
+                                                                <p
+                                                                    className="mb-0  fw-bold text-center"
+                                                                    style={{ fontSize: "13px" }}
+                                                                >
+                                                                    {item.value}
+                                                                </p>
+                                                                {/* <h6 className="fw-bold mb-0">{item.value}</h6> */}
+                                                            </div>
+                                                        ))}
 
 
-                        </>
-                    )
-                }
+                                                    </CardBody>
+                                                </Card>
+                                            </Col>
+
+                                        ))
+                                    }
+
+                                    {/* Standalone (no groupId) */}
+                                    <Col md={8}>
+                                        <Row>
+                                            {
+                                                MISData.filter(item => !item.groupId).map((item, index) => (
+                                                    <Col md={4} key={index}>
+                                                        <StatsCard label={item.label} value={item.value} />
+                                                    </Col>
+                                                ))
+                                            }
+                                        </Row>
+                                    </Col>
+                                </Row>
 
 
-                {
-                    (MISDataLoading || MISGroupedDataLoading) ? <div style={{ height: "75vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
-                        <GridLoader size={20} />
-                        <p className="mt-5 h5">Loading MIS Tally ...</p>
-                    </div>
-                        : <TableContainer
-                            columns={columns}
-                            data={!IsFilterd ? MISDisplayData : MISGroupedInfo || []}
-                            isGlobalFilter={true}
-                            isPagination={true}
-                            isDownloadExcle={false}
-                            isCustomPageSize={true}
-                            SearchPlaceholder="Search From Table"
-                            pagination="pagination"
-                            buttonClass="btn-success"
-                            paginationWrapper='dataTables_paginate paging_simple_numbers'
-                        // tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
-                        />
-                }
-                {
-                    ReturnComponet(SelectedTitle)
-                }
+                            </>
+                        )
+                    }
 
+
+                    {
+                        (MISDataLoading || MISGroupedDataLoading) ? <div style={{ height: "75vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+                            <GridLoader size={20} />
+                            <p className="mt-5 h5">Loading MIS Tally ...</p>
+                        </div>
+                            : <TableContainer
+                                columns={columns}
+                                data={!IsFilterd ? MISDisplayData : MISGroupedInfo || []}
+                                isGlobalFilter={true}
+                                isPagination={true}
+                                isDownloadExcle={false}
+                                isCustomPageSize={true}
+                                SearchPlaceholder="Search From Table"
+                                pagination="pagination"
+                                buttonClass="btn-success"
+                                paginationWrapper='dataTables_paginate paging_simple_numbers'
+                            // tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                            />
+                    }
+                    {
+                        ReturnComponet(SelectedTitle)
+                    }
+
+                </div>
             </div>
-        </div>
+        </>
     )
 }
 

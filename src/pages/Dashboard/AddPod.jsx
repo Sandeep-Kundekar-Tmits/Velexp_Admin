@@ -220,6 +220,7 @@ const AddPod = () => {
 
   //  calling the get Pod Data
   const [PodDetails, setPodDetails] = useState([])
+  // defining the api for the get all pod details
   const { apifunc: GetAllPodData, data: POD_Data, loading: PodDataLoading } = usePostApiCall()
 
   useEffect(() => {
@@ -260,7 +261,7 @@ const AddPod = () => {
   document.title = "Add POD";
   return (
     <div className="page-content py-0 px-0">
-      <div className="bg-white shadow-sm" style={{ position: "sticky", top: "0px", zIndex: 1001, width: "100%" }}>
+      <div className="bg-white " style={{ position: "sticky", top: "0px", zIndex: 1001, width: "100%" }}>
         <MainHeaderComp
           title="POD Reports"
           extraFields={

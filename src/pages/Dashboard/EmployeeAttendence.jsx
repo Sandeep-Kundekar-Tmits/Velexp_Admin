@@ -114,10 +114,12 @@ const EmployeeAttendence = () => {
     );
 
     return (
-        <div className='page-content'>
-            <div className="container-fluid">
-                {/*  header */}
+        <div className='page-content py-0 px-0  '>
+            <div className="bg-white sticky-top" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
                 <MainHeaderComp title=" Employee Trip Details" />
+            </div>
+            <div className="container-fluid px-3">
+                {/*  header */}
 
                 {/* filters */}
                 <Row className="mt-3">

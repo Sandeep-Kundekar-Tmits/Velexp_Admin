@@ -391,7 +391,7 @@ const CorporateRateData = () => {
     );
 
     return (
-        <div className='page-content py-0'>
+        <div className='page-content py-0 px-0'>
             <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
                 <MainHeaderComp
                     title="Corporate Rate Data"
@@ -416,7 +416,7 @@ const CorporateRateData = () => {
                     }
                 />
             </div>
-            <div className="container-fluid">
+            <div className="container-fluid px-3">
 
                 {/* filters */}
                 <div className="mainfilter">

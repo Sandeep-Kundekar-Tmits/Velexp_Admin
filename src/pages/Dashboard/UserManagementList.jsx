@@ -6,6 +6,7 @@ import { useGetApiCall } from "../../hooks/useGetApiCall";
 import { GET_ALL_USER_LIST, GET_USER_API } from "../../api";
 import { GridLoader } from "react-spinners";
 import usePostApiCall from "../../hooks/usePostApiCall";
+import MainHeaderCom from "../../components/MainHeaderCom";
 const UserManagementList = () => {
     // Document title effect
     useEffect(() => {
@@ -123,14 +124,18 @@ const UserManagementList = () => {
     }
 
     return (
-        <div className="page-content">
-            <div className="container-fluid">
-                <div className="d-flex justify-content-between align-items-center mb-3">
-                    <h3>USER MANAGEMENT</h3>
-                    <Button color="primary" onClick={handleAddUser}>
-                        + Add User
-                    </Button>
-                </div>
+        <div className="page-content py-0 px-0" style={{ overflowX: 'hidden' }}>
+            <div className="bg-white sticky-top" style={{ top: '0px', zIndex: 1001, width: '100%' }}>
+                <MainHeaderCom
+                    title="User Management"
+                    extraFields={
+                        <Button color="primary" onClick={handleAddUser}>
+                            + Add User
+                        </Button>
+                    }
+                />
+            </div>
+            <div className="container-fluid px-2">
                 <div className="mt-3">
                     <TableContainer
                         columns={columns}
@@ -143,6 +148,9 @@ const UserManagementList = () => {
                         buttonClass="btn-success"
                         paginationWrapper='dataTables_paginate paging_simple_numbers'
                         tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                        isStickyHeader={true}
+                        stickyTop={0}
+                        tableHeight="72vh"
                     />
                 </div>
             </div>

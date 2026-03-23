@@ -159,7 +159,7 @@ const ShipmentCheckpoint = () => {
         console.log(data, "data")
     }
     return (
-        <div className='page-content py-0'>
+        <div className='page-content py-0  px-0' style={{ overflowX: 'hidden' }}>
             <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
                 <MainHeaderCom title="Status Update" />
             </div>
@@ -213,7 +213,7 @@ const ShipmentCheckpoint = () => {
                     </Row>
                     {/*  */}
                     <div className=''>
-                        <div className='mt-1'>
+                        <div className='mt-3'>
                             {
                                 UploadShipmentCheckpointLoading ? <div style={{ height: "40vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
                                     <GridLoader size={20} />

@@ -363,11 +363,11 @@ const EditInvoice = () => {
     }, [UserList]);
 
     return (
-        <div className='page-content py-0'>
+        <div className='page-content py-0 px-0'>
             <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
                 <MainHeaderComp title="Edit Invoice" />
             </div>
-            <div className="container-fluid">
+            <div className="container-fluid px-3">
                 <Row className="mt-3 align-items-end">
                     <Col md={4} lg={3}>
                         <FormGroup className="mb-0">

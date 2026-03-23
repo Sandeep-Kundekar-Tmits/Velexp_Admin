@@ -223,51 +223,52 @@ const PendingReport = () => {
         }), payload);
     }
     return (
-        <div className='page-content py-0'>
-            <div className="container-fluid">
-                <div className="position-sticky bg-white" style={{ top: "0px", zIndex: 100 }}>
-                    <MainHeaderComp title={"Pending Report"} />
+        <div className='page-content py-0 px-0'>
 
-                    <Row>
-                        <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label for="Customer">Select Date Range</Label>
-                                <DateRangeInput
-                                    value={selectedRange}
-                                    onChange={handleChange}
-                                    isBorder={true}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label for="Customer">Region</Label>
-                                <Select
-                                    name="region"
-                                    options={Regions}
-                                    placeholder={ServiceCenterLoading ? "loading...." : "Search Region"}
-                                    onChange={(option) => OnSelectChange("region", option)}
-                                    isClearable={true}
-                                    menuPortalTarget={document.body}
-                                    menuPosition="fixed"
-                                    styles={customStyles} />
-                            </FormGroup>
-                        </Col>
-                        <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label for="Customer">Service Center</Label>
-                                <Select
-                                    name="serviceCenter"
-                                    options={ServiceCenters}
-                                    placeholder={ServiceCenterLoading ? "loading...." : "Search Service Center"}
-                                    onChange={(option) => OnSelectChange("serviceCenter", option)}
-                                    isClearable={true}
-                                    menuPortalTarget={document.body}
-                                    menuPosition="fixed"
-                                    styles={customStyles} />
-                            </FormGroup>
-                        </Col>
-                        {/* <Col md={3}>
+            <div className="position-sticky bg-white" style={{ top: "0px", zIndex: 100 }}>
+                <MainHeaderComp title={"Pending Report"} />
+            </div>
+            <div className="container-fluid px-2">
+                <Row className="gx-3 d-flex align-items-end pt-2 border-bottom pb-2">
+                    <Col md={3}>
+                        <FormGroup className="mb-2">
+                            <Label for="Customer">Select Date Range</Label>
+                            <DateRangeInput
+                                value={selectedRange}
+                                onChange={handleChange}
+                                isBorder={true}
+                            />
+                        </FormGroup>
+                    </Col>
+                    <Col md={3}>
+                        <FormGroup className="mb-2">
+                            <Label for="Customer">Region</Label>
+                            <Select
+                                name="region"
+                                options={Regions}
+                                placeholder={ServiceCenterLoading ? "loading...." : "Search Region"}
+                                onChange={(option) => OnSelectChange("region", option)}
+                                isClearable={true}
+                                menuPortalTarget={document.body}
+                                menuPosition="fixed"
+                                styles={customStyles} />
+                        </FormGroup>
+                    </Col>
+                    <Col md={3}>
+                        <FormGroup className="mb-2">
+                            <Label for="Customer">Service Center</Label>
+                            <Select
+                                name="serviceCenter"
+                                options={ServiceCenters}
+                                placeholder={ServiceCenterLoading ? "loading...." : "Search Service Center"}
+                                onChange={(option) => OnSelectChange("serviceCenter", option)}
+                                isClearable={true}
+                                menuPortalTarget={document.body}
+                                menuPosition="fixed"
+                                styles={customStyles} />
+                        </FormGroup>
+                    </Col>
+                    {/* <Col md={3}>
                             <FormGroup className="mb-2">
                                 <Label for="Customer">Payment Mode</Label>
                                 <Select
@@ -279,66 +280,65 @@ const PendingReport = () => {
                                     styles={customStyles} />
                             </FormGroup>
                         </Col> */}
-                        <Col md={3}>
+                    <Col md={3}>
+                        <FormGroup className="mb-2">
+                            <Label for="Customer">Products</Label>
+                            <Select
+                                name="product"
+                                options={Product}
+                                placeholder="Search Product"
+                                onChange={(option) => OnSelectChange("product", option)}
+                                isClearable={true}
+                                menuPortalTarget={document.body}
+                                menuPosition="fixed"
+                                styles={customStyles} />
+                        </FormGroup>
+                    </Col>
+                    <Col md={3}>
+                        <FormGroup className="mb-2 " >
                             <FormGroup className="mb-2">
-                                <Label for="Customer">Products</Label>
+                                <Label for="Mode">Payment Mode</Label>
                                 <Select
-                                    name="product"
-                                    options={Product}
-                                    placeholder="Search Product"
-                                    onChange={(option) => OnSelectChange("product", option)}
+                                    name="PaymentMode"
+                                    options={PaymentModes}
+                                    placeholder="Select Payment Mode"
+                                    onChange={(option) => OnSelectChange("PaymentMode", option)}
                                     isClearable={true}
                                     menuPortalTarget={document.body}
                                     menuPosition="fixed"
                                     styles={customStyles} />
                             </FormGroup>
-                        </Col>
-                        <Col md={3}>
-                            <FormGroup className="mb-2 " >
-                                <FormGroup className="mb-2">
-                                    <Label for="Mode">Payment Mode</Label>
-                                    <Select
-                                        name="PaymentMode"
-                                        options={PaymentModes}
-                                        placeholder="Select Payment Mode"
-                                        onChange={(option) => OnSelectChange("PaymentMode", option)}
-                                        isClearable={true}
-                                        menuPortalTarget={document.body}
-                                        menuPosition="fixed"
-                                        styles={customStyles} />
-                                </FormGroup>
+                        </FormGroup>
+                    </Col>
+                    <Col md={3}>
+                        <FormGroup className="mb-2 " >
+                            <FormGroup className="mb-2">
+                                <Label for="Mode">Mode</Label>
+                                <Select
+                                    name="mode"
+                                    options={ModeOption}
+                                    placeholder="Select Mode"
+                                    onChange={(option) => OnSelectChange("mode", option)}
+                                    isClearable={true}
+                                    menuPortalTarget={document.body}
+                                    menuPosition="fixed"
+                                    styles={customStyles} />
                             </FormGroup>
-                        </Col>
-                        <Col md={3}>
-                            <FormGroup className="mb-2 " >
-                                <FormGroup className="mb-2">
-                                    <Label for="Mode">Mode</Label>
-                                    <Select
-                                        name="mode"
-                                        options={ModeOption}
-                                        placeholder="Select Mode"
-                                        onChange={(option) => OnSelectChange("mode", option)}
-                                        isClearable={true}
-                                        menuPortalTarget={document.body}
-                                        menuPosition="fixed"
-                                        styles={customStyles} />
-                                </FormGroup>
-                            </FormGroup>
-                        </Col>
+                        </FormGroup>
+                    </Col>
 
 
-                        {/* buttons */}
-                        <Col md={3} className='d-flex mb-3'>
+                    {/* buttons */}
+                    <Col md={3} className='d-flex' style={{ marginBottom: "18px" }}>
 
-                            <Button color="primary" onClick={CheckClick} style={{ height: "2.2rem", width: "100%", marginTop: "28px" }}>
-                                {
-                                    Pending_ReportLoading ? "Checking..." : "Check"
-                                }
-                            </Button>
-                        </Col>
+                        <Button color="primary" onClick={CheckClick} style={{ height: "2.2rem", width: "100%" }}>
+                            {
+                                Pending_ReportLoading ? "Checking..." : "Check"
+                            }
+                        </Button>
+                    </Col>
 
-                    </Row>
-                </div>
+                </Row>
 
                 <div className=''>
                     <div className='mt-1'>

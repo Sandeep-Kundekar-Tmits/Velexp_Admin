@@ -96,7 +96,7 @@ const TrackAWB = () => {
 
 
     return (
-        <div className='container mt-2'>
+        <div className='container mt-2 py-0 px-0'>
             <MainHeaderComp
                 title="Track AWB"
                 extraFields={
@@ -109,7 +109,7 @@ const TrackAWB = () => {
                 }
             />
 
-            <div className="" style={{ height: "90vh", overflowY: "auto" }}>
+            <div className="container-fluid px-3" style={{ height: "90vh", overflowY: "auto" }}>
 
                 {/*  */}
                 <div className=" mt-3 border-bottom w-100 d-flex pb-3 align-items-center justify-content-center">

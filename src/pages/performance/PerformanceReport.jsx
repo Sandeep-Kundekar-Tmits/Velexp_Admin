@@ -227,7 +227,7 @@ const PerformanceReport = () => {
     ];
 
     return (
-        <div className="page-content py-0">
+        <div className="page-content py-0 px-0" style={{ overflowX: 'hidden' }}>
             <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
                 <MainHeaderComp
                     title="Performance Report"
@@ -235,7 +235,7 @@ const PerformanceReport = () => {
                 />
             </div>
 
-            <div className="container-fluid">
+            <div className="container-fluid px-2">
                 <Row className="gx-3 d-flex align-items-center pt-2">
                     <Col md={4}>
                         <FormGroup className="mb-2">

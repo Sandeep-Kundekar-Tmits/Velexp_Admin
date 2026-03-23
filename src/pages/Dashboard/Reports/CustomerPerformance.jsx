@@ -287,54 +287,6 @@ const CustomerPerformance = () => {
         }
     };
 
-    // const DownloadBookingDetails = async () => {
-    //     try { // Start loading
-    //         setIsExporting(true);
-    //         setExportProgress(0);
-    //         // Transform your data with all required fields
-    // const exportData = BookingData.map(item => ({
-    //     'AWB No': item.awbno,
-    //     'Customer Name': item.customer_name,
-    //     'AWB Date': item.awbdate,
-    //     'Order No': item.orderno,
-    //     'Reference 2': item.ref2,
-    //     'Consignee Name': item.consignee_name,
-    //     'Consignee City': item.consignee_city,
-    //     'Consignee State': item.consignee_state,
-    //     'Billing Pincode': item.billing_pincode,
-    //     'Vendor Name': item.vendor_name,
-    //     'Vendor Pincode': item.vendor_pincode,
-    //     'Origin SC': item.orgsc,
-    //     'Destination': item.destination,
-    //     'Service Center': item.service_center,
-    //     'Quantity': item.quantity,
-    //     'Weight': item.weight,
-    //     'Shipment Value': item.shipment_value,
-    //     "TATA Days": item?.tat_days,
-    //     'Total Amount': item.total_amount,
-    //     'Payment Mode': item.paymentmode,
-    //     'RTO AWB No': item.rtoawbno,
-    //     'Total Freight': item.tot_freight,
-    //     'Invoice No': item.invno,
-    //     'Checkpoint': item.CHKPNT
-    // }));
-
-    //         await downloadExcel(exportData, 'BookingDetails.xlsx', "", "", (progress) => {
-    //             // Update progress
-    //             setExportProgress(progress);
-    //             console.log(`Export progress: ${progress}%`);
-    //         });
-
-    //     } catch (error) {
-    //         console.error('Export failed:', error);
-    //         alert('Export failed: ' + error.message);
-    //     } finally {
-    //         // Stop loading regardless of success/failure
-    //         setIsExporting(false);
-    //     }
-    // }
-
-
     //  apply filter 
 
     // 1. Define the async function to download booking details
@@ -415,11 +367,11 @@ const CustomerPerformance = () => {
         return filteredBooking;
     };
     return (
-        <div className='page-content py-0'>
+        <div className='page-content py-0 px-0' style={{ overflowX: 'hidden' }}>
             <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
                 <MainHeaderCom title="Customer Performance" />
             </div>
-            <div className="container-fluid">
+            <div className="container-fluid px-2">
                 <div>
                     <Row className='gx-3 d-flex align-items-center pt-2'>
                         {/*  service centers list */}
@@ -445,6 +397,7 @@ const CustomerPerformance = () => {
                                             setSelectedServiceCenters(prev => prev.filter(item => item.value !== itemToRemove.value));
                                         }}
                                         targetId="serviceCenterPopover"
+                                        placeholder='No Service Center Selected'
                                     />
                                 </div>
                             </FormGroup>
@@ -472,6 +425,7 @@ const CustomerPerformance = () => {
                                             setSelectedRegion(prev => prev.filter(item => item.value !== itemToRemove.value));
                                         }}
                                         targetId="regionPopover"
+                                        placeholder='No Region Selected'
                                     />
                                 </div>
                             </FormGroup>

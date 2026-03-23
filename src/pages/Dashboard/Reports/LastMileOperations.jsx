@@ -710,11 +710,11 @@ const LastMileOperations = () => {
 
 
     return (
-        <div className='page-content py-0'>
+        <div className='page-content py-0 px-0'>
             <div className="bg-white sticky-top" style={{ top: '0px', zIndex: 1001 }}>
                 <MainHeaderComp title="Delivery Strike Rate (FDSR)" subTitle="" />
             </div>
-            <div className="container-fluid">
+            <div className="container-fluid px-2">
                 <div>
                     <Row className='gx-3 d-flex align-items-end pt-2 border-bottom pb-2'>
                         {/* select region  */}

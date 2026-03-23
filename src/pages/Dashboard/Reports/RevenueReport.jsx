@@ -281,12 +281,12 @@ const RevenueReport = () => {
         }), payload)
     }
     return (
-        <div className='page-content py-0'>
+        <div className='page-content py-0 px-0'>
             <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
                 <MainHeaderComp title="Revenue Report" />
             </div>
-            <div className="container-fluid">
-                <div className="mt-4">
+            <div className="container-fluid px-3">
+                <div className="mt-3">
                     <Row>
                         <Col md={3}>
                             <FormGroup className="mb-2">
@@ -358,7 +358,7 @@ const RevenueReport = () => {
                                 />
                             </FormGroup>
                         </Col>
-                        <Col md={3} className='d-flex mt-4 align-content-center flex-wrap gap-2'>
+                        <Col md={3} className='d-flex mt-3 align-content-center flex-wrap gap-2'>
                             <Button color="primary" onClick={CheckClick} style={{ width: "100%", height: "38px" }}>
                                 {
                                     RevenueDataLoading ? "Checking..." : "Check"

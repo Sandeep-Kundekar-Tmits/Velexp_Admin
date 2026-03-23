@@ -385,7 +385,7 @@ const FranchisePincode = () => {
         ExportAllPincodes(data, "Franchise_Pincode");
     };
     return (
-        <div className='page-content py-0'>
+        <div className='page-content py-0 px-0' >
             <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
                 <MainHeaderCom
                     title="Franchise Pincode"
@@ -425,7 +425,7 @@ const FranchisePincode = () => {
                     }
                 />
             </div>
-            <div className="container-fluid mt-3">
+            <div className="container-fluid mt-3 px-3">
                 {/* end heading */}
                 {/* filter */}
                 <Row className=" mt-3">

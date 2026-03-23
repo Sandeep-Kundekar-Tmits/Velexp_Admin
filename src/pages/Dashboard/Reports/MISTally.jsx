@@ -55,7 +55,7 @@ const MISTally = () => {
     }
 
     return (
-        <div className='page-content  bg-white'>
+        <div className='page-content py-0 px-0' style={{ overflowX: 'hidden' }}>
 
             {
                 ShowPasswordModel && <MisAuthModel show={true} onAuthSuccess={onAuthSuccess} onCloseClick={() => {
@@ -70,7 +70,8 @@ const MISTally = () => {
 
             {/* if the password is correct then show diffrent page */}
             {
-                !ShowPasswordModel && <MisTallyComponent />
+                !ShowPasswordModel &&
+                <MisTallyComponent />
             }
 
         </div>

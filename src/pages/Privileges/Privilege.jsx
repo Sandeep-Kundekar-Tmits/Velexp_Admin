@@ -366,14 +366,14 @@ const Privilege = () => {
         }
     }
     return (
-        <div className="container mt-2">
+        <div className="container mt-2 py-0 px-0">
             <MainHeaderComp title="Privileges"
                 extraFields={<button className="btn btn-danger" onClick={() => onButtonClick()}>{showAddPrivleges ? "LookUp" : "New Privileges"}</button>} />
             {/* <div className="d-flex justify-content-between align-items-center mb-3">
                 <h4>Privileges</h4>
                 <button className="btn btn-danger">New Privileges</button>
             </div> */}
-            <div className="" style={{ height: "85vh", overflowY: "auto" }}>
+            <div className="container-fluid px-3" style={{ height: "85vh", overflowY: "auto" }}>
                 {
                     !showAddPrivleges ? <>
                         {

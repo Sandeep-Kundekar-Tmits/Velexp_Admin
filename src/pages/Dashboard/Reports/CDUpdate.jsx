@@ -187,11 +187,11 @@ const CDUpdate = () => {
     }
     return (
         (
-            <div className='page-content py-0'>
+            <div className='page-content py-0 px-0' style={{ overflowX: 'hidden' }} >
                 <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
                     <MainHeaderCom title="CD Update" />
                 </div>
-                <div className="container-fluid">
+                <div className="container-fluid px-2">
                     {/* head */}
 
                     {/*  cards */}

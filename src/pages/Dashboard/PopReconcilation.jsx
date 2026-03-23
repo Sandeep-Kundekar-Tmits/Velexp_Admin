@@ -11,6 +11,7 @@ import usePostApiCall from "../../hooks/usePostApiCall";
 import YMD_DateFormate from "../../helpers/YMD_DateFormate";
 import { GridLoader } from "react-spinners";
 import { useExcelExport } from "../../hooks/useExcelExport";
+import MainHeaderComp from "../../components/MainHeaderCom";
 // Use local date methods instead of toISOString()
 const formatDate = (date) => {
     const y = date.getFullYear();
@@ -161,12 +162,17 @@ const PopReconcilation = () => {
 
 
     return (
-        <div className='page-content '>
-            <div className="container-fluid ">
-                <div className="d-flex pb-1 w-100  m-0 border-bottom justify-content-between align-items-center">
-                    <h3 className="p-0 m-0">POP Reconciliation</h3>
-                    <Button className="bg-primary" onClick={() => { setShowPopup(true) }}>Update POP Status</Button>
-                </div>
+        <div className='page-content py-0 px-0'>
+            <div className="bg-white sticky-top" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
+                <MainHeaderComp
+                    title="POP Reconciliation"
+                    extraFields={
+                        <Button className="bg-primary" onClick={() => { setShowPopup(true) }}>Update POP Status</Button>
+                    }
+                />
+            </div>
+            <div className="container-fluid px-3 ">
+
 
                 {/* filter */}
                 <Row className="mt-3 align-items-end border-bottom pb-3">

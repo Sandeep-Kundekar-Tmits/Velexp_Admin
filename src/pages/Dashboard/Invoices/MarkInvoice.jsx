@@ -8,6 +8,7 @@ import ExcleDownloadBtn from "../../../components/Common/ExcleDownloadBtn"
 import { useExcelExport } from "../../../hooks/useExcelExport"
 import ExcleUploadFiled from "../../../components/Common/ExcleUploadFiled"
 import useExcelParser from "../../../hooks/useExcelParser"
+import MainHeaderComp from "../../../components/MainHeaderCom"
 
 const MarkInvoice = () => {
     const fileInputRef = useRef(null)
@@ -120,16 +121,20 @@ const MarkInvoice = () => {
         fileInputRef.current.value = "";
     }
     return (
-        <div className='page-content'>
-            <div className="container-fluid">
-                <div className="d-flex justify-content-between mb-2 align-items-center border-bottom pb-3">
-                    <h2 className="">Mark Invoice Numbers</h2>
-                    <ExcleDownloadBtn
-                        label={"Download Template"}
-                        onDownloadExcle={onDonwloadTemplate}
-                        ExcleLoading={isExporting}
-                    />
-                </div>
+        <div className='page-content py-0 px-0' style={{ overflowX: 'hidden' }}>
+            <div className="bg-white sticky-top" style={{ top: '0px', zIndex: 1001, width: '100%' }}>
+                <MainHeaderComp
+                    title="Mark Invoice Numbers"
+                    extraFields={
+                        <ExcleDownloadBtn
+                            label={"Download Template"}
+                            onDownloadExcle={onDonwloadTemplate}
+                            ExcleLoading={isExporting}
+                        />
+                    }
+                />
+            </div>
+            <div className="container-fluid px-3 mt-2">
 
 
                 {/* input filed */}
@@ -146,7 +151,7 @@ const MarkInvoice = () => {
 
                 {/* un updated awb table on error */}
                 {
-                showtable && <TableContainer
+                    showtable && <TableContainer
                         columns={Coloumn}
                         data={tableData || []}
                         isGlobalFilter={true}

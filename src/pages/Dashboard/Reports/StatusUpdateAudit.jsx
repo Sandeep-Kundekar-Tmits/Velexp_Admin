@@ -253,7 +253,7 @@ const StatusUpdateAudit = () => {
 
 
     return (
-        <div className="page-content py-0" >
+        <div className="page-content py-0 px-0" style={{ overflowX: 'hidden' }} >
             <div className="bg-white sticky-top " style={{ top: '0px', zIndex: 1001 }}>
                 <MainHeaderComp title="Status Update Audit" subTitle="" />
             </div>

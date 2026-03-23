@@ -187,16 +187,16 @@ const ProductivityReport = () => {
 
     const rawDataColumns = useMemo(() => [
         { header: "AWB No", accessorKey: "awbno" },
-        { 
-            header: "AWB Date", 
+        {
+            header: "AWB Date",
             accessorKey: "awb_date",
             cell: (info) => info.getValue() ? format(new Date(info.getValue()), 'dd-MM-yyyy') : "-"
         },
         { header: "Customer", accessorKey: "customer_name" },
         { header: "Pincode", accessorKey: "drop_pincode" },
         { header: "City", accessorKey: "drop_city" },
-        { 
-            header: "Status Date", 
+        {
+            header: "Status Date",
             accessorKey: "statdate",
             cell: (info) => info.getValue() ? format(new Date(info.getValue()), 'dd-MM-yyyy') : "-"
         },
@@ -277,12 +277,12 @@ const ProductivityReport = () => {
 
     return (
         <div className="page-content py-0 px-0">
-            <Container fluid className="pb-0 mb-0">
+            <div className="pb-0 mb-0">
                 <div style={{ position: "sticky", top: 0, zIndex: 10, paddingBottom: "0px", paddingTop: "0px", backgroundColor: "white" }}>
                     <MainHeaderComp title="Productivity Report" />
                 </div>
 
-                <div className="mt-0 pb-0 mb-0">
+                <div className="container-fluid mt-0 pb-0 mb-0">
                     <div className="p-2">
                         <Row className="mb-1">
                             <Col md={6}>
@@ -385,7 +385,7 @@ const ProductivityReport = () => {
                 <div className="">
                     <TabsProvider tabs={tabs} />
                 </div>
-            </Container>
+            </div>
         </div>
     );
 };

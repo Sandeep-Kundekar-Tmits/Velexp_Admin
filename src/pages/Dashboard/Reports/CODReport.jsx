@@ -12,6 +12,7 @@ import usePostApiCall from "../../../hooks/usePostApiCall";
 import { GridLoader } from "react-spinners";
 import { useExcelExport } from "../../../hooks/useExcelExport";
 import { format } from "date-fns";
+import MainHeaderComp from "../../../components/MainHeaderCom";
 const CODReport = () => {
     const columns = useMemo(
         () => [
@@ -221,10 +222,12 @@ const CODReport = () => {
 
     }
     return (
-        <div className='page-content'>
-            <div className="container-fluid">
-                <div>
-                    <h3 className='pb-3 border-bottom'>COD Report</h3>
+        <div className='page-content py-0 px-0'>
+            <div className="bg-white sticky-top" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
+                <MainHeaderComp title="COD Report" />
+            </div>
+            <div className="container-fluid px-3">
+                <div className="mt-3">
                     <Row>
                         <Col md={4}>
                             <FormGroup className="mb-2">

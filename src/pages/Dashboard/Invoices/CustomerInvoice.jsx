@@ -376,13 +376,13 @@ const CustomerInvoice = () => {
         }
     }
     return (
-        <div className='page-content py-0'>
+        <div className='page-content py-0 px-0'>
             <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
                 <MainHeaderComp
                     title="Generate Franchise Bills"
                 />
             </div>
-            <div className="container-fluid">
+            <div className="container-fluid px-3">
                 <div className="mt-3">
                     <Row className="pb-0 align-items-end border-bottom">
                         <Col md={4}>

@@ -18,164 +18,6 @@ const FirstMileOperation = () => {
     useEffect(() => {
         document.title = "Operation Performance Report";
     }, []);
-
-    // first mile report
-    const FirstMilecolumns = useMemo(
-        () => [
-            {
-                header: 'Date',
-                accessorKey: 'date',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: 'Same Day',
-                accessorKey: 'same_day_spd',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: 'Same Day %',
-                accessorKey: 'same_day_percent',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: '1 Day',
-                accessorKey: '1_day',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: '1 Day %',
-                accessorKey: '1_day_percent',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: '2 Day',
-                accessorKey: '2_day',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: '2 Day %',
-                accessorKey: '2_day_percent',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: '3 Day',
-                accessorKey: '3_day',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: '3 Day %',
-                accessorKey: '3_day_percent',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: '4 Day',
-                accessorKey: '4_day',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: '4 Day %',
-                accessorKey: '4_day_percent',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: '5 Day',
-                accessorKey: '5_day',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: '5 Day %',
-                accessorKey: '5_day_percent',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: '6 Day',
-                accessorKey: '6_day',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: '6 Day %',
-                accessorKey: '6_day_percent',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: '7 Day',
-                accessorKey: '7_day',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: '7 Day %',
-                accessorKey: '7_day_percent',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: '8 Day',
-                accessorKey: '8_day',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: '8 Day %',
-                accessorKey: '8_day_percent',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: '9 Day',
-                accessorKey: '9_day',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: '9 Day %',
-                accessorKey: '9_day_percent',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: '10 Day',
-                accessorKey: '10_day',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: '10+ Day',
-                accessorKey: '10_plus_day',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: '10+ Day %',
-                accessorKey: '10_plus_day_percent',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: 'Total Bookings',
-                accessorKey: 'total_bookings',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-        ],
-        []
-    );
-
     const [FinalStatusCount, setFinalStatusCount] = useState({})
     const [paymentModeOptions] = useState([
         {
@@ -580,11 +422,11 @@ const FirstMileOperation = () => {
     }, [SelectedRegion, AllServiceCenterOption]);
 
     return (
-        <div className='page-content py-0'>
+        <div className='page-content py-0 px-0'>
             <div className="bg-white sticky-top" style={{ top: '0px', zIndex: 1001 }}>
                 <MainHeaderComp title="Pickup Strike Rate (FPSR)" subTitle="" />
             </div>
-            <div className="container-fluid">
+            <div className="container-fluid px-2">
                 <div>
                     <Row className='gx-3 d-flex align-items-end pt-2 border-bottom pb-2'>
                         {/* select region  */}
