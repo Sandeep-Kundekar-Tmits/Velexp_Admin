@@ -61,7 +61,21 @@ const RtoApproval = () => {
 
     // Hooks for submitting approval and status updates
     const { apifunc: UpdateRemark } = usePostApiCall(null, "Remark Updated Successfully");
-    const { apifunc: BulkRtsUpdate } = usePostApiCall(null, "RTS Status Updated Successfully");
+    const { apifunc: BulkRtsUpdate } = usePostApiCall(() => {
+        if (!selectedCustomer || !selectedRange.startDate || !selectedRange.endDate) {
+            toast.error("Please select both a customer and a date range.");
+            return;
+        }
+
+        const datePayload = YMD_DateFormate(selectedRange);
+        const payload = {
+            // customer_id: selectedCustomer.value,
+            customer_name: selectedCustomer.label,
+            from_date: datePayload.from_date,
+            to_date: datePayload.to_date
+        };
+        GetUndeliveredShipments(GET_UNDELIVERED_SHIPMENTS, payload);
+    }, "RTS Status Updated Successfully");
 
     // List of shipments derived from the API response
     // Only return data if both customer and date range are selected
@@ -80,10 +94,10 @@ const RtoApproval = () => {
             toast.error("Please select both a customer and a date range.");
             return;
         }
-
         const datePayload = YMD_DateFormate(selectedRange);
         const payload = {
-            customer_id: selectedCustomer.value,
+            // customer_id: selectedCustomer.value,
+            customer_name: selectedCustomer.label,
             from_date: datePayload.from_date,
             to_date: datePayload.to_date
         };
