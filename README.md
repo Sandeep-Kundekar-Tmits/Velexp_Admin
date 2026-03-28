@@ -56,20 +56,30 @@ This project is built using **React 18** and **Vite**, offering a lightning-fast
 
 ## 🔐 Privilege & Access Control
 
-The application implements a robust role-based access control (RBAC) system to ensure data security and operational integrity.
+The application implements a robust role-based access control (RBAC) system to ensure data security and operational integrity. It uses a centralized privilege mapping approach to control feature access and UI visibility.
 
-### How Privileges Work
-1.  **Authentication**: User data, including roles and permissions, is stored in `localStorage` upon successful login.
-2.  **Permission Mapping**: A central utility `checkCustomerPermissions.js` processes the user's role (`cust_type`) and admin status.
-3.  **Dynamic Routing**: The application dynamically generates authorized routes based on these permissions. If a user doesn't have the required privilege, the route is not registered in the application's matching logic.
-4.  **Landing Logic**: Users are automatically redirected to their primary functional area (e.g., Sales to User List, Operations to Reports) upon login.
+### 🏛️ Architecture Overview
+1.  **Identity Extraction**: User profiles (role type, admin status) are stored in `localStorage` upon login.
+2.  **Capability Mapping**: A central utility converts role types into functional "Capability Booleans" (e.g., `canAddPod: true`).
+3.  **Route Filtering**: The application dynamically generates authorized routes based on these booleans. Unauthorized routes are never registered in the router's matching logic.
+4.  **UI Sanitization**: Components like the Sidebar use these booleans to conditionally render menu items and action buttons.
 
-### Available Roles & Capabilities
+### 📂 Key Privilege Files
+| Responsibility | File Path |
+| :--- | :--- |
+| **Permission Logic** | [src/helpers/checkCustomerPermissions.js](file:///e:/DesktopInfo/Admin_Clone/Velexp_admin-Master/src/helpers/checkCustomerPermissions.js) |
+| **Route-Level Security** | [src/routes/index.jsx](file:///e:/DesktopInfo/Admin_Clone/Velexp_admin-Master/src/routes/index.jsx) |
+| **Menu/UI Visibility** | [src/components/VerticalLayout/SidebarContent.jsx](file:///e:/DesktopInfo/Admin_Clone/Velexp_admin-Master/src/components/VerticalLayout/SidebarContent.jsx) |
+| **Auth Middleware** | [src/routes/route.jsx](file:///e:/DesktopInfo/Admin_Clone/Velexp_admin-Master/src/routes/route.jsx) |
+| **Privilege Dashboard**| [src/pages/Privileges/Privilege.jsx](file:///e:/DesktopInfo/Admin_Clone/Velexp_admin-Master/src/pages/Privileges/Privilege.jsx) |
+| **Privilege Assigner** | [src/components/Privileges/AssignPrivilegesScreen.jsx](file:///e:/DesktopInfo/Admin_Clone/Velexp_admin-Master/src/components/Privileges/AssignPrivilegesScreen.jsx) |
+
+### 👥 Available Roles & Capabilities
 | Role | Capabilities | Primary Entry Point |
 | :--- | :--- | :--- |
-| **Admin** | Full access to all modules and system settings. | /user-list |
+| **Admin** | Full system access and settings management. | /user-list |
 | **Sales** | User and Franchisee management. | /user-list |
-| **POD** | Proof of Delivery management. | /add-pod |
+| **POD** | Proof of Delivery uploads and processing. | /add-pod |
 | **Accounting** | Invoice generation and financial tracking. | /franchise_invoice |
 | **Operations** | Access to all operational and performance reports. | /admin-booking-download |
 | **Retail-Franchise** | Booking management and customer tracking. | /corporate-booking |
