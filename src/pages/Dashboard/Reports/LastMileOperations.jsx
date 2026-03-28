@@ -18,23 +18,29 @@ const LastMileOperations = () => {
     useEffect(() => {
         document.title = "Operation Performance Report";
     }, []);
+    // base column config
     const baseColumnConfig = {
         enableColumnFilter: false,
         enableSorting: true,
     };
+    // final status count state
     const [FinalStatusCount, setFinalStatusCount] = useState({})
+    // date range state
     const [selectedRange, setSelectedRange] = useState({
         startDate: "",
         endDate: "",
     });
 
+    // date range change handler
     const handleChange = (range) => {
         setSelectedRange(range);
     };
 
+    // selected payload state
     const [SelectedPayload, setSelectedPayload] = useState()
-
+    // second mile data state
     const [SecondMiles, setSecondMiles] = useState([])
+    // payment mode options
     const [paymentModeOptions, setpaymentModeOptions] = useState([
         {
             value: "ALL",
@@ -49,10 +55,14 @@ const LastMileOperations = () => {
             label: "PAID"
         }
     ])
+
+    // payment mode state   
     const [PaymentMode, setPaymentMode] = useState({
         value: "ALL",
         label: "ALL"
     },)
+
+    // useMemo for the totals of the last mile operations
     const lastMileTotals = useMemo(() => {
         const totals = SecondMiles.reduce(
             (acc, row) => {
@@ -134,16 +144,19 @@ const LastMileOperations = () => {
         };
     }, [SecondMiles]);
 
+    // value cell
     const valueCell = key => ({ row }) => (
         <strong>{row.original[key] ?? 0}</strong>
     );
 
+    // percent cell
     const percentCell = key => ({ row }) => (
         <span style={{ fontSize: '12px', color: '#555' }}>
             {row.original[key] ?? 0}%
         </span>
     );
 
+    // last mile columns
     const LastMilecolumns = useMemo(() => [
 
         /* ================= DATE ================= */
@@ -650,6 +663,7 @@ const LastMileOperations = () => {
     }, [ServiceCenters]);
 
 
+    // onCheck button click
     const OnCheckClick = async () => {
         try {
             // Format dates
