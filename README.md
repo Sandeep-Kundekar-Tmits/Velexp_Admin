@@ -145,4 +145,4 @@ The optimized files will be generated in the `dist/` directory.
 This project is private and confidential.
 
 ---
-🚀 *Developed with ❤️ for VelExp Logistics*
+🚀 *Developed with ❤️ for Velexp Logistics*
