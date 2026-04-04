@@ -1,9 +1,9 @@
 // const BASE_URL = "http://192.168.1.151:8000"
-const BASE_URL = "https://velexp.com"
+// const BASE_URL = "https://velexp.com"s
 // const BASE_URL = "http://velexp.com:8000"
 // const BASE_URL = "https://velexp.com"
 // const BASE_URL = "http://192.168.1.166:8000"
-// const BASE_URL = "http://103.108.57.51:8001"
+const BASE_URL = "http://103.108.57.51:8001"
 
 // const BASE_URL = "http://192.168.1.152:8000"
 // use for incryption and decryption
@@ -104,6 +104,16 @@ export const GET_ALL_CUSTOMER_CORPORATE_RATE_DATE = `${BASE_URL}/corporate_rate_
 
 // upload the corporate Rate data
 export const UPLOAD_CORPORATE_RATE_DATA = `${BASE_URL}/upload_corporate_rates/` // POST
+
+// import corporate pincode data
+export const IMPORT_CORPORATE_PINCODE_DATA = `${BASE_URL}/corporate-billing/import/pincode/` // POST
+
+// import corporate rate data
+export const IMPORT_CORPORATE_RATE_DATA = `${BASE_URL}/corporate-billing/import/rates/` // POST
+
+// get customer rates
+export const GET_CUSTOMER_RATES = `${BASE_URL}/corporate-billing/customer-rates/` // GET ?customer_id=1
+export const GET_SINGLE_CUSTOMER_RATE = `${BASE_URL}/corporate-billing/customer-rates/` // GET {id}/
 
 
 // get all retail rate date
@@ -227,6 +237,35 @@ export const DELETE_INT_CUTOMER_RATE_DATA = `${BASE_URL}/rate-data-for-internati
 
 // get only corporate users
 export const CORPORATE_CUSTOMERS_LIST = `${BASE_URL}/corporate_billing_api/`
+
+// corporate billing config
+export const CORPORATE_BILLING_CONFIG = `${BASE_URL}/corporate-billing/billing/config/`
+
+// get corporate customer products
+export const GET_CORPORATE_CUSTOMER_PRODUCTS = `${BASE_URL}/corporate-billing/billing/products/`
+
+// get corporate customer pincode list
+export const GET_CORPORATE_CUSTOMER_PINCODE_LIST = `${BASE_URL}/corporate-billing/customer-pincode-service/`
+
+// corporate billing vas
+export const CORPORATE_BILLING_VAS = `${BASE_URL}/corporate-billing/billing/vas/`
+
+// corporate billing sync
+export const CORPORATE_BILLING_SYNC = `${BASE_URL}/corporate-billing/billing/sync/`
+
+// corporate billing audit
+export const CORPORATE_BILLING_AUDIT = `${BASE_URL}/corporate-billing/billing/audit/`
+export const CORPORATE_BILLING_AUDIT_EXCEL = `${BASE_URL}/corporate-billing/billing/audit-excel/`
+
+// corporate billing working runs
+export const CORPORATE_BILLING_GENERATE = `${BASE_URL}/corporate-billing/billing/generate/`
+export const CORPORATE_BILLING_RUNS = `${BASE_URL}/corporate-billing/billing/runs/`
+
+// corporate billing invoices
+export const CORPORATE_INVOICE_UPLOAD_PREVIEW = `${BASE_URL}/corporate-billing/invoices/upload-preview/`
+export const CORPORATE_INVOICE_GENERATE = `${BASE_URL}/corporate-billing/invoices/generate/`
+export const CORPORATE_INVOICES_LIST = `${BASE_URL}/corporate-billing/invoices/list/`
+export const CORPORATE_INVOICE_BASE = `${BASE_URL}/corporate-billing/invoices/`
 
 // corporate billing invoive
 export const CORPORATE_BILLING_INVOICE = `${BASE_URL}/corporate_billing_api/`
@@ -469,3 +508,8 @@ export const STATUS_UPDATE = `${BASE_URL}/status_update_report/` // POST
 // productivity report api
 export const PRODUCTIVITY_REPORT = `${BASE_URL}/reports/productivity-report/` // POST
 
+// all bookings - view (paginated JSON) and export (file download)
+export const ALL_BOOKINGS_VIEW = `${BASE_URL}/api_booking/optimized_bookings/`   // POST - returns paginated JSON
+export const ALL_BOOKINGS_EXPORT = `${BASE_URL}/optimized_bookings_export//`       // POST - returns Excel file
+export const COD_RECONCILIATION = `${BASE_URL}/public-reconciliation`;
+export const COD_RECONCILIATION_APPROVE = `${BASE_URL}/accountant-approval`;

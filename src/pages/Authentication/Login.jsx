@@ -90,7 +90,7 @@ const Login = (props) => {
         canSeeBooking: true, // ✅ Retail-Franchise can see bookings
       };
     }
-    else if (customerType === "operations") {
+    else if (customerType === "operations" || customerType === "Analyzer") {
       return {
         canCreateUser: false,
         canAddPod: false,
@@ -163,7 +163,7 @@ const Login = (props) => {
         // Determine the route based on permissions
         const route = canCreateUser ? "/user-list" :
           canAddPod ? "/add-pod" :
-            canCreateReport ? "/pending-report" :
+            canCreateReport ? "/last-mile-customer-performance" :
               invoice ? "/franchise_invoice"
                 : canSeeBooking ? "/corporate-booking" : "/no_role";
 

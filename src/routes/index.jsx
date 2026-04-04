@@ -43,6 +43,8 @@ const PaymentDetails = lazy(() => import("../pages/Dashboard/PaymentDeatils"));
 const RetailPincode = lazy(() => import("../pages/Customers/RetailPinocode"));
 const FranchisePincode = lazy(() => import("../pages/Customers/FranchisePincode"));
 const CorporatePincode = lazy(() => import("../pages/Customers/CorporatePincode"));
+const CorporatePincodeUpload = lazy(() => import("../pages/Customers/CorporatePincodeUpload"));
+const CorporateRateUpload = lazy(() => import("../pages/Customers/CorporateRateUpload"));
 const AirwayBillMiniTable = lazy(() => import("../components/AWBPrint/AirwayBillMiniTable"));
 const AWBPrintPage = lazy(() => import("../components/AWBPrint/AWBPrintPage"));
 const InScanWeight = lazy(() => import("../pages/Dashboard/InScanWeight"));
@@ -74,6 +76,15 @@ const InternationPincode = lazy(() => import("../pages/Dashboard/RateData/Intern
 const PerformanceReport = lazy(() => import("../pages/performance/PerformanceReport"));
 const StatusUpdateAudit = lazy(() => import("../pages/Dashboard/Reports/StatusUpdateAudit"));
 const ProductivityReport = lazy(() => import("../pages/Dashboard/Reports/ProductivityReport"));
+const CorporateBilling = lazy(() => import("../pages/NewFeatures/CorporateBilling"));
+const CustomerProductConfig = lazy(() => import("../pages/NewFeatures/CustomerProductConfig"));
+const VASConfig = lazy(() => import("../pages/NewFeatures/VASConfig"));
+const ShipmentBilling = lazy(() => import("../pages/NewFeatures/ShipmentBilling"));
+const BillingWorking = lazy(() => import("../pages/NewFeatures/BillingWorking"));
+const InvoiceFlow = lazy(() => import("../pages/NewFeatures/InvoiceFlow"));
+const AllBooking = lazy(() => import("../pages/NewFeatures/AllBooking"));
+const CODReconciliation = lazy(() => import("../pages/Dashboard/CODReconciliation"));
+
 
 
 
@@ -141,6 +152,15 @@ const getAuthProtectedRoutes = () => {
     { path: "/retail-pincode", component: <RetailPincode /> },
     { path: "/franchise-pincode", component: <FranchisePincode /> },
     { path: "/corporate-pincode", component: <CorporatePincode /> },
+    { path: "/corporate-pincode-upload", component: <CorporatePincodeUpload /> },
+    { path: "/corporate-rate-upload", component: <CorporateRateUpload /> },
+    { path: "/corporate-billing", component: <CorporateBilling /> },
+    { path: "/customer-product-config", component: <CustomerProductConfig /> },
+    { path: "/vas-config", component: <VASConfig /> },
+    { path: "/shipment-billing", component: <ShipmentBilling /> },
+    { path: "/billing-working", component: <BillingWorking /> },
+    { path: "/invoice-flow", component: <InvoiceFlow /> },
+    { path: "/all-booking", component: <AllBooking /> },
     { path: "/intl-pincode", component: <InternationPincode /> },
 
     //  rate data
@@ -173,28 +193,22 @@ const getAuthProtectedRoutes = () => {
     { path: "/tracking", component: <TrackAWB /> },
     // rto approval
     { path: "/rto-approval", component: <RtoApproval /> },
+    { path: "/cod-reconciliation", component: <CODReconciliation /> },
     { path: "/intl-rate-data", component: <InternationRateData /> },
-    // Default route
-    {
-      path: "/",
-      exact: true,
-      component: <Navigate to="/user-list" />
-    },
-
-    // Fallback
-    { path: "*", component: <h1>Page Not Found</h1> },
     {
       path: "/",
       exact: true,
       component: <Navigate to={
         canCreateUser ? "/user-list" :
           canAddPod ? "/add-pod" :
-            canCreateReport ? "/admin-booking-download" :
+            canCreateReport ? "/last-mile-customer-performance" :
               invoice ? "/franchise_invoice" :
                 canSeeBooking ? "/corporate-booking" : "/no_role"
       } />
-    }
+    },
 
+    // Fallback
+    { path: "*", component: <h1>Page Not Found</h1> }
   ];
 };
 

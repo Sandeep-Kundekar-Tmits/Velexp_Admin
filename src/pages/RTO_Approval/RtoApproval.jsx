@@ -260,6 +260,42 @@ const RtoApproval = () => {
             accessorKey: "awbno",
         },
         {
+            header: "Service Center",
+            accessorKey: "service_center",
+        },
+        {
+            header: "Latest Status",
+            accessorKey: "latest_status",
+            cell: ({ row }) => {
+                const status = row.original.latest_status?.trim() || "";
+                let badgeClass = "badge-soft-secondary";
+                
+                if (['SPD', 'Delivered'].includes(status)) {
+                    badgeClass = "badge-soft-success";
+                } else if (['SAO', 'LDP', 'PUD', 'SMR', 'ITR'].includes(status)) {
+                    badgeClass = "badge-soft-primary";
+                } else if (status === 'RTO') {
+                    badgeClass = "badge-soft-danger";
+                } else if (['SPH', 'DRC', 'ICA', 'CRF', 'CNS', 'RTA', 'CAN', 'COS', 'ERA', 'PUP', 'DPT', 'DIS', 'OSA', 'ODD', 'CNA'].includes(status)) {
+                    badgeClass = "badge-soft-warning";
+                }
+
+                return (
+                    <span className={`badge ${badgeClass} font-size-12 px-2 py-1`}>
+                        {status || "--"}
+                    </span>
+                );
+            }
+        },
+        {
+            header: "Pick City",
+            accessorKey: "pick_city",
+        },
+        {
+            header: "Drop City",
+            accessorKey: "drop_city",
+        },
+        {
             header: "Delivery Attempts",
             accessorKey: "delivery_attempts",
         },

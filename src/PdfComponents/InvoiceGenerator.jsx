@@ -56,7 +56,7 @@ const InvoiceGenerator = ({ invoiceData }) => {
     }
   };
 
-  const totalsAmounts = invoiceData.items.reduce(
+  const totalsAmounts = (invoiceData?.items || []).reduce(
     (acc, item) => ({
       quantity: acc.quantity + (item.quantity || 0),
       shipments: acc.shipments + (item.shipments || 0),
@@ -94,7 +94,7 @@ const InvoiceGenerator = ({ invoiceData }) => {
     const isVisible = (column) => visibleColumns.includes(column);
 
     // Calculate totals
-    const totals = invoiceData.items.reduce(
+    const totals = (invoiceData?.items || []).reduce(
       (acc, item) => ({
         quantity: acc.quantity + (item.quantity || 0),
         shipments: acc.shipments + (item.shipments || 0),
@@ -152,7 +152,7 @@ const InvoiceGenerator = ({ invoiceData }) => {
           </tr>
         </thead>
         <tbody>
-          {invoiceData.items.map((item, index) => (
+          {(invoiceData?.items || []).map((item, index) => (
             <tr key={item.id}>
               {isVisible('srno') && <td style={{ border: "solid black 1px" }}>{index + 1}.</td>}
               {isVisible('description') && <td style={{ border: "solid black 1px" }}>{item?.description}</td>}

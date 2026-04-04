@@ -23,8 +23,11 @@ const ToasterProvider = () => {
         progress: undefined,
         theme: "light",
     });
+    const SuccessToaster = SucceesToaster;
+
     return {
         SucceesToaster,
+        SuccessToaster,
         ErrorToaster
     }
 }

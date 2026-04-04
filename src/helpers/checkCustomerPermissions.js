@@ -11,16 +11,26 @@ function checkCustomerPermissions() {
     canAddPod: false,
     invoice: false,
     canSeeBooking: false,
+    canAccessNewFeatures: false,
+    isAdmin: false,
+    canAccessPrivileges: false,
+    canTrackAWB: false,
+    canApproveRTO: false,
   };
 
-  // Full access for admin
-  if (isAdmin) {
+  // Full access for admin (skip for Analyzer to keep them restricted)
+  if (isAdmin && customerType !== "Analyzer") {
     return {
       canCreateUser: true,
       canCreateReport: true,
       canAddPod: true,
       invoice: true,
       canSeeBooking: true,
+      canAccessNewFeatures: true,
+      isAdmin: true,
+      canAccessPrivileges: true,
+      canTrackAWB: true,
+      canApproveRTO: true,
     };
   }
 
@@ -32,6 +42,29 @@ function checkCustomerPermissions() {
       canAddPod: false,
       invoice: false,
       canSeeBooking: false, // sales can see bookings
+      canAccessNewFeatures: false,
+    },
+    "Customer Service": {
+      canCreateUser: false,
+      canCreateReport: false,
+      canAddPod: false,
+      invoice: false,
+      canSeeBooking: false,
+      canAccessNewFeatures: false,
+      canAccessPrivileges: true,
+      canTrackAWB: true,
+      canApproveRTO: true,
+    },
+    "Analyzer": {
+      canCreateUser: false,
+      canCreateReport: true,
+      canAddPod: false,
+      invoice: false,
+      canSeeBooking: false,
+      canAccessNewFeatures: false,
+      canAccessPrivileges: false,
+      canTrackAWB: false,
+      canApproveRTO: false,
     },
     pod: {
       canCreateUser: false,
@@ -64,7 +97,14 @@ function checkCustomerPermissions() {
   };
 
   // Return matched permissions or default
-  return permissionMap[customerType] || defaultPermissions;
+  const permissions = permissionMap[customerType] || defaultPermissions;
+  
+  // If Analyzer, strictly only reports, even if Admin flag is present
+  if (customerType === "Analyzer") {
+     return { ...permissions, isAdmin: false };
+  }
+
+  return { ...permissions, isAdmin };
 }
 
 export { checkCustomerPermissions };

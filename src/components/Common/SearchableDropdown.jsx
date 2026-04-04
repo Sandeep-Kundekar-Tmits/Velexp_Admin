@@ -8,6 +8,10 @@ const SearchableDropdown = ({ onChange, className, locations = [], value = "sele
     const dropdownRef = useRef(null);
     const [searchedItem, setSearchedItem] = useState("");
     const [selectedValue, setSelectedValue] = useState(value);
+    
+    useEffect(() => {
+        setSelectedValue(value);
+    }, [value]);
 
     const handleClickOutside = (event) => {
         if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -51,7 +55,9 @@ const SearchableDropdown = ({ onChange, className, locations = [], value = "sele
                 aria-haspopup="listbox"
                 aria-expanded={showInputDropdown}
             >
-                <div className="flex-grow-1 text-muted">{selectedValue}</div>
+                <div className="flex-grow-1 text-muted">
+                    {typeof selectedValue === 'object' ? selectedValue?.name : selectedValue}
+                </div>
                 <div className="d-flex align-items-center">
                     {selectedValue !== "select" && (
                         <MdClose

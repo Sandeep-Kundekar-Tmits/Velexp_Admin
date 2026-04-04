@@ -165,6 +165,10 @@ const InScanWeight = () => {
   useEffect(() => {
     async function loadPorts() {
       try {
+        if (!navigator.serial) {
+          console.warn("Web Serial API not supported in this browser.");
+          return;
+        }
         const authorizedPorts = await navigator.serial.getPorts();
         setPorts(authorizedPorts);
         if (authorizedPorts.length > 0) setPort(authorizedPorts[0]);
@@ -175,22 +179,30 @@ const InScanWeight = () => {
 
     loadPorts();
 
-    navigator.serial.addEventListener("connect", loadPorts);
-    navigator.serial.addEventListener("disconnect", () => {
-      setPort(null);
-      setConnected(false);
-      setWeight("");
-    });
+    if (navigator.serial) {
+      navigator.serial.addEventListener("connect", loadPorts);
+      navigator.serial.addEventListener("disconnect", () => {
+        setPort(null);
+        setConnected(false);
+        setWeight("");
+      });
+    }
 
     return () => {
-      navigator.serial.removeEventListener("connect", loadPorts);
-      navigator.serial.removeEventListener("disconnect", loadPorts);
+      if (navigator.serial) {
+        navigator.serial.removeEventListener("connect", loadPorts);
+        navigator.serial.removeEventListener("disconnect", loadPorts);
+      }
     };
   }, []);
 
   /* ------------------- REQUEST PORT ------------------- */
   const requestPort = async () => {
     try {
+      if (!navigator.serial) {
+        setError("Web Serial API is not supported in this browser or context (requires HTTPS).");
+        return;
+      }
       const newPort = await navigator.serial.requestPort();
       setPorts((prev) => [...prev, newPort]);
       setPort(newPort);

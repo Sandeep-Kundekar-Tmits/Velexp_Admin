@@ -7,6 +7,7 @@ const SimpleModal = ({
   children,
   cancelButtonName = "Cancel",
   successButtonName = null,
+  size = null, // e.g. 'lg', 'xl', 'sm'
   onCancel,
   onSuccess,
 }) => {
@@ -45,7 +46,7 @@ const SimpleModal = ({
 
   return (
     <div className="modal fade" ref={modalRef} tabIndex="-1">
-      <div className="modal-dialog">
+      <div className={`modal-dialog ${size ? `modal-${size}` : ""}`}>
         <div className="modal-content p-2 rounded-3 shadow">
 
           <div className="modal-body">

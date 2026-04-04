@@ -315,7 +315,7 @@ const ManualInvoice = () => {
                                                 className="w-100"
                                                 onChange={handleLocationChange}
                                                 locations={CompanyAddresses}
-                                                value={SelectedAddress}
+                                                value={SelectedAddress?.name || "select"}
                                             />
                                             <small className="text-danger ">{InvoiceErors?.SelectedAddress}</small>
                                         </FormGroup>

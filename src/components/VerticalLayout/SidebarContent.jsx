@@ -152,7 +152,10 @@ const SidebarContent = (props) => {
 
 
 
-  const { canCreateUser, canAddPod, canCreateReport, invoice, canSeeBooking } = checkCustomerPermissions()
+  const { 
+    canCreateUser, canAddPod, canCreateReport, invoice, canSeeBooking, 
+    canAccessNewFeatures, isAdmin, canAccessPrivileges, canTrackAWB, canApproveRTO 
+  } = checkCustomerPermissions()
 
   return (
     <React.Fragment>
@@ -497,12 +500,11 @@ const SidebarContent = (props) => {
                     <li>
                       <Link to="/franchise_invoice">{props.t("Franchise Billing")}</Link>
                     </li>
-                    {/*  corporate Invoice */}
-                    <li>
-                      <Link to="/corporate_invoice">{props.t("Corporate Billing")}</Link>
-                    </li>
                     <li>
                       <Link to="/manual_invoice">{props.t("Manual Billing")}</Link>
+                    </li>
+                    <li>
+                      <Link to="/corporate-billing">{props.t("Corporate Bills")}</Link>
                     </li>
                     {/* edit_invoice */}
                     <li>
@@ -557,59 +559,121 @@ const SidebarContent = (props) => {
               </>
             }
 
-            <li>
-              <Link to="/employee-attendance" className="has">
-                <i className="bx bx-calendar-check"></i>
-                <span>{props.t("Employee Trip Details")}</span>
-              </Link>
-            </li>
+            {
+              canAccessNewFeatures &&
+              <li>
+                <Link to="/#" className="has-arrow">
+                  <i className="bx bx-receipt"></i>
+                  <span>{props.t("New Feature")}</span>
+                </Link>
+                <ul className="sub-menu" aria-expanded="false">
+                  <li>
+                    <Link to="/corporate-pincode-upload">{props.t("Pincode")}</Link>
+                  </li>
+                  <li>
+                    <Link to="/corporate-rate-upload">{props.t("Rate")}</Link>
+                  </li>
+                  <li>
+                    <Link to="/customer-product-config">{props.t("Customer Product Config")}</Link>
+                  </li>
+                  <li>
+                    <Link to="/vas-config">{props.t("VAS")}</Link>
+                  </li>
+                  <li>
+                    <Link to="/shipment-billing">{props.t("Shipment Billing")}</Link>
+                  </li>
+                  <li>
+                    <Link to="/billing-working">{props.t("Billing Working")}</Link>
+                  </li>
+                  <li>
+                    <Link to="/invoice-flow">{props.t("Invoice Flow")}</Link>
+                  </li>
+                  <li>
+                    <Link to="/all-booking">{props.t("All Booking")}</Link>
+                  </li>
+                </ul>
+              </li>
+            }
 
+            {
+              isAdmin &&
+                <li>
+                  <Link to="/employee-attendance" className="has">
+                    <i className="bx bx-calendar-check"></i>
+                    <span>{props.t("Employee Trip Details")}</span>
+                  </Link>
+                </li>
+            }
+            
+            {
+              isAdmin &&
+                <li>
+                  <Link to="/pop-reconcilation" className="has">
+                    <i className="bx bx-shuffle"></i>
+                    <span>{props.t("POP Reconciliation")}</span>
+                  </Link>
+                </li>
+            }
 
-            <li>
-              <Link to="/pop-reconcilation" className="has">
-                <i className="bx bx-shuffle"></i>
-                <span>{props.t("POP Reconciliation")}</span>
-              </Link>
-            </li>
+            {
+              isAdmin &&
+                <li>
+                  <Link to="/awb-print" className="has">
+                    <i className="bx bx-printer"></i>
+                    <span>{props.t("AWB Label Print")}</span>
+                  </Link>
+                </li>
+            }
 
-            <li>
-              <Link to="/awb-print" className="has">
-                <i className="bx bx-printer"></i>
-                <span>{props.t("AWB Label Print")}</span>
-              </Link>
-            </li>
+            {
+              isAdmin &&
+                <li>
+                  <Link to="/inscan-weight" className="has">
+                    <i className="bx bx-ruler"></i>
+                    <span>{props.t("InScan Weight")}</span>
+                  </Link>
+                </li>
+            }
 
-            <li>
-              <Link to="/inscan-weight" className="has">
-                <i className="bx bx-ruler"></i>
-                <span>{props.t("InScan Weight")}</span>
-              </Link>
-            </li>
-            {/* rto approval */}
+            {
+              canApproveRTO &&
+                <li>
+                  <Link to="/rto-approval" className="has">
+                    <i className="bx bx-check-shield"></i>
+                    <span>{props.t("RTO Approval")}</span>
+                  </Link>
+                </li>
+            }
 
-            <li>
-              <Link to="/rto-approval" className="has">
-                <i className="bx bx-check-shield"></i>
-                <span>{props.t("RTO Approval")}</span>
-              </Link>
-            </li>
+            {
+              isAdmin &&
+                <li>
+                  <Link to="/cod-reconciliation" className="has">
+                    <i className="bx bx-money"></i>
+                    <span>{props.t("COD Reconciliation")}</span>
+                  </Link>
+                </li>
+            }
 
-            {/* tracking */}
-            <li>
-              <Link to="/tracking" className="has">
-                <i className="bx bx-search-alt-2 "></i>
-                <span>{props.t("Track AWB")}</span>
-              </Link>
-            </li>
+            {
+              canTrackAWB &&
+                <li>
+                  <Link to="/tracking" className="has">
+                    <i className="bx bx-search-alt-2 "></i>
+                    <span>{props.t("Track AWB")}</span>
+                  </Link>
+                </li>
+            }
 
-
-
-            <li>
-              <Link to="/privileges" className="has">
-                <i className="bx bx-shield-quarter"></i>
-                <span>{props.t("Privileges")}</span>
-              </Link>
-            </li>
+            {
+              canAccessPrivileges &&
+                <li>
+                  <Link to="/privileges" className="has">
+                    <i className="bx bx-shield-quarter"></i>
+                    <span>{props.t("Privileges")}</span>
+                  </Link>
+                </li>
+            }
           </ul>
         </div>
 
