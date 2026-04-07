@@ -251,7 +251,7 @@ const CorporateBilling = () => {
     const UploadInvoiceChange = async (e) => {
         setUploadedFile(e.target.files[0])
         let file = e.target.files[0]
-        let requiredFields = ["date", "to_pincode", "from_pincode", "Consignee", "awbno", "weight", "base_rate", "freight_amount", "fsc", "fov", "total_before_gst", "gst_amount", "total", "Invoice No", "orgsc", "cod", "rto", "appointment_charges", "status"]
+        let requiredFields = ["date", "to_pincode", "from_pincode", "Consignee", "awbno", "weight", "base_rate", "freight_amount", "fsc", "fov", "total_before_gst", "gst_amount", "total", "Invoice No", "orgsc", "cod", "rto", "appointment_charges", "pickup", "deliver", "oda", "status"]
         // let requiredFields=[]
         // const {
         //     titleCell = 'A1',
@@ -348,6 +348,8 @@ const CorporateBilling = () => {
                         "orgsc": ele?.orgsc || "",
                         "rto": ele?.rto ?? 0,
                         "appointment_charges": ele?.appointment_charges ?? 0,
+                        "pickup": ele?.pickup ?? 0,
+                        "deliver": ele?.deliver ?? 0,
                         "oda": ele?.oda ?? 0,
                         "status": ele?.status || ""
                     };
@@ -391,6 +393,8 @@ const CorporateBilling = () => {
             "orgsc": item?.orgsc || "NAN",
             "rto": item?.rto || 0,
             "appointment_charges": item?.appointment_charges || 0,
+            "pickup": item?.pickup || 0,
+            "deliver": item?.deliver || 0,
             "oda": item?.oda || 0,
             "status": item?.status || "NAN"
         }));

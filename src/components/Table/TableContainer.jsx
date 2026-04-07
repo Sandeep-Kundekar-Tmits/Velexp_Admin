@@ -115,7 +115,8 @@ const TableContainer = ({
     tableHeight = null,
     isStickyHeader = false,
     isStickyFooter = false,
-    stickyTop = 0
+    stickyTop = 0,
+    rightExtraFiled = null
 }) => {
 
     const [columnFilters, setColumnFilters] = useState([]);
@@ -275,6 +276,11 @@ const TableContainer = ({
                         {
                             ShowClearBtn && <Button onClick={OnClearClick} className="bg-danger border-0 mb-0 me-2" style={{ height: "34px", width: "100px" }}>Clear</Button>
                         }
+                        {rightExtraFiled && (
+                            <div className="me-1" style={{ borderRight: "1px solid #B0ACAC", paddingRight: "8px", height: "45px", display: "flex", alignItems: "center" }}>
+                                {rightExtraFiled}
+                            </div>
+                        )}
                         <div className="mb-0 w-100" >
                             {isGlobalFilter && (
                                 <DebouncedInput

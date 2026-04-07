@@ -12,6 +12,9 @@ import { GridLoader } from "react-spinners"
 import axios from "axios"
 import CODRejectModal from "./CODRejectModal"
 import { MdVisibility } from "react-icons/md"
+import { MdFileDownload } from "react-icons/md"
+import * as XLSX from "xlsx"
+import CODViewModal from "./CODViewModal"
 
 const CODReconciliation = () => {
     const [reconciliationData, setReconciliationData] = useState([])
@@ -21,6 +24,9 @@ const CODReconciliation = () => {
     })
     const [isRejectModalOpen, setIsRejectModalOpen] = useState(false)
     const [selectedCODRecord, setSelectedCODRecord] = useState(null)
+    const [statusFilter, setStatusFilter] = useState("pending")
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false)
+    const [viewRecord, setViewRecord] = useState(null)
 
     const { apifunc: getReconciliation, data, loading } = useGetApiCall()
     const { apifunc: postReconciliation, loading: actionLoading } = usePostApiCall()
@@ -36,9 +42,31 @@ const CODReconciliation = () => {
         }
     }, [data])
 
-    const fetchData = () => {
+    const fetchData = (filter = statusFilter) => {
         const { from_date, to_date } = YMD_DateFormate(selectedRange)
-        getReconciliation(`${COD_RECONCILIATION}?from_date=${from_date}&to_date=${to_date}`)
+        // Map dropdown values to API status params
+        const statusMap = { approved: "success", rejected: "reject", pending: "pending" }
+        const statusParam = statusMap[filter] ? `&status=${statusMap[filter]}` : ""
+        getReconciliation(`${COD_RECONCILIATION}?from_date=${from_date}&to_date=${to_date}${statusParam}`)
+    }
+
+    const exportToExcel = () => {
+        if (!reconciliationData || reconciliationData.length === 0) {
+            ErrorToaster("No data to export")
+            return
+        }
+        const exportData = reconciliationData.map(r => ({
+            "Manifest No.": r.manifests_covered || "N/A",
+            "UTR No.": r.utr_number || "N/A",
+            "Amount": r.amount_received || 0,
+            "Status": r.is_approved ? "Success" : r.dispute_remark ? "Exception" : "Pending",
+            "Dispute Remark": r.dispute_remark || "",
+        }))
+        const ws = XLSX.utils.json_to_sheet(exportData)
+        const wb = XLSX.utils.book_new()
+        XLSX.utils.book_append_sheet(wb, ws, "COD Reconciliation")
+        XLSX.writeFile(wb, `COD_Reconciliation_${new Date().toLocaleDateString('en-GB').split('/').join('-')}.xlsx`)
+        SucceesToaster("Exported successfully")
     }
 
     const handleAction = async (id, action, row) => {
@@ -71,12 +99,21 @@ const CODReconciliation = () => {
                 accessorKey: "manifests_covered",
                 cell: (cell) => {
                     const value = cell.getValue()
-                    if (!value) return "N/A"
-                    const manifests = value.split(",").map(m => m.trim())
-                    if (manifests.length > 2) {
-                        return `${manifests.slice(0, 2).join(", ")} + ${manifests.length - 2}`
-                    }
-                    return manifests.join(", ")
+                    const row = cell.row.original
+                    const manifests = value ? value.split(",").map(m => m.trim()) : []
+                    const displayText = manifests.length > 2
+                        ? `${manifests.slice(0, 2).join(", ")} +${manifests.length - 2}`
+                        : manifests.join(", ") || "N/A"
+                    return (
+                        <span
+                            className="text-primary fw-semibold"
+                            style={{ cursor: "pointer", textDecoration: "underline" }}
+                            onClick={() => { setViewRecord(row); setIsViewModalOpen(true) }}
+                            title="View Manifest Details"
+                        >
+                            {displayText}
+                        </span>
+                    )
                 }
             },
             {
@@ -113,13 +150,25 @@ const CODReconciliation = () => {
                 cell: (cell) => {
                     const row = cell.row.original
                     if (row.is_approved) {
-                        return <span className="text-success fw-bold">Approved</span>
+                        return (
+                            <div className="d-flex justify-content-end">
+                                <Badge color="primary" className="px-2 py-1" style={{ fontSize: "12px", borderRadius: "4px" }}>
+                                    Success
+                                </Badge>
+                            </div>
+                        )
                     }
                     if (row.dispute_remark) {
-                        return <span className="text-danger fw-bold">Rejected</span>
+                        return (
+                            <div className="d-flex justify-content-end">
+                                <Badge color="warning" className="px-2 py-1 text-dark" style={{ fontSize: "12px", borderRadius: "4px" }}>
+                                    Exception
+                                </Badge>
+                            </div>
+                        )
                     }
                     return (
-                        <div className="d-flex gap-2 justify-content-center ">
+                        <div className="d-flex gap-2 justify-content-end ">
                             <Button
                                 color="success"
                                 size="sm"
@@ -177,6 +226,19 @@ const CODReconciliation = () => {
                                     </Button>
                                 </div>
                             </Col>
+                            <Col md={2}>
+                                <div className="mb-3">
+                                    <Button
+                                        color="success"
+                                        className="w-100 d-flex align-items-center justify-content-center gap-1"
+                                        onClick={exportToExcel}
+                                        disabled={loading || reconciliationData.length === 0}
+                                        style={{ height: "38px" }}
+                                    >
+                                        <MdFileDownload size={18} /> Export
+                                    </Button>
+                                </div>
+                            </Col>
                         </Row>
                     </CardBody>
                 </Card>
@@ -191,13 +253,30 @@ const CODReconciliation = () => {
                         ) : (
                             <TableContainer
                                 columns={columns}
-                                data={reconciliationData || []}
+                                data={reconciliationData}
                                 isGlobalFilter={true}
                                 isPagination={true}
                                 SearchPlaceholder="Search reconciliation records..."
                                 pagination="pagination pagination-rounded justify-content-end mb-2"
                                 paginationWrapper="dataTables_paginate paging_simple_numbers"
                                 tableClass="table-hover mb-0"
+                                extraFiled={null}
+                                rightExtraFiled={
+                                    <select
+                                        className="form-select border-0"
+                                        value={statusFilter}
+                                        onChange={(e) => {
+                                            setStatusFilter(e.target.value)
+                                            fetchData(e.target.value)
+                                        }}
+                                        style={{ height: "34px", minWidth: "130px", fontSize: "13px" }}
+                                    >
+                                        <option value="all">All</option>
+                                        <option value="approved">✅ Approved</option>
+                                        <option value="rejected">❌ Rejected</option>
+                                        <option value="pending">⏳ Pending</option>
+                                    </select>
+                                }
                             />
                         )}
                     </CardBody>
@@ -208,6 +287,11 @@ const CODReconciliation = () => {
                 toggle={() => setIsRejectModalOpen(!isRejectModalOpen)}
                 data={selectedCODRecord}
                 refreshData={fetchData}
+            />
+            <CODViewModal
+                isOpen={isViewModalOpen}
+                toggle={() => setIsViewModalOpen(!isViewModalOpen)}
+                data={viewRecord}
             />
         </div>
     )

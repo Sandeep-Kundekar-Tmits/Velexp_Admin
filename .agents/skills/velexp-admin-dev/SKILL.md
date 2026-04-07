@@ -67,3 +67,22 @@ Follow the design established in `CODRejectModal.jsx`.
 
 ### API Endpoints
 Centralize all endpoints in `src/api/index.js` using the `${BASE_URL}` prefix.
+
+## React Optimization Skills
+
+### Memoization
+- **useMemo**: Use for expensive data transformations before rendering (e.g. formatting table results).
+- **useCallback**: Use for callback functions passed to memoized children to prevent unnecessary re-renders.
+- **React.memo**: Wrap display-only components that receive complex props to skip re-rendering if props haven't changed.
+
+### Performance Best Practices
+- **Lazy Loading**: All auth-protected routes must be lazy-loaded in `src/routes/index.jsx`.
+- **Unique Keys**: Always use stable, unique IDs (e.g. `awbno` or `id`) for keys in lists. Avoid using Array indices.
+- **Dependency Arrays**: ensure `useEffect` and `useMemo` dependency arrays are complete but lean.
+
+## Smooth Transition Effects
+
+### Animation Patterns
+- **Entrance Animations**: Use the `animate__animated animate__fadeIn` utility classes for main content containers and cards to give a premium feel.
+- **Interactive Feedback**: Apply smooth CSS transitions (`transition: all 0.3s ease;`) to hover states and button interactions.
+- **Modal Transitions**: Use standard bootstrap `fade` transitions or custom CSS animations for specialized modals (like COD Reject).

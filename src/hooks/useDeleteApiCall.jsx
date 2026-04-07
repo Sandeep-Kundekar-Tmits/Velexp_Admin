@@ -5,16 +5,25 @@ export const useDeleteApiCall = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    const apifunc = useCallback(async (url) => {
+    const apifunc = useCallback(async (url, body = null) => {
         setLoading(true);
         setError(null);
         setData(null);
 
         try {
-            const response = await fetch(url, { 
-                method: 'DELETE', 
-                credentials: 'include' 
-            });
+            const options = {
+                method: 'DELETE',
+                credentials: 'include',
+            };
+
+            if (body) {
+                options.headers = {
+                    'Content-Type': 'application/json',
+                };
+                options.body = JSON.stringify(body);
+            }
+
+            const response = await fetch(url, options);
             
             const status = response.status;
 
@@ -23,17 +32,22 @@ export const useDeleteApiCall = () => {
                 return true;
             }
 
-            // Only try to parse JSON if there's content
-            const result = await response.json();
+            // Only try to parse JSON if there's content or it's not a success status with no body
+            let result = null;
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+                result = await response.json();
+            }
 
             if (!response.ok) {
-                throw new Error(result.message || `DELETE request failed with status ${status}`);
+                const errorMessage = result?.message || result?.msg || result?.error || `DELETE request failed with status ${status}`;
+                throw new Error(errorMessage);
             }
 
             setData(result);
-            return true;
+            return result || true;
         } catch (err) {
-            setError(err);
+            setError(err.message || "An error occurred");
             return false;
         } finally {
             setLoading(false);

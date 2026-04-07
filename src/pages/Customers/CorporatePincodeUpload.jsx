@@ -122,7 +122,10 @@ const CorporatePincodeUpload = () => {
             "legacy_zone",
             "is_metro",
             "zone_tag",
-            "products"
+            "product",
+            "pickup",
+            "deliver",
+            "oda"
         ];
 
         const options = {
@@ -159,49 +162,54 @@ const CorporatePincodeUpload = () => {
             return;
         }
 
-        // Validation & Duplicate Detection
+        // Group by Pincode
+        const pincodeGroups = {};
         const errors = [];
-        const pincodeCounts = {};
-        const duplicates = new Set();
 
-        // Pass 1: Identification & Duplicate Check
         excelData.forEach((row, index) => {
-            const pincode = String(row.pincode || "").trim();
-            if (pincode) {
-                pincodeCounts[pincode] = (pincodeCounts[pincode] || 0) + 1;
-                if (pincodeCounts[pincode] > 1) {
-                    duplicates.add(pincode);
-                }
-            }
-        });
-
-        if (duplicates.size > 0) {
-            errors.push(`Duplicate Pincodes found in file: ${Array.from(duplicates).join(", ")}`);
-        }
-
-        // Pass 2: Format & Required Field Validation
-        const formattedData = excelData.map((row, index) => {
             const pincode = String(row.pincode || "").trim();
             if (pincode.length !== 6) {
                 errors.push(`Row ${index + 1}: Pincode "${pincode}" must be exactly 6 digits.`);
+                return;
             }
 
-            const products = String(row.products || "").trim();
-            if (products === "") {
-                errors.push(`Row ${index + 1}: Products field is empty.`);
+            const productName = String(row.product || "").trim();
+            if (!productName) {
+                errors.push(`Row ${index + 1}: Product name is missing.`);
+                return;
             }
 
-            return {
-                pincode: pincode,
-                city: row.city || "",
-                state: row.state || "",
-                region: row.region || "",
-                legacy_zone: row.legacy_zone || "",
-                is_metro: !!row.is_metro && (row.is_metro === true || String(row.is_metro).toLowerCase() === "true" || row.is_metro === 1 || String(row.is_metro) === "1" || String(row.is_metro).toLowerCase() === "yes"),
-                zone_tag: row.zone_tag || null,
-                products: products.split(",").map(p => p.trim()).filter(p => p !== ""),
-            };
+            // Find product ID from options
+            const product = productOptions.find(p => p.name.toLowerCase() === productName.toLowerCase());
+            if (!product) {
+                errors.push(`Row ${index + 1}: Product "${productName}" is not valid for this customer.`);
+                return;
+            }
+
+            if (!pincodeGroups[pincode]) {
+                pincodeGroups[pincode] = {
+                    pincode: pincode,
+                    city: (row.city || "").toString().toUpperCase(),
+                    state: (row.state || "").toString().toUpperCase(),
+                    region: (row.region || "").toString().toUpperCase(),
+                    legacy_zone: (row.legacy_zone || "").toString().toUpperCase(),
+                    is_metro: String(row.is_metro || "").toLowerCase() === "yes" || String(row.is_metro || "").toLowerCase() === "true" || row.is_metro === 1,
+                    zone_tag: (row.zone_tag || "").toString().toUpperCase() || null,
+                    services: []
+                };
+            }
+
+            const isTrue = (val) => String(val || "").toLowerCase() === "yes" || String(val || "").toLowerCase() === "true" || val === 1 || val === true;
+
+            pincodeGroups[pincode].services.push({
+                product: product.id,
+                can_pickup: isTrue(row.pickup),
+                can_deliver: isTrue(row.deliver),
+                is_oda: isTrue(row.oda)
+            });
         });
+
+        const formattedData = Object.values(pincodeGroups);
 
         if (errors.length > 0) {
             setModalError(errors.join("\n"));
@@ -377,7 +385,23 @@ const CorporatePincodeUpload = () => {
                 legacy_zone: "N1",
                 is_metro: "No",
                 zone_tag: "ZT1",
-                products: "VELOFREIGHT,VELOSURE",
+                product: productOptions.length > 0 ? productOptions[0].name : "VELOFREIGHT",
+                pickup: "Yes",
+                deliver: "Yes",
+                oda: "No"
+            },
+            {
+                pincode: "411001",
+                city: "Pune",
+                state: "MH",
+                region: "West",
+                legacy_zone: "N1",
+                is_metro: "No",
+                zone_tag: "ZT1",
+                product: productOptions.length > 1 ? productOptions[1].name : "VELOSURE",
+                pickup: "Yes",
+                deliver: "No",
+                oda: "Yes"
             }
         ];
         downloadTemplate(templateData, "Corporate_Pincode_Import_Template");

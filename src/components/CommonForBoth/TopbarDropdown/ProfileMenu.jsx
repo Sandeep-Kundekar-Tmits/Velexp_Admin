@@ -95,7 +95,7 @@ const ProfileMenu = (props) => {
         toggle={() => {
           setMenu(prev => !prev)
         }}
-        direction="top"
+        direction="up"
         style={{ zIndex: 9999, position: "relative", outline: "none" }}
         className="border-0"
       >
