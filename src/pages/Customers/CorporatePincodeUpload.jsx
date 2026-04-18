@@ -13,7 +13,7 @@ import { usePutApiCall } from "../../hooks/usePutApuCall";
 import { useDeleteApiCall } from "../../hooks/useDeleteApiCall";
 import ToasterProvider from "../../helpers/ToasterProvider";
 import DeleteModal from "../../components/Common/DeleteModal";
-import { GET_USER_API, IMPORT_CORPORATE_PINCODE_DATA, GET_CORPORATE_CUSTOMER_PINCODE_LIST, GET_CORPORATE_CUSTOMER_PRODUCTS } from "../../api";
+import { GET_USER_API, IMPORT_CORPORATE_PINCODE_DATA, GET_CORPORATE_CUSTOMER_PINCODE_LIST, GET_CORPORATE_CUSTOMER_PRODUCTS, PRODUCT_LIST } from "../../api";
 import SimpleModal from "../../components/SimpleModal";
 import TableContainer from "../../components/Table/TableContainer";
 
@@ -37,11 +37,13 @@ const CorporatePincodeUpload = () => {
     const { apifunc: postSinglePincode, loading: postingSinglePincode } = usePostApiCall();
     const { apifunc: putSinglePincode, loading: updatingSinglePincode } = usePutApiCall("Pincode updated successfully!");
     const { apifunc: deleteSinglePincode, loading: deletingSinglePincode } = useDeleteApiCall();
+    const { apifunc: GetGlobalProducts, data: globalProductsRaw } = useGetApiCall();
 
     const [pincodeList, setPincodeList] = useState([]);
 
     useEffect(() => {
         GetCustomers(`${GET_USER_API}/`);
+        GetGlobalProducts(PRODUCT_LIST);
     }, []);
 
     const fetchPincodes = (customerId) => {
@@ -75,20 +77,32 @@ const CorporatePincodeUpload = () => {
         legacy_zone: "",
         zone_tag: "",
         is_metro: false,
-        services: [
-            { product: null, can_pickup: true, can_deliver: true, is_oda: false }
+        products: [
+            { product: null, is_active: true, can_pickup: true, can_deliver: true, is_reverse_serviceable: false, has_cod: true, has_pop: false, is_oda: false }
         ]
     });
 
     const productOptions = useMemo(() => {
-        if (!productListRaw) return [];
-        const resultData = productListRaw.result || (Array.isArray(productListRaw) ? productListRaw : (productListRaw.results || []));
-        return resultData.map(p => ({
+        const parseData = (raw) => raw?.results || raw?.result || (Array.isArray(raw) ? raw : []);
+        
+        const customerProds = parseData(productListRaw);
+        const globalProds = parseData(globalProductsRaw);
+
+        // Merge and remove duplicates by name
+        const merged = [...customerProds];
+        globalProds.forEach(gp => {
+            const exists = merged.find(cp => 
+                (cp.product_name || cp.name || "").toLowerCase() === (gp.product_name || gp.name || "").toLowerCase()
+            );
+            if (!exists) merged.push(gp);
+        });
+
+        return merged.map(p => ({
             id: p.id,
             value: p.id,
             name: p.product_name || p.name || "Unknown Product"
         }));
-    }, [productListRaw]);
+    }, [productListRaw, globalProductsRaw]);
 
     useEffect(() => {
         if (pincodeDataRaw) {
@@ -123,8 +137,12 @@ const CorporatePincodeUpload = () => {
             "is_metro",
             "zone_tag",
             "product",
+            "active",
             "pickup",
             "deliver",
+            "reverse",
+            "cod",
+            "pop",
             "oda"
         ];
 
@@ -165,17 +183,27 @@ const CorporatePincodeUpload = () => {
         // Group by Pincode
         const pincodeGroups = {};
         const errors = [];
+        let lastBaseData = null; // Track city, state, etc. from last row with a pincode
 
         excelData.forEach((row, index) => {
-            const pincode = String(row.pincode || "").trim();
-            if (pincode.length !== 6) {
-                errors.push(`Row ${index + 1}: Pincode "${pincode}" must be exactly 6 digits.`);
+            let pincode = String(row.pincode || "").trim();
+            const productName = String(row.product || "").trim();
+
+            if (!pincode && lastBaseData) {
+                pincode = lastBaseData.pincode;
+            }
+
+            if (!pincode) {
+                errors.push(`Row ${index + 1}: Pincode is missing and no previous data found.`);
+                return;
+            }
+            if (!productName) {
+                errors.push(`Row ${index + 1}: Product name is missing.`);
                 return;
             }
 
-            const productName = String(row.product || "").trim();
-            if (!productName) {
-                errors.push(`Row ${index + 1}: Product name is missing.`);
+            if (pincode.length !== 6) {
+                errors.push(`Row ${index + 1}: Pincode "${pincode}" must be exactly 6 digits.`);
                 return;
             }
 
@@ -186,25 +214,40 @@ const CorporatePincodeUpload = () => {
                 return;
             }
 
-            if (!pincodeGroups[pincode]) {
-                pincodeGroups[pincode] = {
-                    pincode: pincode,
+            const isTrue = (val) => String(val || "").toLowerCase() === "yes" || String(val || "").toLowerCase() === "true" || val == 1 || val === true;
+
+            // If this row HAS base info, update context. Otherwise, use lastBaseData
+            if (row.city || row.state) {
+                lastBaseData = {
+                    pincode,
                     city: (row.city || "").toString().toUpperCase(),
                     state: (row.state || "").toString().toUpperCase(),
                     region: (row.region || "").toString().toUpperCase(),
                     legacy_zone: (row.legacy_zone || "").toString().toUpperCase(),
-                    is_metro: String(row.is_metro || "").toLowerCase() === "yes" || String(row.is_metro || "").toLowerCase() === "true" || row.is_metro === 1,
+                    is_metro: isTrue(row.is_metro),
                     zone_tag: (row.zone_tag || "").toString().toUpperCase() || null,
-                    services: []
                 };
             }
 
-            const isTrue = (val) => String(val || "").toLowerCase() === "yes" || String(val || "").toLowerCase() === "true" || val === 1 || val === true;
+            if (!pincodeGroups[pincode]) {
+                if (!lastBaseData) {
+                    errors.push(`Row ${index + 1}: Base info (city/state) is missing for new pincode.`);
+                    return;
+                }
+                pincodeGroups[pincode] = {
+                    ...lastBaseData,
+                    products: []
+                };
+            }
 
-            pincodeGroups[pincode].services.push({
+            pincodeGroups[pincode].products.push({
                 product: product.id,
+                is_active: isTrue(row.active),
                 can_pickup: isTrue(row.pickup),
                 can_deliver: isTrue(row.deliver),
+                is_reverse_serviceable: isTrue(row.reverse),
+                has_cod: isTrue(row.cod),
+                has_pop: isTrue(row.pop),
                 is_oda: isTrue(row.oda)
             });
         });
@@ -240,20 +283,20 @@ const CorporatePincodeUpload = () => {
     const addServiceRow = () => {
         setNewPincode({
             ...newPincode,
-            services: [...newPincode.services, { product: null, can_pickup: true, can_deliver: true, is_oda: false }]
+            products: [...newPincode.products, { product: null, is_active: true, can_pickup: true, can_deliver: true, is_reverse_serviceable: false, has_cod: true, has_pop: false, is_oda: false }]
         });
     };
 
     const removeServiceRow = (index) => {
-        const updated = [...newPincode.services];
+        const updated = [...newPincode.products];
         updated.splice(index, 1);
-        setNewPincode({ ...newPincode, services: updated });
+        setNewPincode({ ...newPincode, products: updated });
     };
 
     const handleServiceChange = (index, field, value) => {
-        const updated = [...newPincode.services];
+        const updated = [...newPincode.products];
         updated[index][field] = value;
-        setNewPincode({ ...newPincode, services: updated });
+        setNewPincode({ ...newPincode, products: updated });
     };
 
     useEffect(() => {
@@ -267,10 +310,14 @@ const CorporatePincodeUpload = () => {
                 legacy_zone: data.legacy_zone,
                 zone_tag: data.zone_tag || "",
                 is_metro: data.is_metro || false,
-                services: data.services.map(s => ({
+                products: (data.products || data.services || []).map(s => ({
                     product: { id: s.product, name: s.product_name },
+                    is_active: s.is_active ?? true,
                     can_pickup: s.can_pickup,
                     can_deliver: s.can_deliver,
+                    is_reverse_serviceable: s.is_reverse_serviceable || false,
+                    has_cod: s.has_cod ?? true,
+                    has_pop: s.has_pop || false,
                     is_oda: s.is_oda
                 }))
             });
@@ -287,7 +334,7 @@ const CorporatePincodeUpload = () => {
             return;
         }
 
-        const validServices = newPincode.services.filter(s => s.product !== null);
+        const validServices = newPincode.products.filter(s => s.product !== null);
         if (validServices.length === 0) {
             ErrorToaster("Please add at least one product service.");
             return;
@@ -302,10 +349,14 @@ const CorporatePincodeUpload = () => {
             legacy_zone: newPincode.legacy_zone.toUpperCase(),
             zone_tag: newPincode.zone_tag?.toUpperCase() || null,
             is_metro: newPincode.is_metro,
-            services: validServices.map(s => ({
+            products: validServices.map(s => ({
                 product: s.product.id || s.product.value,
+                is_active: s.is_active,
                 can_pickup: s.can_pickup,
                 can_deliver: s.can_deliver,
+                is_reverse_serviceable: s.is_reverse_serviceable,
+                has_cod: s.has_cod,
+                has_pop: s.has_pop,
                 is_oda: s.is_oda
             }))
         };
@@ -328,8 +379,8 @@ const CorporatePincodeUpload = () => {
                 legacy_zone: "",
                 zone_tag: "",
                 is_metro: false,
-                services: [
-                    { product: null, can_pickup: true, can_deliver: true, is_oda: false }
+                products: [
+                    { product: null, is_active: true, can_pickup: true, can_deliver: true, is_reverse_serviceable: false, has_cod: true, has_pop: false, is_oda: false }
                 ]
             });
             fetchPincodes(selectedCustomer.id);
@@ -371,7 +422,8 @@ const CorporatePincodeUpload = () => {
 
     useEffect(() => {
         if (singlePincodeRaw) {
-            setSinglePincodeDetails(singlePincodeRaw.result || singlePincodeRaw);
+            const data = singlePincodeRaw.result || singlePincodeRaw;
+            setSinglePincodeDetails(data);
         }
     }, [singlePincodeRaw]);
 
@@ -383,25 +435,50 @@ const CorporatePincodeUpload = () => {
                 state: "MH",
                 region: "West",
                 legacy_zone: "N1",
-                is_metro: "No",
+                is_metro: 0,
                 zone_tag: "ZT1",
-                product: productOptions.length > 0 ? productOptions[0].name : "VELOFREIGHT",
-                pickup: "Yes",
-                deliver: "Yes",
-                oda: "No"
+                product: "VELOCOMM",
+                active: 1,
+                pickup: 1,
+                deliver: 1,
+                reverse: 0,
+                cod: 1,
+                pop: 0,
+                oda: 0
             },
             {
-                pincode: "411001",
+                pincode: "411002",
                 city: "Pune",
                 state: "MH",
                 region: "West",
                 legacy_zone: "N1",
-                is_metro: "No",
+                is_metro: 1,
                 zone_tag: "ZT1",
-                product: productOptions.length > 1 ? productOptions[1].name : "VELOSURE",
-                pickup: "Yes",
-                deliver: "No",
-                oda: "Yes"
+                product: "VELOSURE",
+                active: 1,
+                pickup: 1,
+                deliver: 0,
+                reverse: 1,
+                cod: 0,
+                pop: 0,
+                oda: 1
+            },
+            {
+                pincode: "560001",
+                city: "Bangalore",
+                state: "KA",
+                region: "South",
+                legacy_zone: "ROI",
+                is_metro: 1,
+                zone_tag: "Z1",
+                product: "VELOCOMM",
+                active: 1,
+                pickup: 1,
+                deliver: 1,
+                reverse: 0,
+                cod: 1,
+                pop: 1,
+                oda: 0
             }
         ];
         downloadTemplate(templateData, "Corporate_Pincode_Import_Template");
@@ -434,11 +511,11 @@ const CorporatePincodeUpload = () => {
         },
         {
             header: "Products",
-            accessorKey: "services",
+            accessorKey: "products",
             cell: (cell) => {
-                const services = cell.getValue();
-                if (Array.isArray(services)) {
-                    return services.map(s => s.product_name || "N/A").join(", ");
+                const products = cell.getValue() || cell.row.original.services;
+                if (Array.isArray(products)) {
+                    return products.map(s => s.product_name || "N/A").join(", ");
                 }
                 return "N/A";
             }
@@ -614,7 +691,7 @@ const CorporatePincodeUpload = () => {
                             legacy_zone: "",
                             zone_tag: "",
                             is_metro: false,
-                            services: [{ product: null, can_pickup: true, can_deliver: true, is_oda: false }]
+                            products: [{ product: null, is_active: true, can_pickup: true, can_deliver: true, is_reverse_serviceable: false, has_cod: true, has_pop: false, is_oda: false }]
                         });
                     }
                 }}
@@ -712,20 +789,41 @@ const CorporatePincodeUpload = () => {
                                 <FaPlus className="me-1" /> Add Product
                             </Button>
                         </div>
-                        {newPincode.services.map((service, index) => (
+                        {newPincode.products.map((service, index) => (
                             <Card key={index} className="shadow-none border mb-2 bg-light bg-opacity-10" style={{ overflow: "visible" }}>
                                 <CardBody className="py-2 px-3" style={{ overflow: "visible" }}>
-                                    <Row className="align-items-center g-2" style={{ overflow: "visible" }}>
-                                        <Col md={4} style={{ overflow: "visible" }}>
-                                            <SearchableDropdown
-                                                locations={productOptions}
-                                                value={service.product ? service.product.name : "select"}
-                                                onChange={(val) => handleServiceChange(index, "product", val)}
-                                                placeholder="Select Product"
-                                                className="w-100"
-                                            />
+                                    <Row className="align-items-start g-2" style={{ overflow: "visible" }}>
+                                        <Col md={12} className="mb-2" style={{ overflow: "visible" }}>
+                                            <div className="d-flex justify-content-between align-items-center">
+                                                <div style={{ width: "80%" }}>
+                                                    <SearchableDropdown
+                                                        locations={productOptions}
+                                                        value={service.product ? service.product.name : "select"}
+                                                        onChange={(val) => handleServiceChange(index, "product", val)}
+                                                        placeholder="Select Product"
+                                                        className="w-100"
+                                                    />
+                                                </div>
+                                                {newPincode.products.length > 1 && (
+                                                    <Button color="danger" size="sm" outline onClick={() => removeServiceRow(index)}>
+                                                        <FaTrash />
+                                                    </Button>
+                                                )}
+                                            </div>
                                         </Col>
-                                        <Col md={2}>
+                                        <Col md={3}>
+                                            <FormGroup check className="mb-0">
+                                                <Label check className="small">
+                                                    <Input
+                                                        type="checkbox"
+                                                        checked={service.is_active}
+                                                        onChange={(e) => handleServiceChange(index, "is_active", e.target.checked)}
+                                                    />
+                                                    Active
+                                                </Label>
+                                            </FormGroup>
+                                        </Col>
+                                        <Col md={3}>
                                             <FormGroup check className="mb-0">
                                                 <Label check className="small">
                                                     <Input
@@ -737,7 +835,7 @@ const CorporatePincodeUpload = () => {
                                                 </Label>
                                             </FormGroup>
                                         </Col>
-                                        <Col md={2}>
+                                        <Col md={3}>
                                             <FormGroup check className="mb-0">
                                                 <Label check className="small">
                                                     <Input
@@ -749,7 +847,7 @@ const CorporatePincodeUpload = () => {
                                                 </Label>
                                             </FormGroup>
                                         </Col>
-                                        <Col md={2}>
+                                        <Col md={3}>
                                             <FormGroup check className="mb-0">
                                                 <Label check className="small">
                                                     <Input
@@ -761,12 +859,41 @@ const CorporatePincodeUpload = () => {
                                                 </Label>
                                             </FormGroup>
                                         </Col>
-                                        <Col md={2} className="text-end">
-                                            {newPincode.services.length > 1 && (
-                                                <Button color="danger" size="sm" outline onClick={() => removeServiceRow(index)}>
-                                                    <FaTrash />
-                                                </Button>
-                                            )}
+                                        <Col md={4} className="mt-2">
+                                            <FormGroup check className="mb-0">
+                                                <Label check className="small">
+                                                    <Input
+                                                        type="checkbox"
+                                                        checked={service.is_reverse_serviceable}
+                                                        onChange={(e) => handleServiceChange(index, "is_reverse_serviceable", e.target.checked)}
+                                                    />
+                                                    Reverse Service
+                                                </Label>
+                                            </FormGroup>
+                                        </Col>
+                                        <Col md={4} className="mt-2">
+                                            <FormGroup check className="mb-0">
+                                                <Label check className="small">
+                                                    <Input
+                                                        type="checkbox"
+                                                        checked={service.has_cod}
+                                                        onChange={(e) => handleServiceChange(index, "has_cod", e.target.checked)}
+                                                    />
+                                                    COD Available
+                                                </Label>
+                                            </FormGroup>
+                                        </Col>
+                                        <Col md={4} className="mt-2">
+                                            <FormGroup check className="mb-0">
+                                                <Label check className="small">
+                                                    <Input
+                                                        type="checkbox"
+                                                        checked={service.has_pop}
+                                                        onChange={(e) => handleServiceChange(index, "has_pop", e.target.checked)}
+                                                    />
+                                                    POP Available
+                                                </Label>
+                                            </FormGroup>
                                         </Col>
                                     </Row>
                                 </CardBody>
@@ -828,24 +955,26 @@ const CorporatePincodeUpload = () => {
                                     <thead className="table-light">
                                         <tr>
                                             <th>Product</th>
-                                            <th className="text-center">Pickup</th>
-                                            <th className="text-center">Deliver</th>
-                                            <th className="text-center">ODA</th>
+                                            <th className="text-center small">Active</th>
+                                            <th className="text-center small">Pickup</th>
+                                            <th className="text-center small">Deliver</th>
+                                            <th className="text-center small">Reverse</th>
+                                            <th className="text-center small">COD</th>
+                                            <th className="text-center small">POP</th>
+                                            <th className="text-center small">ODA</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {singlePincodeDetails.services?.map((service, idx) => (
+                                        {(singlePincodeDetails.products || singlePincodeDetails.services)?.map((service, idx) => (
                                             <tr key={idx}>
                                                 <td>{service.product_name}</td>
-                                                <td className="text-center">
-                                                    {service.can_pickup ? <span className="text-success fw-bold">Yes</span> : <span className="text-danger">No</span>}
-                                                </td>
-                                                <td className="text-center">
-                                                    {service.can_deliver ? <span className="text-success fw-bold">Yes</span> : <span className="text-danger">No</span>}
-                                                </td>
-                                                <td className="text-center">
-                                                    {service.is_oda ? <span className="text-warning fw-bold">Yes</span> : <span>No</span>}
-                                                </td>
+                                                <td className="text-center">{service.is_active ? "✅" : "❌"}</td>
+                                                <td className="text-center">{service.can_pickup ? "✅" : "❌"}</td>
+                                                <td className="text-center">{service.can_deliver ? "✅" : "❌"}</td>
+                                                <td className="text-center">{service.is_reverse_serviceable ? "✅" : "➖"}</td>
+                                                <td className="text-center">{service.has_cod ? "✅" : "❌"}</td>
+                                                <td className="text-center">{service.has_pop ? "✅" : "❌"}</td>
+                                                <td className="text-center">{service.is_oda ? "✅" : "➖"}</td>
                                             </tr>
                                         ))}
                                     </tbody>
