@@ -42,7 +42,14 @@ const AddUser = () => {
         city: '',
         pincode: '',
         referred_by: '',
-        industry: ''
+        industry: '',
+        soft_limit: '',
+        customer_potential: '',
+        expected_business: '',
+        sales_head: '',
+        emp_code: '',
+        finance_emails: '',
+        customer_agreement_doc: null
     });
 
     // state
@@ -130,7 +137,14 @@ const AddUser = () => {
             city: '',
             pincode: '',
             referred_by: '',
-            industry: ''
+            industry: '',
+            soft_limit: '',
+            customer_potential: '',
+            expected_business: '',
+            sales_head: '',
+            emp_code: '',
+            finance_emails: '',
+            customer_agreement_doc: null
         })
 
         setAddresses({
@@ -234,6 +248,23 @@ const AddUser = () => {
         // Append file
         if (data.kyc_document) {
             formDataToSend.append('kyc_document', data.kyc_document);
+        }
+
+        if (data.customer_agreement_doc) {
+            formDataToSend.append('customer_agreement_doc', data.customer_agreement_doc);
+        }
+
+        // New fields
+        formDataToSend.append('soft_limit', data.soft_limit || 0);
+        formDataToSend.append('customer_potential', data.customer_potential || '');
+        formDataToSend.append('expected_business', data.expected_business || 0);
+        formDataToSend.append('sales_head', data.sales_head || '');
+        formDataToSend.append('emp_code', data.emp_code || '');
+
+        // Handle finance_emails (JSONField in backend, expect array/list)
+        if (data.finance_emails) {
+            const emailArray = data.finance_emails.split(',').map(email => email.trim());
+            formDataToSend.append('finance_emails', JSON.stringify(emailArray));
         }
 
         // Append nested JSON as strings

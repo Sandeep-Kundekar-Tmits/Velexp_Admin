@@ -93,6 +93,44 @@ const UserProfile = ({ user, setProfileData, userId }) => {
                         <span className="fw-bold text-muted">Industry</span>
                         <span className="text-dark">{user?.account_created_info?.industry || "--"}</span>
                     </ListGroupItem>
+                    <ListGroupItem className="d-flex justify-content-between align-items-center p-3">
+                        <span className="fw-bold text-muted">Soft Limit</span>
+                        <span className="text-dark">{user?.soft_limit || "--"}</span>
+                    </ListGroupItem>
+                    <ListGroupItem className="d-flex justify-content-between align-items-center p-3">
+                        <span className="fw-bold text-muted">Customer Potential</span>
+                        <span className="text-dark">{user?.customer_potential || "--"}</span>
+                    </ListGroupItem>
+                    <ListGroupItem className="d-flex justify-content-between align-items-center p-3">
+                        <span className="fw-bold text-muted">Expected Business</span>
+                        <span className="text-dark">{user?.expected_business || "--"}</span>
+                    </ListGroupItem>
+                    <ListGroupItem className="d-flex justify-content-between align-items-center p-3">
+                        <span className="fw-bold text-muted">Sales Head</span>
+                        <span className="text-dark">{user?.sales_head || "--"}</span>
+                    </ListGroupItem>
+                    <ListGroupItem className="d-flex justify-content-between align-items-center p-3">
+                        <span className="fw-bold text-muted">Employee Code</span>
+                        <span className="text-dark">{user?.emp_code || "--"}</span>
+                    </ListGroupItem>
+                    <ListGroupItem className="d-flex justify-content-between align-items-start p-3">
+                        <span className="fw-bold text-muted">Finance Emails</span>
+                        <span className="text-dark text-end">
+                            {Array.isArray(user?.finance_emails) 
+                                ? user.finance_emails.join(', ') 
+                                : user?.finance_emails || "--"}
+                        </span>
+                    </ListGroupItem>
+                    <ListGroupItem className="d-flex justify-content-between align-items-center p-3">
+                        <span className="fw-bold text-muted">Agreement Document</span>
+                        {user?.customer_agreement_doc ? (
+                            <a href={user.customer_agreement_doc} target="_blank" rel="noreferrer" className="btn btn-sm btn-outline-primary">
+                                <i className="fas fa-file-pdf me-1"></i> View Document
+                            </a>
+                        ) : (
+                            <span className="text-dark">--</span>
+                        )}
+                    </ListGroupItem>
                 </ListGroup>
             </CardBody>
             {/* <CardFooter className="bg-light d-flex justify-content-end">

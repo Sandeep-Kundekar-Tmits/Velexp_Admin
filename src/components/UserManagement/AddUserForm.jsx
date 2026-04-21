@@ -319,6 +319,54 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
                     </Col>
                 </Row>
                 <Row>
+                    <Col md={4}>
+                        <FormGroup>
+                            <Label>Soft Limit</Label>
+                            <Input type="number" name="soft_limit" value={formData.soft_limit} placeholder="Enter Soft Limit" onChange={handleChange} />
+                        </FormGroup>
+                    </Col>
+                    <Col md={4}>
+                        <FormGroup>
+                            <Label>Customer Potential</Label>
+                            <Input type="text" name="customer_potential" value={formData.customer_potential} placeholder="Enter Potential" onChange={handleChange} />
+                        </FormGroup>
+                    </Col>
+                    <Col md={4}>
+                        <FormGroup>
+                            <Label>Expected Business</Label>
+                            <Input type="number" name="expected_business" value={formData.expected_business} placeholder="Expected Business" onChange={handleChange} />
+                        </FormGroup>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col md={6}>
+                        <FormGroup>
+                            <Label>Sales Head</Label>
+                            <Input type="text" name="sales_head" value={formData.sales_head} placeholder="Enter Sales Head" onChange={handleChange} />
+                        </FormGroup>
+                    </Col>
+                    <Col md={6}>
+                        <FormGroup>
+                            <Label>Employee Code</Label>
+                            <Input type="text" name="emp_code" value={formData.emp_code} placeholder="Enter Employee Code" onChange={handleChange} />
+                        </FormGroup>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col md={6}>
+                        <FormGroup>
+                            <Label>Finance Emails (Comma separated)</Label>
+                            <Input type="text" name="finance_emails" value={formData.finance_emails} placeholder="email1@example.com, email2@example.com" onChange={handleChange} />
+                        </FormGroup>
+                    </Col>
+                    <Col md={6}>
+                        <FormGroup>
+                            <Label>Customer Agreement Document</Label>
+                            <Input type="file" name="customer_agreement_doc" onChange={handleChange} />
+                        </FormGroup>
+                    </Col>
+                </Row>
+                <Row>
                     <Col md={6}>
                         <FormGroup>
                             <Label>KYC Document (Optional)</Label>

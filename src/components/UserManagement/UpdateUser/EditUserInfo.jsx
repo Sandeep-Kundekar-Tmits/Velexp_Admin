@@ -1,7 +1,7 @@
 import { Button, Card, CardBody, CardHeader, Col, FormFeedback, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, Row } from "reactstrap"
 import { MdOutlineCancel } from "react-icons/md";
 import { useEffect, useState } from "react";
-const EditUserInfo = ({ formData, handleChange, setUpdatedData, onImageCancel }) => {
+const EditUserInfo = ({ formData, handleChange, setUpdatedData, setIsUpdated, onImageCancel }) => {
 
     const [modal, setModal] = useState(false);
     const toggle = () => setModal(!modal);
@@ -128,7 +128,8 @@ const EditUserInfo = ({ formData, handleChange, setUpdatedData, onImageCancel })
                                                         ...prev,
                                                         kyc_document: null
                                                     }));
-                                                    onImageCancel()
+                                                    setIsUpdated(true)
+                                                    if (onImageCancel) onImageCancel()
                                                 }}
                                                 className="text-primary"
                                                 style={{
@@ -205,6 +206,96 @@ const EditUserInfo = ({ formData, handleChange, setUpdatedData, onImageCancel })
                         <FormGroup>
                             <Label>PAN No</Label>
                             <Input type="text" name="pan_no" value={formData?.pan_no === "null" ? "" : formData?.pan_no} onChange={handleChange} />
+                        </FormGroup>
+                    </Col>
+                </Row>
+
+                <Row>
+                    <Col md={6}>
+                        <FormGroup>
+                            <Label>Soft Limit</Label>
+                            <Input type="number" name="soft_limit" value={formData?.soft_limit || ''} onChange={handleChange} />
+                        </FormGroup>
+                    </Col>
+                    <Col md={6}>
+                        <FormGroup>
+                            <Label>Customer Potential</Label>
+                            <Input type="text" name="customer_potential" value={formData?.customer_potential || ''} onChange={handleChange} />
+                        </FormGroup>
+                    </Col>
+                </Row>
+
+                <Row>
+                    <Col md={6}>
+                        <FormGroup>
+                            <Label>Expected Business</Label>
+                            <Input type="number" name="expected_business" value={formData?.expected_business || ''} onChange={handleChange} />
+                        </FormGroup>
+                    </Col>
+                    <Col md={6}>
+                        <FormGroup>
+                            <Label>Sales Head</Label>
+                            <Input type="text" name="sales_head" value={formData?.sales_head || ''} onChange={handleChange} />
+                        </FormGroup>
+                    </Col>
+                </Row>
+
+                <Row>
+                    <Col md={6}>
+                        <FormGroup>
+                            <Label>Employee Code</Label>
+                            <Input type="text" name="emp_code" value={formData?.emp_code || ''} onChange={handleChange} />
+                        </FormGroup>
+                    </Col>
+                    <Col md={6}>
+                        <FormGroup>
+                            <Label>Finance Emails (Comma separated)</Label>
+                            <Input type="textarea" name="finance_emails" value={formData?.finance_emails || ''} onChange={handleChange} />
+                        </FormGroup>
+                    </Col>
+                </Row>
+
+                <Row>
+                    <Col md={12}>
+                        <FormGroup>
+                            <Label>Customer Agreement Doc</Label>
+                            <div className="d-flex align-items-center">
+                                {!!formData?.customer_agreement_doc ? (
+                                    <>
+                                        <div className="d-flex align-items-center justify-content-center">
+                                            <div>
+                                                {typeof formData.customer_agreement_doc === 'string' ?
+                                                    formData.customer_agreement_doc.split("/").pop() :
+                                                    formData.customer_agreement_doc?.name || "No File Found"
+                                                }
+                                            </div>
+                                            <MdOutlineCancel
+                                                onClick={() => {
+                                                    setUpdatedData(prev => ({
+                                                        ...prev,
+                                                        customer_agreement_doc: null
+                                                    }));
+                                                    setIsUpdated(true)
+                                                }}
+                                                className="text-primary"
+                                                style={{
+                                                    marginLeft: "17px",
+                                                    width: "18px",
+                                                    height: "18px",
+                                                    cursor: "pointer"
+                                                }}
+                                            />
+                                            {typeof formData.customer_agreement_doc === 'string' && (
+                                                <a href={formData.customer_agreement_doc} target="_blank" rel="noreferrer" className="btn text-primary">
+                                                    View
+                                                </a>
+                                            )}
+                                        </div>
+                                    </>
+                                ) : (
+                                    <Input type="file" name="customer_agreement_doc" onChange={handleChange} />
+                                )}
+                            </div>
                         </FormGroup>
                     </Col>
                 </Row>

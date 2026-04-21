@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react"
-import { Button, Card, CardBody, Col, Container, Form, FormGroup, Input, Label, Row, Spinner, Badge } from "reactstrap"
+import { Button, Card, CardBody, Col, Container, Form, FormGroup, Input, Label, Row, Spinner, Badge, Pagination, PaginationItem, PaginationLink } from "reactstrap"
 import MainHeaderComp from "../../components/MainHeaderCom"
 import SearchableDropdown from "../../components/Common/SearchableDropdown"
 import { useGetApiCall } from "../../hooks/useGetApiCall"
@@ -9,6 +9,7 @@ import TableContainer from "../../components/Table/TableContainer"
 import axios from "axios"
 import ToasterProvider from "../../helpers/ToasterProvider"
 import { MdFileDownload } from "react-icons/md"
+import { GridLoader } from "react-spinners"
 
 const ShipmentBilling = () => {
     const { apifunc: fetchCustomers, data: customerData, loading: customersLoading } = useGetApiCall()
@@ -47,6 +48,7 @@ const ShipmentBilling = () => {
     }, [auditData])
 
     const handleSync = async () => {
+        if (syncing || auditing || exporting) return
         if (!selectedCustomerId) {
             alert("Please select a customer first")
             return
@@ -64,6 +66,7 @@ const ShipmentBilling = () => {
     }
 
     const handleAudit = async (page = 1) => {
+        if (auditing || syncing || exporting) return
         if (!selectedCustomerId) {
             alert("Please select a customer first")
             return
@@ -287,16 +290,89 @@ const ShipmentBilling = () => {
                                         <h5 className="mb-0">Audit Results (Page {report.page})</h5>
                                         <Badge color="secondary" className="p-2">Showing {report.results?.length} records</Badge>
                                     </div>
-                                    <TableContainer
-                                        columns={resultColumns}
-                                        data={report.results || []}
-                                        isGlobalFilter={true}
-                                        isPagination={true}
-                                        SearchPlaceholder="Search results..."
-                                        pagination="pagination pagination-rounded justify-content-end mb-2"
-                                        paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                        tableClass="table-hover mb-0"
-                                    />
+                                    {auditing ? (
+                                        <div className="d-flex flex-column align-items-center justify-content-center" style={{ height: "550px" }}>
+                                            <GridLoader color="#36d7b7" size={15} />
+                                            <p className="mt-3 text-muted fw-bold">Fetching Audit Data...</p>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <TableContainer
+                                                columns={resultColumns}
+                                                data={report.results || []}
+                                                isGlobalFilter={true}
+                                                isPagination={false}
+                                                defaultPageSize={100}
+                                                SearchPlaceholder="Search results..."
+                                                pagination="pagination pagination-rounded justify-content-end mb-2"
+                                                paginationWrapper='dataTables_paginate paging_simple_numbers'
+                                                tableClass="table-hover mb-0"
+                                                tableHeight="550px"
+                                                isStickyHeader={true}
+                                            />
+                                            {/* Server-side Pagination Controls */}
+                                            <div className="p-3 d-flex justify-content-center border-top">
+                                                <Pagination size="sm" aria-label="Page navigation example">
+                                                    <PaginationItem disabled={report.page <= 1 || auditing}>
+                                                        <PaginationLink onClick={() => handleAudit(report.page - 1)}>
+                                                            Prev
+                                                        </PaginationLink>
+                                                    </PaginationItem>
+                                                    
+                                                    {/* Numeric Page Buttons */}
+                                                    {(() => {
+                                                        const totalPages = Math.ceil((report.total_missing || 0) / 100);
+                                                        const maxVisiblePages = 5;
+                                                        let startPage = Math.max(1, report.page - 2);
+                                                        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+                                                        if (endPage - startPage < maxVisiblePages - 1) {
+                                                            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+                                                        }
+
+                                                        const pages = [];
+                                                        for (let i = startPage; i <= endPage; i++) {
+                                                            pages.push(i);
+                                                        }
+
+                                                        return (
+                                                            <>
+                                                                {startPage > 1 && (
+                                                                    <>
+                                                                        <PaginationItem>
+                                                                            <PaginationLink onClick={() => handleAudit(1)}>1</PaginationLink>
+                                                                        </PaginationItem>
+                                                                        {startPage > 2 && <PaginationItem disabled><PaginationLink>...</PaginationLink></PaginationItem>}
+                                                                    </>
+                                                                )}
+                                                                {pages.map(p => (
+                                                                    <PaginationItem key={p} active={p === report.page} disabled={auditing}>
+                                                                        <PaginationLink onClick={() => handleAudit(p)}>
+                                                                            {p}
+                                                                        </PaginationLink>
+                                                                    </PaginationItem>
+                                                                ))}
+                                                                {endPage < totalPages && (
+                                                                    <>
+                                                                        {endPage < totalPages - 1 && <PaginationItem disabled><PaginationLink>...</PaginationLink></PaginationItem>}
+                                                                        <PaginationItem>
+                                                                            <PaginationLink onClick={() => handleAudit(totalPages)}>{totalPages}</PaginationLink>
+                                                                        </PaginationItem>
+                                                                    </>
+                                                                )}
+                                                            </>
+                                                        );
+                                                    })()}
+
+                                                    <PaginationItem disabled={(report.results?.length < 100) || auditing}>
+                                                        <PaginationLink onClick={() => handleAudit(report.page + 1)}>
+                                                            Next
+                                                        </PaginationLink>
+                                                    </PaginationItem>
+                                                </Pagination>
+                                            </div>
+                                        </>
+                                    )}
                                 </CardBody>
                             </Card>
 

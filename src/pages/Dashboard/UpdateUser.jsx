@@ -65,7 +65,11 @@ const UpdateUser = () => {
 
     useEffect(() => {
         if (selectedUserData) {
-            setUpdatedData(selectedUserData);
+            const initialData = { ...selectedUserData };
+            if (Array.isArray(initialData.finance_emails)) {
+                initialData.finance_emails = initialData.finance_emails.join(', ');
+            }
+            setUpdatedData(initialData);
             const addressData = selectedUserData?.addresses?.[0] || initialAddressState;
             setAddresses(addressData);
         }
@@ -76,7 +80,7 @@ const UpdateUser = () => {
 
         // Append basic user info
         Object.entries(data).forEach(([key, value]) => {
-            if (key !== 'addresses' && key !== 'franchise_profile' && key !== 'kyc_document') {
+            if (key !== 'addresses' && key !== 'franchise_profile' && key !== 'kyc_document' && key !== 'customer_agreement_doc' && key !== 'finance_emails') {
                 formDataToSend.append(key, value || '');
             }
         });
@@ -84,6 +88,16 @@ const UpdateUser = () => {
         // Append file if it exists
         if (data?.kyc_document instanceof File) {
             formDataToSend.append('kyc_document', data.kyc_document);
+        }
+
+        if (data?.customer_agreement_doc instanceof File || (data?.customer_agreement_doc && typeof data.customer_agreement_doc === 'object' && data.customer_agreement_doc.name)) {
+            formDataToSend.append('customer_agreement_doc', data.customer_agreement_doc);
+        }
+
+        // Handle finance_emails
+        if (typeof data?.finance_emails === 'string') {
+            const emails = data.finance_emails.split(',').map(e => e.trim()).filter(Boolean);
+            formDataToSend.append('finance_emails', JSON.stringify(emails));
         }
 
         // Append nested objects as JSON strings
@@ -183,6 +197,7 @@ const UpdateUser = () => {
                             formData={updatedData}
                             handleChange={(e) => handleChange(e, "info")}
                             setUpdatedData={setUpdatedData}
+                            setIsUpdated={setIsUpdated}
                         />
 
                         <EditAddress
