@@ -84,6 +84,7 @@ const BillingWorking = lazy(() => import("../pages/NewFeatures/BillingWorking"))
 const InvoiceFlow = lazy(() => import("../pages/NewFeatures/InvoiceFlow"));
 const AllBooking = lazy(() => import("../pages/NewFeatures/AllBooking"));
 const CODReconciliation = lazy(() => import("../pages/Dashboard/CODReconciliation"));
+const ITrack = lazy(() => import("../pages/ITrack/ITrack"));
 
 
 
@@ -195,6 +196,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/rto-approval", component: <RtoApproval /> },
     { path: "/cod-reconciliation", component: <CODReconciliation /> },
     { path: "/intl-rate-data", component: <InternationRateData /> },
+    { path: "/itrack", component: <ITrack /> },
     {
       path: "/",
       exact: true,

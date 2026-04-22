@@ -16,6 +16,7 @@ function checkCustomerPermissions() {
     canAccessPrivileges: false,
     canTrackAWB: false,
     canApproveRTO: false,
+    canAccessITrack: false,
   };
 
   // Full access for admin (skip for Analyzer to keep them restricted)
@@ -31,6 +32,7 @@ function checkCustomerPermissions() {
       canAccessPrivileges: true,
       canTrackAWB: true,
       canApproveRTO: true,
+      canAccessITrack: true,
     };
   }
 

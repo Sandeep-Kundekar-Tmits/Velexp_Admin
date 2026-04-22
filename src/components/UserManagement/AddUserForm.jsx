@@ -7,11 +7,18 @@ import {
     Button,
     Col,
     Row,
-    FormFeedback
+    FormFeedback,
+    Spinner,
+    Alert,
+    Modal,
+    ModalHeader,
+    ModalBody,
+    ModalFooter
 } from 'reactstrap';
 import { customStyles } from '../../helpers/CustomStyle';
 import locations from "../../data/locations.json"
 import Select from "react-select";
+import { VERIFY_GSTIN } from '../../api/index';
 const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeData }) => {
 
 
@@ -70,6 +77,68 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
     // }, [selectedCity]);
     const [errors, setErrors] = useState({});
 
+    // GST verification states
+    const [gstVerifying, setGstVerifying] = useState(false);
+    const [gstVerified, setGstVerified] = useState(false);
+    const [gstVerifyData, setGstVerifyData] = useState(null);
+    const [gstVerifyError, setGstVerifyError] = useState('');
+    const [gstAlreadyExistsModal, setGstAlreadyExistsModal] = useState(false);
+    const [gstAlreadyExistsMsg, setGstAlreadyExistsMsg] = useState('');
+
+    const handleVerifyGST = async () => {
+        const gstin = formData.gst_no?.trim();
+        if (!gstin) {
+            setGstVerifyError('Please enter a GST number to verify.');
+            return;
+        }
+        setGstVerifying(true);
+        setGstVerifyError('');
+        setGstVerifyData(null);
+        setGstVerified(false);
+        try {
+            const res = await fetch(`${VERIFY_GSTIN}?gstin=${encodeURIComponent(gstin)}`);
+            const json = await res.json();
+
+            // Case 1: GST already exists in the system
+            if (json.already_exists) {
+                setGstAlreadyExistsMsg(
+                    json.message || `GST number "${gstin}" already exists in the system.`
+                );
+                setGstAlreadyExistsModal(true);
+                setGstVerifying(false);
+                return;
+            }
+
+            // Case 2: Successfully verified and Active
+            if (json.success && json.data?.status === 'Active') {
+                setGstVerified(true);
+                setGstVerifyData(json.data);
+                // Auto-fill customer name with legal_name
+                setFormData((prev) => ({
+                    ...prev,
+                    customer_name: json.data.legal_name || prev.customer_name
+                }));
+                setCustomerCharCount((json.data.legal_name || '').trim().length);
+            } else if (json.success && json.data?.status !== 'Active') {
+                setGstVerifyError(
+                    `GST is not active. Current status: "${json.data?.status || 'Unknown'}". Please use an active GST number.`
+                );
+            } else {
+                setGstVerifyError(json.message || json.error || 'GST verification failed. Please try again.');
+            }
+        } catch (err) {
+            setGstVerifyError('Network error: Unable to verify GST. Please try again.');
+        } finally {
+            setGstVerifying(false);
+        }
+    };
+
+    // Called when user clicks "Continue Anyway" in the already-exists modal
+    const handleGstAlreadyExistsContinue = () => {
+        setGstVerified(true);          // mark as verified so form can proceed
+        setGstAlreadyExistsModal(false);
+    };
+
 
     const handleSelectDropdownChange = (name, option) => {
 
@@ -89,6 +158,10 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
         const { name, value, type, checked, files } = e.target;
         let error = {}
         if (name === "gst_no") {
+            // Reset verification whenever user edits GST
+            setGstVerified(false);
+            setGstVerifyData(null);
+            setGstVerifyError('');
             setFrachiseeData((prev) => {
                 return {
                     ...prev,
@@ -204,6 +277,13 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
         if (!formData?.industry) {
             errors.industry = 'industry is required';
         }
+        // GST is required — must be entered and verified
+        if (!formData.gst_no?.trim()) {
+            errors.gst_no = 'GST number is required.';
+        } else if (!gstVerified) {
+            errors.gst_no = 'Please validate your GST number before proceeding.';
+        }
+
         console.log(errors, "errors")
 
 
@@ -221,6 +301,53 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
             <h4>Add New User</h4>
             {/* add user form */}
             <div>
+                {/* GST Validation — at top of form */}
+                <Row>
+                    <Col md={6}>
+                        <FormGroup>
+                            <Label>GST No</Label>
+                            <div className="d-flex gap-2 align-items-start">
+                                <div style={{ flex: 1 }}>
+                                    <Input
+                                        type="text"
+                                        name="gst_no"
+                                        value={formData.gst_no}
+                                        onChange={handleChange}
+                                        invalid={!!errors?.gst_no}
+                                        placeholder="e.g. 27AAOCP7860J1ZO"
+                                    />
+                                    <FormFeedback>{errors?.gst_no}</FormFeedback>
+                                </div>
+                                <Button
+                                    color={gstVerified ? 'success' : 'warning'}
+                                    onClick={handleVerifyGST}
+                                    disabled={gstVerifying || !formData.gst_no?.trim()}
+                                    style={{ whiteSpace: 'nowrap', minWidth: '110px' }}
+                                    title={gstVerified ? 'GST Verified ✓' : 'Click to validate GST'}
+                                >
+                                    {gstVerifying
+                                        ? <><Spinner size="sm" /> Verifying…</>
+                                        : gstVerified
+                                        ? '✓ Verified'
+                                        : 'Validate GST'
+                                    }
+                                </Button>
+                            </div>
+                            {gstVerifyError && (
+                                <Alert color="danger" className="mt-2 py-2 px-3 mb-0" style={{ fontSize: '0.85rem' }}>
+                                    {gstVerifyError}
+                                </Alert>
+                            )}
+                            {gstVerified && gstVerifyData && (
+                                <Alert color="success" className="mt-2 py-2 px-3 mb-0" style={{ fontSize: '0.85rem' }}>
+                                    <strong>{gstVerifyData.legal_name}</strong> — Status: <strong>{gstVerifyData.status}</strong>
+                                    {gstVerifyData.registration_date && ` | Reg: ${gstVerifyData.registration_date}`}
+                                </Alert>
+                            )}
+                        </FormGroup>
+                    </Col>
+                </Row>
+                <hr className="mb-3" />
                 <Row>
                     <Col md={6}>
                         <FormGroup>
@@ -435,15 +562,6 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
                     </Col>
                 </Row>
                 <Row>
-                    {
-                        <Col md={6}>
-                            <FormGroup>
-                                <Label>GST No(Optional)</Label>
-                                <Input type="text" name="gst_no" value={formData.gst_no} onChange={handleChange} invalid={!!errors?.gst_no} />
-                                <FormFeedback>{errors?.gst_no}</FormFeedback>
-                            </FormGroup>
-                        </Col>
-                    }
                     <Col md={6}>
                         <FormGroup>
                             <Label>PAN No (Optional)</Label>
@@ -458,6 +576,27 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
             <div className='d-flex gap-3 mt-5 justify-content-end'>
                 <Button color="primary" className='px-4 py-2' onClick={handleSubmit}>Next</Button>
             </div>
+
+            {/* GST Already Exists Modal */}
+            <Modal isOpen={gstAlreadyExistsModal} toggle={() => setGstAlreadyExistsModal(false)} centered>
+                <ModalHeader toggle={() => setGstAlreadyExistsModal(false)} className="bg-warning text-dark">
+                    ⚠️ GST Number Already Exists
+                </ModalHeader>
+                <ModalBody>
+                    <p className="mb-2">{gstAlreadyExistsMsg || 'This GST number is already registered in the system.'}</p>
+                    <p className="mb-0 text-muted" style={{ fontSize: '0.9rem' }}>
+                        You can still continue adding this customer if needed. Click <strong>Continue Anyway</strong> to proceed.
+                    </p>
+                </ModalBody>
+                <ModalFooter>
+                    <Button color="secondary" outline onClick={() => setGstAlreadyExistsModal(false)}>
+                        Cancel
+                    </Button>
+                    <Button color="warning" onClick={handleGstAlreadyExistsContinue}>
+                        Continue Anyway
+                    </Button>
+                </ModalFooter>
+            </Modal>
         </div>
     );
 };

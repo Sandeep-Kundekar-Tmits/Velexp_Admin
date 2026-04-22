@@ -1,9 +1,9 @@
 // const BASE_URL = "http://192.168.1.151:8000"
 // const BASE_URL = "https://velexp.com"
-const BASE_URL = "http://velexp.com:8000"
+// const BASE_URL = "http://velexp.com:8000"
 // const BASE_URL = "https://velexp.com"
 // const BASE_URL = "http://192.168.1.166:8000"
-// const BASE_URL = "http://103.108.57.51:8001"
+const BASE_URL = "http://103.108.57.51:8001"
 
 // const BASE_URL = "http://192.168.1.152:8000"
 // use for incryption and decryption
@@ -30,6 +30,8 @@ export const GET_ADDRESS = `${BASE_URL}/company_address/`
 // verify the awb no
 
 export const VERIFY_AWB = `${BASE_URL}/verify-awb/`
+// verify GST number
+export const VERIFY_GSTIN = `${BASE_URL}/verify-gstin/`
 // app pod
 export const ADD_POD = `${BASE_URL}/add-pod/`
 
@@ -513,3 +515,6 @@ export const ALL_BOOKINGS_VIEW = `${BASE_URL}/api_booking/optimized_bookings/`  
 export const ALL_BOOKINGS_EXPORT = `${BASE_URL}/optimized_bookings_export//`       // POST - returns Excel file
 export const COD_RECONCILIATION = `${BASE_URL}/public-reconciliation`;
 export const COD_RECONCILIATION_APPROVE = `${BASE_URL}/accountant-approval`;
+
+// ITrack scans
+export const ITRACK_SCANS = `${BASE_URL}/itrack/scans/`;

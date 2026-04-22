@@ -154,7 +154,7 @@ const SidebarContent = (props) => {
 
   const { 
     canCreateUser, canAddPod, canCreateReport, invoice, canSeeBooking, 
-    canAccessNewFeatures, isAdmin, canAccessPrivileges, canTrackAWB, canApproveRTO 
+    canAccessNewFeatures, isAdmin, canAccessPrivileges, canTrackAWB, canApproveRTO, canAccessITrack 
   } = checkCustomerPermissions()
 
   return (
@@ -661,6 +661,16 @@ const SidebarContent = (props) => {
                   <Link to="/tracking" className="has">
                     <i className="bx bx-search-alt-2 "></i>
                     <span>{props.t("Track AWB")}</span>
+                  </Link>
+                </li>
+            }
+
+            {
+              canAccessITrack &&
+                <li>
+                  <Link to="/itrack" className="has">
+                    <i className="bx bx-barcode"></i>
+                    <span>{props.t("ITrack")}</span>
                   </Link>
                 </li>
             }
