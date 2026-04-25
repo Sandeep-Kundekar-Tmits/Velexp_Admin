@@ -91,10 +91,12 @@ function checkCustomerPermissions() {
     },
     operations: {
       canCreateUser: false,
-      canCreateReport: true,
+      canCreateReport: false,
       canAddPod: false,
       invoice: false,
       canSeeBooking: false,
+       canTrackAWB: true,
+      
     }
   };
 

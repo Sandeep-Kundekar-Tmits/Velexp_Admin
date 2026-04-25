@@ -35,7 +35,8 @@ const CustomerProductConfig = () => {
         fsc_percentage: 0,
         docket_charge: 0,
         rto_multiplier: 1,
-        gst_rate: 18
+        gst_rate: 18,
+        show_detailed_extra_charges: false
     })
 
     const [errors, setErrors] = useState({})
@@ -118,7 +119,7 @@ const CustomerProductConfig = () => {
         const { name, value } = e.target
         const numericValue = ['volumetric_divisor', 'fsc_percentage', 'docket_charge', 'rto_multiplier', 'gst_rate'].includes(name) 
             ? (value === "" ? "" : parseFloat(value)) 
-            : value
+            : (e.target.type === 'checkbox' ? e.target.checked : value)
 
         setFormData(prev => ({
             ...prev,
@@ -153,7 +154,8 @@ const CustomerProductConfig = () => {
             fsc_percentage: 0,
             docket_charge: 0,
             rto_multiplier: 1,
-            gst_rate: 18
+            gst_rate: 18,
+            show_detailed_extra_charges: false
         })
         setErrors({})
         setIsEdit(false)
@@ -195,7 +197,8 @@ const CustomerProductConfig = () => {
             fsc_percentage: row.fsc_percentage,
             docket_charge: row.docket_charge,
             rto_multiplier: row.rto_multiplier,
-            gst_rate: row.gst_rate
+            gst_rate: row.gst_rate,
+            show_detailed_extra_charges: row.show_detailed_extra_charges || false
         })
         setIsListView(false)
     }
@@ -442,6 +445,20 @@ const CustomerProductConfig = () => {
                                                 <FormFeedback>{errors.gst_rate}</FormFeedback>
                                             </FormGroup>
                                         </Col>
+                                        <Col md={4} className="mb-3 d-flex align-items-center">
+                                            <FormGroup check>
+                                                <Label check className="fw-bold">
+                                                    <Input
+                                                        type="checkbox"
+                                                        name="show_detailed_extra_charges"
+                                                        checked={formData.show_detailed_extra_charges}
+                                                        onChange={handleInputChange}
+                                                        className="me-2"
+                                                    />
+                                                    Show Detailed Extra Charges
+                                                </Label>
+                                            </FormGroup>
+                                        </Col>
                                     </Row>
                                     <div className="d-flex justify-content-end mt-4">
                                         <Button color="primary" type="submit" disabled={submitting} className="px-5" style={{ minWidth: "150px" }}>
@@ -494,6 +511,10 @@ const CustomerProductConfig = () => {
                                 <tr>
                                     <th className="bg-light">GST Rate</th>
                                     <td>{viewData.gst_rate}%</td>
+                                </tr>
+                                <tr>
+                                    <th className="bg-light">Show Detailed Extra Charges</th>
+                                    <td>{viewData.show_detailed_extra_charges ? "Yes" : "No"}</td>
                                 </tr>
                             </tbody>
                         </Table>
