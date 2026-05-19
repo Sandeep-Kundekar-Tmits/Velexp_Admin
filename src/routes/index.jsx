@@ -58,6 +58,7 @@ const FirstMileOperation = lazy(() => import("../pages/Dashboard/Reports/FirstMi
 const ODFOperationsPerformance = lazy(() => import("../pages/Dashboard/Reports/OFDperationsPerformance"));
 const OFDperationsPerformance = lazy(() => import("../pages/Dashboard/Reports/OFDperationsPerformance"));
 const EmployeeAttendence = lazy(() => import("../pages/Dashboard/EmployeeAttendence"));
+const TripDetail = lazy(() => import("../pages/Dashboard/TripDetail"));
 const AttemptWisePerformance = lazy(() => import("../pages/Dashboard/Reports/AttemptWisePerformance"));
 const CustomerLastMileOperation = lazy(() => import("../pages/Dashboard/Reports/customer_Performance/CustomerLastMileOperation"));
 const CustomerFirstMileOperation = lazy(() => import("../pages/Dashboard/Reports/customer_Performance/CustomerFirstMileOperation"));
@@ -191,6 +192,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/inscan-weight", component: <InScanWeight /> },
     // Employee attendence
     { path: "/employee-attendance", component: <EmployeeAttendence /> },
+    { path: "/trip-detail", component: <TripDetail /> },
     { path: "/privileges", component: <Privilege /> },
     // track awb
     { path: "/tracking", component: <TrackAWB /> },

@@ -7,19 +7,94 @@ import Select from "react-select";
 import { customStyles } from "../../helpers/CustomStyle";
 import TableContainer from "../../components/Table/TableContainer";
 import usePostApiCall from "../../hooks/usePostApiCall";
-import { EMPLOYEE_ODOMETER_FILTER } from "../../api";
+import { TRIP_ODOMETER_FILTER } from "../../api";
 import SimpleModal from "../../components/SimpleModal";
+import { useExcelExport } from "../../hooks/useExcelExport";
 
 const EmployeeAttendence = () => {
     const [EmployeeDatas, setEmployeeDatas] = useState([])
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [SelectedImgSrc, setSelectedImgSrc] = useState(null)
+    
+    const getImageSrc = (src) => {
+        if (!src) return "";
+        let imgUrl = src;
+        if (imgUrl.includes("/media/")) {
+            imgUrl = imgUrl.substring(imgUrl.indexOf("/media/"));
+        } else if (window.location.protocol === "https:" && imgUrl.startsWith("http://")) {
+            imgUrl = imgUrl.replace("http://", "https://");
+        }
+        return imgUrl;
+    };
     const [selectedRange, setSelectedRange] = useState({
         startDate: "",
         endDate: "",
     });
     const [EmplyeeCode, setEmployeeCode] = useState("")
     const { apifunc: GetFilteredEmployee, data: EmployeeData, loading: EmployeeFilterLoading } = usePostApiCall()
+    const { exportToExcel, isExporting } = useExcelExport();
+
+    const DownloadBookingDetails = () => {
+        if (!EmployeeDatas || EmployeeDatas.length === 0) {
+            alert("No data available to export");
+            return;
+        }
+
+        const transformFn = (row) => ({
+            "Employee Name": row.employee_name || `${row.employee?.first_name ?? ""} ${row.employee?.last_name ?? ""}`.trim(),
+            "Employee Code": row.employee_code || "-",
+            "Vehicle Number": row.vehicle_number || "-",
+            "Trip Number": row.trip_number || "-",
+            "Type": row.info_type || "-",
+            "Trip Date": row.trip_date ? new Date(row.trip_date).toUTCString() : "-",
+            "Odometer Reading": row.odometer_reading || "-",
+            "Notes": row.notes || "-"
+        });
+
+        exportToExcel(EmployeeDatas, "EmployeeTripDetails", transformFn);
+    };
+
+    const handleDownloadImage = async () => {
+        if (!SelectedImgSrc) return;
+        try {
+            const response = await fetch(SelectedImgSrc);
+            if (!response.ok) throw new Error("Network response was not ok");
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+
+            // Try to extract original filename or fall back to standard naming
+            let filename = `Odometer_Image_${new Date().getTime()}.jpg`;
+            try {
+                const urlObj = new URL(SelectedImgSrc, window.location.origin);
+                const pathParts = urlObj.pathname.split("/");
+                const lastPart = pathParts[pathParts.length - 1];
+                if (lastPart && lastPart.includes(".")) {
+                    filename = lastPart;
+                }
+            } catch (e) {
+                // Keep default filename
+            }
+
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Error downloading image:", error);
+            
+            // Absolute fallback: if fetch fails, try downloading directly without target="_blank"
+            const link = document.createElement("a");
+            link.href = SelectedImgSrc;
+            link.download = `Odometer_Image_${new Date().getTime()}.jpg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    };
+
     const onInputChange = (name, e) => {
         if (name === "ec_code") {
             setEmployeeCode(e.target.value)
@@ -40,20 +115,17 @@ const EmployeeAttendence = () => {
             from_date: formatToYMD(selectedRange?.startDate),
             to_date: formatToYMD(selectedRange?.endDate),
         };
-        if (EmplyeeCode === "") {
-            alert("Enter Employee Code")
-            return
-        }
+
         if (selectedRange?.startDate === "" || selectedRange?.endDate === "") {
             alert("Enter the Date Range")
             return
         }
-        GetFilteredEmployee(EMPLOYEE_ODOMETER_FILTER, payload)
+        GetFilteredEmployee(TRIP_ODOMETER_FILTER, payload)
     }
 
     useEffect(() => {
         if (EmployeeData) {
-            setEmployeeDatas(EmployeeData?.data)
+            setEmployeeDatas(Array.isArray(EmployeeData) ? EmployeeData : (EmployeeData?.data || []))
         }
 
     }, [EmployeeData])
@@ -62,7 +134,7 @@ const EmployeeAttendence = () => {
             {
                 header: "Employee Name",
                 accessorFn: (row) =>
-                    `${row.employee?.first_name ?? ""} ${row.employee?.last_name ?? ""}`.trim(),
+                    row.employee_name || `${row.employee?.first_name ?? ""} ${row.employee?.last_name ?? ""}`.trim(),
                 enableSorting: true,
                 enableColumnFilter: false,
                 size: 180,
@@ -81,11 +153,32 @@ const EmployeeAttendence = () => {
             },
 
             {
+                header: "Trip Number",
+                accessorKey: "trip_number",
+                enableSorting: true,
+                enableColumnFilter: false,
+                size: 100,
+            },
+            {
+                header: "Vehicle Number",
+                accessorKey: "vehicle_number",
+                enableSorting: true,
+                enableColumnFilter: false,
+                size: 120,
+            },
+            {
                 header: "Type",
                 accessorKey: "info_type",
                 enableSorting: true,
                 enableColumnFilter: false,
                 size: 100,
+            },
+            {
+                header: "Odometer Reading",
+                accessorKey: "odometer_reading",
+                enableSorting: true,
+                enableColumnFilter: false,
+                size: 140,
             },
 
             {
@@ -99,7 +192,7 @@ const EmployeeAttendence = () => {
                         <button
                             className="px-3 py-1 rounded-2 bg-light"
                             onClick={() => {
-                                setSelectedImgSrc(getValue())
+                                setSelectedImgSrc(getImageSrc(getValue()))
                                 setIsModalOpen(true)
                             }}
                         >
@@ -169,8 +262,8 @@ const EmployeeAttendence = () => {
                                         isPagination={true}
                                         isCustomPageSize={true}
                                         isDownloadExcle={true}
-                                        // onDownloadExcle={DownloadBookingDetails}
-                                        // ExcleLoading={isExporting}
+                                        onDownloadExcle={DownloadBookingDetails}
+                                        ExcleLoading={isExporting}
                                         SearchPlaceholder="Search From Table"
                                         pagination="pagination"
                                         paginationWrapper='dataTables_paginate paging_simple_numbers'
@@ -189,7 +282,7 @@ const EmployeeAttendence = () => {
                         onCancel={() => {
                             setIsModalOpen(false)
                         }}
-                    // onSuccess={handleSuccess}
+                        onSuccess={handleDownloadImage}
                     >
                         <img
                             src={SelectedImgSrc}

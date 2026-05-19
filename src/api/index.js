@@ -452,8 +452,14 @@ export const POP_RECONCILATION_PAYMENT_CONFIRMATION = `${BASE_URL}/pop_reconcila
 
 //  get all employees
 export const GET_ALL_EMPLOYEE_LIST = `${BASE_URL}/api/employee/employees/`
-// /employee_odometer filter
-export const EMPLOYEE_ODOMETER_FILTER = `${BASE_URL}/api/employee/employee_odometer/filter/`
+
+
+// Ops Trip Management
+export const TRIP_ODOMETER_READINGS = `${BASE_URL}/api/trip/odometer/readings/`
+export const TRIP_ODOMETER_FILTER = `${BASE_URL}/api/trip/odometer/readings/filter/`
+export const TRIP_ODOMETER_LATEST = `${BASE_URL}/api/trip/odometer/readings/latest/`
+export const TRIP_ODOMETER_DISTANCE = `${BASE_URL}/api/trip/odometer/readings/distance/`
+export const TRIP_ODOMETER_TRIPS = `${BASE_URL}/api/trip/odometer/readings/trips/`
 
 
 //  get privileges

@@ -606,10 +606,18 @@ const SidebarContent = (props) => {
             {
               isAdmin &&
                 <li>
-                  <Link to="/employee-attendance" className="has">
-                    <i className="bx bx-calendar-check"></i>
-                    <span>{props.t("Employee Trip Details")}</span>
+                  <Link to="/#" className="has-arrow">
+                    <i className="bx bx-map-alt"></i>
+                    <span>{props.t("Trip Management")}</span>
                   </Link>
+                  <ul className="sub-menu" aria-expanded="false">
+                    <li>
+                      <Link to="/employee-attendance">{props.t("Employee Trip Details")}</Link>
+                    </li>
+                    <li>
+                      <Link to="/trip-detail">{props.t("Ops Trip Management")}</Link>
+                    </li>
+                  </ul>
                 </li>
             }
             
