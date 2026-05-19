@@ -6,7 +6,7 @@ import { GridLoader } from "react-spinners";
 import MainHeaderComp from "../../../components/MainHeaderCom";
 import usePostApiCall from "../../../hooks/usePostApiCall";
 import { useGetApiCall } from "../../../hooks/useGetApiCall";
-import { GET_ALL_CORPORATE_RATE_DATE, GET_ALL_CUSTOMER_CORPORATE_RATE_DATE, GET_USER_API, UPLOAD_CORPORATE_RATE_DATA } from "../../../api";
+import { GET_ALL_CORPORATE_RATE_DATE, GET_ALL_CUSTOMER_CORPORATE_RATE_DATE, CORPORATE_CUSTOMERS_LIST, UPLOAD_CORPORATE_RATE_DATA } from "../../../api";
 import TableContainer from "../../../components/Table/TableContainer";
 import { FaFileExcel } from "react-icons/fa";
 import { useExcelExport } from "../../../hooks/useExcelExport";
@@ -35,7 +35,7 @@ const CorporateRateData = () => {
     const { apifunc: UploadCorporateRateData, data: UploadedCorporateRateData, loading: UploadCorporateRateDataLoading } = usePostApiCall()
     useEffect(() => {
         // calling the get all customer api
-        GetAllCustomerList(`${GET_USER_API}/`)
+        GetAllCustomerList(CORPORATE_CUSTOMERS_LIST)
     }, [])
 
     useEffect(() => {
@@ -59,18 +59,19 @@ const CorporateRateData = () => {
 
     //  dropdown cutsomer list
     let CustomerList = useMemo(() => {
-        return CustomerListFromApi?.filter(ele => {
-            return ele?.cust_type?.type_of_cust === "Corporate"
+        if (!CustomerListFromApi?.user) return []
+        return CustomerListFromApi.user.filter(ele => {
+            return ele?.cust_type?.type_of_cust === "Corporate" || ele?.cust_type?.type_of_cust === "Franchise"
         })?.map(ele => {
             let name = ele?.customer_name
             return {
                 id: ele?.id,
                 value: name,
-                label: name
+                label: `${name} - ${ele?.username}`
             }
         })
 
-    }, CustomerListFromApi)
+    }, [CustomerListFromApi])
 
     const onViewCustomer = () => {
         GetCustomerCorporateInfo(GET_ALL_CUSTOMER_CORPORATE_RATE_DATE, {

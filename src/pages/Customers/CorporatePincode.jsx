@@ -9,9 +9,9 @@ import {
     DELETE_CUSTOMER_CORPORATE_PINCODE,
     DELETE_DEFAULT_CORPORATE_PINCODE,
     GET_ALL_CORPORATE_PINCODE,
-    GET_USER_API,
     GET_VIEW_CORPORATE_PINCODES,
-    UPLOAD_CORPORATE_PINCODE
+    UPLOAD_CORPORATE_PINCODE,
+    CORPORATE_CUSTOMERS_LIST
 } from "../../api";
 import useExcelParser from "../../hooks/useExcelParser";
 import TableContainer from "../../components/Table/TableContainer";
@@ -22,7 +22,7 @@ import SimpleModal from "../../components/SimpleModal";
 import { useCalendar } from "rsuite/esm/Calendar/hooks";
 import MainHeaderCom from "../../components/MainHeaderCom";
 
-const CorporatePincode = () => {
+const CorporatePincode = ({ externalCustomer }) => {
     const [selectedPincodeOption, setSelectedPincodeOption] = useState(null);
     const [file, setFile] = useState(null);
     const [username, setUsername] = useState(null);
@@ -53,10 +53,12 @@ const CorporatePincode = () => {
     // defining the api to delete the customer pincode
     const { apifunc: DeleteCustomerPincode, data: DeletedPincodes, loading: DeleteCustomerPincodeLoading } = usePostApiCall()
     useEffect(() => {
-        GetUserList(`${GET_USER_API}/`);
+        GetUserList(CORPORATE_CUSTOMERS_LIST);
         GetAllCorporatePincodes(GET_ALL_CORPORATE_PINCODE);
         setSelectedPincodes([])
     }, []);
+
+
 
     useEffect(() => {
         if (username === null) {
@@ -66,21 +68,27 @@ const CorporatePincode = () => {
     }, [username])
 
     useEffect(() => {
-        if (UserList?.length > 0) {
-            const updatedOptions = UserList
+        if (externalCustomer !== undefined && JSON.stringify(externalCustomer) !== JSON.stringify(username)) {
+            setUsername(externalCustomer)
+        }
+    }, [externalCustomer])
+
+    useEffect(() => {
+        if (UserList?.user?.length > 0) {
+            const updatedOptions = UserList.user
                 .filter((ele) => {
                     const name = ele?.customer_name?.trim?.();
                     return (
                         !!name &&
                         name.toLowerCase() !== "null" &&
                         name.toLowerCase() !== "undefined" &&
-                        ele?.cust_type?.type_of_cust === "Corporate"
+                        (ele?.cust_type?.type_of_cust === "Corporate" || ele?.cust_type?.type_of_cust === "Franchise")
                     );
                 })
                 .map((ele) => ({
                     id: ele?.id,
                     value: ele.customer_name,
-                    label: ele.customer_name,
+                    label: `${ele.customer_name} - ${ele.username}`,
                 }));
             setUserListOption(updatedOptions);
         }

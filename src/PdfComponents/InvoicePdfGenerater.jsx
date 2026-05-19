@@ -245,7 +245,7 @@ const InvoicePdfGenerater = React.forwardRef(({ invoiceData }, ref) => {
                       alt="QR Code"
                       style={{ width: "176px", height: "176px", objectFit: "contain" }}
                     />
-                    <p className="text-muted fw-bold text-uppercase mt-1" style={{ fontSize: "12px" }}>AWB: {awb}</p>
+                    <p className="text-muted fw-bold text-uppercase mt-1" style={{ fontSize: "12px" }}>INV: {awb}</p>
                   </div>
                 );
               })()}

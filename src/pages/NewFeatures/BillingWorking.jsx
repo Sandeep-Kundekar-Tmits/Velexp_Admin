@@ -7,7 +7,7 @@ import usePostApiCall from "../../hooks/usePostApiCall"
 import { CORPORATE_BILLING_GENERATE, CORPORATE_BILLING_RUNS, CORPORATE_CUSTOMERS_LIST } from "../../api"
 import TableContainer from "../../components/Table/TableContainer"
 import ToasterProvider from "../../helpers/ToasterProvider"
-import { MdRefresh, MdPlayArrow, MdFileDownload } from "react-icons/md"
+import { MdRefresh, MdPlayArrow, MdFileDownload, MdLoop } from "react-icons/md"
 
 const BillingWorking = () => {
     const { SuccessToaster, ErrorToaster } = ToasterProvider()
@@ -23,6 +23,7 @@ const BillingWorking = () => {
     const [endDate, setEndDate] = useState("")
     const [runs, setRuns] = useState([])
     const [processingIds, setProcessingIds] = useState(new Set())
+    const [reRunningIds, setReRunningIds] = useState(new Set())
 
     useEffect(() => {
         fetchCustomers(CORPORATE_CUSTOMERS_LIST)
@@ -35,7 +36,7 @@ const BillingWorking = () => {
     useEffect(() => {
         if (customerData?.user) {
             const formatted = customerData.user
-                .filter(ele => ele?.cust_type?.type_of_cust === "Corporate")
+                .filter(ele => ele?.cust_type?.type_of_cust === "Corporate" || ele?.cust_type?.type_of_cust === "Franchise")
                 .map(ele => ({
                     name: `${ele?.customer_name || ""} - ${ele?.username}`,
                     id: ele?.id,
@@ -86,7 +87,37 @@ const BillingWorking = () => {
         }
         const result = await queueRun(CORPORATE_BILLING_GENERATE, body)
         if (result) {
-            loadRuns()
+            await loadRuns()
+            const newRunId = result.id || result.result?.id || (result.results && result.results[0]?.id)
+            if (newRunId) {
+                handleProcessRun(newRunId)
+            }
+        }
+    }
+
+    const handleReRunFromRow = async (run) => {
+        setReRunningIds(prev => new Set(prev).add(run.id))
+        try {
+            const body = {
+                user_name: run.customer_name,
+                start_date: run.billing_period_start,
+                end_date: run.billing_period_end
+            }
+            const result = await queueRun(CORPORATE_BILLING_GENERATE, body)
+            if (result) {
+                await  handleProcessRun(run.id)
+                // await loadRuns()
+                // const newRunId = result.id || result.result?.id || (result.results && result.results[0]?.id)
+                // if (newRunId) {
+                //     await handleProcessRun(newRunId)
+                // }
+            }
+        } finally {
+            setReRunningIds(prev => {
+                const next = new Set(prev)
+                next.delete(run.id)
+                return next
+            })
         }
     }
 
@@ -108,7 +139,7 @@ const BillingWorking = () => {
         })
         if (response?.status === "success" && response.result) {
             setRuns(prev => prev.map(run => run.id === runId ? response.result : run))
-            SuccessToaster("Processing started")
+            SuccessToaster("Processing Done Successfully")
         }
     }
 
@@ -169,21 +200,35 @@ const BillingWorking = () => {
             cell: (cell) => {
                 const run = cell.row.original
                 const isProcessing = processingIds.has(run.id)
+                const isReRunning = reRunningIds.has(run.id)
                 const isGenerated = run.status === "GENERATED" || run.status === "COMPLETED"
                 return (
                     <div className="d-flex gap-2 justify-content-center">
                         <Button color="light" size="sm" title="Refresh Status" onClick={() => handleRefreshStatus(run.id)}>
                             <MdRefresh size={18} />
                         </Button>
-                        <Button 
-                            color="info" 
-                            size="sm" 
-                            title="Process" 
-                            onClick={() => handleProcessRun(run.id)}
-                            disabled={isProcessing || run.status === "PROCESSING" || isGenerated}
-                        >
-                            {isProcessing ? <Spinner size="sm" /> : <MdPlayArrow size={18} />}
-                        </Button>
+                        {isGenerated ? (
+                            <Button 
+                                color="warning" 
+                                size="sm" 
+                                title="Re-run" 
+                                onClick={() => handleReRunFromRow(run)}
+                                disabled={isProcessing || isReRunning || run.status === "PROCESSING"}
+                                className="text-white"
+                            >
+                                {isReRunning ? <Spinner size="sm" /> : <MdLoop size={18} />}
+                            </Button>
+                        ) : (
+                            <Button 
+                                color="info" 
+                                size="sm" 
+                                title="Process" 
+                                onClick={() => handleProcessRun(run.id)}
+                                disabled={isProcessing || isReRunning || run.status === "PROCESSING"}
+                            >
+                                {isProcessing ? <Spinner size="sm" /> : <MdPlayArrow size={18} />}
+                            </Button>
+                        )}
                         <Button 
                             color="success" 
                             size="sm" 
@@ -243,7 +288,7 @@ const BillingWorking = () => {
                                         onClick={handleQueueRun} 
                                         disabled={queuing}
                                     >
-                                        {queuing ? <><Spinner size="sm" className="me-2" /> Queuing...</> : "Queue Run"}
+                                        {queuing ? <Spinner size="sm" /> : "Queue Run"}
                                     </Button>
                                 </Col>
                             </Row>

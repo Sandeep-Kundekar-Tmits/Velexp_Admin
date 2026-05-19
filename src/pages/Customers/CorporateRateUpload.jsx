@@ -13,10 +13,11 @@ import { useDeleteApiCall } from "../../hooks/useDeleteApiCall";
 import useExcelParser from "../../hooks/useExcelParser";
 import { useExcelExport } from "../../hooks/useExcelExport";
 import ToasterProvider from "../../helpers/ToasterProvider";
-import { GET_USER_API, IMPORT_CORPORATE_RATE_DATA, GET_CUSTOMER_RATES, GET_SINGLE_CUSTOMER_RATE, PRODUCT_LIST, GET_CORPORATE_CUSTOMER_PRODUCTS } from "../../api";
+import { CORPORATE_CUSTOMERS_LIST, IMPORT_CORPORATE_RATE_DATA, GET_CUSTOMER_RATES, GET_SINGLE_CUSTOMER_RATE, PRODUCT_LIST, GET_CORPORATE_CUSTOMER_PRODUCTS } from "../../api";
 import SimpleModal from "../../components/SimpleModal";
+import TableContainer from "../../components/Table/TableContainer";
 
-const CorporateRateUpload = () => {
+const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null, hideHeader = false }) => {
     const { ErrorToaster, SucceesToaster } = ToasterProvider();
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [excelData, setExcelData] = useState([]);
@@ -43,6 +44,9 @@ const CorporateRateUpload = () => {
     const [editingRate, setEditingRate] = useState(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [rateIdToDelete, setRateIdToDelete] = useState(null);
+    const [selectedRateIds, setSelectedRateIds] = useState([]);
+    const [isBulkDeletingRates, setIsBulkDeletingRates] = useState(false);
+    const [isBulkDeleteRateModalOpen, setIsBulkDeleteRateModalOpen] = useState(false);
     const [newRate, setNewRate] = useState({
         product_id: null,
         weight_min: 0,
@@ -58,17 +62,23 @@ const CorporateRateUpload = () => {
     });
 
     useEffect(() => {
-        GetCustomers(`${GET_USER_API}/`);
+        GetCustomers(CORPORATE_CUSTOMERS_LIST);
     }, []);
 
+    useEffect(() => {
+        if (externalCustomer && externalCustomer?.id !== selectedCustomer?.id) {
+            setSelectedCustomer(externalCustomer)
+        }
+    }, [externalCustomer])
+
     const customerOptions = useMemo(() => {
-        if (!customerListRaw) return [];
-        return customerListRaw
-            .filter(ele => ele?.cust_type?.type_of_cust === "Corporate")
+        if (!customerListRaw?.user) return [];
+        return customerListRaw.user
+            .filter(ele => ele?.cust_type?.type_of_cust === "Corporate" || ele?.cust_type?.type_of_cust === "Franchise")
             .map(ele => ({
                 id: ele.id,
                 value: ele.customer_name,
-                label: ele.customer_name
+                label: `${ele.customer_name} - ${ele.username}`
             }));
     }, [customerListRaw]);
 
@@ -139,6 +149,28 @@ const CorporateRateUpload = () => {
     const handleDeleteRate = (rateId) => {
         setRateIdToDelete(rateId);
         setIsDeleteModalOpen(true);
+    };
+
+    const handleBulkDeleteRates = async () => {
+        setIsBulkDeletingRates(true);
+        let successCount = 0;
+        for (const id of selectedRateIds) {
+            try {
+                await deleteRate(`${GET_CUSTOMER_RATES}${id}/`);
+                successCount++;
+            } catch (_) {}
+        }
+        setIsBulkDeletingRates(false);
+        setIsBulkDeleteRateModalOpen(false);
+        setSelectedRateIds([]);
+        if (successCount > 0) {
+            SucceesToaster(`${successCount} rate(s) deleted successfully!`);
+            if (selectedCustomer?.id) {
+                GetRates(`${GET_CUSTOMER_RATES}?customer_id=${selectedCustomer.id}`);
+            }
+        } else {
+            ErrorToaster("Failed to delete selected rates.");
+        }
     };
 
     const handleConfirmDelete = async () => {
@@ -317,25 +349,30 @@ const CorporateRateUpload = () => {
 
     return (
         <div className="page-content py-0 px-0">
-            <MainHeaderCom title="Rate Upload" />
+            {!hideHeader && <MainHeaderCom title="Rate Upload" />}
             <div className="container-fluid px-3 mt-4">
-                <Card>
+                <Card className="shadow-sm">
                     <CardBody>
                         <Row>
-                            <Col md={4}>
-                                <FormGroup>
-                                    <Label>Select Corporate Customer</Label>
-                                    <Select
-                                        options={customerOptions}
-                                        placeholder={customersLoading ? "Loading..." : "Search Customer"}
-                                        value={selectedCustomer}
-                                        onChange={setSelectedCustomer}
-                                        isClearable={true}
-                                        styles={customStyles}
-                                    />
-                                </FormGroup>
-                            </Col>
-                            <Col md={4}>
+                            {!hideHeader && (
+                                <Col md={4}>
+                                    <FormGroup>
+                                        <Label>Select Corporate Customer</Label>
+                                        <Select
+                                            options={customerOptions}
+                                            placeholder={customersLoading ? "Loading..." : "Search Customer"}
+                                            value={selectedCustomer}
+                                            onChange={(val) => {
+                                                setSelectedCustomer(val)
+                                                if (onCustomerChange) onCustomerChange(val)
+                                            }}
+                                            isClearable={true}
+                                            styles={customStyles}
+                                        />
+                                    </FormGroup>
+                                </Col>
+                            )}
+                            <Col md={hideHeader ? 6 : 4}>
                                 <FormGroup>
                                     <Label>File Upload (.xlsx)</Label>
                                     <Input
@@ -347,7 +384,7 @@ const CorporateRateUpload = () => {
                                     />
                                 </FormGroup>
                             </Col>
-                            <Col md={4} className="d-flex flex-column gap-2 mb-3 mt-4 align-items-start">
+                            <Col md={hideHeader ? 6 : 4} className="d-flex flex-column gap-2 mb-3 mt-4 align-items-start">
                                 <Button
                                     color="primary"
                                     onClick={validateAndUpload}
@@ -386,95 +423,160 @@ const CorporateRateUpload = () => {
                         )}
 
                         {selectedCustomer && (
-                            <Row className="mt-5">
-                                <Col md={12}>
-                                    <div className="d-flex justify-content-between align-items-center mb-3">
-                                        <h5 className="mb-0">Existing Rates for {selectedCustomer.label}</h5>
+                            <>
+                                <div className="d-flex justify-content-between align-items-center mb-3 mt-4">
+                                    <h5 className="mb-0">Existing Rates for {selectedCustomer.label}</h5>
+                                    <div className="d-flex gap-2">
+                                        {selectedRateIds.length > 0 && (
+                                            <Button
+                                                color="danger"
+                                                size="sm"
+                                                onClick={() => setIsBulkDeleteRateModalOpen(true)}
+                                                disabled={isBulkDeletingRates}
+                                                className="d-flex align-items-center gap-1"
+                                            >
+                                                {isBulkDeletingRates ? <Spinner size="sm" /> : <FaTrash />}
+                                                Delete Selected ({selectedRateIds.length})
+                                            </Button>
+                                        )}
                                         <Button
                                             color="primary"
                                             size="sm"
                                             onClick={() => setAddRateModal(true)}
-                                            className="d-flex align-items-center"
                                         >
                                             Add Rate
                                         </Button>
                                     </div>
-                                    <div className="table-responsive" style={{ maxHeight: "400px", border: "1px solid #eee" }}>
-                                        <table className="table table-bordered table-striped mb-0">
-                                            <thead className="table-light" style={{ position: "sticky", top: 0, zIndex: 1 }}>
-                                                <tr>
-                                                    <th>Product</th>
-                                                    <th>Weight Range</th>
-                                                    <th>Zones (Origin - Dest)</th>
-                                                    <th>Min Rate</th>
-                                                    <th>Base Rate</th>
-                                                    <th>Inc. Unit/Rate</th>
-                                                    <th>Billing Type</th>
-                                                    <th>Action</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {ratesLoading ? (
-                                                    <tr>
-                                                        <td colSpan="8" className="text-center py-4">
-                                                            <Spinner size="sm" color="primary" className="me-2" />
-                                                            Loading rates...
-                                                        </td>
-                                                    </tr>
-                                                ) : customerRates?.results && customerRates.results.length > 0 ? (
-                                                    customerRates.results.map((rate, idx) => (
-                                                        <tr key={idx}>
-                                                            <td>{rate.product_name}</td>
-                                                            <td>{rate.weight_min} - {rate.weight_max || "∞"}</td>
-                                                            <td>{rate.origin_zone} - {rate.dest_zone} ({rate.zone_type})</td>
-                                                            <td>{rate.min_rate || 0}</td>
-                                                            <td>{rate.base_rate} for {rate.base_weight} kg</td>
-                                                            <td>{rate.incremental_unit} kg / {rate.incremental_rate}</td>
-                                                            <td>{rate.billing_type}</td>
-                                                            <td className="d-flex gap-2">
-                                                                <Button
-                                                                    color="primary"
-                                                                    size="sm"
-                                                                    outline
-                                                                    onClick={() => handleViewRate(rate.id)}
-                                                                    title="View Details"
-                                                                >
-                                                                    <FaEye />
-                                                                </Button>
-                                                                <Button
-                                                                    color="info"
-                                                                    size="sm"
-                                                                    outline
-                                                                    onClick={() => handleEditRate(rate)}
-                                                                    title="Edit Rate"
-                                                                >
-                                                                    <FaEdit />
-                                                                </Button>
-                                                                <Button
-                                                                    color="danger"
-                                                                    size="sm"
-                                                                    outline
-                                                                    onClick={() => handleDeleteRate(rate.id)}
-                                                                    title="Delete Rate"
-                                                                    disabled={deletingRate && rateIdToDelete === rate.id}
-                                                                >
-                                                                    {deletingRate && rateIdToDelete === rate.id ? <Spinner size="sm" /> : <FaTrash />}
-                                                                </Button>
-                                                            </td>
-                                                        </tr>
-                                                    ))
-                                                ) : (
-                                                    <tr>
-                                                        <td colSpan="8" className="text-center py-4 text-muted">
-                                                            No rates found for this customer.
-                                                        </td>
-                                                    </tr>
-                                                )}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </Col>
-                            </Row>
+                                </div>
+                                <Card className="shadow-sm">
+                                    <CardBody className="p-0">
+                                        {ratesLoading ? (
+                                            <div className="text-center p-5">
+                                                <Spinner color="primary" />
+                                                <p className="mt-2 text-muted">Loading rates...</p>
+                                            </div>
+                                        ) : (
+                                            <TableContainer
+                                                columns={[
+                                                    {
+                                                        id: 'select',
+                                                        header: () => (
+                                                            <input
+                                                                type="checkbox"
+                                                                style={{ cursor: "pointer" }}
+                                                                checked={
+                                                                    (customerRates?.results?.length > 0) &&
+                                                                    customerRates.results.every(r => selectedRateIds.includes(r.id))
+                                                                }
+                                                                onChange={(e) => {
+                                                                    if (e.target.checked) {
+                                                                        setSelectedRateIds((customerRates?.results || []).map(r => r.id));
+                                                                    } else {
+                                                                        setSelectedRateIds([]);
+                                                                    }
+                                                                }}
+                                                            />
+                                                        ),
+                                                        cell: ({ row }) => (
+                                                            <input
+                                                                type="checkbox"
+                                                                style={{ cursor: "pointer" }}
+                                                                checked={selectedRateIds.includes(row.original.id)}
+                                                                onChange={(e) => {
+                                                                    const id = row.original.id;
+                                                                    setSelectedRateIds(prev =>
+                                                                        e.target.checked ? [...prev, id] : prev.filter(x => x !== id)
+                                                                    );
+                                                                }}
+                                                            />
+                                                        ),
+                                                        enableSorting: false,
+                                                        size: 40,
+                                                    },
+                                                    {
+                                                        header: "Product",
+                                                        accessorKey: "product_name",
+                                                    },
+                                                    {
+                                                        header: "Weight Range",
+                                                        accessorFn: (row) => `${row.weight_min} - ${row.weight_max || "∞"}`,
+                                                    },
+                                                    {
+                                                        header: "Zones (Origin - Dest)",
+                                                        accessorFn: (row) => `${row.origin_zone} - ${row.dest_zone} (${row.zone_type})`,
+                                                    },
+                                                    {
+                                                        header: "Min Rate",
+                                                        accessorKey: "min_rate",
+                                                        accessorFn: (row) => row.min_rate || 0,
+                                                    },
+                                                    {
+                                                        header: "Base Rate",
+                                                        accessorFn: (row) => `${row.base_rate} for ${row.base_weight} kg`,
+                                                    },
+                                                    {
+                                                        header: "Inc. Unit/Rate",
+                                                        accessorFn: (row) => `${row.incremental_unit} kg / ${row.incremental_rate}`,
+                                                    },
+                                                    {
+                                                        header: "Billing Type",
+                                                        accessorKey: "billing_type",
+                                                    },
+                                                    {
+                                                        header: "Action",
+                                                        id: "action",
+                                                        enableSorting: false,
+                                                        cell: (cell) => {
+                                                            const rate = cell.row.original;
+                                                            return (
+                                                                <div className="d-flex gap-2">
+                                                                    <Button
+                                                                        color="primary"
+                                                                        size="sm"
+                                                                        outline
+                                                                        onClick={() => handleViewRate(rate.id)}
+                                                                        title="View Details"
+                                                                    >
+                                                                        <FaEye />
+                                                                    </Button>
+                                                                    <Button
+                                                                        color="info"
+                                                                        size="sm"
+                                                                        outline
+                                                                        onClick={() => handleEditRate(rate)}
+                                                                        title="Edit Rate"
+                                                                    >
+                                                                        <FaEdit />
+                                                                    </Button>
+                                                                    <Button
+                                                                        color="danger"
+                                                                        size="sm"
+                                                                        outline
+                                                                        onClick={() => handleDeleteRate(rate.id)}
+                                                                        title="Delete Rate"
+                                                                        disabled={deletingRate && rateIdToDelete === rate.id}
+                                                                    >
+                                                                        {deletingRate && rateIdToDelete === rate.id ? <Spinner size="sm" /> : <FaTrash />}
+                                                                    </Button>
+                                                                </div>
+                                                            );
+                                                        }
+                                                    }
+                                                ]}
+                                                data={customerRates?.results || []}
+                                                isGlobalFilter={true}
+                                                isPagination={true}
+                                                isCustomPageSize={true}
+                                                defaultPageSize={10}
+                                                SearchPlaceholder="Search rates..."
+                                                pagination="pagination pagination-rounded justify-content-end mb-2"
+                                                paginationWrapper='dataTables_paginate paging_simple_numbers'
+                                                tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline mb-0"
+                                            />
+                                        )}
+                                    </CardBody>
+                                </Card>
+                            </>
                         )}
                     </CardBody>
                 </Card>
@@ -853,6 +955,24 @@ const CorporateRateUpload = () => {
                 }}
                 loading={deletingRate}
             />
+
+            {/* Bulk Delete Rates Confirmation Modal */}
+            <SimpleModal
+                isOpen={isBulkDeleteRateModalOpen}
+                setIsOpen={setIsBulkDeleteRateModalOpen}
+                successButtonName={isBulkDeletingRates ? "Deleting..." : `Delete ${selectedRateIds.length} Rate(s)`}
+                cancelButtonName="Cancel"
+                onCancel={() => setIsBulkDeleteRateModalOpen(false)}
+                onSuccess={handleBulkDeleteRates}
+            >
+                <div>
+                    <p className="fw-bold text-danger mb-2">
+                        <i className="mdi mdi-alert-circle-outline me-1"></i>
+                        Are you sure you want to delete {selectedRateIds.length} selected rate(s)?
+                    </p>
+                    <p className="text-muted small mb-0">This action cannot be undone.</p>
+                </div>
+            </SimpleModal>
         </div>
     );
 };

@@ -52,9 +52,24 @@ const useExcelParser = () => {
             }
 
             // Parse data
-            const jsonData = XLSX.utils.sheet_to_json(worksheet, {
+            const rawJsonData = XLSX.utils.sheet_to_json(worksheet, {
                 header: headerRow,
                 range: dataStartRow
+            });
+
+            // Clean up numeric values to avoid floating point precision issues (e.g. 6.001 -> 6.0009999999999994)
+            const jsonData = rawJsonData.map(row => {
+                const cleanRow = {};
+                for (const key in row) {
+                    const value = row[key];
+                    if (typeof value === 'number') {
+                        // Round to 10 decimal places to eliminate floating point noise
+                        cleanRow[key] = Number(value.toFixed(10));
+                    } else {
+                        cleanRow[key] = value;
+                    }
+                }
+                return cleanRow;
             });
 
             const result = {

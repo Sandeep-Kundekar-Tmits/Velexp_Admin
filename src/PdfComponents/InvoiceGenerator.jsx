@@ -31,7 +31,9 @@ const CheckInvoice = (invoice) => {
     return "franchise"
   }
 }
-const InvoiceGenerator = ({ invoiceData }) => {
+const InvoiceGenerator = ({ invoiceData, downloadUrl }) => {
+  if (!invoiceData) return <div className="p-4 text-center">No invoice data available.</div>;
+
 
   const { toPDF, targetRef } = usePDF({
     filename: `invoice_${invoiceData?.invoice_no || 'invoice'}.pdf`,
@@ -43,14 +45,20 @@ const InvoiceGenerator = ({ invoiceData }) => {
 
 
   const [isGenerating, setIsGenerating] = useState(false);
-
   const handleDownload = async () => {
     setIsGenerating(true);
+    if (downloadUrl) {
+      window.open(downloadUrl, '_blank');
+      setIsGenerating(false);
+      return;
+    }
+
     try {
       await toPDF();
     } catch (error) {
       console.error("PDF generation failed:", error);
-      alert("Failed to generate PDF. Please try again.");
+      alert("Client-side PDF generation failed. Trying browser print...");
+      window.print();
     } finally {
       setIsGenerating(false);
     }
@@ -222,8 +230,8 @@ const InvoiceGenerator = ({ invoiceData }) => {
             {/* side part */}
             <Col className='d-flex flex-column justify-content-end align-items-end'>
               <h6 className=" mb-1 font-size-16 fw-bolder">TAX INVOICE</h6>
-              <p className="mb-1 "><strong>Inv. No:</strong> {invoiceData?.invoice_no}</p>
-              <p className=''><strong>Inv. Date:</strong> {new Date(invoiceData?.invoice_date).toLocaleDateString('en-GB')}</p>
+              <p className="mb-1 "><strong>Inv. No:</strong> {invoiceData?.invoice_no || invoiceData?.invoice_number || 'N/A'}</p>
+              <p className=''><strong>Inv. Date:</strong> {invoiceData?.invoice_date ? new Date(invoiceData.invoice_date).toLocaleDateString('en-GB') : 'N/A'}</p>
             </Col>
           </Row>
 
@@ -361,7 +369,7 @@ const InvoiceGenerator = ({ invoiceData }) => {
                       alt="QR Code"
                       style={{ width: "176px", height: "176px", objectFit: "contain" }}
                     />
-                    <p className="text-muted fw-bold text-uppercase mt-1" style={{ fontSize: "12px" }}>AWB: {awb}</p>
+                    <p className="text-muted fw-bold text-uppercase mt-1" style={{ fontSize: "12px" }}>INV: {awb}</p>
                   </div>
                 );
               })()}

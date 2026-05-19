@@ -5,7 +5,7 @@ import {
 import Select from "react-select"
 import MainHeaderComp from "../../components/MainHeaderCom"
 import TableContainer from "../../components/Table/TableContainer"
-import { ALL_BOOKINGS_VIEW, ALL_BOOKINGS_EXPORT, GET_USER_API } from "../../api"
+import { ALL_BOOKINGS_VIEW, ALL_BOOKINGS_EXPORT, CORPORATE_CUSTOMERS_LIST } from "../../api"
 import axios from "axios"
 import ToasterProvider from "../../helpers/ToasterProvider"
 import { MdSearch, MdFileDownload } from "react-icons/md"
@@ -46,14 +46,14 @@ const AllBooking = () => {
     const [hasFetched, setHasFetched] = useState(false)
 
     useEffect(() => {
-        fetchCustomers(`${GET_USER_API}/`)
+        fetchCustomers(CORPORATE_CUSTOMERS_LIST)
     }, [])
 
     const customerOptions = useMemo(() => {
-        if (!customerListRaw) return [ALL_OPTION]
-        const corporates = customerListRaw
-            .filter(ele => ele?.cust_type?.type_of_cust === "Corporate")
-            .map(ele => ({ value: ele.customer_name, label: ele.customer_name }))
+        if (!customerListRaw?.user) return [ALL_OPTION]
+        const corporates = customerListRaw.user
+            .filter(ele => ele?.cust_type?.type_of_cust === "Corporate" || ele?.cust_type?.type_of_cust === "Franchise")
+            .map(ele => ({ value: ele.customer_name, label: `${ele.customer_name} - ${ele.username}` }))
         return [ALL_OPTION, ...corporates]
     }, [customerListRaw])
 

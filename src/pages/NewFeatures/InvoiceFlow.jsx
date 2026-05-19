@@ -13,7 +13,8 @@ import {
     CORPORATE_INVOICE_GENERATE,
     CORPORATE_INVOICES_LIST,
     CORPORATE_INVOICE_BASE,
-    CORPORATE_CUSTOMERS_LIST
+    CORPORATE_CUSTOMERS_LIST,
+    GET_ADDRESS
 } from "../../api"
 import TableContainer from "../../components/Table/TableContainer"
 import ToasterProvider from "../../helpers/ToasterProvider"
@@ -25,6 +26,7 @@ const InvoiceFlow = () => {
     const { SuccessToaster, ErrorToaster } = ToasterProvider()
     const { apifunc: fetchCustomers, data: customerData, loading: customersLoading } = useGetApiCall()
     const { apifunc: fetchInvoices, data: invoicesData, loading: invoicesLoading } = usePostApiCall()
+    const { apifunc: fetchAddresses, data: addressData } = useGetApiCall()
     const { apifunc: apiGet } = useGetApiCall()
     const { apifunc: apiPost } = usePostApiCall()
 
@@ -53,16 +55,18 @@ const InvoiceFlow = () => {
     const [fromGstNo, setFromGstNo] = useState("")
     const [toPanNo, setToPanNo] = useState("")
     const [fromPanNo, setFromPanNo] = useState("")
-    const [showOverrides, setShowOverrides] = useState(false)
+    const [isOverrideModalOpen, setIsOverrideModalOpen] = useState(false)
+    const [companyAddresses, setCompanyAddresses] = useState([])
 
     useEffect(() => {
         fetchCustomers(CORPORATE_CUSTOMERS_LIST)
+        fetchAddresses(GET_ADDRESS)
     }, [])
 
     useEffect(() => {
         if (customerData?.user) {
             const formatted = customerData.user
-                .filter(ele => ele?.cust_type?.type_of_cust === "Corporate")
+                .filter(ele => ele?.cust_type?.type_of_cust === "Corporate" || ele?.cust_type?.type_of_cust === "Franchise")
                 .map(ele => ({
                     name: `${ele?.customer_name || ""} - ${ele?.username}`,
                     id: ele?.id,
@@ -74,13 +78,29 @@ const InvoiceFlow = () => {
     }, [customerData])
 
     useEffect(() => {
+        if (addressData) {
+            setCompanyAddresses(addressData)
+        }
+    }, [addressData])
+
+    useEffect(() => {
         if (activeTab === "2") {
-            loadInvoices()
+            if (selectedCustomer) {
+                loadInvoices()
+            } else {
+                setInvoices([])
+            }
         }
     }, [activeTab, selectedCustomer])
 
     const loadInvoices = async () => {
-        const body = selectedCustomer ? { customer_id: selectedCustomer.id } : {}
+        const body = { 
+            start_date: startDate,
+            end_date: endDate
+        }
+        if (selectedCustomer) {
+            body.customer_id = selectedCustomer.id
+        }
         await fetchInvoices(CORPORATE_INVOICES_LIST, body)
     }
 
@@ -166,13 +186,13 @@ const InvoiceFlow = () => {
                 if (result.status === "error") {
                     ErrorToaster(`Generation Error: ${result.msg || "Internal Server Error"}`)
                 } else {
-                    const invData = result.pdf_invoice || result
+                    const invData = result.context?.pdf_invoice || result.results || result.pdf_invoice || result
                     if (result.status === "already_exists") {
                         SuccessToaster(result.msg || "Invoice already exists. Opening...")
-                        setPdfData(result.results || result.pdf_invoice || result)
+                        setPdfData(invData)
                     } else {
                         SuccessToaster("Invoice generated successfully")
-                        setPdfData(result.pdf_invoice || result)
+                        setPdfData(invData)
                     }
                     setIsPdfModalOpen(true)
                     setPreviewData(null)
@@ -194,6 +214,14 @@ const InvoiceFlow = () => {
             setIsEditModalOpen(true)
         }
         setEditLoading(false)
+    }
+
+    const handleViewInvoice = async (invoice) => {
+        const result = await apiGet(`${CORPORATE_INVOICE_BASE}${invoice.id}/`)
+        if (result) {
+            setPdfData(result)
+            setIsPdfModalOpen(true)
+        }
     }
 
     const handleUpdateInvoice = async () => {
@@ -248,7 +276,7 @@ const InvoiceFlow = () => {
                         <Button color="info" size="sm" onClick={() => handleEditInvoice(inv)}>
                             <MdEdit size={18} />
                         </Button>
-                        <Button color="primary" size="sm" onClick={() => { setPdfData(inv); setIsPdfModalOpen(true); }}>
+                        <Button color="primary" size="sm" onClick={() => handleViewInvoice(inv)}>
                             <MdVisibility size={18} />
                         </Button>
                         <Button color="success" size="sm" onClick={() => handleDownloadPDF(inv.id)}>
@@ -323,57 +351,7 @@ const InvoiceFlow = () => {
                             {!previewData ? (
                                 <Card className="shadow-sm border-0 mb-4">
                                     <CardBody className="p-4">
-                                        <div className="d-flex justify-content-between align-items-center mb-3">
-                                            <h5 className="mb-0 fw-bold">1. Upload Working Excel</h5>
-                                            <Button 
-                                                color="link" 
-                                                className="text-decoration-none p-0" 
-                                                onClick={() => setShowOverrides(!showOverrides)}
-                                            >
-                                                {showOverrides ? "- Hide Optional Overrides" : "+ Show Optional Overrides"}
-                                            </Button>
-                                        </div>
-
-                                        {showOverrides && (
-                                            <div className="bg-light p-3 rounded mb-4 animate__animated animate__fadeIn">
-                                                <h6 className="fw-bold mb-3 text-primary">Optional Overrides (CSV/Excel Values will be used if left empty)</h6>
-                                                <Row>
-                                                    <Col md={4}>
-                                                        <FormGroup>
-                                                            <Label className="small fw-bold">Custom Invoice Date</Label>
-                                                            <Input type="date" value={invoiceDate} onChange={(e) => setInvoiceDate(e.target.value)} />
-                                                        </FormGroup>
-                                                    </Col>
-                                                    <Col md={4}>
-                                                        <FormGroup>
-                                                            <Label className="small fw-bold">From GST No</Label>
-                                                            <Input type="text" placeholder="GSTR from override" value={fromGstNo} onChange={(e) => setFromGstNo(e.target.value)} />
-                                                        </FormGroup>
-                                                    </Col>
-                                                    <Col md={4}>
-                                                        <FormGroup>
-                                                            <Label className="small fw-bold">To GST No</Label>
-                                                            <Input type="text" placeholder="GSTR to override" value={toGstNo} onChange={(e) => setToGstNo(e.target.value)} />
-                                                        </FormGroup>
-                                                    </Col>
-                                                </Row>
-                                                <Row>
-                                                    <Col md={4}></Col>
-                                                    <Col md={4}>
-                                                        <FormGroup>
-                                                            <Label className="small fw-bold">From PAN No</Label>
-                                                            <Input type="text" placeholder="PAN from override" value={fromPanNo} onChange={(e) => setFromPanNo(e.target.value)} />
-                                                        </FormGroup>
-                                                    </Col>
-                                                    <Col md={4}>
-                                                        <FormGroup>
-                                                            <Label className="small fw-bold">To PAN No</Label>
-                                                            <Input type="text" placeholder="PAN to override" value={toPanNo} onChange={(e) => setToPanNo(e.target.value)} />
-                                                        </FormGroup>
-                                                    </Col>
-                                                </Row>
-                                            </div>
-                                        )}
+                                        <h5 className="mb-4 fw-bold">1. Upload Working Excel</h5>
 
                                         <div className="text-center p-5 border-2 border-dashed rounded bg-soft-light">
                                             <div className="mb-4">
@@ -381,20 +359,31 @@ const InvoiceFlow = () => {
                                             </div>
                                             <h4>Select File</h4>
                                             <p className="text-muted mb-4">Choose the Excel file from Billing Working.</p>
+                                            <p className="text-muted small mb-4">
+                                                <i className="mdi mdi-information-outline me-1"></i>
+                                                You can optionally set Invoice Date, GST &amp; PAN overrides before selecting the file.
+                                            </p>
                                             <div className="d-flex justify-content-center">
-                                                <div className="position-relative">
-                                                    <input
-                                                        type="file"
-                                                        accept=".xlsx, .xls"
-                                                        style={{ display: "none" }}
-                                                        id="invoice-upload"
-                                                        onChange={handleFileUpload}
-                                                        disabled={uploading}
-                                                    />
-                                                    <Button color="success" className="px-5 py-2" onClick={() => document.getElementById('invoice-upload').click()}>
-                                                        {uploading ? <><Spinner size="sm" className="me-2" /> Uploading...</> : <><MdFileUpload size={20} className="me-2" /> Choose Working File</>}
-                                                    </Button>
-                                                </div>
+                                                {/* Hidden file input — triggered from the overrides modal */}
+                                                <input
+                                                    type="file"
+                                                    accept=".xlsx, .xls"
+                                                    style={{ display: "none" }}
+                                                    id="invoice-upload"
+                                                    onChange={handleFileUpload}
+                                                    disabled={uploading}
+                                                />
+                                                <Button
+                                                    color="success"
+                                                    className="px-5 py-2"
+                                                    disabled={uploading}
+                                                    onClick={() => setIsOverrideModalOpen(true)}
+                                                >
+                                                    {uploading
+                                                        ? <><Spinner size="sm" className="me-2" /> Uploading...</>
+                                                        : <><MdFileUpload size={20} className="me-2" /> Choose Working File</>
+                                                    }
+                                                </Button>
                                             </div>
                                         </div>
                                     </CardBody>
@@ -507,6 +496,25 @@ const InvoiceFlow = () => {
                                                 placeholder={customersLoading ? "Loading..." : "All Customers"}
                                                 className="w-100"
                                                 value={selectedCustomer ? selectedCustomer.name : "select"}
+                                            />
+                                        </Col>
+                                        <Col md={2}>
+                                            <Label className="fw-bold">Start Date</Label>
+                                            <Input
+                                                type="date"
+                                                value={startDate}
+                                                max={endDate || new Date().toISOString().split('T')[0]}
+                                                onChange={(e) => setStartDate(e.target.value)}
+                                            />
+                                        </Col>
+                                        <Col md={2}>
+                                            <Label className="fw-bold">End Date</Label>
+                                            <Input
+                                                type="date"
+                                                value={endDate}
+                                                min={startDate}
+                                                max={new Date().toISOString().split('T')[0]}
+                                                onChange={(e) => setEndDate(e.target.value)}
                                             />
                                         </Col>
                                         <Col md={2}>
@@ -920,11 +928,157 @@ const InvoiceFlow = () => {
                 </ModalFooter>
             </Modal>
 
+            {/* Overrides Modal — shown before file picker */}
+            <Modal
+                isOpen={isOverrideModalOpen}
+                toggle={() => setIsOverrideModalOpen(false)}
+                size="lg"
+                centered
+            >
+                <ModalHeader toggle={() => setIsOverrideModalOpen(false)}>
+                    <span className="fw-bold">
+                        <i className="mdi mdi-tune-variant me-2 text-primary"></i>
+                        Optional Overrides
+                    </span>
+                </ModalHeader>
+                <ModalBody>
+                    <p className="text-muted mb-4">
+                        All fields below are <strong>optional</strong>. If left empty, values from the Excel file will be used.
+                        Fill in any field you want to override, then click <strong>Continue &amp; Select File</strong>.
+                    </p>
+
+                    <Row className="mb-2">
+                        <Col md={4}>
+                            <FormGroup>
+                                <Label className="fw-bold small">
+                                    <i className="mdi mdi-calendar-outline me-1 text-primary"></i>
+                                    Custom Invoice Date
+                                    <span className="text-muted fw-normal ms-1">(optional)</span>
+                                </Label>
+                                <Input
+                                    type="date"
+                                    value={invoiceDate}
+                                    onChange={(e) => setInvoiceDate(e.target.value)}
+                                />
+                            </FormGroup>
+                        </Col>
+                    </Row>
+
+                    <hr className="my-3" />
+                    <h6 className="fw-bold text-secondary mb-3">GST Numbers</h6>
+                    <Row>
+                        <Col md={6}>
+                            <FormGroup>
+                                <Label className="fw-bold small">
+                                    From GST No
+                                    <span className="text-muted fw-normal ms-1">(optional)</span>
+                                </Label>
+                                <Input
+                                    type="select"
+                                    value={fromGstNo}
+                                    onChange={(e) => setFromGstNo(e.target.value)}
+                                >
+                                    <option value="">Select From GST (Optional)</option>
+                                    {companyAddresses.map((addr) => (
+                                        <option key={addr.id} value={addr.gst_no}>
+                                            {addr.state} | {addr.gst_no}
+                                        </option>
+                                    ))}
+                                </Input>
+                            </FormGroup>
+                        </Col>
+                        <Col md={6}>
+                            <FormGroup>
+                                <Label className="fw-bold small">
+                                    To GST No
+                                    <span className="text-muted fw-normal ms-1">(optional)</span>
+                                </Label>
+                                <Input
+                                    type="text"
+                                    placeholder="Leave empty to use Excel value"
+                                    value={toGstNo}
+                                    onChange={(e) => setToGstNo(e.target.value)}
+                                />
+                            </FormGroup>
+                        </Col>
+                    </Row>
+
+                    <hr className="my-3" />
+                    {/* <h6 className="fw-bold text-secondary mb-3">PAN Numbers</h6> */}
+                    {/* <Row>
+                        <Col md={6}>
+                            <FormGroup>
+                                <Label className="fw-bold small">
+                                    From PAN No
+                                    <span className="text-muted fw-normal ms-1">(optional)</span>
+                                </Label>
+                                <Input
+                                    type="text"
+                                    placeholder="Leave empty to use Excel value"
+                                    value={fromPanNo}
+                                    onChange={(e) => setFromPanNo(e.target.value)}
+                                />
+                            </FormGroup>
+                        </Col>
+                        <Col md={6}>
+                            <FormGroup>
+                                <Label className="fw-bold small">
+                                    To PAN No
+                                    <span className="text-muted fw-normal ms-1">(optional)</span>
+                                </Label>
+                                <Input
+                                    type="text"
+                                    placeholder="Leave empty to use Excel value"
+                                    value={toPanNo}
+                                    onChange={(e) => setToPanNo(e.target.value)}
+                                />
+                            </FormGroup>
+                        </Col>
+                    </Row> */}
+                </ModalBody>
+                <ModalFooter>
+                    <Button
+                        color="secondary"
+                        outline
+                        onClick={() => {
+                            // Clear overrides and close without selecting
+                            setInvoiceDate("")
+                            setFromGstNo("")
+                            setToGstNo("")
+                            setFromPanNo("")
+                            setToPanNo("")
+                            setIsOverrideModalOpen(false)
+                        }}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        color="success"
+                        className="px-4"
+                        onClick={() => {
+                            setIsOverrideModalOpen(false)
+                            // Small delay so modal closes before file picker opens
+                            setTimeout(() => {
+                                const input = document.getElementById("invoice-upload")
+                                if (input) {
+                                    input.value = "" // reset so same file can be re-selected
+                                    input.click()
+                                }
+                            }, 150)
+                        }}
+                    >
+                        <MdFileUpload size={18} className="me-2" />
+                        Continue &amp; Select File
+                    </Button>
+                </ModalFooter>
+            </Modal>
+
             {/* PDF Preview Modal using shared component */}
             <ViewInvoice 
                 isOpen={isPdfModalOpen} 
                 toggle={() => setIsPdfModalOpen(false)} 
                 invoiceData={pdfData} 
+                downloadUrl={pdfData?.id ? `${CORPORATE_INVOICE_BASE}${pdfData.id}/download-pdf/` : null}
             />
         </React.Fragment>
     )

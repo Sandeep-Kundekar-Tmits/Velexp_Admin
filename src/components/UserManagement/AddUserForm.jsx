@@ -277,12 +277,7 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
         if (!formData?.industry) {
             errors.industry = 'industry is required';
         }
-        // GST is required — must be entered and verified
-        if (!formData.gst_no?.trim()) {
-            errors.gst_no = 'GST number is required.';
-        } else if (!gstVerified) {
-            errors.gst_no = 'Please validate your GST number before proceeding.';
-        }
+        // GST is optional
 
         console.log(errors, "errors")
 
@@ -305,7 +300,7 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
                 <Row>
                     <Col md={6}>
                         <FormGroup>
-                            <Label>GST No</Label>
+                            <Label>GST No (Optional)</Label>
                             <div className="d-flex gap-2 align-items-start">
                                 <div style={{ flex: 1 }}>
                                     <Input

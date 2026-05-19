@@ -13,7 +13,7 @@ import { GridLoader } from "react-spinners"
 
 const ShipmentBilling = () => {
     const { apifunc: fetchCustomers, data: customerData, loading: customersLoading } = useGetApiCall()
-    const { apifunc: triggerSync, loading: syncing } = usePostApiCall(null, "Sync triggered successfully")
+    const { apifunc: triggerSync, loading: syncing } = usePostApiCall(null, "Sync successfully")
     const { apifunc: triggerAudit, data: auditData, loading: auditing } = usePostApiCall()
 
     const [customers, setCustomers] = useState([])
@@ -31,7 +31,7 @@ const ShipmentBilling = () => {
     useEffect(() => {
         if (customerData?.user) {
             const formatted = customerData.user
-                .filter(ele => ele?.cust_type?.type_of_cust === "Corporate")
+                .filter(ele => ele?.cust_type?.type_of_cust === "Corporate" || ele?.cust_type?.type_of_cust === "Franchise")
                 .map(ele => ({
                     name: `${ele?.customer_name || ""} - ${ele?.username}`,
                     id: ele?.id,
@@ -250,7 +250,24 @@ const ShipmentBilling = () => {
                     {report && (
                         <div className="animate__animated animate__fadeIn">
                             {/* Summary Cards */}
-                            <Row className="mb-4 g-3">
+                            <Row className="mb-4 g-3 flex-nowrap overflow-auto pb-2">
+                                <style>{`
+                                    .overflow-auto::-webkit-scrollbar {
+                                        height: 5px;
+                                    }
+                                    .overflow-auto::-webkit-scrollbar-track {
+                                        background: #f1f1f1;
+                                        border-radius: 10px;
+                                    }
+                                    .overflow-auto::-webkit-scrollbar-thumb {
+                                        background: #ccc;
+                                        border-radius: 10px;
+                                    }
+                                    .overflow-auto::-webkit-scrollbar-thumb:hover {
+                                        background: #999;
+                                    }
+                                    .last-child-border-0:last-child { border-right: 0 !important; }
+                                `}</style>
                                 <Col md={3}>
                                     <Card className="text-center border-0 shadow-sm bg-primary text-white h-100">
                                         <CardBody className="d-flex flex-column justify-content-center py-2">
@@ -267,12 +284,12 @@ const ShipmentBilling = () => {
                                         </CardBody>
                                     </Card>
                                 </Col>
-                                <Col md={6}>
+                                <Col md={6} style={{ minWidth: '400px' }}>
                                     <Card className="border-0 shadow-sm h-100">
-                                        <CardBody className="py-2 d-flex align-items-center">
-                                            <div className="d-flex justify-content-around text-center w-100">
+                                        <CardBody className="py-2 d-flex align-items-center overflow-auto">
+                                            <div className="d-flex justify-content-around text-center w-100 flex-nowrap">
                                                 {report.reason_counts && Object.entries(report.reason_counts).map(([key, val]) => (
-                                                    <div key={key} className="px-3 border-end last-child-border-0">
+                                                    <div key={key} className="px-3 border-end last-child-border-0" style={{ minWidth: 'fit-content' }}>
                                                         <h6 className="text-muted small text-uppercase mb-1" style={{ fontSize: '0.65rem' }}>{key.replace(/_/g, ' ')}</h6>
                                                         <h5 className="mb-0 fw-bold">{val}</h5>
                                                     </div>

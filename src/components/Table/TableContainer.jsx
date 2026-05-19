@@ -298,15 +298,14 @@ const TableContainer = ({
 
                 <div
                     style={{
-                        // borderTop: "solid #B0ACAC 1px",
                         ...(tableHeight ? { maxHeight: tableHeight, overflow: 'auto' } : {})
                     }}
                     className={divClassName ? divClassName : "table-responsive"}
                 >
-                    <Table hover className={tableClass} bordered={isBordered}>
+                    <Table hover className={`${tableClass} mb-0`} bordered={isBordered} style={{ borderCollapse: 'separate', borderSpacing: 0 }}>
                         <thead
                             className={`${theadClass} bg-light`}
-                            style={isStickyHeader ? { position: 'sticky', borderTop: "1px solid #B0ACAC", top: stickyTop, zIndex: 2 } : {}}
+                            style={isStickyHeader ? { position: 'sticky', top: stickyTop, zIndex: 2 } : { position: 'sticky', top: 0, zIndex: 2 }}
                         >
                             {table.getHeaderGroups().map(headerGroup => (
                                 <tr key={headerGroup.id}>
@@ -325,13 +324,25 @@ const TableContainer = ({
                                                     border: 'solid #B0ACAC 1px',
                                                     verticalAlign: 'middle',
                                                     textAlign: 'center',
-                                                    backgroundColor: '#f8f9fa' // Ensure background color for sticky
+                                                    backgroundColor: '#f8f9fa',
+                                                    cursor: header.column.getCanSort() ? "pointer" : "default"
                                                 }}
+                                                onClick={header.column.getToggleSortingHandler()}
                                             >
-                                                {flexRender(
-                                                    header.column.columnDef.header,
-                                                    header.getContext()
-                                                )}
+                                                <div className="d-flex align-items-center justify-content-center">
+                                                    {flexRender(
+                                                        header.column.columnDef.header,
+                                                        header.getContext()
+                                                    )}
+                                                    {header.column.getCanSort() && (
+                                                        <span className="ms-1" style={{ fontSize: "12px", color: "#888" }}>
+                                                            {{
+                                                                asc: <i className="mdi mdi-arrow-up"></i>,
+                                                                desc: <i className="mdi mdi-arrow-down"></i>,
+                                                            }[header.column.getIsSorted()] ?? <i className="mdi mdi-sort"></i>}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </th>
                                         );
                                     })}
@@ -352,8 +363,18 @@ const TableContainer = ({
                                                 style={{ cursor: handleUserClick ? "pointer" : "default" }}
                                             >
                                                 {row.getVisibleCells().map(cell => {
+                                                    const isActionOrSelect = cell.column.id === 'select' || cell.column.id === 'action' || cell.column.id === 'actions';
                                                     return (
-                                                        <td className="text-wrap " key={cell.id}>
+                                                        <td 
+                                                            className="text-wrap" 
+                                                            key={cell.id}
+                                                            style={{
+                                                                verticalAlign: 'middle',
+                                                                textAlign: isActionOrSelect ? 'center' : 'left',
+                                                                padding: '10px 12px',
+                                                                border: 'solid #eee 1px'
+                                                            }}
+                                                        >
                                                             {flexRender(
                                                                 cell.column.columnDef.cell,
                                                                 cell.getContext()

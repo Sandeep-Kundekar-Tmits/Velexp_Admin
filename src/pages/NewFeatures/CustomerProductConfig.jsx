@@ -9,7 +9,7 @@ import { CORPORATE_BILLING_CONFIG, CORPORATE_CUSTOMERS_LIST, GET_CORPORATE_CUSTO
 import TableContainer from "../../components/Table/TableContainer"
 import { MdDelete, MdVisibility, MdEdit } from "react-icons/md"
 
-const CustomerProductConfig = () => {
+const CustomerProductConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeader = false }) => {
     const { apifunc: fetchCustomers, data: customerData, loading: customersLoading } = useGetApiCall()
     const { apifunc: fetchProducts, data: productData, loading: productsLoading } = useGetApiCall()
     const { apifunc: fetchConfigs, data: configData, loading: configsLoading } = useGetApiCall()
@@ -61,6 +61,12 @@ const CustomerProductConfig = () => {
     }, [selectedCustomerId, isListView])
 
     useEffect(() => {
+        if (externalCustomerId && externalCustomerId !== selectedCustomerId) {
+            setSelectedCustomerId(externalCustomerId)
+        }
+    }, [externalCustomerId])
+
+    useEffect(() => {
         if (configData) {
             setConfigList(configData.results || (Array.isArray(configData) ? configData : []))
         }
@@ -78,7 +84,7 @@ const CustomerProductConfig = () => {
     useEffect(() => {
         if (customerData?.user) {
             const formatted = customerData.user
-                .filter(ele => ele?.cust_type?.type_of_cust === "Corporate")
+                .filter(ele => ele?.cust_type?.type_of_cust === "Corporate" || ele?.cust_type?.type_of_cust === "Franchise")
                 .map(ele => ({
                     name: `${ele?.customer_name || ""} - ${ele?.username}`,
                     id: ele?.id,
@@ -233,6 +239,8 @@ const CustomerProductConfig = () => {
         },
         {
             header: "Actions",
+            id: "actions",
+            enableSorting: false,
             cell: (cell) => (
                 <div className="d-flex gap-2 justify-content-center">
                     <Button color="info" size="sm" title="View Details" onClick={() => handleView(cell.row.original)}>
@@ -252,11 +260,13 @@ const CustomerProductConfig = () => {
     return (
         <React.Fragment>
             <div className='page-content py-0 px-0'>
-                <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                    <MainHeaderComp
-                        title="Customer Product Config"
-                    />
-                </div>
+                {!hideHeader && (
+                    <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
+                        <MainHeaderComp
+                            title="Customer Product Config"
+                        />
+                    </div>
+                )}
                 <div className="container-fluid px-3 py-3">
                     <div className="d-flex justify-content-between align-items-center mb-3">
                         <h5 className="mb-0">{isListView ? "Configuration List" : (isEdit ? "Edit Configuration" : "Add Configuration")}</h5>
@@ -278,20 +288,26 @@ const CustomerProductConfig = () => {
                     {isListView ? (
                         <Card className="shadow-sm">
                             <CardBody className={selectedCustomerId ? "p-0" : "p-3"}>
-                                <div className="p-3 bg-light border-bottom">
-                                    <Row>
-                                        <Col md={4}>
-                                            <Label className="fw-bold">Filter by Customer</Label>
-                                            <SearchableDropdown
-                                                onChange={(val) => setSelectedCustomerId(val?.id || "")}
-                                                locations={customers}
-                                                placeholder={customersLoading ? "Loading..." : "Select Customer"}
-                                                className="w-100"
-                                                value={selectedCustomerId ? (customers.find(c => c.id === selectedCustomerId)?.name || "Select Customer") : "select"}
-                                            />
-                                        </Col>
-                                    </Row>
-                                </div>
+                                {!hideHeader && (
+                                    <div className="p-3 bg-light border-bottom">
+                                        <Row>
+                                            <Col md={4}>
+                                                <Label className="fw-bold">Filter by Customer</Label>
+                                                <SearchableDropdown
+                                                    onChange={(val) => {
+                                                        const id = val?.id || ""
+                                                        setSelectedCustomerId(id)
+                                                        if (onCustomerChange) onCustomerChange(val)
+                                                    }}
+                                                    locations={customers}
+                                                    placeholder={customersLoading ? "Loading..." : "Select Customer"}
+                                                    className="w-100"
+                                                    value={selectedCustomerId ? (customers.find(c => c.id === selectedCustomerId)?.name || "Select Customer") : "select"}
+                                                />
+                                            </Col>
+                                        </Row>
+                                    </div>
+                                )}
                                 
                                 {!selectedCustomerId ? (
                                     <div className="text-center p-5">

@@ -1,4 +1,4 @@
-import { Button, Col, FormGroup, Label, Row } from "reactstrap"
+import { Button, Col, FormGroup, Label, Row, Input } from "reactstrap"
 import SearchableDropdown from "../../../components/Common/SearchableDropdown"
 import { useEffect, useMemo, useState } from "react"
 import { useGetApiCall } from "../../../hooks/useGetApiCall"
@@ -177,10 +177,8 @@ const EditInvoice = () => {
     // states
     const [Customes, setCustomers] = useState([])
     const [SelectedCustomer, setSelectedCustomer] = useState(null)
-    const [selectedRange, setSelectedRange] = useState({
-        startDate: null,
-        endDate: null,
-    });
+    const [startDate, setStartDate] = useState("")
+    const [endDate, setEndDate] = useState("")
     const [TableData, setTableData] = useState([])
     const [SelectedInfo, setSelectedInfo] = useState(null)
     const [ExcleLoading, setExcleLoading] = useState(false)
@@ -189,9 +187,7 @@ const EditInvoice = () => {
     const handleLocationChange = (value) => {
         setSelectedCustomer(value);
     };
-    const handleDateChange = (range) => {
-        setSelectedRange(range);
-    };
+    // handleDateChange removed as we use separate inputs
 
     //  view 
     const handleView = (item) => {
@@ -274,27 +270,19 @@ const EditInvoice = () => {
     //  get edit invoice api call
     const GetFilteredEditInvoiceFunc = async () => {
         setTableData([])
-        // if (!SelectedCustomer) {
-        //     alert("selcted the customer")
-        //     return
-        // }
-        if (!selectedRange.startDate || !selectedRange.endDate) {
-            alert("select the data range")
+        if (!startDate || !endDate) {
+            alert("Please select both start and end dates")
             return
         }
-        let updatedDate = formatDateForPayload(selectedRange);
 
+        // URL construction using YYYY-MM-DD directly from state
+        let URL = `${FILTER_EDIT_ENVOICE}?from_date=${startDate}&to_date=${endDate}&customer_name=${SelectedCustomer?.name || ''}`;
 
-        let URL = `${FILTER_EDIT_ENVOICE}?from_date=${reformatDate(updatedDate.from_date)}&to_date=${reformatDate(updatedDate.to_date)}&customer_name=${SelectedCustomer?.name}`;
-
-        let URL_WITHOUT_USER = `${FILTER_EDIT_ENVOICE}?from_date=${reformatDate(updatedDate.from_date)}&to_date=${reformatDate(updatedDate.to_date)}`;
         // calling the api 
-        let filterdData = await GetFilterEditEnvoice(SelectedCustomer ? URL : URL_WITHOUT_USER)
+        let filterdData = await GetFilterEditEnvoice(URL)
         if (filterdData) {
-            // setting the data in to the state
             setTableData(filterdData)
         }
-
     }
 
     // donwload the Edit Envoice Data data
@@ -380,13 +368,28 @@ const EditInvoice = () => {
                             />
                         </FormGroup>
                     </Col>
-                    <Col md={4} lg={3}>
+                    <Col md={4} lg={2}>
                         <FormGroup className="mb-0">
-                            <Label className="form-label fw-bold">Select Date Range</Label>
-                            <DateRangeInput
-                                value={selectedRange}
-                                onChange={handleDateChange}
-                                isBorder={true}
+                            <Label className="form-label fw-bold">Start Date</Label>
+                            <Input
+                                type="date"
+                                value={startDate}
+                                max={endDate || new Date().toISOString().split('T')[0]}
+                                onChange={(e) => setStartDate(e.target.value)}
+                                style={{ height: "38px" }}
+                            />
+                        </FormGroup>
+                    </Col>
+                    <Col md={4} lg={2}>
+                        <FormGroup className="mb-0">
+                            <Label className="form-label fw-bold">End Date</Label>
+                            <Input
+                                type="date"
+                                value={endDate}
+                                min={startDate}
+                                max={new Date().toISOString().split('T')[0]}
+                                onChange={(e) => setEndDate(e.target.value)}
+                                style={{ height: "38px" }}
                             />
                         </FormGroup>
                     </Col>

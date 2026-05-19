@@ -83,6 +83,7 @@ const ShipmentBilling = lazy(() => import("../pages/NewFeatures/ShipmentBilling"
 const BillingWorking = lazy(() => import("../pages/NewFeatures/BillingWorking"));
 const InvoiceFlow = lazy(() => import("../pages/NewFeatures/InvoiceFlow"));
 const AllBooking = lazy(() => import("../pages/NewFeatures/AllBooking"));
+const BillMaster = lazy(() => import("../pages/NewFeatures/BillMaster"));
 const CODReconciliation = lazy(() => import("../pages/Dashboard/CODReconciliation"));
 const ITrack = lazy(() => import("../pages/ITrack/ITrack"));
 
@@ -162,6 +163,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/billing-working", component: <BillingWorking /> },
     { path: "/invoice-flow", component: <InvoiceFlow /> },
     { path: "/all-booking", component: <AllBooking /> },
+    { path: "/bill-master", component: <BillMaster /> },
     { path: "/intl-pincode", component: <InternationPincode /> },
 
     //  rate data

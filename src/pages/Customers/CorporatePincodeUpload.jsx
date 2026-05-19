@@ -13,11 +13,11 @@ import { usePutApiCall } from "../../hooks/usePutApuCall";
 import { useDeleteApiCall } from "../../hooks/useDeleteApiCall";
 import ToasterProvider from "../../helpers/ToasterProvider";
 import DeleteModal from "../../components/Common/DeleteModal";
-import { GET_USER_API, IMPORT_CORPORATE_PINCODE_DATA, GET_CORPORATE_CUSTOMER_PINCODE_LIST, GET_CORPORATE_CUSTOMER_PRODUCTS, PRODUCT_LIST } from "../../api";
+import { CORPORATE_CUSTOMERS_LIST, IMPORT_CORPORATE_PINCODE_DATA, GET_CORPORATE_CUSTOMER_PINCODE_LIST, GET_CORPORATE_CUSTOMER_PRODUCTS, PRODUCT_LIST } from "../../api";
 import SimpleModal from "../../components/SimpleModal";
 import TableContainer from "../../components/Table/TableContainer";
 
-const CorporatePincodeUpload = () => {
+const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = null, hideHeader = false }) => {
     const { ErrorToaster, SucceesToaster } = ToasterProvider();
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [excelData, setExcelData] = useState([]);
@@ -40,11 +40,20 @@ const CorporatePincodeUpload = () => {
     const { apifunc: GetGlobalProducts, data: globalProductsRaw } = useGetApiCall();
 
     const [pincodeList, setPincodeList] = useState([]);
+    const [selectedPincodeIds, setSelectedPincodeIds] = useState([]);
+    const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+    const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
 
     useEffect(() => {
-        GetCustomers(`${GET_USER_API}/`);
+        GetCustomers(CORPORATE_CUSTOMERS_LIST);
         GetGlobalProducts(PRODUCT_LIST);
     }, []);
+
+    useEffect(() => {
+        if (externalCustomer && externalCustomer?.id !== selectedCustomer?.id) {
+            setSelectedCustomer(externalCustomer)
+        }
+    }, [externalCustomer])
 
     const fetchPincodes = (customerId) => {
         if (customerId) {
@@ -108,17 +117,18 @@ const CorporatePincodeUpload = () => {
         if (pincodeDataRaw) {
             const list = pincodeDataRaw.result || (Array.isArray(pincodeDataRaw) ? pincodeDataRaw : (pincodeDataRaw.results || []));
             setPincodeList(list);
+            setSelectedPincodeIds([]);  // reset selection on data refresh
         }
     }, [pincodeDataRaw]);
 
     const customerOptions = useMemo(() => {
-        if (!customerListRaw) return [];
-        return customerListRaw
-            .filter(ele => ele?.cust_type?.type_of_cust === "Corporate")
+        if (!customerListRaw?.user) return [];
+        return customerListRaw.user
+            .filter(ele => ele?.cust_type?.type_of_cust === "Corporate" || ele?.cust_type?.type_of_cust === "Franchise")
             .map(ele => ({
                 id: ele.id,
                 value: ele.customer_name,
-                label: ele.customer_name
+                label: `${ele.customer_name} - ${ele.username}`
             }));
     }, [customerListRaw]);
 
@@ -420,6 +430,26 @@ const CorporatePincodeUpload = () => {
         }
     };
 
+    const handleBulkDeletePincodes = async () => {
+        setIsBulkDeleting(true);
+        let successCount = 0;
+        for (const id of selectedPincodeIds) {
+            try {
+                await deleteSinglePincode(`${GET_CORPORATE_CUSTOMER_PINCODE_LIST}${id}/?customer_id=${selectedCustomer.id}`);
+                successCount++;
+            } catch (_) {}
+        }
+        setIsBulkDeleting(false);
+        setIsBulkDeleteModalOpen(false);
+        setSelectedPincodeIds([]);
+        if (successCount > 0) {
+            SucceesToaster(`${successCount} pincode(s) deleted successfully!`);
+            fetchPincodes(selectedCustomer.id);
+        } else {
+            ErrorToaster("Failed to delete selected pincodes.");
+        }
+    };
+
     useEffect(() => {
         if (singlePincodeRaw) {
             const data = singlePincodeRaw.result || singlePincodeRaw;
@@ -484,7 +514,42 @@ const CorporatePincodeUpload = () => {
         downloadTemplate(templateData, "Corporate_Pincode_Import_Template");
     };
 
+    const allSelected = pincodeList.length > 0 && pincodeList.every(p => selectedPincodeIds.includes(p.id));
+
     const columns = useMemo(() => [
+        {
+            id: "select",
+            header: () => (
+                <input
+                    type="checkbox"
+                    style={{ cursor: "pointer" }}
+                    checked={allSelected}
+                    onChange={(e) => {
+                        if (e.target.checked) {
+                            setSelectedPincodeIds(pincodeList.map(p => p.id));
+                        } else {
+                            setSelectedPincodeIds([]);
+                        }
+                    }}
+                />
+            ),
+            cell: ({ row }) => (
+                <input
+                    type="checkbox"
+                    style={{ cursor: "pointer" }}
+                    checked={selectedPincodeIds.includes(row.original.id)}
+                    onChange={(e) => {
+                        const id = row.original.id;
+                        setSelectedPincodeIds(prev =>
+                            e.target.checked ? [...prev, id] : prev.filter(x => x !== id)
+                        );
+                    }}
+                />
+            ),
+            enableSorting: false,
+            enableColumnFilter: false,
+            size: 40,
+        },
         {
             header: "Pincode",
             accessorKey: "pincode",
@@ -511,17 +576,20 @@ const CorporatePincodeUpload = () => {
         },
         {
             header: "Products",
-            accessorKey: "products",
-            cell: (cell) => {
-                const products = cell.getValue() || cell.row.original.services;
+            id: "products",
+            accessorFn: (row) => {
+                const products = row.products || row.services;
                 if (Array.isArray(products)) {
                     return products.map(s => s.product_name || "N/A").join(", ");
                 }
                 return "N/A";
-            }
+            },
+            cell: (cell) => cell.getValue()
         },
         {
             header: "Action",
+            id: "action",
+            enableSorting: false,
             accessorKey: "id",
             cell: (cell) => (
                 <div className="d-flex gap-1 justify-content-center">
@@ -555,29 +623,34 @@ const CorporatePincodeUpload = () => {
                 </div>
             )
         }
-    ], [selectedCustomer, productOptions]);
+    ], [selectedCustomer, productOptions, selectedPincodeIds, pincodeList, allSelected]);
 
     return (
         <div className="page-content py-0 px-0">
-            <MainHeaderCom title="Pincode Upload" />
+            {!hideHeader && <MainHeaderCom title="Pincode Upload" />}
             <div className="container-fluid px-3 mt-4">
-                <Card>
+                <Card className="shadow-sm">
                     <CardBody>
                         <Row>
-                            <Col md={4}>
-                                <FormGroup>
-                                    <Label>Select Corporate Customer</Label>
-                                    <Select
-                                        options={customerOptions}
-                                        placeholder={customersLoading ? "Loading..." : "Search Customer"}
-                                        value={selectedCustomer}
-                                        onChange={setSelectedCustomer}
-                                        isClearable={true}
-                                        styles={customStyles}
-                                    />
-                                </FormGroup>
-                            </Col>
-                            <Col md={4}>
+                            {!hideHeader && (
+                                <Col md={4}>
+                                    <FormGroup>
+                                        <Label>Select Corporate Customer</Label>
+                                        <Select
+                                            options={customerOptions}
+                                            placeholder={customersLoading ? "Loading..." : "Search Customer"}
+                                            value={selectedCustomer}
+                                            onChange={(val) => {
+                                                setSelectedCustomer(val)
+                                                if (onCustomerChange) onCustomerChange(val)
+                                            }}
+                                            isClearable={true}
+                                            styles={customStyles}
+                                        />
+                                    </FormGroup>
+                                </Col>
+                            )}
+                            <Col md={hideHeader ? 6 : 4}>
                                 <FormGroup>
                                     <Label>File Upload (.xlsx)</Label>
                                     <Input
@@ -589,7 +662,7 @@ const CorporatePincodeUpload = () => {
                                     />
                                 </FormGroup>
                             </Col>
-                            <Col md={4} className="d-flex flex-column gap-2 mb-3 mt-4 align-items-start">
+                            <Col md={hideHeader ? 6 : 4} className="d-flex flex-column gap-2 mb-3 mt-4 align-items-start">
                                 <Button
                                     color="primary"
                                     onClick={validateAndUpload}
@@ -630,10 +703,22 @@ const CorporatePincodeUpload = () => {
                 </Card>
 
                 {selectedCustomer && (
-                    <Card className="mt-4 shadow-sm">
-                        <CardBody>
-                            <div className="d-flex justify-content-between align-items-center mb-3">
-                                <h5 className="mb-0">Existing Pincode Services: {selectedCustomer.label}</h5>
+                    <>
+                        <div className="d-flex justify-content-between align-items-center mb-3 mt-4">
+                            <h5 className="mb-0">Existing Pincode Services: {selectedCustomer.label}</h5>
+                            <div className="d-flex gap-2">
+                                {selectedPincodeIds.length > 0 && (
+                                    <Button
+                                        color="danger"
+                                        size="sm"
+                                        onClick={() => setIsBulkDeleteModalOpen(true)}
+                                        disabled={isBulkDeleting}
+                                        className="d-flex align-items-center gap-1"
+                                    >
+                                        {isBulkDeleting ? <Spinner size="sm" /> : <FaTrash />}
+                                        Delete Selected ({selectedPincodeIds.length})
+                                    </Button>
+                                )}
                                 <Button
                                     color="primary"
                                     size="sm"
@@ -642,25 +727,31 @@ const CorporatePincodeUpload = () => {
                                     Add Pincode
                                 </Button>
                             </div>
-                            {pincodesLoading ? (
-                                <div className="text-center p-5">
-                                    <Spinner color="primary" />
-                                    <p className="mt-2 text-muted">Fetching existing pincodes...</p>
-                                </div>
-                            ) : (
-                                <TableContainer
-                                    columns={columns}
-                                    data={pincodeList}
-                                    isGlobalFilter={true}
-                                    isPagination={true}
-                                    SearchPlaceholder="Search pincodes..."
-                                    pagination="pagination pagination-rounded justify-content-end mb-2"
-                                    paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                    tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline mb-0"
-                                />
-                            )}
-                        </CardBody>
-                    </Card>
+                        </div>
+                        <Card className="shadow-sm">
+                            <CardBody className="p-0">
+                                {pincodesLoading ? (
+                                    <div className="text-center p-5">
+                                        <Spinner color="primary" />
+                                        <p className="mt-2 text-muted">Fetching existing pincodes...</p>
+                                    </div>
+                                ) : (
+                                    <TableContainer
+                                        columns={columns}
+                                        data={pincodeList}
+                                        isGlobalFilter={true}
+                                        isPagination={true}
+                                        isCustomPageSize={true}
+                                        defaultPageSize={10}
+                                        SearchPlaceholder="Search pincodes..."
+                                        pagination="pagination pagination-rounded justify-content-end mb-2"
+                                        paginationWrapper='dataTables_paginate paging_simple_numbers'
+                                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline mb-0"
+                                    />
+                                )}
+                            </CardBody>
+                        </Card>
+                    </>
                 )}
             </div>
             <SimpleModal
@@ -998,6 +1089,24 @@ const CorporatePincodeUpload = () => {
                 }}
                 loading={deletingSinglePincode}
             />
+
+            {/* Bulk Delete Confirmation Modal */}
+            <SimpleModal
+                isOpen={isBulkDeleteModalOpen}
+                setIsOpen={setIsBulkDeleteModalOpen}
+                successButtonName={isBulkDeleting ? "Deleting..." : `Delete ${selectedPincodeIds.length} Pincode(s)`}
+                cancelButtonName="Cancel"
+                onCancel={() => setIsBulkDeleteModalOpen(false)}
+                onSuccess={handleBulkDeletePincodes}
+            >
+                <div>
+                    <p className="fw-bold text-danger mb-2">
+                        <i className="mdi mdi-alert-circle-outline me-1"></i>
+                        Are you sure you want to delete {selectedPincodeIds.length} selected pincode(s)?
+                    </p>
+                    <p className="text-muted small mb-0">This action cannot be undone.</p>
+                </div>
+            </SimpleModal>
         </div>
     );
 };

@@ -423,6 +423,23 @@ const SidebarContent = (props) => {
             }
 
             {
+              canCreateUser && <li>
+                <Link to="/#" className="has-arrow">
+                  <i className="bx bx-globe"></i>
+                  <span>{props.t("International Billing")}</span>
+                </Link>
+                <ul className="sub-menu" aria-expanded="false">
+                  <li>
+                    <Link to="/intl-rate-data">{props.t("International Rates")}</Link>
+                  </li>
+                  <li>
+                    <Link to="/intl-pincode">{props.t("International Pincodes")}</Link>
+                  </li>
+                </ul>
+              </li>
+            }
+
+            {
               canSeeBooking &&
               <>
                 {/* <Link to="/delivary-warehouse" className="has-arrow">
@@ -564,20 +581,11 @@ const SidebarContent = (props) => {
               <li>
                 <Link to="/#" className="has-arrow">
                   <i className="bx bx-receipt"></i>
-                  <span>{props.t("New Feature")}</span>
+                  <span>{props.t("Billing")}</span>
                 </Link>
                 <ul className="sub-menu" aria-expanded="false">
                   <li>
-                    <Link to="/corporate-pincode-upload">{props.t("Pincode")}</Link>
-                  </li>
-                  <li>
-                    <Link to="/corporate-rate-upload">{props.t("Rate")}</Link>
-                  </li>
-                  <li>
-                    <Link to="/customer-product-config">{props.t("Customer Product Config")}</Link>
-                  </li>
-                  <li>
-                    <Link to="/vas-config">{props.t("VAS")}</Link>
+                    <Link to="/bill-master">{props.t("Customer Billing")}</Link>
                   </li>
                   <li>
                     <Link to="/shipment-billing">{props.t("Shipment Billing")}</Link>

@@ -1,7 +1,7 @@
 import { Modal, ModalBody, ModalHeader } from "reactstrap"
 import InvoiceGenerator from "../../PdfComponents/InvoiceGenerator"
 
-const ViewInvoice = ({ isOpen, toggle, invoiceData }) => {
+const ViewInvoice = ({ isOpen, toggle, invoiceData, downloadUrl }) => {
     return (
         <Modal isOpen={isOpen} toggle={toggle} size="xl">
             <ModalHeader toggle={toggle}>
@@ -9,7 +9,7 @@ const ViewInvoice = ({ isOpen, toggle, invoiceData }) => {
             </ModalHeader>
             <ModalBody>
             
-                <InvoiceGenerator invoiceData={invoiceData} />
+                <InvoiceGenerator invoiceData={invoiceData} downloadUrl={downloadUrl} />
             </ModalBody>
         </Modal>
     )
