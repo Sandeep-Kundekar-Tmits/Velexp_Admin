@@ -152,10 +152,15 @@ const SidebarContent = (props) => {
 
 
 
-  const { 
-    canCreateUser, canAddPod, canCreateReport, invoice, canSeeBooking, 
-    canAccessNewFeatures, isAdmin, canAccessPrivileges, canTrackAWB, canApproveRTO, canAccessITrack 
+  const {
+    canCreateUser, canAddPod, canCreateReport, invoice, canSeeBooking,
+    canAccessNewFeatures, isAdmin, canAccessPrivileges, canTrackAWB, canApproveRTO, canAccessITrack,
+    canAccessOpsReports, canAccessAutoReconciliation, canAccessCustomerPerformance
   } = checkCustomerPermissions()
+
+  // Temporarily hidden for ALL users (re-enable by restoring the isAdmin gate below)
+  const showCodReconciliation = false
+  const showPopReconciliation = false
 
   return (
     <React.Fragment>
@@ -206,7 +211,7 @@ const SidebarContent = (props) => {
             </li> */}
 
             {
-              canCreateReport && <li className="">
+              (canCreateReport || canAccessCustomerPerformance) && <li className="">
                 <Link to="/#" className="has-arrow">
                   <i className="bx bx-file"></i>
                   <span>{props.t("Reports")}</span>
@@ -246,6 +251,7 @@ const SidebarContent = (props) => {
 
                   {/* sub menu */}
 
+                  {canCreateReport && (
                   <li>
                     <Link to="/#" className="has-arrow">
                       {/* <i className="bx bx-file"></i> */}
@@ -269,6 +275,7 @@ const SidebarContent = (props) => {
                       </li> */}
                     </ul>
                   </li>
+                  )}
 
                   {/* Customer Performance */}
 
@@ -297,15 +304,13 @@ const SidebarContent = (props) => {
                   </li>
 
                   {/* others */}
+                  {canCreateReport && (
                   <li>
                     <Link to="/#" className="has-arrow">
                       {/* <i className="bx bx-file"></i> */}
                       <span>{props.t("Others")}</span>
                     </Link>
                     <ul className="sub-menu" aria-expanded="false">
-                      <li>
-                        <Link to="/pending-report">{props.t("Pending Report")}</Link>
-                      </li>
                       <li>
                         <Link to="/pickup-performance">{props.t("Pickup Performance")}</Link>
                       </li>
@@ -331,15 +336,39 @@ const SidebarContent = (props) => {
                       </li> */}
                     </ul>
                   </li>
+                  )}
+                  {canCreateReport && (
                   <li>
                     <Link to="/status-update-audit">{props.t("Status Update Audit")}</Link>
                   </li>
+                  )}
+                  {canCreateReport && (
                   <li>
                     <Link to="/productivity-report">{props.t("Productivity Report")}</Link>
+                  </li>
+                  )}
+                </ul>
+              </li>
+            }
+
+            {/* OPS Reports */}
+            {
+              (canCreateReport || canAccessOpsReports) && <li>
+                <Link to="/#" className="has-arrow">
+                  <i className="bx bx-desktop"></i>
+                  <span>{props.t("OPS Reports")}</span>
+                </Link>
+                <ul className="sub-menu" aria-expanded="false">
+                  <li>
+                    <Link to="/pending-report">{props.t("Pending Report")}</Link>
+                  </li>
+                  <li>
+                    <Link to="/mis-report">{props.t("MIS Run")}</Link>
                   </li>
                 </ul>
               </li>
             }
+
 
             {/* {
               canCreateReport && <li>
@@ -566,6 +595,9 @@ const SidebarContent = (props) => {
                       <Link to="/revenue-report">{props.t("Revenue Report")}</Link>
                     </li>
                     <li>
+                      <Link to="/daily-revenue">{props.t("Daily Revenue")}</Link>
+                    </li>
+                    <li>
                       <Link to="/mis-tally">{props.t("MIS Tally")}</Link>
                     </li>
                     <li>
@@ -592,6 +624,9 @@ const SidebarContent = (props) => {
                   </li>
                   <li>
                     <Link to="/billing-working">{props.t("Billing Working")}</Link>
+                  </li>
+                  <li>
+                    <Link to="/billing-automation">{props.t("Billing Automation")}</Link>
                   </li>
                   <li>
                     <Link to="/invoice-flow">{props.t("Invoice Flow")}</Link>
@@ -622,11 +657,31 @@ const SidebarContent = (props) => {
             }
             
             {
-              isAdmin &&
+              showCodReconciliation &&
+                <li>
+                  <Link to="/cod-reconciliation" className="has">
+                    <i className="bx bx-money"></i>
+                    <span>{props.t("COD Reconciliation")}</span>
+                  </Link>
+                </li>
+            }
+
+            {
+              showPopReconciliation &&
                 <li>
                   <Link to="/pop-reconcilation" className="has">
                     <i className="bx bx-shuffle"></i>
                     <span>{props.t("POP Reconciliation")}</span>
+                  </Link>
+                </li>
+            }
+
+            {
+              isAdmin &&
+                <li>
+                  <Link to="/auto-reconciliation" className="">
+                    <i className="bx bx-sync"></i>
+                    <span>{props.t("Auto Reconciliation")}</span>
                   </Link>
                 </li>
             }
@@ -657,16 +712,6 @@ const SidebarContent = (props) => {
                   <Link to="/rto-approval" className="has">
                     <i className="bx bx-check-shield"></i>
                     <span>{props.t("RTO Approval")}</span>
-                  </Link>
-                </li>
-            }
-
-            {
-              isAdmin &&
-                <li>
-                  <Link to="/cod-reconciliation" className="has">
-                    <i className="bx bx-money"></i>
-                    <span>{props.t("COD Reconciliation")}</span>
                   </Link>
                 </li>
             }

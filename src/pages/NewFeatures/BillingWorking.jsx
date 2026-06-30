@@ -60,6 +60,23 @@ const BillingWorking = () => {
         return dateStr
     }
 
+    const formatDateTime = (dateStr) => {
+        if (!dateStr) return "N/A"
+        const date = new Date(dateStr)
+        if (isNaN(date.getTime())) return dateStr
+        const dd = String(date.getDate()).padStart(2, '0')
+        const mm = String(date.getMonth() + 1).padStart(2, '0')
+        const yyyy = date.getFullYear()
+        let hours = date.getHours()
+        const minutes = String(date.getMinutes()).padStart(2, '0')
+        const seconds = String(date.getSeconds()).padStart(2, '0')
+        const ampm = hours >= 12 ? 'PM' : 'AM'
+        hours = hours % 12
+        hours = hours ? hours : 12 // format 0 as 12
+        const formattedHours = String(hours).padStart(2, '0')
+        return `${dd}-${mm}-${yyyy} ${formattedHours}:${minutes}:${seconds} ${ampm}`
+    }
+
     useEffect(() => {
         if (runsData?.result && Array.isArray(runsData.result)) {
             setRuns(runsData.result)
@@ -191,9 +208,9 @@ const BillingWorking = () => {
             )
         },
         {
-            header: "Created At",
+            header: "created_at",
             accessorKey: "created_at",
-            cell: (cell) => cell.getValue() ? new Date(cell.getValue()).toLocaleString() : "N/A"
+            cell: (cell) => formatDateTime(cell.getValue())
         },
         {
             header: "Actions",

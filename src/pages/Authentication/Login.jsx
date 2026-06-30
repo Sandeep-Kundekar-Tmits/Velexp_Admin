@@ -20,6 +20,7 @@ import CompanyLogo from "../../assets/images/vellocity-express-logo.png";
 import { useState } from "react";
 import usePostApiCall from "../../hooks/usePostApiCall";
 import { LOGIN_API_URL } from "../../api";
+import { checkCustomerPermissions } from "../../helpers/checkCustomerPermissions";
 import { ClipLoader } from "react-spinners"
 import SingleLogo from "../../assets/images/vellocity-express-single-logo.png"
 
@@ -161,11 +162,20 @@ const Login = (props) => {
 
 
         // Determine the route based on permissions
-        const route = canCreateUser ? "/user-list" :
+        let route = canCreateUser ? "/user-list" :
           canAddPod ? "/add-pod" :
             canCreateReport ? "/last-mile-customer-performance" :
               invoice ? "/franchise_invoice"
                 : canSeeBooking ? "/corporate-booking" : "/no_role";
+
+        // Fallback for roles (e.g. Customer Service / operations) that have no
+        // landing flag above but do have granular menu access. Avoids /no_role dead-end.
+        if (route === "/no_role") {
+          const perms = checkCustomerPermissions();
+          if (perms.canAccessOpsReports) route = "/pending-report";
+          else if (perms.canTrackAWB) route = "/tracking";
+          else if (perms.canAccessPrivileges) route = "/privileges";
+        }
 
         // Navigate to the determined route
         navigate(route);

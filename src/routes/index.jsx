@@ -29,6 +29,7 @@ const EditInvoice = lazy(() => import("../pages/Dashboard/Invoices/EditInvoice")
 const CorporateInvoice = lazy(() => import("../pages/Dashboard/Invoices/CorporateInvoice"));
 const ManualInvoice = lazy(() => import("../pages/Dashboard/Invoices/ManualInvoice"));
 const RevenueReport = lazy(() => import("../pages/Dashboard/Reports/RevenueReport"));
+const DailyRevenue = lazy(() => import("../pages/Dashboard/Reports/DailyRevenue"));
 const CODReport = lazy(() => import("../pages/Dashboard/Reports/CODReport"));
 const PendingReport = lazy(() => import("../pages/Dashboard/Reports/PendingReport"));
 const CustomerPerformance = lazy(() => import("../pages/Dashboard/Reports/CustomerPerformance"));
@@ -82,10 +83,13 @@ const CustomerProductConfig = lazy(() => import("../pages/NewFeatures/CustomerPr
 const VASConfig = lazy(() => import("../pages/NewFeatures/VASConfig"));
 const ShipmentBilling = lazy(() => import("../pages/NewFeatures/ShipmentBilling"));
 const BillingWorking = lazy(() => import("../pages/NewFeatures/BillingWorking"));
+const BillingAutomation = lazy(() => import("../pages/NewFeatures/BillingAutomation"));
 const InvoiceFlow = lazy(() => import("../pages/NewFeatures/InvoiceFlow"));
 const AllBooking = lazy(() => import("../pages/NewFeatures/AllBooking"));
 const BillMaster = lazy(() => import("../pages/NewFeatures/BillMaster"));
 const CODReconciliation = lazy(() => import("../pages/Dashboard/CODReconciliation"));
+const AutoReconciliation = lazy(() => import("../pages/Dashboard/AutoReconciliation"));
+const MisReport = lazy(() => import("../pages/Dashboard/Reports/MisReport"));
 const ITrack = lazy(() => import("../pages/ITrack/ITrack"));
 
 
@@ -109,7 +113,7 @@ const getPermissions = () => {
 
 // Modify your route definitions to use functions
 const getAuthProtectedRoutes = () => {
-  getPermissions(); const { canCreateUser, canAddPod, canCreateReport, invoice, canSeeBooking } = getPermissions();
+  getPermissions(); const { canCreateUser, canAddPod, canCreateReport, invoice, canSeeBooking, canTrackAWB, canAccessOpsReports } = getPermissions();
   return [
     // POD related routes
     { path: "/add-pod", component: <AddPod /> },
@@ -120,6 +124,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/customer-service-employee", component: <CustomerServiceEmployee /> },
     { path: "/mis-tally", component: <MISTally /> },
     { path: "/revenue-report", component: <RevenueReport /> },
+    { path: "/daily-revenue", component: <DailyRevenue /> },
     { path: "/cod-report", component: <CODReport /> },
     { path: "/pending-report", component: <PendingReport /> },
     { path: "/customer-performance", component: <CustomerPerformance /> },
@@ -162,6 +167,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/vas-config", component: <VASConfig /> },
     { path: "/shipment-billing", component: <ShipmentBilling /> },
     { path: "/billing-working", component: <BillingWorking /> },
+    { path: "/billing-automation", component: <BillingAutomation /> },
     { path: "/invoice-flow", component: <InvoiceFlow /> },
     { path: "/all-booking", component: <AllBooking /> },
     { path: "/bill-master", component: <BillMaster /> },
@@ -199,6 +205,8 @@ const getAuthProtectedRoutes = () => {
     // rto approval
     { path: "/rto-approval", component: <RtoApproval /> },
     { path: "/cod-reconciliation", component: <CODReconciliation /> },
+    { path: "/auto-reconciliation", component: <AutoReconciliation /> },
+    { path: "/mis-report", component: <MisReport /> },
     { path: "/intl-rate-data", component: <InternationRateData /> },
     { path: "/itrack", component: <ITrack /> },
     {
@@ -209,7 +217,9 @@ const getAuthProtectedRoutes = () => {
           canAddPod ? "/add-pod" :
             canCreateReport ? "/last-mile-customer-performance" :
               invoice ? "/franchise_invoice" :
-                canSeeBooking ? "/corporate-booking" : "/no_role"
+                canSeeBooking ? "/corporate-booking" :
+                  canAccessOpsReports ? "/pending-report" :
+                    canTrackAWB ? "/tracking" : "/no_role"
       } />
     },
 

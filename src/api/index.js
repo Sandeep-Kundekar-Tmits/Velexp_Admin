@@ -1,6 +1,6 @@
 // const BASE_URL = "http://192.168.1.151:8000"
-const BASE_URL = "https://velexp.com"
-// const BASE_URL = "http://velexp.com:8000"
+// const BASE_URL = "https://velexp.com"
+const BASE_URL = "http://velexp.com:8000"
 // const BASE_URL = "https://velexp.com"
 // const BASE_URL = "http://192.168.1.166:8000"
 // const BASE_URL = "http://103.108.57.51:8001"
@@ -267,7 +267,16 @@ export const CORPORATE_BILLING_RUNS = `${BASE_URL}/corporate-billing/billing/run
 export const CORPORATE_INVOICE_UPLOAD_PREVIEW = `${BASE_URL}/corporate-billing/invoices/upload-preview/`
 export const CORPORATE_INVOICE_GENERATE = `${BASE_URL}/corporate-billing/invoices/generate/`
 export const CORPORATE_INVOICES_LIST = `${BASE_URL}/corporate-billing/invoices/list/`
-export const CORPORATE_INVOICE_BASE = `${BASE_URL}/corporate-billing/invoices/`
+export const CORPORATE_INVOICE_BASE = `${BASE_URL}/corporate-billing/invoices/` // <id>/, <id>/download-pdf/, <id>/sync-vecom/, <id>/revert-vecom/
+
+// Billing Automation — batch flows (the three one-click triggers + history)
+export const BILLING_BATCH_SYNC_AUDIT = `${BASE_URL}/corporate-billing/billing/batch/sync-audit/`          // POST
+export const BILLING_BATCH_GENERATE_WORKING = `${BASE_URL}/corporate-billing/billing/batch/generate-working/` // POST
+export const BILLING_BATCH_DIRECT_INVOICE = `${BASE_URL}/corporate-billing/billing/batch/direct-invoice/`    // POST (403 if disabled)
+export const BILLING_BATCH_BASE = `${BASE_URL}/corporate-billing/billing/batch/`                              // GET <id>/  (poll)
+export const BILLING_BATCH_LIST = `${BASE_URL}/corporate-billing/billing/batch/list/`                         // POST
+export const BILLING_AUDIT_REPORTS = `${BASE_URL}/corporate-billing/billing/audit-reports/`                   // GET (list / <id>/ / <id>/download/)
+export const BILLING_CONFIGURED_CUSTOMERS = `${BASE_URL}/corporate-billing/billing/configured-customers/`      // GET
 
 // corporate billing invoive
 export const CORPORATE_BILLING_INVOICE = `${BASE_URL}/corporate_billing_api/`
@@ -291,6 +300,9 @@ export const CONFIRM_NEW_PASSWORD = `${BASE_URL}/password-reset-confirm/` // NDQ
 
 //  revenue update api  POST API
 export const UPLOAD_GET_REVENUE_API = `${BASE_URL}/get_revenue_api/`
+
+// live daily revenue (auto-refreshing dashboard) — GET ?date=YYYY-MM-DD
+export const REVENUE_LIVE = `${BASE_URL}/reports/revenue_live/`
 
 
 //  default rate data
@@ -496,7 +508,9 @@ export const TRACK_AWB = `${BASE_URL}/track_awb/` // get /1234567890
 // update customer service remark 
 export const UPDATE_CUSTOMER_SERVICE_REMARK = `${BASE_URL}/update-customer-service-remark/` // POST
 // bulk RTS status update
-export const BULK_RTS_STATUS_UPDATE = `${BASE_URL}/bulk-RTS-status-update/` // POST 
+export const BULK_RTS_STATUS_UPDATE = `${BASE_URL}/bulk-RTS-status-update/` // POST
+// bulk RTA excel upload (Bulk RTS Mark) — multipart: file, employee_id, service_center
+export const BULK_RTA_UPLOAD = `${BASE_URL}/bulk-rta-upload/` // POST (multipart/form-data)
 // get-undelivered-shipments/
 export const GET_UNDELIVERED_SHIPMENTS = `${BASE_URL}/get-undelivered-shipments/` // post
 //get-delivery-attempts-remarks/
@@ -518,9 +532,27 @@ export const PRODUCTIVITY_REPORT = `${BASE_URL}/reports/productivity-report/` //
 
 // all bookings - view (paginated JSON) and export (file download)
 export const ALL_BOOKINGS_VIEW = `${BASE_URL}/api_booking/optimized_bookings/`   // POST - returns paginated JSON
-export const ALL_BOOKINGS_EXPORT = `${BASE_URL}/optimized_bookings_export//`       // POST - returns Excel file
-export const COD_RECONCILIATION = `${BASE_URL}/public-reconciliation`;
+export const ALL_BOOKINGS_EXPORT = `${BASE_URL}/optimized_bookings_export/`       // POST - returns Excel file
+export const COD_RECONCILIATION = `${BASE_URL}/public-reconciliation/`;
 export const COD_RECONCILIATION_APPROVE = `${BASE_URL}/accountant-approval`;
 
 // ITrack scans
 export const ITRACK_SCANS = `${BASE_URL}/itrack/scans/`;
+
+// Ops pending report
+export const GET_OPS_PENDING_REPORT = `${BASE_URL}/api/admin-reports/pending-shipments/`;
+export const DOWNLOAD_OPS_PENDING_REPORT = `${BASE_URL}/api/admin-reports/pending-shipments/download/`;
+export const GET_ALL_STATUSES = `${BASE_URL}/status/get-list/`;
+
+// MIS Run
+export const MIS_RUN = `${BASE_URL}/api/ops-reports/mis-run/`;
+
+// SAR (undelivered shipment removal)
+export const RECORD_SAR_STATUS = `${BASE_URL}/undelivered-shipments/record-sar-status/`;
+
+// Auto Reconciliation (HO Operations)
+export const BANK_STATEMENT_UPLOAD = `${BASE_URL}/bank-statement/upload/`;
+export const BANK_STATEMENT_BASE = `${BASE_URL}/bank-statement/`; // GET list; GET {id}/; GET {id}/entries/?status=
+export const PENDING_MANIFESTS = `${BASE_URL}/pending-manifests/`;
+export const SC_ENTRIES = `${BASE_URL}/sc-entries/`;
+export const RECONCILED_HISTORY = `${BASE_URL}/reconciled-history/`;

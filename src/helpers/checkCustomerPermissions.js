@@ -17,6 +17,9 @@ function checkCustomerPermissions() {
     canTrackAWB: false,
     canApproveRTO: false,
     canAccessITrack: false,
+    canAccessOpsReports: false,
+    canAccessAutoReconciliation: false,
+    canAccessCustomerPerformance: false,
   };
 
   // Full access for admin (skip for Analyzer to keep them restricted)
@@ -33,6 +36,9 @@ function checkCustomerPermissions() {
       canTrackAWB: true,
       canApproveRTO: true,
       canAccessITrack: true,
+      canAccessOpsReports: true,
+      canAccessAutoReconciliation: true,
+      canAccessCustomerPerformance: true,
     };
   }
 
@@ -53,9 +59,13 @@ function checkCustomerPermissions() {
       invoice: false,
       canSeeBooking: false,
       canAccessNewFeatures: false,
-      canAccessPrivileges: true,
+      canAccessPrivileges: false,
       canTrackAWB: true,
       canApproveRTO: true,
+      canAccessITrack: true,
+      canAccessOpsReports: true,
+      canAccessAutoReconciliation: false,
+      canAccessCustomerPerformance: true, // only the Customer Performance submenu under Reports
     },
     "Analyzer": {
       canCreateUser: false,
@@ -95,17 +105,17 @@ function checkCustomerPermissions() {
       canAddPod: false,
       invoice: false,
       canSeeBooking: false,
-       canTrackAWB: true,
-      
+      canTrackAWB: true,
+
     }
   };
 
   // Return matched permissions or default
   const permissions = permissionMap[customerType] || defaultPermissions;
-  
+
   // If Analyzer, strictly only reports, even if Admin flag is present
   if (customerType === "Analyzer") {
-     return { ...permissions, isAdmin: false };
+    return { ...permissions, isAdmin: false };
   }
 
   return { ...permissions, isAdmin };

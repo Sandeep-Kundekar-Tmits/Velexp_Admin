@@ -1,372 +1,365 @@
-import { Button, Card, CardBody, Col, FormGroup, Label, Row } from "reactstrap"
-import Select from 'react-select'
-import { customStyles } from "../../../helpers/CustomStyle"
-import { FaCloudDownloadAlt } from "react-icons/fa";
-import { useEffect, useMemo, useState } from "react";
-import { useGetApiCall } from "../../../hooks/useGetApiCall";
-import MainHeaderComp from "../../../components/MainHeaderCom";
-import { GET_USER_API, PENDING_UPLOAD_REPORT, SERVICE_CENTER, UPLOAD_GET_REVENUE_API } from "../../../api";
-import TableContainer from "../../../components/Table/TableContainer";
-import DateRangeInput from '../../../components/Common/DateRangeInput';
-import usePostApiCall from "../../../hooks/usePostApiCall";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Select, { components } from "react-select";
+import { Button, Col, FormGroup, Label, Row } from "reactstrap";
 import { GridLoader } from "react-spinners";
-import { useExcelExport } from "../../../hooks/useExcelExport";
-import YMD_DateFormate from '../../../helpers/YMD_DateFormate';
+import TableContainer from "../../../components/Table/TableContainer";
+import MainHeaderComp from "../../../components/MainHeaderCom";
+import {
+    GET_ALL_STATUSES,
+    GET_OPS_PENDING_REPORT,
+    DOWNLOAD_OPS_PENDING_REPORT,
+    SERVICE_CENTER,
+} from "../../../api";
+import { customStyles } from "../../../helpers/CustomStyle";
+import usePostApiCall from "../../../hooks/usePostApiCall";
+import { useGetApiCall } from "../../../hooks/useGetApiCall";
+import YMD_DateFormate from "../../../helpers/YMD_DateFormate";
+
+const SELECT_ALL_OPTION = { value: "__all__", label: "Select All" };
+
+// Shows first 2 selected chips then "+N more" badge — same as Velocity-Ops
+const SCMultiValue = ({ index, getValue, ...props }) => {
+    const total = getValue().length;
+    if (index < 2) return <components.MultiValue {...props} />;
+    if (index === 2)
+        return (
+            <span className="badge bg-primary ms-1 align-self-center">
+                +{total - 2}
+            </span>
+        );
+    return null;
+};
+
+// Shows "N selected" badge instead of individual chips — same as Velocity-Ops
+const StatusCountValue = ({ index, getValue }) => {
+    if (index !== 0) return null;
+    return (
+        <span className="badge bg-primary align-self-center">
+            {getValue().length} selected
+        </span>
+    );
+};
 
 const PendingReport = () => {
-    const columns = useMemo(
-        () => [
-            {
-                header: 'AWB No.',
-                accessorKey: 'awbno',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: 'Date',
-                accessorKey: 'date',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: 'Customer Name',
-                accessorKey: 'customer_name',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: 'ORGSC ',
-                accessorKey: 'orgsc',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: 'Product type',
-                accessorKey: 'product_type',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: 'Payment Mode',
-                accessorKey: 'payment mode',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-            {
-                header: 'Shipment Status',
-                accessorKey: 'shipment_status',
-                enableColumnFilter: false,
-                enableSorting: true,
-            },
-        ],
-        []
-    );
+    useEffect(() => {
+        document.title = "Pending Report";
+    }, []);
 
-    // states
-    const [PendingReportData, setPendingReportData] = useState([])
-    const [Customers, setCustomers] = useState([])
-    const [Regions, setRegions] = useState([])
-    const [ServiceCenters, setServiceCenters] = useState([])
-    const [PaymentModes, setPaymentModes] = useState([
-        { value: "All", label: "All" },
-        { value: "paid ", label: "paid " },
-        { value: 'cod', label: "cod" },
-    ])
-    const [ModeOption, setModeOption] = useState([
-        { value: "forward", label: "forward" },
-        { value: 'reverse', label: "reverse" }
-    ])
+    // ── Service Centers (all, from API) ────────────────────────────────────
+    const { apifunc: getServiceCenters, data: serviceCenterList, loading: scLoading } = useGetApiCall();
+    const [scOptions, setScOptions] = useState([]);
+    const [selectedSCs, setSelectedSCs] = useState([]);
 
-    const [Product, setSelectProeduct] = useState([
-        { value: "VELOSURE", label: "VELOSURE" },
-        { value: "VELOFREIGHT", label: "VELOFREIGHT" },
-        { value: "VELOSKY", label: "VELOSKY" },
-        { value: "VELODOC", label: "VELODOC" },
-        { value: 'VELOCOMM', label: "VELOCOMM" },
-        { value: "VELOCOMM_NDD", label: "VELOCOMM_NDD" },
-        { value: "VELOCOMM_SDD", label: "VELOCOMM_SDD" }
-    ])
-    const [selectedRange, setSelectedRange] = useState({
-        startDate: "",
-        endDate: "",
-    });
+    useEffect(() => {
+        getServiceCenters(SERVICE_CENTER);
+    }, []);
 
-    const [SelectedInfo, setSelectedInfo] = useState({
-        customer: "All",
-        region: "",
-        serviceCenter: "",
-        paymentmode: "All",
-        product: "",
-        mode: "forward",
-        PaymentMode: "all"
-    })
+    useEffect(() => {
+        if (serviceCenterList) {
+            const opts = serviceCenterList
+                .map((e) => ({ value: e.ec_code, label: e.ec_code }))
+                .filter((item, idx, self) => idx === self.findIndex((t) => t.value === item.value));
+            setScOptions(opts);
+            setSelectedSCs(opts); // pre-select all service centers
+        }
+    }, [serviceCenterList]);
 
-    // functions
-    const OnSelectChange = (key, option) => {
-        setSelectedInfo({
-            ...SelectedInfo,
-            [key]: option?.value
-        })
-    }
-    const handleChange = (range) => {
-        setSelectedRange(range);
+    const handleSCChange = (chosen) => {
+        if (!chosen) { setSelectedSCs([]); return; }
+        setSelectedSCs(chosen.some((o) => o.value === "__all__") ? scOptions : chosen);
     };
 
-
-    //  api functions
-    // definging the get service center api
-    const { apifunc: GetServiceCenter, data: ServiceCentersList, loading: ServiceCenterLoading } = useGetApiCall()
-    // defining the get Pending api
-    const { apifunc: UploadPendingReport, data: Pending_report, loading: Pending_ReportLoading } = usePostApiCall(null)
-    const { exportToExcel, isExporting, exportProgress } = useExcelExport();
-    // useEffects
-    useEffect(() => {
-        // calling the service Center api
-        GetServiceCenter(SERVICE_CENTER)
-    }, [])
-
+    // ── Statuses (from API, same as Velocity-Ops) ──────────────────────────
+    const { apifunc: fetchStatuses } = usePostApiCall(null);
+    const [statusOptions, setStatusOptions] = useState([]);
+    const [selectedStatuses, setSelectedStatuses] = useState([]);
 
     useEffect(() => {
-        // service center and regoins and it should be unique
-        if (ServiceCentersList) {
-            // service center
-            let serviceCenter = ServiceCentersList.map((ele) => {
-                return {
-                    value: ele?.ec_code,
-                    label: ele?.ec_code
-                }
-            }).filter((item, index, self) =>
-                index === self.findIndex((t) => (
-                    t.value === item.value
-                ))
-            );
+        fetchStatuses(GET_ALL_STATUSES, {}).then((res) => {
+            const list = res?.results?.results || [];
+            setStatusOptions(list.map((s) => ({ value: s.name, label: `${s.name} – ${s.description}` })));
+        });
+    }, []);
 
-            // regions
+    // ── Date range: fixed 01-01-2025 → today (picker hidden) ──────────────
+    const today = new Date().toISOString().split("T")[0];
+    const [selectedRange] = useState({ startDate: "2025-01-01", endDate: today });
 
-            let optionRegions = ServiceCentersList?.map((ele) => {
-                return {
-                    value: ele?.region,
-                    label: ele?.region
-                }
-            }).filter((item, index, self) =>
-                index === self.findIndex((t) => (
-                    t.value === item.value
-                ))
-            );
-            setServiceCenters(serviceCenter)
-            setRegions(optionRegions)
+    // ── Report data ────────────────────────────────────────────────────────
+    const SERVER_PAGE_SIZE = 1000;
+    const [reportData, setReportData] = useState([]);
+    const [totalCount, setTotalCount] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(0);
+    const [loading, setLoading] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
 
+    const buildPayload = useCallback((page = 1, page_size = SERVER_PAGE_SIZE) => {
+        const fmt = YMD_DateFormate(selectedRange);
+        const authUser = JSON.parse(localStorage.getItem("authUser") || "{}");
+        const payload = {
+            user_id: authUser?.user?.id,
+            page,
+            page_size,
+            service_center: selectedSCs.map((s) => s.value),
+            start_date: fmt.from_date || undefined,
+            end_date: fmt.to_date || undefined,
+        };
+        if (selectedStatuses.length > 0) payload.statuses = selectedStatuses.map((s) => s.value);
+        return payload;
+    }, [selectedSCs, selectedRange, selectedStatuses]);
+
+    const fetchReport = async (page = 1) => {
+        if (selectedSCs.length === 0) { alert("Please select at least one Service Center."); return; }
+        setLoading(true);
+        setReportData([]);
+        try {
+            const res = await fetch(GET_OPS_PENDING_REPORT, {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(buildPayload(page, SERVER_PAGE_SIZE)),
+            });
+            if (!res.ok) return;
+            const json = await res.json();
+            setReportData(Array.isArray(json.shipments) ? json.shipments : []);
+            setTotalCount(json.total_shipments ?? 0);
+            setCurrentPage(json.page ?? page);
+            setTotalPages(json.total_pages ?? 1);
+        } catch (err) {
+            console.error("Pending report fetch error:", err);
+        } finally {
+            setLoading(false);
         }
+    };
 
-
-    }, [ServiceCentersList])
-
-
-    // functions
-    const CheckClick = async () => {
-
-        const formattedRange = YMD_DateFormate(selectedRange);
-        if (formattedRange?.from_date === "" || formattedRange?.to_date === "") {
-            alert("select the range")
-            return
+    // Auto-fetch once on page load, after service centers are loaded & pre-selected.
+    const didInitialFetch = useRef(false);
+    useEffect(() => {
+        if (!didInitialFetch.current && selectedSCs.length > 0) {
+            didInitialFetch.current = true;
+            fetchReport(1);
         }
+    }, [selectedSCs]);
 
-        let payload = {
-            "start_date": formattedRange.from_date,
-            "end_date": formattedRange.to_date,
-            "product_name": SelectedInfo?.product,
-            "service_center_name": SelectedInfo?.serviceCenter,
-            "region": SelectedInfo?.region,
-            "mode": SelectedInfo?.mode || "forword",
-            "payment_mode": SelectedInfo?.PaymentMode || "All"
+    const downloadExcel = async () => {
+        setIsExporting(true);
+        try {
+            const fmt = YMD_DateFormate(selectedRange);
+            const res = await fetch(DOWNLOAD_OPS_PENDING_REPORT, {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(buildPayload(1, 5000)),
+            });
+            if (!res.ok) throw new Error(`Server error: ${res.status}`);
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `Pending_Report_${fmt.from_date}_${fmt.to_date}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error("Download error:", err);
+        } finally {
+            setIsExporting(false);
         }
-        console.log(payload, "payload")
-        //  calling the api
-        const PendingBooking = await UploadPendingReport(PENDING_UPLOAD_REPORT, payload)
+    };
 
-        if (PendingBooking) {
-            setPendingReportData(PendingBooking?.bookings)
-        }
-    }
+    // ── Columns (same 39 fields as Velocity-Ops, admin TanStack format) ───
+    const columns = useMemo(() => [
+        { header: "#", accessorKey: "serial_no", enableColumnFilter: false, enableSorting: false },
+        { header: "AWB No", accessorKey: "awbno", enableColumnFilter: false, enableSorting: true },
+        { header: "AWB Date", accessorKey: "awbdate", enableColumnFilter: false, enableSorting: true },
+        { header: "Ref2", accessorKey: "ref2", enableColumnFilter: false, enableSorting: false },
+        { header: "Cust Code", accessorKey: "custcode", enableColumnFilter: false, enableSorting: true },
+        { header: "Customer", accessorKey: "custname", enableColumnFilter: false, enableSorting: true },
+        { header: "Consignee", accessorKey: "consigneename", enableColumnFilter: false, enableSorting: true },
+        { header: "Address", accessorKey: "consignee_address", enableColumnFilter: false, enableSorting: false },
+        { header: "City", accessorKey: "conscity", enableColumnFilter: false, enableSorting: true },
+        { header: "State", accessorKey: "consstate", enableColumnFilter: false, enableSorting: true },
+        { header: "Pincode", accessorKey: "pincode", enableColumnFilter: false, enableSorting: true },
+        { header: "Payment", accessorKey: "paymentmode", enableColumnFilter: false, enableSorting: true },
+        { header: "Value", accessorKey: "value", enableColumnFilter: false, enableSorting: true },
+        {
+            header: "Status",
+            accessorKey: "chkpnt",
+            enableColumnFilter: false,
+            enableSorting: true,
+            cell: (info) => (
+                <span className="badge bg-primary-subtle text-primary fw-semibold text-uppercase">
+                    {info.getValue() ?? "—"}
+                </span>
+            ),
+        },
+        { header: "Status Date", accessorKey: "chkdate", enableColumnFilter: false, enableSorting: true },
+        { header: "Time", accessorKey: "time", enableColumnFilter: false, enableSorting: false },
+        { header: "SAO Date", accessorKey: "sao_date", enableColumnFilter: false, enableSorting: true },
+        { header: "EC Code", accessorKey: "eccode", enableColumnFilter: false, enableSorting: true },
+        { header: "Remarks", accessorKey: "remarks", enableColumnFilter: false, enableSorting: false },
+        { header: "Origin SC", accessorKey: "orgsc", enableColumnFilter: false, enableSorting: true },
+        { header: "Dest SC", accessorKey: "destinationsc", enableColumnFilter: false, enableSorting: true },
+        { header: "Employee", accessorKey: "empname", enableColumnFilter: false, enableSorting: true },
+        { header: "Emp ID", accessorKey: "empid", enableColumnFilter: false, enableSorting: true },
+        { header: "Marked RTO", accessorKey: "marked_for_rto", enableColumnFilter: false, enableSorting: true },
+        { header: "RTO AWB No", accessorKey: "rtoawbno", enableColumnFilter: false, enableSorting: true },
+        { header: "Wt", accessorKey: "chargeablewt", enableColumnFilter: false, enableSorting: true },
+        { header: "Qty", accessorKey: "quantity", enableColumnFilter: false, enableSorting: true },
+        { header: "Attempts", accessorKey: "attempts", enableColumnFilter: false, enableSorting: true },
+        { header: "Ageing", accessorKey: "ageing", enableColumnFilter: false, enableSorting: true },
+        { header: "Region", accessorKey: "region", enableColumnFilter: false, enableSorting: true },
+        { header: "Service Type", accessorKey: "servicetype", enableColumnFilter: false, enableSorting: true },
+        { header: "CNote No", accessorKey: "cnotno", enableColumnFilter: false, enableSorting: false },
+        { header: "Box No", accessorKey: "boxno", enableColumnFilter: false, enableSorting: false },
+        { header: "Mode", accessorKey: "mode", enableColumnFilter: false, enableSorting: true },
+        { header: "Transport Rem", accessorKey: "transportrem", enableColumnFilter: false, enableSorting: false },
+        { header: "Arrival Time", accessorKey: "arrivaltime", enableColumnFilter: false, enableSorting: true },
+        { header: "Promise Date", accessorKey: "customer_promise_date", enableColumnFilter: false, enableSorting: true },
+        { header: "Instruction to SC", accessorKey: "instruction_to_sc", enableColumnFilter: false, enableSorting: false },
+        { header: "Telecall Instruction", accessorKey: "telecall_instruction", enableColumnFilter: false, enableSorting: false },
+        { header: "Updation Remarks", accessorKey: "updationremarks", enableColumnFilter: false, enableSorting: false },
+    ], []);
 
-    const DownloadExcle = () => {
-
-        const formattedRange = YMD_DateFormate(selectedRange);
-        if (formattedRange?.from_date === "" || formattedRange?.to_date === "") {
-            alert("select the range")
-            return
-        }
-        let payload = {
-            "start_date": formattedRange.from_date,
-            "end_date": formattedRange.to_date,
-            "product_name": SelectedInfo?.product,
-            "service_center_name": SelectedInfo?.serviceCenter,
-            "region": SelectedInfo?.region,
-            "mode": SelectedInfo?.mode || "forword",
-            "payment_mode": SelectedInfo?.PaymentMode || "All"
-        }
-        exportToExcel(PendingReportData, "Pending_Report", (item) => ({
-            "AWB No": item?.awbno || "",
-            "Pick Pincode": item?.pick_pincode || "",
-            "Drop Pincode": item?.drop_pincode || "",
-            "Weight": item?.weight ?? 0,
-            "Shipment Value": item?.shipment_value ?? 0,
-            "Payment Mode": item?.paymentmode || "",
-            "Customer Name": item?.customer_name || "",
-            "Origin SC": item?.orgsc || "",
-            "Consignee City": item?.consignee_city || "",
-            "Consignee State": item?.consignee_state || "",
-            "Date": item?.date || "",
-            "COD Amount": item?.cod_amount ?? 0,
-            "Shipment Status": item?.shipment_status || "",
-            "Product Type": item?.product_type || "",
-        }), payload);
-    }
     return (
-        <div className='page-content py-0 px-0'>
+        <div className="page-content py-0 px-0">
 
-            <div className="position-sticky bg-white" style={{ top: "0px", zIndex: 100 }}>
-                <MainHeaderComp title={"Pending Report"} />
+            {/* ── Sticky title bar ── */}
+            <div className="position-sticky bg-white" style={{ top: 0, zIndex: 100 }}>
+                <MainHeaderComp title="Pending Report" />
             </div>
+
             <div className="container-fluid px-2">
-                <Row className="gx-3 d-flex align-items-end pt-2 border-bottom pb-2">
+
+                {/* ── Filter bar (mirrors Velocity-Ops filter layout) ── */}
+                <Row className="gx-2 align-items-end pt-2 border-bottom pb-2">
+
+
                     <Col md={3}>
                         <FormGroup className="mb-2">
-                            <Label for="Customer">Select Date Range</Label>
-                            <DateRangeInput
-                                value={selectedRange}
-                                onChange={handleChange}
-                                isBorder={true}
+                            <Label className="mb-1 small fw-semibold">Service Center</Label>
+                            <Select
+                                isMulti
+                                placeholder={scLoading ? "Loading..." : "Select SC..."}
+                                options={[SELECT_ALL_OPTION, ...scOptions]}
+                                value={selectedSCs}
+                                onChange={handleSCChange}
+                                styles={customStyles}
+                                closeMenuOnSelect={false}
+                                hideSelectedOptions={false}
+                                components={{ MultiValue: SCMultiValue }}
+                                menuPortalTarget={document.body}
+                                menuPosition="fixed"
                             />
                         </FormGroup>
                     </Col>
-                    <Col md={3}>
+
+                    <Col md={4}>
                         <FormGroup className="mb-2">
-                            <Label for="Customer">Region</Label>
+                            <Label className="mb-1 small fw-semibold">Statuses</Label>
                             <Select
-                                name="region"
-                                options={Regions}
-                                placeholder={ServiceCenterLoading ? "loading...." : "Search Region"}
-                                onChange={(option) => OnSelectChange("region", option)}
-                                isClearable={true}
+                                isMulti
+                                placeholder="Select Statuses..."
+                                options={statusOptions}
+                                value={selectedStatuses}
+                                onChange={setSelectedStatuses}
+                                styles={customStyles}
+                                closeMenuOnSelect={false}
+                                hideSelectedOptions={false}
+                                components={{ MultiValue: StatusCountValue }}
                                 menuPortalTarget={document.body}
                                 menuPosition="fixed"
-                                styles={customStyles} />
-                        </FormGroup>
-                    </Col>
-                    <Col md={3}>
-                        <FormGroup className="mb-2">
-                            <Label for="Customer">Service Center</Label>
-                            <Select
-                                name="serviceCenter"
-                                options={ServiceCenters}
-                                placeholder={ServiceCenterLoading ? "loading...." : "Search Service Center"}
-                                onChange={(option) => OnSelectChange("serviceCenter", option)}
-                                isClearable={true}
-                                menuPortalTarget={document.body}
-                                menuPosition="fixed"
-                                styles={customStyles} />
-                        </FormGroup>
-                    </Col>
-                    {/* <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label for="Customer">Payment Mode</Label>
-                                <Select
-                                    options={PaymentModes}
-                                    name="paymentMode"
-                                    onChange={(option) => OnSelectChange("paymentMode", option)}
-                                    placeholder="Payment Mode"
-                                    isClearable={true}
-                                    styles={customStyles} />
-                            </FormGroup>
-                        </Col> */}
-                    <Col md={3}>
-                        <FormGroup className="mb-2">
-                            <Label for="Customer">Products</Label>
-                            <Select
-                                name="product"
-                                options={Product}
-                                placeholder="Search Product"
-                                onChange={(option) => OnSelectChange("product", option)}
-                                isClearable={true}
-                                menuPortalTarget={document.body}
-                                menuPosition="fixed"
-                                styles={customStyles} />
-                        </FormGroup>
-                    </Col>
-                    <Col md={3}>
-                        <FormGroup className="mb-2 " >
-                            <FormGroup className="mb-2">
-                                <Label for="Mode">Payment Mode</Label>
-                                <Select
-                                    name="PaymentMode"
-                                    options={PaymentModes}
-                                    placeholder="Select Payment Mode"
-                                    onChange={(option) => OnSelectChange("PaymentMode", option)}
-                                    isClearable={true}
-                                    menuPortalTarget={document.body}
-                                    menuPosition="fixed"
-                                    styles={customStyles} />
-                            </FormGroup>
-                        </FormGroup>
-                    </Col>
-                    <Col md={3}>
-                        <FormGroup className="mb-2 " >
-                            <FormGroup className="mb-2">
-                                <Label for="Mode">Mode</Label>
-                                <Select
-                                    name="mode"
-                                    options={ModeOption}
-                                    placeholder="Select Mode"
-                                    onChange={(option) => OnSelectChange("mode", option)}
-                                    isClearable={true}
-                                    menuPortalTarget={document.body}
-                                    menuPosition="fixed"
-                                    styles={customStyles} />
-                            </FormGroup>
+                            />
                         </FormGroup>
                     </Col>
 
-
-                    {/* buttons */}
-                    <Col md={3} className='d-flex' style={{ marginBottom: "18px" }}>
-
-                        <Button color="primary" onClick={CheckClick} style={{ height: "2.2rem", width: "100%" }}>
-                            {
-                                Pending_ReportLoading ? "Checking..." : "Check"
-                            }
+                    <Col md={2} className="mb-2 d-flex align-items-center gap-2" style={{ flexWrap: "nowrap" }}>
+                        <Button
+                            color="primary"
+                            onClick={() => fetchReport(1)}
+                            disabled={loading}
+                            style={{ height: "2.2rem", whiteSpace: "nowrap" }}
+                        >
+                            {loading ? "Loading..." : "Check"}
                         </Button>
+                        {!loading && totalCount > 0 && (
+                            <span
+                                className="badge bg-light text-muted border"
+                                style={{ fontSize: 11, whiteSpace: "nowrap" }}
+                            >
+                                {totalCount.toLocaleString()} records
+                            </span>
+                        )}
                     </Col>
 
                 </Row>
 
-                <div className=''>
-                    <div className='mt-1'>
-                        {
-                            Pending_ReportLoading ? <div style={{ height: "40vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
-                                <GridLoader size={20} />
-                                <p className="mt-5 h5">Loading Pending Report Booking ...</p>
-                            </div>
-                                :
-                                <TableContainer
-                                    columns={columns}
-                                    data={PendingReportData || []}
-                                    isGlobalFilter={true}
-                                    isCustomPageSize={true}
-                                    isDownloadExcle={true}
-                                    isPagination={true}
-                                    onDownloadExcle={DownloadExcle}
-                                    ExcleLoading={isExporting}
-                                    SearchPlaceholder="Search From Table"
-                                    pagination="pagination"
-                                    paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                    tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
-                                />
-                        }
-                    </div>
+                {/* ── Table ── */}
+                <div className="mt-1">
+                    {loading ? (
+                        <div
+                            className="d-flex flex-column justify-content-center align-items-center"
+                            style={{ height: "40vh" }}
+                        >
+                            <GridLoader size={20} />
+                            <p className="mt-4 h5">Loading Pending Report...</p>
+                        </div>
+                    ) : (
+                        <>
+                            <TableContainer
+                                columns={columns}
+                                data={reportData}
+                                isGlobalFilter={true}
+                                isCustomPageSize={true}
+                                isDownloadExcle={true}
+                                isPagination={true}
+                                onDownloadExcle={downloadExcel}
+                                ExcleLoading={isExporting}
+                                SearchPlaceholder="Search from table..."
+                                pagination="pagination"
+                                paginationWrapper="dataTables_paginate paging_simple_numbers"
+                                tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                                defaultPageSize={50}
+                            />
+
+                            {/* ── Server-side page navigation ── */}
+                            {totalPages > 1 && (
+                                <div className="d-flex justify-content-between align-items-center px-1 py-2 border-top">
+                                    <span className="text-muted small">
+                                        Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong>
+                                        &nbsp;·&nbsp;{totalCount.toLocaleString()} total records
+                                    </span>
+                                    <div className="d-flex gap-2">
+                                        <Button
+                                            size="sm"
+                                            color="secondary"
+                                            outline
+                                            disabled={currentPage <= 1}
+                                            onClick={() => fetchReport(currentPage - 1)}
+                                        >
+                                            ‹ Prev
+                                        </Button>
+                                        <Button
+                                            size="sm"
+                                            color="secondary"
+                                            outline
+                                            disabled={currentPage >= totalPages}
+                                            onClick={() => fetchReport(currentPage + 1)}
+                                        >
+                                            Next ›
+                                        </Button>
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    )}
                 </div>
+
             </div>
         </div>
-    )
-}
-export default PendingReport
+    );
+};
+
+export default PendingReport;

@@ -3,10 +3,7 @@ import SearchableDropdown from "../../../components/Common/SearchableDropdown"
 import { useEffect, useMemo, useState } from "react"
 import { useGetApiCall } from "../../../hooks/useGetApiCall"
 import { FILTER_EDIT_ENVOICE, GET_USER_API, UPDATE_EDIT_ENVOICE } from "../../../api"
-import DateRangeInput from "../../../components/Common/DateRangeInput";
-import { IoMdCloudDownload } from "react-icons/io"
 import TableContainer from "../../../components/Table/TableContainer"
-import formatDateForPayload from "../../../helpers/DateHelper"
 import { GridLoader } from "react-spinners";
 import { IoEye } from "react-icons/io5";
 import { FaEdit } from "react-icons/fa"
@@ -16,11 +13,8 @@ import { usePutApiCall } from "../../../hooks/usePutApuCall"
 import ViewInvoice from "../../../components/Invoices/ViewInVoice"
 import { downloadExcel } from "../../../helpers/downloadExcel"
 import MainHeaderComp from "../../../components/MainHeaderCom"
-// Convert DD-MM-YYYY to YYYY-MM-DD
-const reformatDate = (dateStr) => {
-    const [day, month, year] = dateStr.split('-');
-    return `${year}-${month}-${day}`;
-};
+
+const CUSTOMER_TYPES = ["Franchise", "Corporate", "Retail-Franchise"]
 
 const EditInvoice = () => {
     //  for returning the components
@@ -166,12 +160,10 @@ const EditInvoice = () => {
         []
     );
 
-    // GET_USER_API
-    // defining the get user api
-    const { apifunc: GetUserList, data: UserList } = useGetApiCall()
+    const { apifunc: GetUserList, data: userListData } = useGetApiCall()
     //  defining the get filtered Edit envoice
 
-    const { apifunc: GetFilterEditEnvoice, data: FilterEditEnvoice, loading: TableDataLoading } = useGetApiCall()
+    const { apifunc: GetFilterEditEnvoice, loading: TableDataLoading } = useGetApiCall()
     // defining the update Edit Info api
     const { apifunc: UpdatedEditEnvoice, loading: EditEnvoiceLoading } = usePutApiCall("Invoice Updated Successfully", Toggle)
     // states
@@ -183,56 +175,23 @@ const EditInvoice = () => {
     const [SelectedInfo, setSelectedInfo] = useState(null)
     const [ExcleLoading, setExcleLoading] = useState(false)
 
-    //  functions
-    const handleLocationChange = (value) => {
-        setSelectedCustomer(value);
-    };
-    // handleDateChange removed as we use separate inputs
 
-    //  view 
     const handleView = (item) => {
-        console.log('View item:', item);
         setSelectedInfo(item)
         SetSelectedTitles("view_invoice")
-        // Add your view logic here
     };
 
-    // update
     const handleUpdate = (item) => {
-        console.log(item, "item")
         setSelectedInfo(item)
         SetSelectedTitles("edit_invoice")
-        // console.log('Update item:', item);
-        // Add your update logic here
     };
 
 
-    //  on updaten the invoices
     const HandleUpdateEditEnvoice = async (dataToUpdate) => {
-        // getting the Id
-        let SelectdId = SelectedInfo?.id
-        console.log(SelectdId, "selected Id", dataToUpdate)
-        // calling the update Edit envoice api
-        let invoiceUpdated = await UpdatedEditEnvoice(`${UPDATE_EDIT_ENVOICE}${SelectdId}/`, dataToUpdate)
-
+        const invoiceUpdated = await UpdatedEditEnvoice(`${UPDATE_EDIT_ENVOICE}${SelectedInfo?.id}/`, dataToUpdate)
         if (invoiceUpdated) {
-            setTableData((prev) => {
-                return prev.map((ele) => {
-                    if (ele?.id === dataToUpdate?.id) {
-                        return {
-                            ...invoiceUpdated
-                        }
-                    }
-                    else {
-                        return {
-                            ...ele
-                        }
-                    }
-                })
-            })
-            console.log("updated succesfully")
+            setTableData(prev => prev.map(ele => ele?.id === dataToUpdate?.id ? { ...invoiceUpdated } : { ...ele }))
         }
-
     }
 
 
@@ -267,30 +226,20 @@ const EditInvoice = () => {
         return <></>
     }
 
-    //  get edit invoice api call
     const GetFilteredEditInvoiceFunc = async () => {
-        setTableData([])
         if (!startDate || !endDate) {
             alert("Please select both start and end dates")
             return
         }
-
-        // URL construction using YYYY-MM-DD directly from state
-        let URL = `${FILTER_EDIT_ENVOICE}?from_date=${startDate}&to_date=${endDate}&customer_name=${SelectedCustomer?.name || ''}`;
-
-        // calling the api 
-        let filterdData = await GetFilterEditEnvoice(URL)
-        if (filterdData) {
-            setTableData(filterdData)
-        }
+        setTableData([])
+        const url = `${FILTER_EDIT_ENVOICE}?from_date=${startDate}&to_date=${endDate}&customer_name=${SelectedCustomer?.name || ''}`
+        const filterdData = await GetFilterEditEnvoice(url)
+        if (filterdData) setTableData(filterdData)
     }
 
-    // donwload the Edit Envoice Data data
     const DownloadEditInvoiceData = async () => {
         setExcleLoading(true)
         try {
-            console.log(TableData, "TableData")
-            // Transform your data with all required fields
             const exportData = TableData.map(item => ({
                 // Invoice Info
                 'Invoice No': item.invoice_no || '--',
@@ -329,26 +278,21 @@ const EditInvoice = () => {
 
 
     useEffect(() => {
-        // calling the get user list api
         GetUserList(`${GET_USER_API}/`)
     }, [])
 
     useEffect(() => {
-        if (UserList) {
-            const typeOfUser = ["Franchise", "Corporate", "Retail-Franchise"];
-            const UserUpdatedList = UserList
-                .filter((ele) => typeOfUser.includes(ele?.cust_type?.type_of_cust))
-                .map((ele) => {
-                    const name = ele?.customer_name ? ele?.customer_name : ele?.username
-                    return name ? { name: name, id: ele?.id } : null;
+        if (!Array.isArray(userListData)) return
+        setCustomers(
+            userListData
+                .filter(ele => CUSTOMER_TYPES.includes(ele?.cust_type?.type_of_cust))
+                .map(ele => {
+                    const name = ele?.customer_name || ele?.username
+                    return name ? { name, id: ele?.id } : null
                 })
-                .filter(Boolean); // Remove any null entries
-
-            setCustomers(UserUpdatedList);
-
-            // console.log(UserList, "UserList")
-        }
-    }, [UserList]);
+                .filter(Boolean)
+        )
+    }, [userListData])
 
     return (
         <div className='page-content py-0 px-0'>
@@ -361,7 +305,7 @@ const EditInvoice = () => {
                         <FormGroup className="mb-0">
                             <Label className="form-label fw-bold">Select Customer</Label>
                             <SearchableDropdown
-                                onChange={handleLocationChange}
+                                onChange={setSelectedCustomer}
                                 locations={Customes}
                                 placeholder="Select Customer"
                                 height="38px"

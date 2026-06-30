@@ -19,11 +19,21 @@ const EmployeeAttendence = () => {
     const getImageSrc = (src) => {
         if (!src) return "";
         let imgUrl = src;
-        if (imgUrl.includes("/media/")) {
-            imgUrl = imgUrl.substring(imgUrl.indexOf("/media/"));
-        } else if (window.location.protocol === "https:" && imgUrl.startsWith("http://")) {
+        
+        // Upgrade http to https under secure contexts to avoid Mixed Content blockers
+        if (window.location.protocol === "https:" && imgUrl.startsWith("http://")) {
             imgUrl = imgUrl.replace("http://", "https://");
         }
+
+        // ONLY during local development (localhost), rewrite to use the Vite proxy /media/ path
+        // to bypass CORS blocks on the local developer machine.
+        // In production (admin.velexp.com), preserve the absolute backend domain (https://velexp.com/media/...)
+        // since the media files are hosted on velexp.com while the UI is on admin.velexp.com.
+        const isLocalhost = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+        if (isLocalhost && imgUrl.includes("/media/")) {
+            imgUrl = imgUrl.substring(imgUrl.indexOf("/media/"));
+        }
+        
         return imgUrl;
     };
     const [selectedRange, setSelectedRange] = useState({

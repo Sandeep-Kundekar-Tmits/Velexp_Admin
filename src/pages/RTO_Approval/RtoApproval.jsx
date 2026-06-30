@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Button, Col, FormGroup, Input, Label, Row } from "reactstrap";
+import { Button, Col, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Row } from "reactstrap";
 import Select from "react-select";
 import MainHeaderComp from "../../components/MainHeaderCom";
 import TableContainer from "../../components/Table/TableContainer";
@@ -8,20 +8,31 @@ import { customStyles } from "../../helpers/CustomStyle";
 import RtoApprovalModal from "../../components/RTO_Approval/RtoApprovalModal";
 import RtoBulkApprovalModal from "../../components/RTO_Approval/RtoBulkApprovalModal";
 import ViewRtoApproval from "../../components/RTO_Approval/ViewRtoApproval";
-import { UPDATE_CUSTOMER_SERVICE_REMARK, BULK_RTS_STATUS_UPDATE, GET_USER_API, GET_UNDELIVERED_SHIPMENTS, GET_DELIVERY_ATTEMPTS_REMARKS } from "../../api/index";
+import BulkRtsMarkModal from "../../components/RTO_Approval/BulkRtsMarkModal";
+import { UPDATE_CUSTOMER_SERVICE_REMARK, BULK_RTS_STATUS_UPDATE, GET_USER_API, GET_UNDELIVERED_SHIPMENTS, GET_DELIVERY_ATTEMPTS_REMARKS, RECORD_SAR_STATUS } from "../../api/index";
 import usePostApiCall from "../../hooks/usePostApiCall";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
 import YMD_DateFormate from "../../helpers/YMD_DateFormate";
 import { toast } from "react-toastify";
+import { checkCustomerPermissions } from "../../helpers/checkCustomerPermissions";
 
 const RtoApproval = () => {
+    const { isAdmin } = checkCustomerPermissions();
+
     // State for managing date range filtering
     const [selectedRange, setSelectedRange] = useState({
         startDate: null,
         endDate: null,
     });
+
+    // SAR remove state
+    const [deleteRow, setDeleteRow] = useState(null);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [sarLoading, setSarLoading] = useState(false);
     // State to track which modal is currently active (single_approval, bulk_approval, view_approval)
     const [selectedModel, setSelectdModel] = useState("")
+    // Bulk RTS Mark modal (Excel upload / manual entry)
+    const [bulkRtsOpen, setBulkRtsOpen] = useState(false)
     // State to store the currently selected row for single actions
     const [selectedRow, setSelectedRow] = useState(null);
     // State for the customer filter dropdown
@@ -43,11 +54,11 @@ const RtoApproval = () => {
     useEffect(() => {
         if (userListData) {
             const options = userListData
-                .filter(ele => {
+                ?.filter(ele => {
                     const name = ele?.customer_name?.trim();
                     return name != null && name !== "null" && name !== "undefined" && name !== "";
                 })
-                .map((ele) => ({
+                ?.map((ele) => ({
                     value: ele.id,
                     label: ele.customer_name
                 }));
@@ -160,6 +171,41 @@ const RtoApproval = () => {
         }
     };
 
+    // SAR remove confirm
+    const handleRemoveConfirm = async () => {
+        if (!deleteRow?.awbno) return;
+        setSarLoading(true);
+        try {
+            const res = await fetch(RECORD_SAR_STATUS, {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    awbno: deleteRow.awbno,
+                    remark: "SAR",
+                    user_id: JSON.parse(localStorage.getItem("authUser") || "{}")?.user?.id,
+                }),
+            });
+            const json = await res.json();
+            if (!res.ok) throw new Error(json?.detail || json?.message || `Error ${res.status}`);
+            toast.success(json?.message || "Removed successfully", { position: "bottom-right", autoClose: 4000 });
+            setShowDeleteConfirm(false);
+            setDeleteRow(null);
+            if (selectedCustomer && selectedRange.startDate && selectedRange.endDate) {
+                const datePayload = YMD_DateFormate(selectedRange);
+                GetUndeliveredShipments(GET_UNDELIVERED_SHIPMENTS, {
+                    customer_name: selectedCustomer.label,
+                    from_date: datePayload.from_date,
+                    to_date: datePayload.to_date,
+                });
+            }
+        } catch (err) {
+            toast.error(err.message, { position: "bottom-right", autoClose: 5000 });
+        } finally {
+            setSarLoading(false);
+        }
+    };
+
     // Triggered when clicking View on a row
     const handleView = (row) => {
         console.log("Viewing row:", row);
@@ -269,7 +315,7 @@ const RtoApproval = () => {
             cell: ({ row }) => {
                 const status = row.original.latest_status?.trim() || "";
                 let badgeClass = "badge-soft-secondary";
-                
+
                 if (['SPD', 'Delivered'].includes(status)) {
                     badgeClass = "badge-soft-success";
                 } else if (['SAO', 'LDP', 'PUD', 'SMR', 'ITR'].includes(status)) {
@@ -323,6 +369,22 @@ const RtoApproval = () => {
                     >
                         View
                     </Button>
+
+                    <Button
+                        color="danger"
+                        size="sm"
+                        className="px-3 py-1"
+                        style={{ borderRadius: "8px" }}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setDeleteRow(row.original);
+                            setShowDeleteConfirm(true);
+                        }}
+                        title="Remove (SAR)"
+                    >
+                        Remove
+                    </Button>
+
                 </div>
             ),
         },
@@ -373,6 +435,17 @@ const RtoApproval = () => {
                             {shipmentsLoading ? "Checking.." : "Check"}
                         </Button>
                     </Col>
+                    <Col md={3} lg={3} className="ms-auto">
+                        <Button
+                            color="primary"
+                            outline
+                            className="w-100"
+                            style={{ height: "38px", marginBottom: "17px" }}
+                            onClick={() => setBulkRtsOpen(true)}
+                        >
+                            Bulk RTS Mark
+                        </Button>
+                    </Col>
                 </Row>
 
                 <div className="mt-2" style={{ height: "75vh", overflowY: "auto", overflowX: "hidden" }}>
@@ -395,6 +468,27 @@ const RtoApproval = () => {
             {
                 ReturnComponent(selectedModel)
             }
+
+            <BulkRtsMarkModal isOpen={bulkRtsOpen} toggle={() => setBulkRtsOpen(false)} />
+
+            {/* SAR remove confirmation modal */}
+            <Modal isOpen={showDeleteConfirm} toggle={() => setShowDeleteConfirm(false)} centered>
+                <ModalHeader toggle={() => setShowDeleteConfirm(false)}>Remove Shipment</ModalHeader>
+                <ModalBody>
+                    Are you sure you want to remove AWB <strong>{deleteRow?.awbno}</strong>?
+                    This will mark it as SAR and cannot be undone.
+                </ModalBody>
+                <ModalFooter>
+                    <Button color="secondary" onClick={() => setShowDeleteConfirm(false)} disabled={sarLoading}>
+                        Cancel
+                    </Button>
+                    <Button color="danger" onClick={handleRemoveConfirm} disabled={sarLoading}>
+                        {sarLoading
+                            ? <><span className="spinner-border spinner-border-sm me-1" role="status" />Removing…</>
+                            : "Remove"}
+                    </Button>
+                </ModalFooter>
+            </Modal>
 
             {/* Bulk Action Footer */}
             {selectedRowCount > 0 && (

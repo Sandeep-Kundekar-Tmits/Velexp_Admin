@@ -30,6 +30,12 @@ self.onmessage = async (e) => {
         excelData = [flattenObject(sheetData)];
       }
 
+      if (excelData.length === 0) {
+        const emptyWorksheet = XLSX.utils.aoa_to_sheet([['No Data Available']]);
+        XLSX.utils.book_append_sheet(workbook, emptyWorksheet, currentSheetName);
+        return;
+      }
+
       const worksheet = XLSX.utils.json_to_sheet(excelData);
       const range = XLSX.utils.decode_range(worksheet['!ref']);
       const numCols = range.e.c - range.s.c + 1;
