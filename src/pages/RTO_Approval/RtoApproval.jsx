@@ -60,7 +60,8 @@ const RtoApproval = () => {
                 })
                 ?.map((ele) => ({
                     value: ele.id,
-                    label: ele.customer_name
+                    label: ele.username ? `${ele.username} - ${ele.customer_name}` : ele.customer_name,
+                    customer_name: ele.customer_name,
                 }));
             setUserListOptions(options);
         }
@@ -81,7 +82,7 @@ const RtoApproval = () => {
         const datePayload = YMD_DateFormate(selectedRange);
         const payload = {
             // customer_id: selectedCustomer.value,
-            customer_name: selectedCustomer.label,
+            customer_name: selectedCustomer.customer_name,
             from_date: datePayload.from_date,
             to_date: datePayload.to_date
         };
@@ -108,7 +109,7 @@ const RtoApproval = () => {
         const datePayload = YMD_DateFormate(selectedRange);
         const payload = {
             // customer_id: selectedCustomer.value,
-            customer_name: selectedCustomer.label,
+            customer_name: selectedCustomer.customer_name,
             from_date: datePayload.from_date,
             to_date: datePayload.to_date
         };
@@ -194,7 +195,7 @@ const RtoApproval = () => {
             if (selectedCustomer && selectedRange.startDate && selectedRange.endDate) {
                 const datePayload = YMD_DateFormate(selectedRange);
                 GetUndeliveredShipments(GET_UNDELIVERED_SHIPMENTS, {
-                    customer_name: selectedCustomer.label,
+                    customer_name: selectedCustomer.customer_name,
                     from_date: datePayload.from_date,
                     to_date: datePayload.to_date,
                 });

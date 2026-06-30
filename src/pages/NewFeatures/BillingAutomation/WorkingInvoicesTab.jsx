@@ -8,6 +8,7 @@ import usePostApiCall from "../../../hooks/usePostApiCall"
 import ToasterProvider from "../../../helpers/ToasterProvider"
 import {
     CORPORATE_BILLING_RUNS,
+    CORPORATE_BILLING_RUNS_BULK_DOWNLOAD,
     CORPORATE_INVOICES_LIST,
     CORPORATE_INVOICE_BASE,
 } from "../../../api"
@@ -15,7 +16,7 @@ import { getBatchStatusColor } from "./statusBadge"
 import UploadPreviewModal from "./UploadPreviewModal"
 
 const WorkingInvoicesTab = () => {
-    const { SuccessToaster } = ToasterProvider()
+    const { SuccessToaster, ErrorToaster } = ToasterProvider()
     const { apifunc: fetchRuns, loading: runsLoading } = usePostApiCall()
     const { apifunc: fetchInvoices, loading: invoicesLoading } = usePostApiCall()
     const { apifunc: vecomAction } = usePostApiCall()
@@ -24,13 +25,17 @@ const WorkingInvoicesTab = () => {
     const [invoices, setInvoices] = useState([])
     const [uploadOpen, setUploadOpen] = useState(false)
     const [vecomBusyId, setVecomBusyId] = useState(null)
+    const [selectedRunIds, setSelectedRunIds] = useState([])
+    const [bulkDownloading, setBulkDownloading] = useState(false)
 
     const normalizeList = (res) =>
         res?.result || res?.results || (Array.isArray(res) ? res : [])
 
     const loadRuns = async () => {
         const res = await fetchRuns(CORPORATE_BILLING_RUNS, { status: "GENERATED" })
-        setRuns(normalizeList(res))
+        const list = normalizeList(res)
+        setRuns(list)
+        setSelectedRunIds([])
     }
 
     const loadInvoices = async () => {
@@ -62,7 +67,65 @@ const WorkingInvoicesTab = () => {
         }
     }
 
+    // ── Bulk download ─────────────────────────────────────────────
+    const isAllSelected = runs.length > 0 && selectedRunIds.length === runs.length
+
+    const toggleSelectAll = () => {
+        setSelectedRunIds(isAllSelected ? [] : runs.map((r) => r.id))
+    }
+
+    const toggleRunSelect = (id) => {
+        setSelectedRunIds((prev) =>
+            prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+        )
+    }
+
+    const handleBulkDownload = async () => {
+        if (!selectedRunIds.length) return
+        setBulkDownloading(true)
+        try {
+            const res = await fetch(CORPORATE_BILLING_RUNS_BULK_DOWNLOAD, {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ run_ids: selectedRunIds }),
+            })
+            if (!res.ok) throw new Error(`Error ${res.status}`)
+            const blob = await res.blob()
+            const url = window.URL.createObjectURL(blob)
+            const a = document.createElement("a")
+            a.href = url
+            a.download = "billing_bulk.zip"
+            a.click()
+            window.URL.revokeObjectURL(url)
+            SuccessToaster(`Downloaded ${selectedRunIds.length} working file(s)`)
+        } catch (err) {
+            ErrorToaster(err.message || "Bulk download failed")
+        } finally {
+            setBulkDownloading(false)
+        }
+    }
+
     const runColumns = useMemo(() => [
+        {
+            header: () => (
+                <input
+                    type="checkbox"
+                    checked={isAllSelected}
+                    onChange={toggleSelectAll}
+                    style={{ cursor: "pointer" }}
+                />
+            ),
+            id: "select",
+            cell: (cell) => (
+                <input
+                    type="checkbox"
+                    checked={selectedRunIds.includes(cell.row.original.id)}
+                    onChange={() => toggleRunSelect(cell.row.original.id)}
+                    style={{ cursor: "pointer" }}
+                />
+            ),
+        },
         { header: "Run ID", accessorKey: "id" },
         { header: "Customer", accessorKey: "customer_name" },
         { header: "Start", accessorKey: "billing_period_start" },
@@ -82,7 +145,7 @@ const WorkingInvoicesTab = () => {
                 </Button>
             ),
         },
-    ], [])
+    ], [isAllSelected, selectedRunIds, runs])
 
     const invoiceColumns = useMemo(() => [
         { header: "Invoice ID", accessorKey: "id" },
@@ -124,9 +187,26 @@ const WorkingInvoicesTab = () => {
             {/* Runs list */}
             <Card className="shadow-sm border-0 mb-4">
                 <CardBody className="p-0">
-                    <div className="p-3 bg-light border-bottom d-flex justify-content-between align-items-center">
-                        <h5 className="mb-0 fw-bold">Generated Working Files</h5>
-                        <div className="d-flex gap-2">
+                    <div className="p-3 bg-light border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div className="d-flex align-items-center gap-2">
+                            <h5 className="mb-0 fw-bold">Generated Working Files</h5>
+                            {selectedRunIds.length > 0 && (
+                                <Badge color="primary" pill>{selectedRunIds.length} selected</Badge>
+                            )}
+                        </div>
+                        <div className="d-flex gap-2 flex-wrap">
+                            {selectedRunIds.length > 0 && (
+                                <Button
+                                    color="success"
+                                    size="sm"
+                                    onClick={handleBulkDownload}
+                                    disabled={bulkDownloading}
+                                    className="d-flex align-items-center gap-1"
+                                >
+                                    {bulkDownloading ? <Spinner size="sm" /> : <MdFileDownload size={16} />}
+                                    Bulk Download ({selectedRunIds.length})
+                                </Button>
+                            )}
                             <Button color="primary" size="sm" onClick={() => setUploadOpen(true)} className="d-flex align-items-center gap-1">
                                 <MdUpload size={16} /> Upload &amp; Invoice
                             </Button>

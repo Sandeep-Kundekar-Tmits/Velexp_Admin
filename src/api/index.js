@@ -1,6 +1,6 @@
 // const BASE_URL = "http://192.168.1.151:8000"
-// const BASE_URL = "https://velexp.com"
-const BASE_URL = "http://velexp.com:8000"
+const BASE_URL = "https://velexp.com"
+// const BASE_URL = "http://velexp.com:8000"
 // const BASE_URL = "https://velexp.com"
 // const BASE_URL = "http://192.168.1.166:8000"
 // const BASE_URL = "http://103.108.57.51:8001"
@@ -262,6 +262,7 @@ export const CORPORATE_BILLING_AUDIT_EXCEL = `${BASE_URL}/corporate-billing/bill
 // corporate billing working runs
 export const CORPORATE_BILLING_GENERATE = `${BASE_URL}/corporate-billing/billing/generate/`
 export const CORPORATE_BILLING_RUNS = `${BASE_URL}/corporate-billing/billing/runs/`
+export const CORPORATE_BILLING_RUNS_BULK_DOWNLOAD = `${BASE_URL}/corporate-billing/billing/runs/bulk-download/` // POST { run_ids: [] }
 
 // corporate billing invoices
 export const CORPORATE_INVOICE_UPLOAD_PREVIEW = `${BASE_URL}/corporate-billing/invoices/upload-preview/`

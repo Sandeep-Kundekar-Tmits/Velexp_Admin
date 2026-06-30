@@ -57,8 +57,10 @@ const InternationRateData = () => {
         if (usersList && Array.isArray(usersList)) {
             const options = usersList
                 .map((u) => {
-                    const label = u.customer_name || u.username;
-                    return label ? { value: label, label, id: u.id } : null;
+                    const label = u.customer_name
+                        ? `${u.username} - ${u.customer_name}`
+                        : u.username;
+                    return label ? { value: u.customer_name || u.username, label, id: u.id } : null;
                 })
                 .filter(Boolean);
             setUserListOptions(options);
