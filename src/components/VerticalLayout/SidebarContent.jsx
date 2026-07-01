@@ -17,7 +17,7 @@ import { useCallback } from "react";
 import { checkCustomerPermissions } from "../../helpers/checkCustomerPermissions";
 import ProfileMenu from "../CommonForBoth/TopbarDropdown/ProfileMenu";
 
-const SidebarContent = (props) => {
+const SidebarContent = ({ onLinkClick, ...props }) => {
   const ref = useRef();
   const path = useLocation();
 
@@ -165,7 +165,10 @@ const SidebarContent = (props) => {
   return (
     <React.Fragment>
       <SimpleBar className="h-100" ref={ref}>
-        <div id="sidebar-menu" >
+        <div id="sidebar-menu" onClick={(e) => {
+            const link = e.target.closest("a");
+            if (link && !link.classList.contains("has-arrow")) onLinkClick?.();
+          }}>
           <ul className="metismenu list-unstyled " id="side-menu">
             {/* <li className="menu-title">{props.t("Menu")} </li> */}
             {/* <li>

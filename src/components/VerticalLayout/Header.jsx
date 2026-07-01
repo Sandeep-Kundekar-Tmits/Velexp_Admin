@@ -1,93 +1,90 @@
 import PropTypes from 'prop-types';
-import React, { useState } from "react";
-
+import React from "react";
 import { connect } from "react-redux";
-import { Link } from "react-router-dom";
-
-// Import menuDropdown
-
-import ProfileMenu from "../CommonForBoth/TopbarDropdown/ProfileMenu";
-// import image
-import logoLightSvg from "../../assets/images/vellocity-express-single-logo.png";
-
-//i18n
+import { useLocation } from "react-router-dom";
 import { withTranslation } from "react-i18next";
 
+const ROUTE_TITLES = {
+  "/add-pod": "Add POD",
+  "/user-list": "Customers",
+  "/add-user": "Add User",
+  "/edit-user": "Edit User",
+  "/customer-rate-data": "Rate Data",
+  "/retail-pincode": "Retail Pincode",
+  "/franchise-pincode": "Franchise Pincode",
+  "/corporate-pincode": "Corporate Pincode",
+  "/corporate-rate-data": "Corporate Rate Data",
+  "/retail-rate-data": "Retail Rate Data",
+  "/franchise-rate-data": "Franchise Rate Data",
+  "/intl-rate-data": "International Rates",
+  "/intl-pincode": "International Pincodes",
+  "/last-mile-operation": "Delivery Strike Rate",
+  "/first-mile-operation": "Pickup Strike Rate",
+  "/attempt-wise-delivery-performance": "Attempt-wise Delivery",
+  "/last-mile-customer-performance": "Delivery Strike Rate",
+  "/first-mile-customer-performance": "Pickup Strike Rate",
+  "/customer-attempt-wise-delivery-performance": "Attempt-wise Delivery",
+  "/pickup-performance": "Pickup Performance",
+  "/status-update": "Status Update",
+  "/cd-update": "CD Update",
+  "/customer-performance": "Customer Performance",
+  "/performance-report": "Performance Report",
+  "/status-update-audit": "Status Update Audit",
+  "/productivity-report": "Productivity Report",
+  "/pending-report": "Pending Report",
+  "/mis-report": "MIS Run",
+  "/revenue-report": "Revenue Report",
+  "/daily-revenue": "Daily Revenue",
+  "/mis-tally": "MIS Tally",
+  "/cod-report": "COD Report",
+  "/franchise_invoice": "Franchise Billing",
+  "/manual_invoice": "Manual Billing",
+  "/corporate-billing": "Corporate Bills",
+  "/edit_invoice": "Download Invoices",
+  "/mark-invoice-no": "Mark Invoice Number",
+  "/bill-master": "Customer Billing",
+  "/shipment-billing": "Shipment Billing",
+  "/billing-working": "Billing Working",
+  "/billing-automation": "Billing Automation",
+  "/invoice-flow": "Invoice Flow",
+  "/all-booking": "All Booking",
+  "/delhivery-warehouse": "Delhivery Warehouse",
+  "/payment-deatils": "Payment Details",
+  "/employee-attendance": "Employee Trip Details",
+  "/trip-detail": "Ops Trip Management",
+  "/cod-reconciliation": "COD Reconciliation",
+  "/pop-reconcilation": "POP Reconciliation",
+  "/auto-reconciliation": "Auto Reconciliation",
+  "/awb-print": "AWB Label Print",
+  "/inscan-weight": "InScan Weight",
+  "/rto-approval": "RTO Approval",
+  "/tracking": "Track AWB",
+  "/itrack": "ITrack",
+  "/privileges": "Privileges",
+  "/service-provider-booking": "Service Provider Booking",
+};
 
-
-const Header = props => {
-
-  function toggleFullscreen() {
-    if (
-      !document.fullscreenElement &&
-      /* alternative standard method */ !document.mozFullScreenElement &&
-      !document.webkitFullscreenElement
-    ) {
-      // current working methods
-      if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen();
-      } else if (document.documentElement.mozRequestFullScreen) {
-        document.documentElement.mozRequestFullScreen();
-      } else if (document.documentElement.webkitRequestFullscreen) {
-        document.documentElement.webkitRequestFullscreen(
-          Element.ALLOW_KEYBOARD_INPUT
-        );
-      }
-    } else {
-      if (document.cancelFullScreen) {
-        document.cancelFullScreen();
-      } else if (document.mozCancelFullScreen) {
-        document.mozCancelFullScreen();
-      } else if (document.webkitCancelFullScreen) {
-        document.webkitCancelFullScreen();
-      }
-    }
-  }
-
-  function tToggle() {
-    var body = document.body;
-    if (window.screen.width <= 998) {
-      body.classList.toggle("sidebar-enable");
-    } else {
-      body.classList.toggle("vertical-collpsed");
-      body.classList.toggle("sidebar-enable");
-    }
-  }
+const Header = ({ onMobileToggle }) => {
+  const location = useLocation();
+  const pageTitle = ROUTE_TITLES[location.pathname] ?? "Velexp";
 
   return (
     <React.Fragment>
       <header id="page-topbar">
         <div className="navbar-header">
-          <div className="d-flex">
-
-            <div className="navbar-brand-box d-lg-none d-md-block">
-              <Link to="/" className="logo logo-dark">
-                <span className="logo-sm">
-                  <img src={logoLightSvg} alt="" height="22" />
-                </span>
-              </Link>
-
-              <Link to="/" className="logo logo-light">
-                <span className="logo-sm">
-                  <img src={logoLightSvg} alt="" height="22" />
-                </span>
-              </Link>
-            </div>
-
+          <div className="d-flex align-items-center">
             <button
               type="button"
-              onClick={() => {
-                tToggle();
-              }}
-              className="btn btn-sm px-3 font-size-16 header-item "
+              onClick={onMobileToggle}
+              className="btn btn-sm px-3 font-size-16 header-item"
               id="vertical-menu-btn"
             >
               <i className="fa fa-fw fa-bars" />
             </button>
+            <span style={{ fontWeight: 600, fontSize: 16, color: "#333" }}>
+              {pageTitle}
+            </span>
           </div>
-          {/* <ProfileMenu /> */}
-
-
         </div>
       </header>
     </React.Fragment>
@@ -95,20 +92,12 @@ const Header = props => {
 };
 
 Header.propTypes = {
-  leftMenu: PropTypes.any,
-  leftSideBarType: PropTypes.any,
-  t: PropTypes.any,
-  toggleLeftmenu: PropTypes.func
+  onMobileToggle: PropTypes.func,
 };
 
 const mapStatetoProps = state => {
-  const {
-    layoutType,
-    leftMenu,
-    leftSideBarType,
-  } = state.Layout;
+  const { layoutType, leftMenu, leftSideBarType } = state.Layout;
   return { layoutType, leftMenu, leftSideBarType };
 };
 
-export default connect(mapStatetoProps, {
-})(withTranslation()(Header));
+export default connect(mapStatetoProps, {})(withTranslation()(Header));
