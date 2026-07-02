@@ -1,9 +1,23 @@
 // Animated horizontal bar chart of Gross revenue by product (product on Y, amount on X).
 import ReactApexChart from "react-apexcharts"
 import { Card, CardBody } from "reactstrap"
+import { useState, useEffect } from "react"
 import { formatINR, formatINRCompact } from "../revenueFormat"
 
+const useWindowWidth = () => {
+    const [width, setWidth] = useState(window.innerWidth)
+    useEffect(() => {
+        const handler = () => setWidth(window.innerWidth)
+        window.addEventListener("resize", handler)
+        return () => window.removeEventListener("resize", handler)
+    }, [])
+    return width
+}
+
 const ProductBarChart = ({ rows = [], topN = 7 }) => {
+    const windowWidth = useWindowWidth()
+    const isMobile = windowWidth < 576
+
     const sorted = [...rows].sort((a, b) => (b?.gross || 0) - (a?.gross || 0)).slice(0, topN)
     const categories = sorted.map((r) => r.product || "—")
     const series = [
@@ -11,10 +25,12 @@ const ProductBarChart = ({ rows = [], topN = 7 }) => {
         { name: "Net", data: sorted.map((r) => Number(r.net) || 0) },
     ]
 
+    const chartHeight = isMobile ? Math.max(sorted.length * 50, 240) : 400
+
     const options = {
         chart: {
             type: "bar",
-            height: 400,
+            height: chartHeight,
             fontFamily: "inherit",
             toolbar: { show: false },
             animations: {
@@ -35,13 +51,28 @@ const ProductBarChart = ({ rows = [], topN = 7 }) => {
         grid: { borderColor: "#f1f1f5", strokeDashArray: 4 },
         xaxis: {
             categories,
-            labels: { formatter: (v) => formatINRCompact(v), style: { fontSize: "11px", colors: "#74788d" } },
+            labels: {
+                formatter: (v) => formatINRCompact(v),
+                style: { fontSize: isMobile ? "9px" : "11px", colors: "#74788d" },
+            },
             axisBorder: { show: false },
             axisTicks: { show: false },
         },
-        yaxis: { labels: { trim: false, maxWidth: 220, style: { fontSize: "12px", colors: "#495057" } } },
+        yaxis: {
+            labels: {
+                trim: isMobile,
+                maxWidth: isMobile ? 90 : 220,
+                style: { fontSize: isMobile ? "10px" : "12px", colors: "#495057" },
+            },
+        },
         tooltip: { shared: true, intersect: false, y: { formatter: (v) => formatINR(v) } },
-        legend: { show: true, position: "top", horizontalAlign: "right", markers: { radius: 4 } },
+        legend: {
+            show: true,
+            position: "top",
+            horizontalAlign: "right",
+            markers: { radius: 4 },
+            fontSize: isMobile ? "11px" : "13px",
+        },
     }
 
     return (
@@ -52,7 +83,7 @@ const ProductBarChart = ({ rows = [], topN = 7 }) => {
                 <div className="mt-auto">
                     {sorted.length === 0
                         ? <p className="text-muted mb-0">No product data.</p>
-                        : <ReactApexChart options={options} series={series} type="bar" height={400} />}
+                        : <ReactApexChart options={options} series={series} type="bar" height={chartHeight} />}
                 </div>
             </CardBody>
         </Card>

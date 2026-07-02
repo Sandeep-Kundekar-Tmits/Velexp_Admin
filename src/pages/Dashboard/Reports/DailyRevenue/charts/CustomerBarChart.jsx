@@ -1,9 +1,23 @@
 // Animated horizontal bar chart of Gross revenue by customer (sorted desc).
 import ReactApexChart from "react-apexcharts"
 import { Card, CardBody } from "reactstrap"
+import { useState, useEffect } from "react"
 import { formatINR, formatINRCompact } from "../revenueFormat"
 
+const useWindowWidth = () => {
+    const [width, setWidth] = useState(window.innerWidth)
+    useEffect(() => {
+        const handler = () => setWidth(window.innerWidth)
+        window.addEventListener("resize", handler)
+        return () => window.removeEventListener("resize", handler)
+    }, [])
+    return width
+}
+
 const CustomerBarChart = ({ rows = [], topN }) => {
+    const windowWidth = useWindowWidth()
+    const isMobile = windowWidth < 576
+
     const sorted = [...rows].sort((a, b) => (b?.gross || 0) - (a?.gross || 0))
     const data = topN ? sorted.slice(0, topN) : sorted
     const categories = data.map((r) => r.name || "—")
@@ -12,8 +26,9 @@ const CustomerBarChart = ({ rows = [], topN }) => {
         { name: "Net", data: data.map((r) => Number(r.net) || 0) },
     ]
 
-    // grow height with the number of bars so every paired group has room
-    const height = Math.max(360, data.length * 52 + 60)
+    // grow height with the number of bars; tighter rows on mobile
+    const rowHeight = isMobile ? 42 : 52
+    const height = Math.max(isMobile ? 260 : 360, data.length * rowHeight + 60)
 
     const options = {
         chart: {
@@ -39,15 +54,28 @@ const CustomerBarChart = ({ rows = [], topN }) => {
         grid: { borderColor: "#f1f1f5", strokeDashArray: 4 },
         xaxis: {
             categories,
-            labels: { formatter: (v) => formatINRCompact(v), style: { fontSize: "11px", colors: "#74788d" } },
+            labels: {
+                formatter: (v) => formatINRCompact(v),
+                style: { fontSize: isMobile ? "9px" : "11px", colors: "#74788d" },
+            },
             axisBorder: { show: false },
             axisTicks: { show: false },
         },
         yaxis: {
-            labels: { trim: false, maxWidth: 260, style: { fontSize: "12px", colors: "#495057" } },
+            labels: {
+                trim: isMobile,
+                maxWidth: isMobile ? 100 : 260,
+                style: { fontSize: isMobile ? "10px" : "12px", colors: "#495057" },
+            },
         },
         tooltip: { shared: true, intersect: false, y: { formatter: (v) => formatINR(v) } },
-        legend: { show: true, position: "top", horizontalAlign: "right", markers: { radius: 4 } },
+        legend: {
+            show: true,
+            position: "top",
+            horizontalAlign: "right",
+            markers: { radius: 4 },
+            fontSize: isMobile ? "11px" : "13px",
+        },
     }
 
     return (

@@ -1,6 +1,6 @@
 // 2D SVG India map: states colour-coded by their total hub revenue (choropleth),
 // service-center hubs pinned by lat/lng. Hover a state or a pin to see its revenue.
-import { useMemo, useState } from "react"
+import { useMemo, useState, useEffect } from "react"
 import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps"
 import { feature } from "topojson-client"
 import { geoContains, geoMercator } from "d3-geo"
@@ -34,12 +34,25 @@ const darkenHex = (hex, f = 0.8) => {
     return `rgb(${Math.round(((n >> 16) & 255) * f)}, ${Math.round(((n >> 8) & 255) * f)}, ${Math.round((n & 255) * f)})`
 }
 
+const useWindowWidth = () => {
+    const [width, setWidth] = useState(window.innerWidth)
+    useEffect(() => {
+        const handler = () => setWidth(window.innerWidth)
+        window.addEventListener("resize", handler)
+        return () => window.removeEventListener("resize", handler)
+    }, [])
+    return width
+}
+
 // --- Drill-down popup: zoomed map of one state + its service centers ---
 const MODAL_W = 1000
 const MODAL_H = 620
 
 const StateDetailModal = ({ stateName, points = [], onClose }) => {
     const [hoverCode, setHoverCode] = useState(null) // service center hovered → show details below its pin
+    const windowWidth = useWindowWidth()
+    const isMobile = windowWidth < 640
+
     const stateFeature = useMemo(
         () => STATE_FEATURES.find((f) => f.properties?.name === stateName) || null,
         [stateName]
@@ -62,12 +75,10 @@ const StateDetailModal = ({ stateName, points = [], onClose }) => {
         )
     }, [stateFeature])
 
-    // Decide where each on-map label sits: walk centers highest-revenue-first; try the
-    // top of the pin, and if that collides with an already-placed label, drop it to the
-    // bottom; if both collide, hide it (details still show on hover).
+    // Label placement: always compute so pins are labelled in the modal on all screen sizes
     const labelPlacement = useMemo(() => {
+        if (!projection) return {}
         const place = {}
-        if (!projection) return place
         const placed = []
         const hits = (x, y) => placed.some((p) => Math.abs(p.x - x) < 64 && Math.abs(p.y - y) < 30)
         centers.forEach((c) => {
@@ -79,13 +90,49 @@ const StateDetailModal = ({ stateName, points = [], onClose }) => {
             else place[c.code] = null
         })
         return place
-    }, [centers, projection])
+    }, [centers, projection, isMobile])
 
     const totals = centers.reduce(
         (t, c) => ({ gross: t.gross + c.gross, net: t.net + c.net, shipments: t.shipments + c.shipments }),
         { gross: 0, net: 0, shipments: 0 }
     )
     const stateColor = colorOf(totals.gross) // same revenue color-bucket as the choropleth
+
+    // Shared detail panel — rendered as overlay on desktop, below map on mobile
+    const detailPanel = (
+        <>
+            <div className="fw-bold mb-2" style={{ fontSize: 15 }}>{stateName}</div>
+            <div className="d-flex justify-content-between mb-1" style={{ fontSize: 12.5 }}>
+                <span className="text-muted">Gross</span><span className="fw-bold">{formatINR(totals.gross)}</span>
+            </div>
+            <div className="d-flex justify-content-between mb-1" style={{ fontSize: 12.5 }}>
+                <span className="text-muted">Net</span><span className="fw-semibold">{formatINR(totals.net)}</span>
+            </div>
+            <div className="d-flex justify-content-between mb-1" style={{ fontSize: 12.5 }}>
+                <span className="text-muted">Shipments</span><span className="fw-semibold">{formatInt(totals.shipments)}</span>
+            </div>
+            <div className="d-flex justify-content-between pt-1 mt-1 border-top" style={{ fontSize: 12.5 }}>
+                <span className="text-muted">Service Centers</span><span className="fw-semibold">{centers.length}</span>
+            </div>
+            {centers.length > 0 && (
+                <div className="mt-2 pt-2 border-top" style={{ overflowY: "auto", minHeight: 0, paddingRight: 4 }}>
+                    {centers.map((c, i) => (
+                        <div
+                            key={c.code}
+                            className="sc-row d-flex align-items-center justify-content-between py-1 border-bottom"
+                            style={{ fontSize: 12.5, animationDelay: `${i * 40}ms` }}
+                        >
+                            <span className="d-flex align-items-center gap-2 text-truncate" style={{ minWidth: 0 }}>
+                                <span style={{ width: 9, height: 9, borderRadius: 2, background: colorOf(c.gross), border: "1px solid rgba(0,0,0,0.12)", flex: "0 0 auto" }} />
+                                <span className="fw-semibold text-truncate" title={c.code}>{c.code}</span>
+                            </span>
+                            <span className="fw-semibold ms-2" style={{ whiteSpace: "nowrap" }}>{formatINR(c.gross)}</span>
+                        </div>
+                    ))}
+                </div>
+            )}
+        </>
+    )
 
     return (
         <Modal isOpen={!!stateName} toggle={onClose} fullscreen modalClassName="sc-zoom-modal">
@@ -95,7 +142,10 @@ const StateDetailModal = ({ stateName, points = [], onClose }) => {
                     {centers.length} service center{centers.length === 1 ? "" : "s"} · {formatINR(totals.gross)}
                 </span>
             </ModalHeader>
-            <ModalBody className="p-2" style={{ overflow: "hidden", display: "flex", flexDirection: "column" }}>
+            <ModalBody
+                className="p-2"
+                style={{ overflow: isMobile ? "auto" : "hidden", display: "flex", flexDirection: "column" }}
+            >
                 <style>{`
                     /* zoom-open instead of the default slide-from-top */
                     .modal.sc-zoom-modal.fade .modal-dialog { transform: scale(.45); opacity: 0; transition: transform .4s cubic-bezier(.34,1.56,.64,1), opacity .3s ease; transform-origin: center center; }
@@ -110,12 +160,13 @@ const StateDetailModal = ({ stateName, points = [], onClose }) => {
                     .sc-lbl { paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; animation: scLblIn .6s ease both; pointer-events: none; }
                 `}</style>
 
+                {/* Map section */}
                 <div
                     style={{
                         position: "relative",
-                        flex: "1 1 auto",
-                        minHeight: 0,
-                        borderRadius: 14,
+                        flex: isMobile ? "0 0 45vh" : "1 1 auto",
+                        minHeight: isMobile ? "45vh" : 0,
+                        borderRadius: isMobile ? "12px 12px 0 0" : 14,
                         overflow: "hidden",
                         background: "radial-gradient(120% 120% at 30% 10%, #f5f7ff 0%, #e8edff 45%, #d7defb 100%)",
                         animation: "scMapFade .45s ease both",
@@ -146,7 +197,7 @@ const StateDetailModal = ({ stateName, points = [], onClose }) => {
                             </Geographies>
 
                             {centers.map((c, i) => {
-                                const r = 6 // uniform pin size, same as the main map
+                                const r = 6
                                 return (
                                     <Marker
                                         key={`${c.code}-${i}`}
@@ -163,23 +214,23 @@ const StateDetailModal = ({ stateName, points = [], onClose }) => {
                                             strokeWidth={1}
                                             style={{ animationDelay: `${i * 70}ms`, cursor: "pointer" }}
                                         />
-                                        {/* details printed on the map — top by default; flips to bottom when it would overlap; hidden if both collide (still on hover) */}
+                                        {/* pin labels — always shown in the state modal */}
                                         {labelPlacement[c.code] === "top" && (
                                             <>
-                                                <text textAnchor="middle" y={-r - 14} className="sc-lbl" style={{ fontSize: 12.5, fontWeight: 800, fill: "#10233f", animationDelay: `${i * 70 + 120}ms` }}>
+                                                <text textAnchor="middle" y={-r - 14} className="sc-lbl" style={{ fontSize: isMobile ? 10 : 12.5, fontWeight: 800, fill: "#10233f", animationDelay: `${i * 70 + 120}ms` }}>
                                                     {c.code}
                                                 </text>
-                                                <text textAnchor="middle" y={-r - 2} className="sc-lbl" style={{ fontSize: 11, fontWeight: 600, fill: "#1f2d4d", animationDelay: `${i * 70 + 180}ms` }}>
+                                                <text textAnchor="middle" y={-r - 2} className="sc-lbl" style={{ fontSize: isMobile ? 9 : 11, fontWeight: 600, fill: "#1f2d4d", animationDelay: `${i * 70 + 180}ms` }}>
                                                     {formatINRCompact(c.gross)} · {formatInt(c.shipments)} shp
                                                 </text>
                                             </>
                                         )}
                                         {labelPlacement[c.code] === "bottom" && (
                                             <>
-                                                <text textAnchor="middle" y={r + 14} className="sc-lbl" style={{ fontSize: 12.5, fontWeight: 800, fill: "#10233f", animationDelay: `${i * 70 + 120}ms` }}>
+                                                <text textAnchor="middle" y={r + 14} className="sc-lbl" style={{ fontSize: isMobile ? 10 : 12.5, fontWeight: 800, fill: "#10233f", animationDelay: `${i * 70 + 120}ms` }}>
                                                     {c.code}
                                                 </text>
-                                                <text textAnchor="middle" y={r + 26} className="sc-lbl" style={{ fontSize: 11, fontWeight: 600, fill: "#1f2d4d", animationDelay: `${i * 70 + 180}ms` }}>
+                                                <text textAnchor="middle" y={r + 26} className="sc-lbl" style={{ fontSize: isMobile ? 9 : 11, fontWeight: 600, fill: "#1f2d4d", animationDelay: `${i * 70 + 180}ms` }}>
                                                     {formatINRCompact(c.gross)} · {formatInt(c.shipments)} shp
                                                 </text>
                                             </>
@@ -188,8 +239,8 @@ const StateDetailModal = ({ stateName, points = [], onClose }) => {
                                 )
                             })}
 
-                            {/* hover details — rendered last (on top), below the hovered pin */}
-                            {(() => {
+                            {/* hover details tooltip — desktop only (touch doesn't fire mouseEnter) */}
+                            {!isMobile && (() => {
                                 const c = centers.find((x) => x.code === hoverCode)
                                 if (!c) return null
                                 const r = 6
@@ -216,70 +267,59 @@ const StateDetailModal = ({ stateName, points = [], onClose }) => {
                         </div>
                     )}
 
-                    {/* state revenue detail + service-center list — top right */}
-                    <div
-                        style={{
-                            position: "absolute", right: 16, top: 16, zIndex: 6, width: 280, maxHeight: "calc(100% - 32px)", display: "flex", flexDirection: "column",
-                            background: "rgba(255,255,255,0.94)", backdropFilter: "blur(6px)",
-                            border: "1px solid rgba(0,0,0,0.08)", borderRadius: 12,
-                            boxShadow: "0 8px 24px rgba(0,0,0,0.12)", padding: "14px 16px",
-                            animation: "scMapFade .5s ease both",
-                        }}
-                    >
-                        <div className="fw-bold mb-2" style={{ fontSize: 15 }}>{stateName}</div>
-                        <div className="d-flex justify-content-between mb-1" style={{ fontSize: 12.5 }}>
-                            <span className="text-muted">Gross</span><span className="fw-bold">{formatINR(totals.gross)}</span>
+                    {/* Desktop: overlay panel top-right */}
+                    {!isMobile && (
+                        <div
+                            style={{
+                                position: "absolute", right: 16, top: 16, zIndex: 6, width: 280,
+                                maxHeight: "calc(100% - 32px)", display: "flex", flexDirection: "column",
+                                background: "rgba(255,255,255,0.94)", backdropFilter: "blur(6px)",
+                                border: "1px solid rgba(0,0,0,0.08)", borderRadius: 12,
+                                boxShadow: "0 8px 24px rgba(0,0,0,0.12)", padding: "14px 16px",
+                                animation: "scMapFade .5s ease both",
+                            }}
+                        >
+                            {detailPanel}
                         </div>
-                        <div className="d-flex justify-content-between mb-1" style={{ fontSize: 12.5 }}>
-                            <span className="text-muted">Net</span><span className="fw-semibold">{formatINR(totals.net)}</span>
-                        </div>
-                        <div className="d-flex justify-content-between mb-1" style={{ fontSize: 12.5 }}>
-                            <span className="text-muted">Shipments</span><span className="fw-semibold">{formatInt(totals.shipments)}</span>
-                        </div>
-                        <div className="d-flex justify-content-between pt-1 mt-1 border-top" style={{ fontSize: 12.5 }}>
-                            <span className="text-muted">Service Centers</span><span className="fw-semibold">{centers.length}</span>
-                        </div>
+                    )}
 
-                        {/* per service-center revenue, below the state detail */}
-                        {centers.length > 0 && (
-                            <div className="mt-2 pt-2 border-top" style={{ overflowY: "auto", minHeight: 0, paddingRight: 10 }}>
-                                {centers.map((c, i) => (
-                                    <div
-                                        key={c.code}
-                                        className="sc-row d-flex align-items-center justify-content-between py-1 border-bottom"
-                                        style={{ fontSize: 12.5, animationDelay: `${i * 40}ms` }}
-                                    >
-                                        <span className="d-flex align-items-center gap-2 text-truncate" style={{ minWidth: 0 }}>
-                                            <span style={{ width: 9, height: 9, borderRadius: 2, background: colorOf(c.gross), border: "1px solid rgba(0,0,0,0.12)", flex: "0 0 auto" }} />
-                                            <span className="fw-semibold text-truncate" title={c.code}>{c.code}</span>
-                                        </span>
-                                        <span className="fw-semibold ms-2" style={{ whiteSpace: "nowrap" }}>{formatINR(c.gross)}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* revenue color legend */}
-                    <div
-                        style={{
-                            position: "absolute", left: 12, bottom: 12, zIndex: 5,
-                            display: "flex", flexDirection: "column", gap: 5, padding: "9px 11px",
-                            background: "rgba(255,255,255,0.9)", backdropFilter: "blur(4px)",
-                            border: "1px solid rgba(0,0,0,0.1)", borderRadius: 8, boxShadow: "0 4px 14px rgba(0,0,0,0.12)",
-                            font: "11px/1.2 sans-serif", color: "#495057",
-                        }}
-                    >
-                        <div style={{ fontWeight: 700, marginBottom: 2 }}>Revenue</div>
-                        {BUCKETS.map((b) => (
-                            <span key={b.label} style={{ display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
-                                <span style={{ width: 12, height: 12, borderRadius: 3, background: b.color, border: "1px solid rgba(0,0,0,0.12)" }} />
-                                {b.label}
-                            </span>
-                        ))}
-                    </div>
-
+                    {/* Revenue legend — desktop only (shown in panel on mobile) */}
+                    {!isMobile && (
+                        <div
+                            style={{
+                                position: "absolute", left: 12, bottom: 12, zIndex: 5,
+                                display: "flex", flexDirection: "column", gap: 5, padding: "9px 11px",
+                                background: "rgba(255,255,255,0.9)", backdropFilter: "blur(4px)",
+                                border: "1px solid rgba(0,0,0,0.1)", borderRadius: 8,
+                                boxShadow: "0 4px 14px rgba(0,0,0,0.12)",
+                                font: "11px/1.2 sans-serif", color: "#495057",
+                            }}
+                        >
+                            <div style={{ fontWeight: 700, marginBottom: 2 }}>Revenue</div>
+                            {BUCKETS.map((b) => (
+                                <span key={b.label} style={{ display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
+                                    <span style={{ width: 12, height: 12, borderRadius: 3, background: b.color, border: "1px solid rgba(0,0,0,0.12)" }} />
+                                    {b.label}
+                                </span>
+                            ))}
+                        </div>
+                    )}
                 </div>
+
+                {/* Mobile: detail panel below the map */}
+                {isMobile && (
+                    <div
+                        style={{
+                            flex: "1 1 auto",
+                            overflowY: "auto",
+                            background: "#fff",
+                            padding: "16px",
+                            borderTop: "1px solid rgba(0,0,0,0.08)",
+                        }}
+                    >
+                        {detailPanel}
+                    </div>
+                )}
             </ModalBody>
         </Modal>
     )
@@ -288,6 +328,8 @@ const StateDetailModal = ({ stateName, points = [], onClose }) => {
 const ServiceCenterMap = ({ rows = [] }) => {
     const [tip, setTip] = useState(null) // { x, y, title, rows: [{label, value, bold}] }
     const [selectedState, setSelectedState] = useState(null) // state name for the drill-down popup
+    const windowWidth = useWindowWidth()
+    const isMobile = windowWidth < 576
 
     const points = useMemo(() => {
         return rows.filter(hasValidCoords).map((r) => ({
@@ -333,7 +375,7 @@ const ServiceCenterMap = ({ rows = [] }) => {
                 <div className="mb-2">
                     <h6 className="fw-bold mb-1">Service Centers</h6>
                     <p className="text-muted small mb-0">
-                        States shaded by revenue · {points.length} hubs pinned · click a state for its service centers
+                        States shaded by revenue · {points.length} hubs pinned · {isMobile ? "tap" : "click"} a state for its service centers
                         {skipped > 0 && <span className="ms-1">· {skipped} without coordinates hidden</span>}
                     </p>
                 </div>
@@ -344,7 +386,7 @@ const ServiceCenterMap = ({ rows = [] }) => {
                     <div className="d-flex flex-wrap gap-3 align-items-stretch">
                     <div
                         style={{
-                            flex: "1 1 460px",
+                            flex: "1 1 420px",  // large enough to dominate; wraps to full width on mobile
                             minWidth: 0,
                             position: "relative",
                             borderRadius: 16,
@@ -386,7 +428,7 @@ const ServiceCenterMap = ({ rows = [] }) => {
                                                 strokeWidth={0.8}
                                                 filter="url(#glassDepth)"
                                                 onMouseEnter={(e) =>
-                                                    setTip({
+                                                    !isMobile && setTip({
                                                         x: e.clientX,
                                                         y: e.clientY,
                                                         title: name || "—",
@@ -398,7 +440,7 @@ const ServiceCenterMap = ({ rows = [] }) => {
                                                             : [{ label: "", value: "No service centers" }],
                                                     })
                                                 }
-                                                onMouseMove={(e) => setTip((h) => (h ? { ...h, x: e.clientX, y: e.clientY } : h))}
+                                                onMouseMove={(e) => !isMobile && setTip((h) => (h ? { ...h, x: e.clientX, y: e.clientY } : h))}
                                                 onMouseLeave={() => setTip(null)}
                                                 onClick={() => name && setSelectedState(name)}
                                                 style={{
@@ -417,7 +459,7 @@ const ServiceCenterMap = ({ rows = [] }) => {
                                     key={`${p.code}-${i}`}
                                     coordinates={[p.lng, p.lat]}
                                     onMouseEnter={(e) =>
-                                        setTip({
+                                        !isMobile && setTip({
                                             x: e.clientX,
                                             y: e.clientY,
                                             title: p.code,
@@ -428,7 +470,7 @@ const ServiceCenterMap = ({ rows = [] }) => {
                                             ],
                                         })
                                     }
-                                    onMouseMove={(e) => setTip((h) => (h ? { ...h, x: e.clientX, y: e.clientY } : h))}
+                                    onMouseMove={(e) => !isMobile && setTip((h) => (h ? { ...h, x: e.clientX, y: e.clientY } : h))}
                                     onMouseLeave={() => setTip(null)}
                                 >
                                     <circle
@@ -453,30 +495,31 @@ const ServiceCenterMap = ({ rows = [] }) => {
                                 zIndex: 5,
                                 display: "flex",
                                 flexDirection: "column",
-                                gap: 6,
-                                padding: "10px 12px",
+                                gap: isMobile ? 4 : 6,
+                                padding: isMobile ? "6px 8px" : "10px 12px",
                                 background: "rgba(255,255,255,0.88)",
                                 backdropFilter: "blur(4px)",
                                 border: "1px solid rgba(0,0,0,0.1)",
                                 borderRadius: 8,
                                 boxShadow: "0 4px 14px rgba(0,0,0,0.12)",
-                                font: "11px/1.2 sans-serif",
+                                font: `${isMobile ? 9 : 11}px/1.2 sans-serif`,
                                 color: "#495057",
                             }}
                         >
                             <div style={{ fontWeight: 700, marginBottom: 2 }}>Revenue</div>
                             {BUCKETS.map((b) => (
-                                <span key={b.label} style={{ display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
-                                    <span style={{ width: 13, height: 13, borderRadius: 3, background: b.color, border: "1px solid rgba(0,0,0,0.12)" }} />
+                                <span key={b.label} style={{ display: "flex", alignItems: "center", gap: 5, whiteSpace: "nowrap" }}>
+                                    <span style={{ width: isMobile ? 10 : 13, height: isMobile ? 10 : 13, borderRadius: 3, background: b.color, border: "1px solid rgba(0,0,0,0.12)", flexShrink: 0 }} />
                                     {b.label}
                                 </span>
                             ))}
-                            <span style={{ display: "flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
-                                <span style={{ width: 13, height: 13, borderRadius: 3, background: NO_DATA, border: "1px solid rgba(0,0,0,0.12)" }} />
+                            <span style={{ display: "flex", alignItems: "center", gap: 5, whiteSpace: "nowrap" }}>
+                                <span style={{ width: isMobile ? 10 : 13, height: isMobile ? 10 : 13, borderRadius: 3, background: NO_DATA, border: "1px solid rgba(0,0,0,0.12)", flexShrink: 0 }} />
                                 No data
                             </span>
                         </div>
 
+                        {/* Hover tooltip — desktop only */}
                         {tip && (
                             <div
                                 style={{
@@ -508,7 +551,7 @@ const ServiceCenterMap = ({ rows = [] }) => {
 
                     {/* Revenue list beside the map — states by revenue, highest first */}
                     <div
-                        style={{ flex: "0 0 260px", maxHeight: 560, overflowY: "auto" }}
+                        style={{ flex: "0 0 240px", maxHeight: 560, overflowY: "auto" }}
                         className="border rounded-3 p-2 bg-white"
                     >
                         <div className="d-flex justify-content-between align-items-center px-1 mb-2">

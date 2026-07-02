@@ -92,6 +92,12 @@ const AutoReconciliation = lazy(() => import("../pages/Dashboard/AutoReconciliat
 const MisReport = lazy(() => import("../pages/Dashboard/Reports/MisReport"));
 const ITrack = lazy(() => import("../pages/ITrack/ITrack"));
 
+// Ops Disputes (admin features)
+const OpsStaleShipments = lazy(() => import("../pages/OpsDisputes/StaleShipments"));
+const OpsDisputeList = lazy(() => import("../pages/OpsDisputes/DisputeList"));
+const OpsDisputeDetail = lazy(() => import("../pages/OpsDisputes/DisputeDetail"));
+const OpsLostDashboard = lazy(() => import("../pages/OpsDisputes/LostDashboard"));
+
 
 
 
@@ -209,6 +215,13 @@ const getAuthProtectedRoutes = () => {
     { path: "/mis-report", component: <MisReport /> },
     { path: "/intl-rate-data", component: <InternationRateData /> },
     { path: "/itrack", component: <ITrack /> },
+
+    // Ops Disputes
+    { path: "/ops-disputes/stale", component: <OpsStaleShipments /> },
+    { path: "/ops-disputes/lost", component: <OpsLostDashboard /> },
+    { path: "/ops-disputes/:id", component: <OpsDisputeDetail /> },
+    { path: "/ops-disputes", component: <OpsDisputeList /> },
+
     {
       path: "/",
       exact: true,

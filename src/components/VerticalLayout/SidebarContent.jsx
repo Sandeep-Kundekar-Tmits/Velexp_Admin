@@ -692,6 +692,27 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
             {
               isAdmin &&
                 <li>
+                  <Link to="/#" className="has-arrow">
+                    <i className="bx bx-error-circle"></i>
+                    <span>{props.t("Ops Disputes")}</span>
+                  </Link>
+                  <ul className="sub-menu" aria-expanded="false">
+                    <li>
+                      <Link to="/ops-disputes/stale">{props.t("Stale Shipments")}</Link>
+                    </li>
+                    <li>
+                      <Link to="/ops-disputes">{props.t("Disputes")}</Link>
+                    </li>
+                    <li>
+                      <Link to="/ops-disputes/lost">{props.t("Lost Dashboard")}</Link>
+                    </li>
+                  </ul>
+                </li>
+            }
+
+            {
+              isAdmin &&
+                <li>
                   <Link to="/awb-print" className="has">
                     <i className="bx bx-printer"></i>
                     <span>{props.t("AWB Label Print")}</span>

@@ -540,6 +540,12 @@ export const COD_RECONCILIATION_APPROVE = `${BASE_URL}/accountant-approval`;
 // ITrack scans
 export const ITRACK_SCANS = `${BASE_URL}/itrack/scans/`;
 
+// Ops Disputes
+export const OPS_DISPUTES_STALE = `${BASE_URL}/ops/disputes/stale/`
+export const OPS_DISPUTES_BASE = `${BASE_URL}/ops/disputes/`
+export const OPS_DISPUTES_LOST = `${BASE_URL}/ops/disputes/lost/`
+export const OPS_DISPUTES_MARK_DIS = `${BASE_URL}/ops/disputes/mark-dis/`
+
 // Ops pending report
 export const GET_OPS_PENDING_REPORT = `${BASE_URL}/api/admin-reports/pending-shipments/`;
 export const DOWNLOAD_OPS_PENDING_REPORT = `${BASE_URL}/api/admin-reports/pending-shipments/download/`;
