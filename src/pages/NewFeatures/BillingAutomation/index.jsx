@@ -1,11 +1,12 @@
 // Billing Automation — one page, 4 tabs (Dashboard, Audit, Working & Invoices, History).
 // A shared period picker feeds the three one-click batch triggers.
 import React, { useState, useEffect, useCallback } from "react"
-import { Card, CardBody, Col, Input, Label, Nav, NavItem, NavLink, Row, TabContent, TabPane, Spinner } from "reactstrap"
+import { Card, CardBody, Col, Label, Nav, NavItem, NavLink, Row, TabContent, TabPane, Spinner } from "reactstrap"
 import classnames from "classnames"
 import Select from "react-select"
 import { toast } from "react-toastify"
 import MainHeaderComp from "../../../components/MainHeaderCom"
+import DateRangePicker from "../../../components/Common/DateRangePicker"
 import { BILLING_CONFIGURED_CUSTOMERS } from "../../../api"
 import useBatchPolling from "./useBatchPolling"
 import AutomationDashboardTab from "./AutomationDashboardTab"
@@ -155,23 +156,15 @@ const BillingAutomation = () => {
                     <Card className="shadow-sm border-0 mb-3">
                         <CardBody>
                             <Row className="align-items-end">
-                                <Col md={3} className="mb-2 mb-md-0">
-                                    <Label className="fw-bold">Start Date</Label>
-                                    <Input
-                                        type="date"
-                                        value={period.startDate}
-                                        onChange={(e) => setPeriod((p) => ({ ...p, startDate: e.target.value }))}
+                                <Col md={4} className="mb-2 mb-md-0">
+                                    <DateRangePicker
+                                        startDate={period.startDate}
+                                        endDate={period.endDate}
+                                        onChange={(s, e) => setPeriod({ startDate: s, endDate: e })}
+                                        label="Date Range"
                                     />
                                 </Col>
-                                <Col md={3} className="mb-2 mb-md-0">
-                                    <Label className="fw-bold">End Date</Label>
-                                    <Input
-                                        type="date"
-                                        value={period.endDate}
-                                        onChange={(e) => setPeriod((p) => ({ ...p, endDate: e.target.value }))}
-                                    />
-                                </Col>
-                                <Col md={6}>
+                                <Col md={8}>
                                     <Label className="fw-bold">Customers</Label>
                                     {loadingCustomers ? (
                                         <div className="d-flex align-items-center gap-2">

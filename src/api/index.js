@@ -1,7 +1,7 @@
 // const BASE_URL = "http://192.168.1.151:8000"
 // const BASE_URL = "https://velexp.com"
-const BASE_URL = "http://velexp.com:8000"
-// const BASE_URL = "https://velexp.com"
+// const BASE_URL = "http://velexp.com:8000"
+const BASE_URL = "https://velexp.com"
 // const BASE_URL = "http://192.168.1.166:8000"
 // const BASE_URL = "http://103.108.57.51:8001"
 
@@ -563,3 +563,6 @@ export const BANK_STATEMENT_BASE = `${BASE_URL}/bank-statement/`; // GET list; G
 export const PENDING_MANIFESTS = `${BASE_URL}/pending-manifests/`;
 export const SC_ENTRIES = `${BASE_URL}/sc-entries/`;
 export const RECONCILED_HISTORY = `${BASE_URL}/reconciled-history/`;
+
+export const BULK_CANCEL_BOOKING = `${BASE_URL}/bulk_cancel_booking_api/`;
+export const USER_CANCELLATION_REPORT = `${BASE_URL}/user_cancellation_report_api/`;

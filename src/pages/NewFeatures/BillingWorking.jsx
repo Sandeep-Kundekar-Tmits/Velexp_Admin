@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react"
 import { Button, Card, CardBody, Col, Container, Form, FormGroup, Input, Label, Row, Spinner, Badge } from "reactstrap"
 import MainHeaderComp from "../../components/MainHeaderCom"
 import SearchableDropdown from "../../components/Common/SearchableDropdown"
+import DateRangePicker from "../../components/Common/DateRangePicker"
 import { useGetApiCall } from "../../hooks/useGetApiCall"
 import usePostApiCall from "../../hooks/usePostApiCall"
 import { CORPORATE_BILLING_GENERATE, CORPORATE_BILLING_RUNS, CORPORATE_CUSTOMERS_LIST } from "../../api"
@@ -282,23 +283,15 @@ const BillingWorking = () => {
                                         value={selectedCustomer ? selectedCustomer.name : "select"}
                                     />
                                 </Col>
-                                <Col md={3} className="mb-3">
-                                    <Label className="fw-bold">Start Date</Label>
-                                    <Input 
-                                        type="date" 
-                                        value={startDate} 
-                                        onChange={(e) => setStartDate(e.target.value)} 
+                                <Col md={5} className="mb-3">
+                                    <DateRangePicker
+                                        startDate={startDate}
+                                        endDate={endDate}
+                                        onChange={(s, e) => { setStartDate(s); setEndDate(e) }}
+                                        label="Date Range"
                                     />
                                 </Col>
-                                <Col md={3} className="mb-3">
-                                    <Label className="fw-bold">End Date</Label>
-                                    <Input 
-                                        type="date" 
-                                        value={endDate} 
-                                        onChange={(e) => setEndDate(e.target.value)} 
-                                    />
-                                </Col>
-                                <Col md={2} className="mb-3">
+                                <Col md={3} className="mb-3 d-flex align-items-end">
                                     <Button 
                                         color="primary" 
                                         className="w-100 py-2 fw-bold" 

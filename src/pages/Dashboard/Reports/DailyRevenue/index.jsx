@@ -1,9 +1,11 @@
 // Daily Revenue — live, auto-refreshing dashboard for GET /reports/revenue_live/?date=YYYY-MM-DD
 import React, { useMemo } from "react"
-import { Button, Card, CardBody, Col, Collapse, Input, Label, Row, Spinner } from "reactstrap"
+import { Button, Card, CardBody, Col, Collapse, Row, Spinner } from "reactstrap"
 import { MdRefresh, MdKeyboardArrowDown } from "react-icons/md"
 import { GridLoader } from "react-spinners"
 import { useState } from "react"
+import DatePicker from "react-datepicker"
+import "react-datepicker/dist/react-datepicker.css"
 import MainHeaderComp from "../../../../components/MainHeaderCom"
 import TableContainer from "../../../../components/Table/TableContainer"
 import { useExcelExport } from "../../../../hooks/useExcelExport"
@@ -90,18 +92,21 @@ const DailyRevenue = () => {
                     <MainHeaderComp
                         title="Daily Revenue"
                         extraFields={
-                            <div className="d-flex align-items-center gap-2 flex-wrap justify-content-end">
-                                <Input
-                                    type="date"
-                                    value={date}
-                                    max={todayISO()}
-                                    onChange={(e) => setDate(e.target.value)}
-                                    style={{ width: 160 }}
-                                    bsSize="sm"
-                                />
-                                <Button color="primary" size="sm" onClick={refresh} disabled={loading} className="d-flex align-items-center gap-1">
-                                    {loading ? <Spinner size="sm" /> : <MdRefresh size={18} />} Refresh
-                                </Button>
+                            <div className="d-flex align-items-center gap-2 justify-content-end flex-wrap">
+                                <div className="d-flex align-items-center gap-2 flex-shrink-0">
+                                    <DatePicker
+                                        selected={(() => { const [y, m, d] = date.split("-").map(Number); return new Date(y, m - 1, d) })()}
+                                        onChange={(d) => d && setDate(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`)}
+                                        dateFormat="dd/MM/yyyy"
+                                        maxDate={new Date()}
+                                        className="form-control form-control-sm"
+                                        wrapperClassName="d-inline-block"
+                                        style={{ width: 130 }}
+                                    />
+                                    <Button color="primary" size="sm" onClick={refresh} disabled={loading} className="d-flex align-items-center gap-1 flex-shrink-0">
+                                        {loading ? <Spinner size="sm" /> : <MdRefresh size={18} />} Refresh
+                                    </Button>
+                                </div>
                                 <div className="text-end">
                                     <div className="text-muted small">
                                         As of <span className="fw-semibold">{formatAsOf(data?.as_of)}</span>
@@ -172,12 +177,12 @@ const DailyRevenue = () => {
 
                             {/* Unpriced shipments (revenue leakage) + revenue by source — below top customers */}
                             <Row>
-                                <Col lg={8}>
-                                    <UnpricedShipments unpriced={unpriced} />
-                                </Col>
-                                <Col lg={4}>
+                                {/* <Col lg={8}> */}
+                                <UnpricedShipments unpriced={unpriced} />
+                                {/* </Col> */}
+                                {/* <Col lg={4}>
                                     <RevenueBySource rows={bySource} />
-                                </Col>
+                                </Col> */}
                             </Row>
 
                             {breakdowns.map((b) => {

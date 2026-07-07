@@ -690,6 +690,16 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
             }
 
             {
+              canAccessNewFeatures &&
+                <li>
+                  <Link to="/cancel-shipments" className="">
+                    <i className="bx bx-x-circle"></i>
+                    <span>{props.t("Cancel Shipments")}</span>
+                  </Link>
+                </li>
+            }
+
+            {
               isAdmin &&
                 <li>
                   <Link to="/#" className="has-arrow">

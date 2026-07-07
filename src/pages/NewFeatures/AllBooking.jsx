@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo } from "react"
 import {
-    Button, Card, CardBody, Col, FormGroup, Input, Label, Row, Spinner, Badge
+    Button, Card, CardBody, Col, FormGroup, Label, Row, Spinner, Badge
 } from "reactstrap"
 import Select from "react-select"
 import MainHeaderComp from "../../components/MainHeaderCom"
 import TableContainer from "../../components/Table/TableContainer"
+import DateRangePicker from "../../components/Common/DateRangePicker"
 import { ALL_BOOKINGS_VIEW, ALL_BOOKINGS_EXPORT, CORPORATE_CUSTOMERS_LIST } from "../../api"
 import axios from "axios"
 import ToasterProvider from "../../helpers/ToasterProvider"
@@ -163,27 +164,17 @@ const AllBooking = () => {
                                         />
                                     </FormGroup>
                                 </Col>
-                                <Col md={3}>
+                                <Col md={4}>
                                     <FormGroup className="mb-0">
-                                        <Label className="fw-bold small">Start Date</Label>
-                                        <Input
-                                            type="date"
-                                            value={startDate}
-                                            onChange={(e) => setStartDate(e.target.value)}
+                                        <DateRangePicker
+                                            startDate={startDate}
+                                            endDate={endDate}
+                                            onChange={(s, e) => { setStartDate(s); setEndDate(e) }}
+                                            label="Date Range"
                                         />
                                     </FormGroup>
                                 </Col>
-                                <Col md={3}>
-                                    <FormGroup className="mb-0">
-                                        <Label className="fw-bold small">End Date</Label>
-                                        <Input
-                                            type="date"
-                                            value={endDate}
-                                            onChange={(e) => setEndDate(e.target.value)}
-                                        />
-                                    </FormGroup>
-                                </Col>
-                                <Col md={3}>
+                                <Col md={2}>
                                     <div className="d-flex gap-2">
                                         <Button
                                             color="primary"

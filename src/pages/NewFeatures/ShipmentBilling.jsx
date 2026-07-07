@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react"
 import { Button, Card, CardBody, Col, Container, Form, FormGroup, Input, Label, Row, Spinner, Badge, Pagination, PaginationItem, PaginationLink } from "reactstrap"
 import MainHeaderComp from "../../components/MainHeaderCom"
 import SearchableDropdown from "../../components/Common/SearchableDropdown"
+import DateRangePicker from "../../components/Common/DateRangePicker"
 import { useGetApiCall } from "../../hooks/useGetApiCall"
 import usePostApiCall from "../../hooks/usePostApiCall"
 import { CORPORATE_BILLING_SYNC, CORPORATE_BILLING_AUDIT, CORPORATE_CUSTOMERS_LIST, CORPORATE_BILLING_AUDIT_EXCEL } from "../../api"
@@ -198,23 +199,15 @@ const ShipmentBilling = () => {
                                         value={selectedCustomerId ? (customers.find(c => c.id === selectedCustomerId)?.name || "Select Customer") : "select"}
                                     />
                                 </Col>
-                                <Col md={2} className="mb-3 mb-md-0">
-                                    <Label className="fw-bold">Start Date</Label>
-                                    <Input 
-                                        type="date" 
-                                        value={startDate} 
-                                        onChange={(e) => setStartDate(e.target.value)} 
+                                <Col md={4} className="mb-3 mb-md-0">
+                                    <DateRangePicker
+                                        startDate={startDate}
+                                        endDate={endDate}
+                                        onChange={(s, e) => { setStartDate(s); setEndDate(e) }}
+                                        label="Date Range"
                                     />
                                 </Col>
-                                <Col md={2} className="mb-3 mb-md-0">
-                                    <Label className="fw-bold">End Date</Label>
-                                    <Input 
-                                        type="date" 
-                                        value={endDate} 
-                                        onChange={(e) => setEndDate(e.target.value)} 
-                                    />
-                                </Col>
-                                <Col md={4} className="d-flex justify-content-end gap-2">
+                                <Col md={4} className="d-flex justify-content-end gap-2 align-items-end">
                                     <Button 
                                         color="primary" 
                                         className="py-1 px-3 fw-bold" 
