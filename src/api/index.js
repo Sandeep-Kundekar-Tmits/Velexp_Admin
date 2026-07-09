@@ -270,6 +270,10 @@ export const CORPORATE_INVOICE_GENERATE = `${BASE_URL}/corporate-billing/invoice
 export const CORPORATE_INVOICES_LIST = `${BASE_URL}/corporate-billing/invoices/list/`
 export const CORPORATE_INVOICE_BASE = `${BASE_URL}/corporate-billing/invoices/` // <id>/, <id>/download-pdf/, <id>/sync-vecom/, <id>/revert-vecom/
 
+// corporate billing booking — update weight (single AWB + bulk excel)
+export const CORPORATE_BOOKING_UPDATE_WEIGHT = `${BASE_URL}/corporate-billing/booking/update-weight/`          // POST { awb, weight, remarks, edited_by }
+export const CORPORATE_BOOKING_UPDATE_WEIGHT_BULK = `${BASE_URL}/corporate-billing/booking/update-weight-bulk/` // POST { edited_by, remarks, items: [{awb, weight, length, breadth, height}] }
+
 // Billing Automation — batch flows (the three one-click triggers + history)
 export const BILLING_BATCH_SYNC_AUDIT = `${BASE_URL}/corporate-billing/billing/batch/sync-audit/`          // POST
 export const BILLING_BATCH_GENERATE_WORKING = `${BASE_URL}/corporate-billing/billing/batch/generate-working/` // POST

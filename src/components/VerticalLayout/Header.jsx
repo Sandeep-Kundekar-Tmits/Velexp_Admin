@@ -49,6 +49,7 @@ const ROUTE_TITLES = {
   "/invoice-flow": "Invoice Flow",
   "/all-booking": "All Booking",
   "/cancel-shipments": "Cancel Shipments",
+  "/update-weight": "Update Weight",
   "/delhivery-warehouse": "Delhivery Warehouse",
   "/payment-deatils": "Payment Details",
   "/employee-attendance": "Employee Trip Details",

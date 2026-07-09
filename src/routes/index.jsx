@@ -88,6 +88,7 @@ const InvoiceFlow = lazy(() => import("../pages/NewFeatures/InvoiceFlow"));
 const AllBooking = lazy(() => import("../pages/NewFeatures/AllBooking"));
 const CancelShipments = lazy(() => import("../pages/NewFeatures/CancelShipments"));
 const BillMaster = lazy(() => import("../pages/NewFeatures/BillMaster"));
+const UpdateWeight = lazy(() => import("../pages/NewFeatures/UpdateWeight"));
 const CODReconciliation = lazy(() => import("../pages/Dashboard/CODReconciliation"));
 const AutoReconciliation = lazy(() => import("../pages/Dashboard/AutoReconciliation"));
 const MisReport = lazy(() => import("../pages/Dashboard/Reports/MisReport"));
@@ -179,6 +180,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/all-booking", component: <AllBooking /> },
     { path: "/cancel-shipments", component: <CancelShipments /> },
     { path: "/bill-master", component: <BillMaster /> },
+    { path: "/update-weight", component: <UpdateWeight /> },
     { path: "/intl-pincode", component: <InternationPincode /> },
 
     //  rate data

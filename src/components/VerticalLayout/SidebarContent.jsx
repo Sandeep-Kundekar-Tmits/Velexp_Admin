@@ -642,6 +642,16 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
             }
 
             {
+              canAccessNewFeatures &&
+              <li>
+                <Link to="/update-weight">
+                  <i className="bx bx-ruler"></i>
+                  <span>{props.t("Update Weight")}</span>
+                </Link>
+              </li>
+            }
+
+            {
               isAdmin &&
                 <li>
                   <Link to="/#" className="has-arrow">

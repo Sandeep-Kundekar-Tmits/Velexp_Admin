@@ -4,20 +4,8 @@ import * as XLSX from "xlsx"
 import axios from "axios"
 import MainHeaderComp from "../../components/MainHeaderCom"
 import ToasterProvider from "../../helpers/ToasterProvider"
-import { BULK_CANCEL_BOOKING, USER_CANCELLATION_REPORT } from "../../api"
-import { MdCancel, MdCloudUpload, MdFileDownload, MdOutlineCheckCircle, MdSearch } from "react-icons/md"
-import DateRangePicker from "../../components/Common/DateRangePicker"
-import TableContainer from "../../components/Table/TableContainer"
-
-const todayISO = () => {
-    const d = new Date()
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`
-}
-
-const isoToDMY = (iso) => {
-    const [y, m, d] = iso.split("-")
-    return `${d}-${m}-${y}`
-}
+import { BULK_CANCEL_BOOKING } from "../../api"
+import { MdBlock, MdCancel, MdCloudUpload, MdFileDownload, MdHistory, MdOutlineCheckCircle } from "react-icons/md"
 
 const downloadTemplate = () => {
     const ws = XLSX.utils.aoa_to_sheet([["AWB No"], ["VE123456789"], ["VE987654321"]])
@@ -43,34 +31,7 @@ const CancelShipments = () => {
     const [loading, setLoading] = useState(false)
     const [results, setResults] = useState(null)
 
-    // --- Report state ---
-    const [fromDate, setFromDate] = useState(todayISO())
-    const [toDate, setToDate] = useState(todayISO())
-    const [reportLoading, setReportLoading] = useState(false)
-    const [reportData, setReportData] = useState(null)
-
     const awbs = parseText(text)
-
-    // --- Report columns (built from first row keys if dynamic, or fixed set) ---
-    const reportColumns = useMemo(() => {
-        if (!reportData?.length) return []
-        const keys = Object.keys(reportData[0])
-        return keys.map((k) => ({
-            header: k.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
-            accessorKey: k,
-            enableSorting: true,
-            cell: (c) => {
-                const val = c.getValue()
-                if (val === null || val === undefined || val === "") return <span className="text-muted">—</span>
-                if (k.toLowerCase().includes("status")) {
-                    const lower = String(val).toLowerCase()
-                    const color = lower.includes("cancel") ? "danger" : lower.includes("success") ? "success" : "secondary"
-                    return <Badge color={color} className="fw-normal">{val}</Badge>
-                }
-                return String(val)
-            },
-        }))
-    }, [reportData])
 
     const handleFile = (e) => {
         const file = e.target.files?.[0]
@@ -110,10 +71,15 @@ const CancelShipments = () => {
                 { headers: { "Content-Type": "application/json" }, withCredentials: true }
             )
             setResults(res.data)
-            const cancelled = res.data?.cancelled?.length ?? 0
-            const failed = res.data?.failed?.length ?? 0
+            const s = res.data?.summary || {}
+            const cancelled = s.success_count ?? res.data?.success?.length ?? res.data?.cancelled?.length ?? 0
+            const failed = s.failed_count ?? res.data?.failed?.length ?? 0
+            const notAllowed = s.not_allowed_count ?? res.data?.not_allowed?.length ?? 0
+            const alreadyCancelled = s.already_cancelled_count ?? res.data?.already_cancelled?.length ?? 0
             if (cancelled > 0) SucceesToaster(`${cancelled} shipment(s) cancelled`)
             if (failed > 0) ErrorToaster(`${failed} shipment(s) failed`)
+            if (notAllowed > 0) ErrorToaster(`${notAllowed} shipment(s) not allowed to cancel`)
+            if (alreadyCancelled > 0) SucceesToaster(`${alreadyCancelled} shipment(s) already cancelled`)
         } catch (err) {
             ErrorToaster(err.response?.data?.message || err.response?.data?.detail || "Cancellation failed")
         } finally {
@@ -121,27 +87,10 @@ const CancelShipments = () => {
         }
     }
 
-    const handleFetchReport = async () => {
-        setReportLoading(true)
-        setReportData(null)
-        try {
-            const res = await axios.post(
-                USER_CANCELLATION_REPORT,
-                { user_id: userId, fromDate: isoToDMY(fromDate), toDate: isoToDMY(toDate) },
-                { headers: { "Content-Type": "application/json" }, withCredentials: true }
-            )
-            const rows = Array.isArray(res.data) ? res.data : res.data?.data || res.data?.results || []
-            setReportData(rows)
-            if (!rows.length) SucceesToaster("No records found for selected range")
-        } catch (err) {
-            ErrorToaster(err.response?.data?.message || err.response?.data?.detail || "Failed to fetch report")
-        } finally {
-            setReportLoading(false)
-        }
-    }
-
-    const successList = results?.cancelled || results?.success || []
+    const successList = results?.success || results?.cancelled || []
     const failedList  = results?.failed   || results?.errors  || []
+    const notAllowedList = results?.not_allowed || []
+    const alreadyCancelledList = results?.already_cancelled || []
 
     return (
         <React.Fragment>
@@ -242,6 +191,18 @@ const CancelShipments = () => {
                                             <div className="small text-danger">Failed</div>
                                         </div>
                                     </Col>
+                                    <Col xs={6} md={3}>
+                                        <div className="rounded-3 bg-warning bg-opacity-10 border border-warning border-opacity-25 p-2 text-center">
+                                            <div className="fw-bold text-warning" style={{ fontSize: "1.5rem" }}>{notAllowedList.length}</div>
+                                            <div className="small text-warning">Not Allowed</div>
+                                        </div>
+                                    </Col>
+                                    <Col xs={6} md={3}>
+                                        <div className="rounded-3 bg-secondary bg-opacity-10 border border-secondary border-opacity-25 p-2 text-center">
+                                            <div className="fw-bold text-secondary" style={{ fontSize: "1.5rem" }}>{alreadyCancelledList.length}</div>
+                                            <div className="small text-secondary">Already Cancelled</div>
+                                        </div>
+                                    </Col>
                                 </Row>
 
                                 {successList.length > 0 && (
@@ -250,24 +211,65 @@ const CancelShipments = () => {
                                             <MdOutlineCheckCircle /> Cancelled
                                         </p>
                                         <div className="d-flex flex-wrap gap-1">
-                                            {successList.map((awb) => (
-                                                <Badge key={awb} color="success" className="fw-normal" style={{ fontFamily: "monospace" }}>{awb}</Badge>
-                                            ))}
+                                            {successList.map((item, i) => {
+                                                const awb = typeof item === "string" ? item : item.awb || item.awbno || JSON.stringify(item)
+                                                return (
+                                                    <Badge key={`${awb}-${i}`} color="success" className="fw-normal" style={{ fontFamily: "monospace" }}>{awb}</Badge>
+                                                )
+                                            })}
                                         </div>
                                     </div>
                                 )}
 
                                 {failedList.length > 0 && (
-                                    <div>
+                                    <div className="mb-2">
                                         <p className="small fw-semibold text-danger mb-1 d-flex align-items-center gap-1">
                                             <MdCancel /> Failed
                                         </p>
                                         <div className="d-flex flex-wrap gap-1">
-                                            {failedList.map((item) => {
+                                            {failedList.map((item, i) => {
                                                 const awb = typeof item === "string" ? item : item.awb || item.awbno || JSON.stringify(item)
                                                 const reason = typeof item === "object" ? (item.reason || item.message || item.error) : null
                                                 return (
-                                                    <Badge key={awb} color="danger" className="fw-normal" style={{ fontFamily: "monospace" }} title={reason || ""}>
+                                                    <Badge key={`${awb}-${i}`} color="danger" className="fw-normal" style={{ fontFamily: "monospace" }} title={reason || ""}>
+                                                        {awb}{reason ? ` — ${reason}` : ""}
+                                                    </Badge>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {notAllowedList.length > 0 && (
+                                    <div className="mb-2">
+                                        <p className="small fw-semibold text-warning mb-1 d-flex align-items-center gap-1">
+                                            <MdBlock /> Not Allowed
+                                        </p>
+                                        <div className="d-flex flex-wrap gap-1">
+                                            {notAllowedList.map((item, i) => {
+                                                const awb = typeof item === "string" ? item : item.awb || item.awbno || JSON.stringify(item)
+                                                const reason = typeof item === "object" ? (item.reason || item.message || item.error) : null
+                                                return (
+                                                    <Badge key={`${awb}-${i}`} color="warning" className="fw-normal text-dark" style={{ fontFamily: "monospace" }} title={reason || ""}>
+                                                        {awb}{reason ? ` — ${reason}` : ""}
+                                                    </Badge>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {alreadyCancelledList.length > 0 && (
+                                    <div>
+                                        <p className="small fw-semibold text-secondary mb-1 d-flex align-items-center gap-1">
+                                            <MdHistory /> Already Cancelled
+                                        </p>
+                                        <div className="d-flex flex-wrap gap-1">
+                                            {alreadyCancelledList.map((item, i) => {
+                                                const awb = typeof item === "string" ? item : item.awb || item.awbno || JSON.stringify(item)
+                                                const reason = typeof item === "object" ? (item.reason || item.message || item.error) : null
+                                                return (
+                                                    <Badge key={`${awb}-${i}`} color="secondary" className="fw-normal" style={{ fontFamily: "monospace" }} title={reason || ""}>
                                                         {awb}{reason ? ` — ${reason}` : ""}
                                                     </Badge>
                                                 )
@@ -278,72 +280,6 @@ const CancelShipments = () => {
                             </CardBody>
                         </Card>
                     )}
-
-                    {/* ── Cancellation Report ── */}
-                    <Card className="shadow-sm border-0">
-                        <CardBody>
-                            <div className="d-flex align-items-center justify-content-between mb-3">
-                                <h6 className="fw-bold mb-0">Cancelled Shipments Report</h6>
-                            </div>
-
-                            <Row className="g-2 align-items-end mb-3">
-                                <Col md={4}>
-                                    <DateRangePicker
-                                        label="Date Range"
-                                        startDate={fromDate}
-                                        endDate={toDate}
-                                        onChange={(s, e) => { setFromDate(s); setToDate(e); setReportData(null) }}
-                                    />
-                                </Col>
-                                <Col xs="auto">
-                                    <Button
-                                        color="primary"
-                                        size="sm"
-                                        className="d-flex align-items-center gap-1 fw-bold px-3"
-                                        onClick={handleFetchReport}
-                                        disabled={reportLoading}
-                                    >
-                                        {reportLoading
-                                            ? <><Spinner size="sm" /> Fetching…</>
-                                            : <><MdSearch size={16} /> Fetch Report</>}
-                                    </Button>
-                                </Col>
-                            </Row>
-
-                            {reportData && reportData.length > 0 && (
-                                <TableContainer
-                                    columns={reportColumns}
-                                    data={reportData}
-                                    isGlobalFilter={true}
-                                    isPagination={true}
-                                    SearchPlaceholder="Search AWB, status…"
-                                    isDownloadExcle={true}
-                                    onDownloadExcle={() => {
-                                        const ws = XLSX.utils.json_to_sheet(reportData)
-                                        const wb = XLSX.utils.book_new()
-                                        XLSX.utils.book_append_sheet(wb, ws, "Cancellations")
-                                        XLSX.writeFile(wb, `cancelled_shipments_${fromDate}_${toDate}.xlsx`)
-                                    }}
-                                    pagination="pagination pagination-rounded justify-content-end mb-2"
-                                    paginationWrapper="dataTables_paginate paging_simple_numbers"
-                                    tableClass="table-hover mb-0"
-                                />
-                            )}
-
-                            {reportData && reportData.length === 0 && (
-                                <div className="text-center py-4 text-muted">
-                                    <MdCancel size={32} className="mb-2 opacity-25" />
-                                    <p className="mb-0">No cancellations found for the selected date range.</p>
-                                </div>
-                            )}
-
-                            {!reportData && !reportLoading && (
-                                <div className="text-center py-4 text-muted" style={{ fontSize: "0.85rem" }}>
-                                    Select a date range and click Fetch Report
-                                </div>
-                            )}
-                        </CardBody>
-                    </Card>
 
                 </div>
             </div>
