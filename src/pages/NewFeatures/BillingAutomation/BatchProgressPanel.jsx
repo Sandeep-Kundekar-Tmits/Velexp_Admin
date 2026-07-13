@@ -132,6 +132,7 @@ const BatchProgressPanel = ({ batch, isPolling, onStop }) => {
                     pagination="pagination pagination-rounded justify-content-end mb-2"
                     paginationWrapper="dataTables_paginate paging_simple_numbers"
                     tableClass="table-hover mb-0"
+                    autoResetPageIndex={false}
                 />
             </CardBody>
         </Card>

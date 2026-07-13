@@ -116,7 +116,8 @@ const TableContainer = ({
     isStickyHeader = false,
     isStickyFooter = false,
     stickyTop = 0,
-    rightExtraFiled = null
+    rightExtraFiled = null,
+    autoResetPageIndex = true,
 }) => {
 
     const [columnFilters, setColumnFilters] = useState([]);
@@ -151,6 +152,7 @@ const TableContainer = ({
         onGlobalFilterChange: setGlobalFilter,
         onRowSelectionChange: onRowSelectionChange,
         globalFilterFn: fuzzyFilter,
+        autoResetPageIndex,
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         getPaginationRowModel: getPaginationRowModel(),

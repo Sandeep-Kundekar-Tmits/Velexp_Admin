@@ -45,10 +45,21 @@ const UploadPreviewModal = ({ isOpen, toggle, onGenerated }) => {
     const handleGenerate = async () => {
         if (!file) return
         setGenerating(true)
-        const fd = new FormData()
-        fd.append("upload_file", file)
-        fd.append("update_vecom", updateVecom ? "true" : "false")
-        const res = await uploadPreview(CORPORATE_INVOICE_GENERATE, fd)
+
+        const buildForm = () => {
+            const fd = new FormData()
+            fd.append("upload_file", file)
+            fd.append("update_vecom", updateVecom ? "true" : "false")
+            return fd
+        }
+
+        let res = await uploadPreview(CORPORATE_INVOICE_GENERATE, buildForm())
+
+        // Backend sometimes fails on first parse with a date-type error — retry once automatically.
+        if (!res?.status && res?.data?.msg?.includes("combine()")) {
+            res = await uploadPreview(CORPORATE_INVOICE_GENERATE, buildForm())
+        }
+
         setGenerating(false)
         if (res?.status && res?.data?.invoice_id) {
             SuccessToaster(`Invoice ${res.data.invoice_number || res.data.invoice_id} created`)

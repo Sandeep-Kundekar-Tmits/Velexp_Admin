@@ -283,6 +283,12 @@ export const BILLING_BATCH_LIST = `${BASE_URL}/corporate-billing/billing/batch/l
 export const BILLING_AUDIT_REPORTS = `${BASE_URL}/corporate-billing/billing/audit-reports/`                   // GET (list / <id>/ / <id>/download/)
 export const BILLING_CONFIGURED_CUSTOMERS = `${BASE_URL}/corporate-billing/billing/configured-customers/`      // GET
 
+// Automated MIS — billed shipments Excel (backend generates the file)
+export const BILLED_SHIPMENTS_EXCEL = `${BASE_URL}/corporate-billing/billing/billed-shipments-excel/`          // POST { start_date, end_date } -> Excel blob
+
+// Raw MIS — full shipment report Excel (backend generates the file)
+export const FULL_SHIPMENT_REPORT = `${BASE_URL}/corporate-billing/billing/full-shipment-report/`              // GET ?month=&year= -> Excel blob
+
 // corporate billing invoive
 export const CORPORATE_BILLING_INVOICE = `${BASE_URL}/corporate_billing_api/`
 

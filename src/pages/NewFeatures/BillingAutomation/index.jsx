@@ -1,6 +1,6 @@
 // Billing Automation — one page, 4 tabs (Dashboard, Audit, Working & Invoices, History).
 // A shared period picker feeds the three one-click batch triggers.
-import React, { useState, useEffect, useCallback } from "react"
+import React, { useState, useEffect, useCallback, useRef } from "react"
 import { Card, CardBody, Col, Label, Nav, NavItem, NavLink, Row, TabContent, TabPane, Spinner } from "reactstrap"
 import classnames from "classnames"
 import Select from "react-select"
@@ -11,13 +11,15 @@ import { BILLING_CONFIGURED_CUSTOMERS } from "../../../api"
 import useBatchPolling from "./useBatchPolling"
 import AutomationDashboardTab from "./AutomationDashboardTab"
 import AuditTab from "./AuditTab"
-import WorkingInvoicesTab from "./WorkingInvoicesTab"
+import WorkingTab from "./WorkingTab"
+import InvoicesTab from "./InvoicesTab"
 import HistoryTab from "./HistoryTab"
 
 const TABS = [
     { id: "dashboard", label: "Automation Dashboard" },
     { id: "audit", label: "Audit" },
-    { id: "working", label: "Working & Invoices" },
+    { id: "working", label: "Working" },
+    { id: "invoices", label: "Invoices" },
     { id: "history", label: "History" },
 ]
 
@@ -88,7 +90,19 @@ const BillingAutomation = () => {
     const [customers, setCustomers] = useState([])
     const [selectedCustomers, setSelectedCustomers] = useState([])
     const [loadingCustomers, setLoadingCustomers] = useState(false)
+    const [customerMenuOpen, setCustomerMenuOpen] = useState(false)
+    const customerSelectRef = useRef(null)
     const batchCtl = useBatchPolling()
+
+    useEffect(() => {
+        const handler = (e) => {
+            if (customerSelectRef.current && !customerSelectRef.current.contains(e.target)) {
+                setCustomerMenuOpen(false)
+            }
+        }
+        document.addEventListener("mousedown", handler)
+        return () => document.removeEventListener("mousedown", handler)
+    }, [])
 
     const fetchCustomers = useCallback(async () => {
         setLoadingCustomers(true)
@@ -172,35 +186,40 @@ const BillingAutomation = () => {
                                             <span className="text-muted small">Loading customers...</span>
                                         </div>
                                     ) : (
-                                        <Select
-                                            isMulti
-                                            options={optionsWithSelectAll}
-                                            value={selectedCustomers}
-                                            onChange={handleCustomerChange}
-                                            placeholder="Select customers..."
-                                            classNamePrefix="react-select"
-                                            closeMenuOnSelect={false}
-                                            hideSelectedOptions={false}
-                                            components={{
-                                                Option: makeCustomOption(isAllSelected),
-                                                MultiValue: CustomMultiValue,
-                                                ValueContainer: makeCustomValueContainer(customerOptions.length),
-                                            }}
-                                            styles={{
-                                                control: (base) => ({
-                                                    ...base,
-                                                    minHeight: "38px",
-                                                    borderColor: "#ced4da",
-                                                    "&:hover": { borderColor: "#80bdff" },
-                                                }),
-                                                multiValue: () => ({ display: "none" }),
-                                                valueContainer: (base) => ({
-                                                    ...base,
-                                                    flexWrap: "nowrap",
-                                                    overflow: "hidden",
-                                                }),
-                                            }}
-                                        />
+                                        <div ref={customerSelectRef}>
+                                            <Select
+                                                isMulti
+                                                options={optionsWithSelectAll}
+                                                value={selectedCustomers}
+                                                onChange={handleCustomerChange}
+                                                placeholder="Select customers..."
+                                                classNamePrefix="react-select"
+                                                closeMenuOnSelect={false}
+                                                hideSelectedOptions={false}
+                                                menuIsOpen={customerMenuOpen}
+                                                onMenuOpen={() => setCustomerMenuOpen(true)}
+                                                onMenuClose={() => setCustomerMenuOpen(false)}
+                                                components={{
+                                                    Option: makeCustomOption(isAllSelected),
+                                                    MultiValue: CustomMultiValue,
+                                                    ValueContainer: makeCustomValueContainer(customerOptions.length),
+                                                }}
+                                                styles={{
+                                                    control: (base) => ({
+                                                        ...base,
+                                                        minHeight: "38px",
+                                                        borderColor: "#ced4da",
+                                                        "&:hover": { borderColor: "#80bdff" },
+                                                    }),
+                                                    multiValue: () => ({ display: "none" }),
+                                                    valueContainer: (base) => ({
+                                                        ...base,
+                                                        flexWrap: "nowrap",
+                                                        overflow: "hidden",
+                                                    }),
+                                                }}
+                                            />
+                                        </div>
                                     )}
                                 </Col>
                             </Row>
@@ -239,7 +258,10 @@ const BillingAutomation = () => {
                             {activeTab === "audit" && <AuditTab selectedCustomers={selectedCustomers} batchCtl={batchCtl} />}
                         </TabPane>
                         <TabPane tabId="working">
-                            {activeTab === "working" && <WorkingInvoicesTab selectedCustomers={selectedCustomers} />}
+                            {activeTab === "working" && <WorkingTab />}
+                        </TabPane>
+                        <TabPane tabId="invoices">
+                            {activeTab === "invoices" && <InvoicesTab />}
                         </TabPane>
                         <TabPane tabId="history">
                             {activeTab === "history" && <HistoryTab selectedCustomers={selectedCustomers} onOpenBatch={handleOpenBatch} />}

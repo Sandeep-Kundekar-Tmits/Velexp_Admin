@@ -710,6 +710,26 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
             }
 
             {
+              canAccessNewFeatures &&
+                <li>
+                  <Link to="/automated-mis" className="">
+                    <i className="bx bx-spreadsheet"></i>
+                    <span>{props.t("Automated MIS")}</span>
+                  </Link>
+                </li>
+            }
+
+            {
+              canAccessNewFeatures &&
+                <li>
+                  <Link to="/raw-mis" className="">
+                    <i className="bx bx-table"></i>
+                    <span>{props.t("Raw MIS")}</span>
+                  </Link>
+                </li>
+            }
+
+            {
               isAdmin &&
                 <li>
                   <Link to="/#" className="has-arrow">

@@ -53,13 +53,38 @@ const AuditTab = ({ batchCtl }) => {
     ], [])
 
     const reportColumns = useMemo(() => [
-        { header: "Report ID", accessorKey: "id" },
-        { header: "Customer", accessorKey: "customer_name", cell: (c) => c.getValue() || "ALL" },
-        { header: "Period Start", accessorKey: "billing_period_start" },
-        { header: "Period End", accessorKey: "billing_period_end" },
+        {
+            header: "Batch ID",
+            accessorKey: "billing_batch_id",
+            cell: (c) => <span className="fw-semibold">#{c.getValue() ?? "—"}</span>,
+        },
+        {
+            header: "Date & Time",
+            accessorKey: "created_at",
+            id: "created_date",
+            cell: (c) => {
+                const v = c.getValue()
+                if (!v) return "—"
+                return (
+                    <div>
+                        <div>{v.slice(0, 10).split("-").reverse().join("-")}</div>
+                        <div className="text-muted small">{v.slice(11, 16)}</div>
+                    </div>
+                )
+            },
+        },
+        {
+            header: "Period Start",
+            accessorKey: "billing_period_start",
+            cell: (c) => c.getValue() ? c.getValue().slice(0, 10).split("-").reverse().join("-") : "—",
+        },
+        {
+            header: "Period End",
+            accessorKey: "billing_period_end",
+            cell: (c) => c.getValue() ? c.getValue().slice(0, 10).split("-").reverse().join("-") : "—",
+        },
         { header: "Audited", accessorKey: "total_audited", cell: (c) => c.getValue() ?? 0 },
         { header: "Blocked", accessorKey: "blocked_shipments", cell: (c) => c.getValue() ?? 0 },
-        { header: "Triggered By", accessorKey: "triggered_by", cell: (c) => c.getValue() || "—" },
         {
             header: "Action",
             id: "action",

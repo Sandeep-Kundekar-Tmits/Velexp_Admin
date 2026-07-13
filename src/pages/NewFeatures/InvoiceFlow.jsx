@@ -1073,12 +1073,11 @@ const InvoiceFlow = () => {
                 </ModalFooter>
             </Modal>
 
-            {/* PDF Preview Modal using shared component */}
-            <ViewInvoice 
-                isOpen={isPdfModalOpen} 
-                toggle={() => setIsPdfModalOpen(false)} 
-                invoiceData={pdfData} 
-                downloadUrl={pdfData?.id ? `${CORPORATE_INVOICE_BASE}${pdfData.id}/download-pdf/` : null}
+            {/* PDF Preview Modal using shared component — client-rendered download, no download-pdf API call */}
+            <ViewInvoice
+                isOpen={isPdfModalOpen}
+                toggle={() => setIsPdfModalOpen(false)}
+                invoiceData={pdfData}
             />
         </React.Fragment>
     )

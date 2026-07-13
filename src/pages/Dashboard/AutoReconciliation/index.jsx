@@ -137,8 +137,10 @@ const coerce = (v) => {
     return v.name ?? v.code ?? v.label ?? JSON.stringify(v);
 };
 
+// Note: `cod(?![a-z])` matches the COD amount fields (cod_pending, cod_collected)
+// but NOT "code"-style identifiers like sccode / custcode / pincode, which are text.
 const isAmt = (k) =>
-    /amount|cod|pop|pending|collected|received|total|balance/i.test(k) &&
+    /amount|cod(?![a-z])|pop|pending|collected|received|total|balance|value/i.test(k) &&
     !/count|id|no\b/i.test(k);
 
 const amtClass = (k) => {
@@ -684,19 +686,31 @@ const AutoReconciliation = () => {
                 {activeTab === TAB_MANIFESTS && (
                     <Card className="shadow-sm">
                         <CardBody className="p-0">
-                            {mfData && (
-                                <div className="px-3 py-2 border-bottom d-flex align-items-center gap-3 flex-wrap">
-                                    <StatBadge label="Total Manifests" value={mfData.total_pending_manifests} color="primary" />
-                                    <StatBadge label="Pending COD"     value={fmtCurrency(mfData.total_pending_cod)} color="warning" />
-                                    <StatBadge label="Pending POP"     value={fmtCurrency(mfData.total_pending_pop)} color="info"    />
-                                </div>
-                            )}
+                            <div className="px-3 py-2 border-bottom d-flex align-items-center gap-3 flex-wrap">
+                                {mfData && (
+                                    <>
+                                        <StatBadge label="Total" value={mfData.total} color="primary" />
+                                        <StatBadge label="Total Pending" value={fmtCurrency(mfData.total_pending)} color="warning" />
+                                        {mfData.service_center && (
+                                            <StatBadge label="Service Center" value={mfData.service_center} color="info" />
+                                        )}
+                                    </>
+                                )}
+                                <button
+                                    type="button"
+                                    className="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1 py-0 ms-auto"
+                                    onClick={fetchManifests}
+                                    disabled={mfLoading}
+                                >
+                                    <RefreshCw size={12} className={mfLoading ? "spin" : ""} /> Refresh
+                                </button>
+                            </div>
 
                             <div className="p-3">
                                 {mfLoading ? (
                                     <div className="text-center py-4"><Spinner color="primary" /></div>
                                 ) : (
-                                    <ManifestTable rows={mfData?.manifests} emptyMsg="No pending manifests" exportName="Pending_Manifests" />
+                                    <ManifestTable rows={mfData?.rows} emptyMsg="No pending manifests" exportName="Pending_Manifests" />
                                 )}
                             </div>
                         </CardBody>
