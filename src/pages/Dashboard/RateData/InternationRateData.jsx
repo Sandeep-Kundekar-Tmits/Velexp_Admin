@@ -81,7 +81,7 @@ const InternationRateData = () => {
             fetchRateData(GET_INTERNATIONAL_RATE_DATA);
             return;
         }
-        const payload = { customer_name: customer.label };
+        const payload = { customer_name: customer.value };
         const response = await fetchCustomerRateData(GET_INTERNATIONAL_RATE_DATA_CUSTOMER, payload);
         if (response) {
             const data = response?.data || response;
@@ -202,7 +202,7 @@ const InternationRateData = () => {
         }
 
         const payload = {
-            customer_name: customer.label,
+            customer_name: customer.value,
             countries: uploadedData
         };
 
