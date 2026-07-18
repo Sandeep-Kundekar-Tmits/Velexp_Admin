@@ -78,6 +78,11 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
     const [editingPincodeId, setEditingPincodeId] = useState(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [pincodeIdToDelete, setPincodeIdToDelete] = useState(null);
+    const SERVICE_PROVIDER_CHOICES = [
+        { value: "SELF", label: "Self" },
+        { value: "DELHIVERY", label: "Delhivery" }
+    ];
+
     const [newPincode, setNewPincode] = useState({
         pincode: "",
         city: "",
@@ -86,6 +91,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
         legacy_zone: "",
         zone_tag: "",
         is_metro: false,
+        service_provider: "SELF",
         products: [
             { product: null, is_active: true, can_pickup: true, can_deliver: true, is_reverse_serviceable: false, has_cod: true, has_pop: false, is_oda: false }
         ]
@@ -146,6 +152,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
             "legacy_zone",
             "is_metro",
             "zone_tag",
+            "service_provider",
             "product",
             "active",
             "pickup",
@@ -228,6 +235,12 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
 
             // If this row HAS base info, update context. Otherwise, use lastBaseData
             if (row.city || row.state) {
+                const providerRaw = (row.service_provider || "SELF").toString().trim().toUpperCase();
+                const validProviders = ["SELF", "DELHIVERY"];
+                if (!validProviders.includes(providerRaw)) {
+                    errors.push(`Row ${index + 1}: Service Provider "${row.service_provider}" is invalid. Must be SELF or DELHIVERY.`);
+                    return;
+                }
                 lastBaseData = {
                     pincode,
                     city: (row.city || "").toString().toUpperCase(),
@@ -236,6 +249,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                     legacy_zone: (row.legacy_zone || "").toString().toUpperCase(),
                     is_metro: isTrue(row.is_metro),
                     zone_tag: (row.zone_tag || "").toString().toUpperCase() || null,
+                    service_provider: providerRaw,
                 };
             }
 
@@ -320,6 +334,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                 legacy_zone: data.legacy_zone,
                 zone_tag: data.zone_tag || "",
                 is_metro: data.is_metro || false,
+                service_provider: data.service_provider || "SELF",
                 products: (data.products || data.services || []).map(s => ({
                     product: { id: s.product, name: s.product_name },
                     is_active: s.is_active ?? true,
@@ -359,6 +374,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
             legacy_zone: newPincode.legacy_zone.toUpperCase(),
             zone_tag: newPincode.zone_tag?.toUpperCase() || null,
             is_metro: newPincode.is_metro,
+            service_provider: newPincode.service_provider,
             products: validServices.map(s => ({
                 product: s.product.id || s.product.value,
                 is_active: s.is_active,
@@ -389,6 +405,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                 legacy_zone: "",
                 zone_tag: "",
                 is_metro: false,
+                service_provider: "SELF",
                 products: [
                     { product: null, is_active: true, can_pickup: true, can_deliver: true, is_reverse_serviceable: false, has_cod: true, has_pop: false, is_oda: false }
                 ]
@@ -467,6 +484,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                 legacy_zone: "N1",
                 is_metro: 0,
                 zone_tag: "ZT1",
+                service_provider: "SELF",
                 product: "VELOCOMM",
                 active: 1,
                 pickup: 1,
@@ -484,6 +502,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                 legacy_zone: "N1",
                 is_metro: 1,
                 zone_tag: "ZT1",
+                service_provider: "SELF",
                 product: "VELOSURE",
                 active: 1,
                 pickup: 1,
@@ -501,6 +520,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                 legacy_zone: "ROI",
                 is_metro: 1,
                 zone_tag: "Z1",
+                service_provider: "DELHIVERY",
                 product: "VELOCOMM",
                 active: 1,
                 pickup: 1,
@@ -573,6 +593,10 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
         {
             header: "Zone Tag",
             accessorKey: "zone_tag",
+        },
+        {
+            header: "Service Provider",
+            accessorKey: "service_provider",
         },
         {
             header: "Products",
@@ -782,6 +806,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                             legacy_zone: "",
                             zone_tag: "",
                             is_metro: false,
+                            service_provider: "SELF",
                             products: [{ product: null, is_active: true, can_pickup: true, can_deliver: true, is_reverse_serviceable: false, has_cod: true, has_pop: false, is_oda: false }]
                         });
                     }
@@ -829,7 +854,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                         </Col>
                     </Row>
                     <Row>
-                        <Col md={4}>
+                        <Col md={3}>
                             <FormGroup>
                                 <Label className="fw-bold text-muted small">Region</Label>
                                 <Input
@@ -839,7 +864,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                                 />
                             </FormGroup>
                         </Col>
-                        <Col md={4}>
+                        <Col md={3}>
                             <FormGroup>
                                 <Label className="fw-bold text-muted small">Legacy Zone</Label>
                                 <Input
@@ -857,6 +882,20 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                                     value={newPincode.zone_tag}
                                     onChange={(e) => setNewPincode({ ...newPincode, zone_tag: e.target.value })}
                                 />
+                            </FormGroup>
+                        </Col>
+                        <Col md={2}>
+                            <FormGroup>
+                                <Label className="fw-bold text-muted small">Service Provider</Label>
+                                <Input
+                                    type="select"
+                                    value={newPincode.service_provider}
+                                    onChange={(e) => setNewPincode({ ...newPincode, service_provider: e.target.value })}
+                                >
+                                    {SERVICE_PROVIDER_CHOICES.map(opt => (
+                                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                    ))}
+                                </Input>
                             </FormGroup>
                         </Col>
                         <Col md={2}>
@@ -1037,6 +1076,12 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                                     <div className={`badge ${singlePincodeDetails.is_metro ? "bg-info" : "bg-secondary"}`}>
                                         {singlePincodeDetails.is_metro ? "Metro" : "Non-Metro"}
                                     </div>
+                                </Col>
+                            </Row>
+                            <Row className="mb-4">
+                                <Col md={4}>
+                                    <div className="text-muted small fw-bold">Service Provider</div>
+                                    <div>{singlePincodeDetails.service_provider || "N/A"}</div>
                                 </Col>
                             </Row>
 
