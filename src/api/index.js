@@ -315,6 +315,9 @@ export const UPLOAD_GET_REVENUE_API = `${BASE_URL}/get_revenue_api/`
 // live daily revenue (auto-refreshing dashboard) — GET ?date=YYYY-MM-DD
 export const REVENUE_LIVE = `${BASE_URL}/reports/revenue_live/`
 
+// daily revenue report — GET ?format=json[&date=YYYY-MM-DD] for table data, GET [?date=YYYY-MM-DD] (no format) for Excel blob
+export const REVENUE_DAILY_REPORT = `${BASE_URL}/reports/revenue_daily/export/`
+
 
 //  default rate data
 

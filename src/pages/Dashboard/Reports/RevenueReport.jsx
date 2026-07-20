@@ -283,7 +283,7 @@ const RevenueReport = () => {
     return (
         <div className='page-content py-0 px-0'>
             <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                <MainHeaderComp title="Revenue Report" />
+                <MainHeaderComp title="Old Revenue Report" />
             </div>
             <div className="container-fluid px-3">
                 <div className="mt-3">

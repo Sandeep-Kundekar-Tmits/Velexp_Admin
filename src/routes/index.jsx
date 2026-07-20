@@ -29,6 +29,7 @@ const EditInvoice = lazy(() => import("../pages/Dashboard/Invoices/EditInvoice")
 const CorporateInvoice = lazy(() => import("../pages/Dashboard/Invoices/CorporateInvoice"));
 const ManualInvoice = lazy(() => import("../pages/Dashboard/Invoices/ManualInvoice"));
 const RevenueReport = lazy(() => import("../pages/Dashboard/Reports/RevenueReport"));
+const RevenueDailyReport = lazy(() => import("../pages/Dashboard/Reports/RevenueDailyReport"));
 const DailyRevenue = lazy(() => import("../pages/Dashboard/Reports/DailyRevenue"));
 const CODReport = lazy(() => import("../pages/Dashboard/Reports/CODReport"));
 const PendingReport = lazy(() => import("../pages/Dashboard/Reports/PendingReport"));
@@ -134,6 +135,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/customer-service-employee", component: <CustomerServiceEmployee /> },
     { path: "/mis-tally", component: <MISTally /> },
     { path: "/revenue-report", component: <RevenueReport /> },
+    { path: "/revenue-daily-report", component: <RevenueDailyReport /> },
     { path: "/daily-revenue", component: <DailyRevenue /> },
     { path: "/cod-report", component: <CODReport /> },
     { path: "/pending-report", component: <PendingReport /> },

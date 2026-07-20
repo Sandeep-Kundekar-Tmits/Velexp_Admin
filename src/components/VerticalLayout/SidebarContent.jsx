@@ -595,7 +595,10 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
                   </Link>
                   <ul className="sub-menu" aria-expanded="false">
                     <li>
-                      <Link to="/revenue-report">{props.t("Revenue Report")}</Link>
+                      <Link to="/revenue-daily-report">{props.t("Revenue Report")}</Link>
+                    </li>
+                    <li>
+                      <Link to="/revenue-report">{props.t("Old Revenue Report")}</Link>
                     </li>
                     <li>
                       <Link to="/daily-revenue">{props.t("Daily Revenue")}</Link>
