@@ -20,6 +20,7 @@ function checkCustomerPermissions() {
     canAccessOpsReports: false,
     canAccessAutoReconciliation: false,
     canAccessCustomerPerformance: false,
+    canCancelShipments: false,
   };
 
   // Full access for admin (skip for Analyzer to keep them restricted)
@@ -39,6 +40,7 @@ function checkCustomerPermissions() {
       canAccessOpsReports: true,
       canAccessAutoReconciliation: true,
       canAccessCustomerPerformance: true,
+      canCancelShipments: true,
     };
   }
 
@@ -66,6 +68,7 @@ function checkCustomerPermissions() {
       canAccessOpsReports: true,
       canAccessAutoReconciliation: false,
       canAccessCustomerPerformance: true, // only the Customer Performance submenu under Reports
+      canCancelShipments: true,
     },
     "Analyzer": {
       canCreateUser: false,

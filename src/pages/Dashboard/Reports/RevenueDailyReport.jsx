@@ -10,6 +10,9 @@ import TableContainer from "../../../components/Table/TableContainer";
 import MainHeaderComp from "../../../components/MainHeaderCom";
 import { REVENUE_DAILY_REPORT } from "../../../api";
 import { formatAsOf, formatINRCompact, formatInt, longDate } from "./DailyRevenue/revenueFormat";
+import { AtRiskCustomersCard, RevenueBarChart, RevenueShareDonut, TopMoversChart } from "./RevenueDailyReportCharts";
+
+const AT_RISK_MIN_BASELINE = 500;
 
 // "2026-07-20" -> "7/20/2026" (matches how the source system displays the date columns)
 const shortDate = (ymd) => {
@@ -178,6 +181,29 @@ const StatTile = ({ title, icon: Icon, accent, value, delta, deltaValueText, com
     );
 };
 
+// Sums row.mtd.revenue grouped by keyFn(row), sorted highest first
+const aggregateMtdRevenue = (rows, keyFn) => {
+    const map = new Map();
+    for (const row of rows) {
+        const key = keyFn(row) || "—";
+        map.set(key, (map.get(key) || 0) + (row.mtd?.revenue ?? 0));
+    }
+    return [...map.entries()].map(([key, value]) => ({ key, value })).sort((a, b) => b.value - a.value);
+};
+
+// Same as above, but also carries the same-span-last-month baseline for side-by-side comparison
+const aggregateMtdWithBaseline = (rows, keyFn) => {
+    const map = new Map();
+    for (const row of rows) {
+        const key = keyFn(row) || "—";
+        const cur = map.get(key) || { value: 0, compareValue: 0 };
+        cur.value += row.mtd?.revenue ?? 0;
+        cur.compareValue += row.same_span_last_month?.revenue ?? 0;
+        map.set(key, cur);
+    }
+    return [...map.entries()].map(([key, v]) => ({ key, ...v })).sort((a, b) => b.value - a.value);
+};
+
 const InfoPill = ({ icon: Icon, label, value }) => (
     <span className="d-inline-flex align-items-center gap-1 badge bg-light text-dark border fw-normal px-2 py-2">
         <Icon size={14} className="text-primary" />
@@ -196,7 +222,7 @@ const RevenueDailyReport = () => {
     const [companyData, setCompanyData] = useState([]);
     const [branchData, setBranchData] = useState([]);
     const [meta, setMeta] = useState(null);
-    const [activeTab, setActiveTab] = useState("company");
+    const [activeTab, setActiveTab] = useState("dashboard");
     const [loading, setLoading] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
@@ -288,6 +314,57 @@ const RevenueDailyReport = () => {
             acc.mtdVarRevenue += row.mtd_variation?.revenue ?? 0;
             return acc;
         }, { todayVolume: 0, todayRevenue: 0, mtdVolume: 0, mtdRevenue: 0, dayVarVolume: 0, dayVarRevenue: 0, mtdVarVolume: 0, mtdVarRevenue: 0 });
+    }, [companyData]);
+
+    const topCustomers = useMemo(
+        () => aggregateMtdWithBaseline(companyData, (r) => r.customer_name).slice(0, 10),
+        [companyData]
+    );
+    const byCustomerGroup = useMemo(
+        () => aggregateMtdRevenue(companyData, (r) => r.customer_group),
+        [companyData]
+    );
+    const byProduct = useMemo(
+        () => aggregateMtdRevenue(companyData, (r) => r.product),
+        [companyData]
+    );
+    const byRegion = useMemo(
+        () => aggregateMtdRevenue(branchData, (r) => r.region).slice(0, 15),
+        [branchData]
+    );
+    // Same customers and order as topCustomers (not an independent gainers/decliners scan) so
+    // both charts can be read side by side — variation is just each customer's MTD minus baseline.
+    const topMovers = useMemo(
+        () => topCustomers.map((c) => ({
+            key: c.key,
+            value: c.value - c.compareValue,
+            mtdRevenue: c.value,
+            baselineRevenue: c.compareValue,
+        })),
+        [topCustomers]
+    );
+
+    // Ranked by % decline (not absolute revenue) so small customers collapsing don't get
+    // buried under bigger accounts — filtered to a minimum baseline to avoid near-zero-base noise.
+    const atRiskCustomers = useMemo(() => {
+        const map = new Map();
+        for (const row of companyData) {
+            const key = row.customer_name || "—";
+            const cur = map.get(key) || { mtdRevenue: 0, baselineRevenue: 0 };
+            cur.mtdRevenue += row.mtd?.revenue ?? 0;
+            cur.baselineRevenue += row.same_span_last_month?.revenue ?? 0;
+            map.set(key, cur);
+        }
+        return [...map.entries()]
+            .map(([key, v]) => ({
+                key,
+                mtdRevenue: v.mtdRevenue,
+                baselineRevenue: v.baselineRevenue,
+                pctChange: v.baselineRevenue > 0 ? ((v.mtdRevenue - v.baselineRevenue) / v.baselineRevenue) * 100 : null,
+            }))
+            .filter((d) => d.baselineRevenue >= AT_RISK_MIN_BASELINE && d.pctChange !== null && d.pctChange < 0)
+            .sort((a, b) => a.pctChange - b.pctChange)
+            .slice(0, 10);
     }, [companyData]);
 
     const deltaText = (value, unit) => {
@@ -411,6 +488,15 @@ const RevenueDailyReport = () => {
                                 <Nav tabs className="mb-0 border-bottom-0">
                                     <NavItem>
                                         <NavLink
+                                            active={activeTab === "dashboard"}
+                                            onClick={() => setActiveTab("dashboard")}
+                                            style={{ cursor: "pointer" }}
+                                        >
+                                            Dashboard
+                                        </NavLink>
+                                    </NavItem>
+                                    <NavItem>
+                                        <NavLink
                                             active={activeTab === "company"}
                                             onClick={() => setActiveTab("company")}
                                             style={{ cursor: "pointer" }}
@@ -428,12 +514,54 @@ const RevenueDailyReport = () => {
                                         </NavLink>
                                     </NavItem>
                                 </Nav>
-                                <span className="badge bg-light text-muted border mb-1">
-                                    {(activeTab === "company" ? companyData.length : branchData.length).toLocaleString()} records
-                                </span>
+                                {activeTab !== "dashboard" && (
+                                    <span className="badge bg-light text-muted border mb-1">
+                                        {(activeTab === "company" ? companyData.length : branchData.length).toLocaleString()} records
+                                    </span>
+                                )}
                             </div>
                             <div className="pt-3">
                                 <TabContent activeTab={activeTab}>
+                                    <TabPane tabId="dashboard">
+                                        {activeTab === "dashboard" && (
+                                            <>
+                                                <Row className="g-3 mb-3">
+                                                    <Col lg={6}>
+                                                        <RevenueBarChart
+                                                            title="Top 10 Customers by MTD Revenue"
+                                                            subtitle="MTD vs same span last month, company level"
+                                                            data={topCustomers}
+                                                            height={400}
+                                                        />
+                                                    </Col>
+                                                    <Col lg={6}>
+                                                        <TopMoversChart data={topMovers} height={400} />
+                                                    </Col>
+                                                </Row>
+                                                <Row className="g-3 mb-3">
+                                                    <Col lg={12}>
+                                                        <AtRiskCustomersCard data={atRiskCustomers} minBaseline={AT_RISK_MIN_BASELINE} />
+                                                    </Col>
+                                                </Row>
+                                                <Row className="g-3 mb-3">
+                                                    <Col lg={4}>
+                                                        <RevenueShareDonut title="MTD Revenue by Customer Group" data={byCustomerGroup} />
+                                                    </Col>
+                                                    <Col lg={4}>
+                                                        <RevenueShareDonut title="MTD Revenue by Product" data={byProduct} />
+                                                    </Col>
+                                                    <Col lg={4}>
+                                                        <RevenueBarChart
+                                                            title="MTD Revenue by Region"
+                                                            subtitle="Branch level"
+                                                            data={byRegion}
+                                                            height={340}
+                                                        />
+                                                    </Col>
+                                                </Row>
+                                            </>
+                                        )}
+                                    </TabPane>
                                     <TabPane tabId="company">
                                         {activeTab === "company" && renderTable(companyData, companyColumns)}
                                     </TabPane>

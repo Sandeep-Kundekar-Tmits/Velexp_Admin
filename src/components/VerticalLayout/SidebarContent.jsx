@@ -155,7 +155,7 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
   const {
     canCreateUser, canAddPod, canCreateReport, invoice, canSeeBooking,
     canAccessNewFeatures, isAdmin, canAccessPrivileges, canTrackAWB, canApproveRTO, canAccessITrack,
-    canAccessOpsReports, canAccessAutoReconciliation, canAccessCustomerPerformance
+    canAccessOpsReports, canAccessAutoReconciliation, canAccessCustomerPerformance, canCancelShipments
   } = checkCustomerPermissions()
 
   // Temporarily hidden for ALL users (re-enable by restoring the isAdmin gate below)
@@ -594,9 +594,9 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
                     <span>{props.t("Revenue")}</span>
                   </Link>
                   <ul className="sub-menu" aria-expanded="false">
-                    <li>
+                    {/* <li>
                       <Link to="/revenue-daily-report">{props.t("Revenue Report")}</Link>
-                    </li>
+                    </li> */}
                     <li>
                       <Link to="/revenue-report">{props.t("Old Revenue Report")}</Link>
                     </li>
@@ -703,7 +703,7 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
             }
 
             {
-              canAccessNewFeatures &&
+              (canAccessNewFeatures || canCancelShipments) &&
                 <li>
                   <Link to="/cancel-shipments" className="">
                     <i className="bx bx-x-circle"></i>

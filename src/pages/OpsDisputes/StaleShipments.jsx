@@ -10,6 +10,8 @@ import { OPS_DISPUTES_STALE, OPS_DISPUTES_MARK_DIS, SERVICE_CENTER } from "../..
 import { GridLoader } from "react-spinners";
 import MainHeaderComp from "../../components/MainHeaderCom";
 
+const SERVER_PAGE_SIZE = 100;
+
 const StaleShipments = () => {
     useEffect(() => { document.title = "Stale Shipments"; }, []);
 
@@ -21,13 +23,15 @@ const StaleShipments = () => {
     const [modal, setModal] = useState(false);
     const [selectedAWB, setSelectedAWB] = useState(null);
     const [selectedSCs, setSelectedSCs] = useState([]);
+    const [page, setPage] = useState(1);
 
-    const loadStale = useCallback(() => {
-        fetchStale(`${OPS_DISPUTES_STALE}?employee_id=${userId}`);
+    const loadStale = useCallback((targetPage = 1) => {
+        fetchStale(`${OPS_DISPUTES_STALE}?user_id=${userId}&page=${targetPage}&page_size=${SERVER_PAGE_SIZE}`);
+        setPage(targetPage);
     }, [fetchStale, userId]);
 
     useEffect(() => {
-        loadStale();
+        loadStale(1);
         fetchSCs(`${SERVICE_CENTER}`);
     }, []);
 
@@ -55,11 +59,14 @@ const StaleShipments = () => {
         });
         if (res?.status === "success") {
             setModal(false);
-            loadStale();
+            loadStale(page);
         }
     };
 
     const rows = useMemo(() => staleData?.results || [], [staleData]);
+    const total = staleData?.total ?? 0;
+    const hasMore = staleData?.has_more ?? false;
+    const totalPages = Math.max(1, Math.ceil(total / SERVER_PAGE_SIZE));
 
     const columns = useMemo(() => [
         {
@@ -146,10 +153,39 @@ const StaleShipments = () => {
                     columns={columns}
                     data={rows}
                     isGlobalFilter={true}
-                    isPagination={true}
+                    isPagination={false}
                     SearchPlaceholder="Search AWB..."
                     tableClass="table-bordered table-nowrap"
                 />
+
+                {totalPages > 1 && (
+                    <div className="d-flex justify-content-between align-items-center px-1 py-2 border-top">
+                        <span className="text-muted small">
+                            Page <strong>{page}</strong> of <strong>{totalPages}</strong>
+                            &nbsp;·&nbsp;{total.toLocaleString()} total records
+                        </span>
+                        <div className="d-flex gap-2">
+                            <Button
+                                size="sm"
+                                color="secondary"
+                                outline
+                                disabled={page <= 1}
+                                onClick={() => loadStale(page - 1)}
+                            >
+                                ‹ Prev
+                            </Button>
+                            <Button
+                                size="sm"
+                                color="secondary"
+                                outline
+                                disabled={!hasMore}
+                                onClick={() => loadStale(page + 1)}
+                            >
+                                Next ›
+                            </Button>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <Modal isOpen={modal} toggle={() => setModal(false)}>
