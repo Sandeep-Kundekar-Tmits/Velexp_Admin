@@ -73,6 +73,7 @@ const CustomerLastMileOperationClone = lazy(() => import("../pages/Dashboard/Rep
 const CustomerAttemptwisePerformanceClone = lazy(() => import("../pages/Dashboard/Reports/customer_Performance/CustomerAttemptwisePerformanceClone"));
 const Privilege = lazy(() => import("../pages/Privileges/Privilege"));
 const TrackAWB = lazy(() => import("../pages/AWBtracking/TrackAWB"));
+const ShipmentTraceDetail = lazy(() => import("../pages/AWBtracking/ShipmentTraceDetail"));
 const RtoApproval = lazy(() => import("../pages/RTO_Approval/RtoApproval"));
 const InternationRateData = lazy(() => import("../pages/Dashboard/RateData/InternationRateData"));
 const InternationPincode = lazy(() => import("../pages/Dashboard/RateData/InternationPincode"));
@@ -96,6 +97,7 @@ const CODReconciliation = lazy(() => import("../pages/Dashboard/CODReconciliatio
 const AutoReconciliation = lazy(() => import("../pages/Dashboard/AutoReconciliation"));
 const MisReport = lazy(() => import("../pages/Dashboard/Reports/MisReport"));
 const ITrack = lazy(() => import("../pages/ITrack/ITrack"));
+const InternationalMisReport = lazy(() => import("../pages/Dashboard/Reports/InternationalMisReport"));
 
 // Ops Disputes (admin features)
 const OpsStaleShipments = lazy(() => import("../pages/OpsDisputes/StaleShipments"));
@@ -218,6 +220,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/privileges", component: <Privilege /> },
     // track awb
     { path: "/tracking", component: <TrackAWB /> },
+    { path: "/track-awb/:awbno/details", component: <ShipmentTraceDetail /> },
     // rto approval
     { path: "/rto-approval", component: <RtoApproval /> },
     { path: "/cod-reconciliation", component: <CODReconciliation /> },
@@ -225,6 +228,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/mis-report", component: <MisReport /> },
     { path: "/intl-rate-data", component: <InternationRateData /> },
     { path: "/itrack", component: <ITrack /> },
+    { path: "/international-mis-report", component: <InternationalMisReport /> },
 
     // Ops Disputes
     { path: "/ops-disputes/stale", component: <OpsStaleShipments /> },

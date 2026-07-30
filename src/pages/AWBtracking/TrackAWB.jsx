@@ -6,9 +6,11 @@ import { GET_DOMESTIC_HISTORY_DETAILS, TRACK_AWB } from "../../api"
 import ToasterProvider from "../../helpers/ToasterProvider"
 import { useGetApiCall } from "../../hooks/useGetApiCall"
 import EditEDD from "../../components/AWBTracking/EditEDD"
+import { useNavigate } from "react-router-dom"
 
 
 const TrackAWB = () => {
+    const navigate = useNavigate()
     const [awbNumber, setAwbNumber] = useState("")
     const [shipmentDetails, setShipmentDetails] = useState({})
     const [shipementPices, setShipmentPieces] = useState([])
@@ -69,6 +71,15 @@ const TrackAWB = () => {
             }
 
         }
+    }
+
+    // navigate to detail view
+    const handleDetailView = () => {
+        if (!awbNumber) {
+            ErrorToaster("Please enter AWB number first")
+            return
+        }
+        navigate(`/track-awb/${awbNumber}/details`)
     }
 
     const ReturnComponent = (title) => {
@@ -324,6 +335,25 @@ const TrackAWB = () => {
                 // You can replace this with your actual condition to show/hide the component
                 ReturnComponent("edit_edd")
             }
+
+            {/* Floating Detail View Button */}
+            {shipmentDetails && Object.keys(shipmentDetails).length > 0 && (
+                <button
+                    className="btn btn-info btn-lg rounded-circle position-fixed"
+                    style={{
+                        bottom: "30px",
+                        right: "30px",
+                        width: "60px",
+                        height: "60px",
+                        zIndex: 1000,
+                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)"
+                    }}
+                    onClick={handleDetailView}
+                    title="View Detailed Shipment Trace"
+                >
+                    <i className="bx bx-detail" style={{ fontSize: "24px" }}></i>
+                </button>
+            )}
         </div>
     )
 }

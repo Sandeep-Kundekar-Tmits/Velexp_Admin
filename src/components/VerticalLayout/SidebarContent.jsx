@@ -615,6 +615,20 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
             }
 
             {
+              canCreateReport && <li>
+                <Link to="/#" className="has-arrow">
+                  <i className="bx bx-world"></i>
+                  <span>{props.t("International Report")}</span>
+                </Link>
+                <ul className="sub-menu" aria-expanded="false">
+                  <li>
+                    <Link to="/international-mis-report">{props.t("MIS Report")}</Link>
+                  </li>
+                </ul>
+              </li>
+            }
+
+            {
               canAccessNewFeatures &&
               <li>
                 <Link to="/#" className="has-arrow">

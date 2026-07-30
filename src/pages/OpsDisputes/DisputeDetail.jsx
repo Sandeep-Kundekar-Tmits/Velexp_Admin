@@ -22,7 +22,7 @@ const DisputeDetail = () => {
 
     const [closeModal, setCloseModal] = useState(false);
 
-    const reload = () => fetchDetail(`${OPS_DISPUTES_BASE}${id}/?employee_id=${userId}`);
+    const reload = () => fetchDetail(`${OPS_DISPUTES_BASE}${id}/?user_id=${userId}`);
 
     useEffect(() => {
         document.title = "Dispute Detail";
@@ -65,11 +65,11 @@ const DisputeDetail = () => {
                         <Badge color={STATUS_COLOR[dispute.dispute_status] || "secondary"} style={{ fontSize: "14px" }}>
                             {dispute.dispute_status}
                         </Badge>
-                        {dispute.dispute_status === "OPEN" && (
+                        {/* {dispute.dispute_status === "OPEN" && (
                             <Button color="success" size="sm" onClick={() => setCloseModal(true)}>
                                 Close Dispute
                             </Button>
-                        )}
+                        )} */}
                         <Button color="secondary" size="sm" onClick={() => navigate("/ops-disputes")}>
                             Back
                         </Button>

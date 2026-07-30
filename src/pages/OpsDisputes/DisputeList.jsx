@@ -24,14 +24,25 @@ const DisputeList = () => {
     const { apifunc: fetchDisputes, data, loading } = useGetApiCall();
 
     const [activeTab, setActiveTab] = useState("OPEN");
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(20);
 
-    const load = useCallback((status) => {
-        fetchDisputes(`${OPS_DISPUTES_BASE}?employee_id=${userId}&status=${status}`);
-    }, [fetchDisputes, userId]);
+    const load = useCallback((status, targetPage = 1, targetPageSize = pageSize) => {
+        fetchDisputes(`${OPS_DISPUTES_BASE}?user_id=${userId}&status=${status}&page=${targetPage}&page_size=${targetPageSize}`);
+        setPage(targetPage);
+    }, [fetchDisputes, userId, pageSize]);
 
-    useEffect(() => { load(activeTab); }, [activeTab]);
+    useEffect(() => { load(activeTab, 1, pageSize); }, []);
 
-    const rows = useMemo(() => data?.results || [], [data]);
+    const handleTabChange = (tabValue) => {
+        setActiveTab(tabValue);
+        setPage(1);
+        load(tabValue, 1, pageSize);
+    };
+
+    const rows = useMemo(() => Array.isArray(data) ? data : (data?.results || []), [data]);
+    const total = useMemo(() => Array.isArray(data) ? data.length : (data?.total ?? data?.count ?? rows.length), [data, rows]);
+    const totalPages = useMemo(() => Math.max(1, Math.ceil(total / pageSize)), [total, pageSize]);
 
     const columns = useMemo(() => [
         {
@@ -89,7 +100,7 @@ const DisputeList = () => {
         <div className="page-content">
             <MainHeaderComp
                 title="Disputes"
-                subTitle={`Total: ${data?.total ?? rows.length}`}
+                subTitle={`Total: ${total}`}
             />
 
             <Nav tabs className="mt-3 mb-2">
@@ -98,7 +109,7 @@ const DisputeList = () => {
                         <NavLink
                             className={activeTab === tab.value ? "active" : ""}
                             style={{ cursor: "pointer" }}
-                            onClick={() => setActiveTab(tab.value)}
+                            onClick={() => handleTabChange(tab.value)}
                         >
                             {tab.label}
                         </NavLink>
@@ -111,14 +122,90 @@ const DisputeList = () => {
                     <GridLoader color="#556ee6" />
                 </div>
             ) : (
-                <TableContainer
-                    columns={columns}
-                    data={rows}
-                    isGlobalFilter={true}
-                    isPagination={true}
-                    SearchPlaceholder="Search AWB..."
-                    tableClass="table-bordered table-nowrap"
-                />
+                <>
+                    <TableContainer
+                        columns={columns}
+                        data={rows}
+                        isGlobalFilter={true}
+                        isPagination={false}
+                        SearchPlaceholder="Search AWB..."
+                        tableClass="table-bordered table-nowrap"
+                    />
+
+                    <div className="d-flex flex-wrap justify-content-between align-items-center mt-3 px-3 py-2 bg-light rounded border">
+                        <div className="d-flex align-items-center gap-2 mb-2 mb-sm-0">
+                            <span className="text-muted small">
+                                Showing {total > 0 ? (page - 1) * pageSize + 1 : 0} to {Math.min(page * pageSize, total)} of {total} entries
+                            </span>
+                            <div className="d-flex align-items-center gap-1 ms-3">
+                                <span className="text-muted small">Per page:</span>
+                                <select
+                                    className="form-select form-select-sm"
+                                    style={{ width: "80px", cursor: "pointer" }}
+                                    value={pageSize}
+                                    onChange={(e) => {
+                                        const newSize = Number(e.target.value);
+                                        setPageSize(newSize);
+                                        setPage(1);
+                                        load(activeTab, 1, newSize);
+                                    }}
+                                >
+                                    <option value={10}>10</option>
+                                    <option value={20}>20</option>
+                                    <option value={50}>50</option>
+                                    <option value={100}>100</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        {totalPages > 1 && (
+                            <div className="d-flex align-items-center gap-1">
+                                <Button
+                                    size="sm"
+                                    color="secondary"
+                                    outline
+                                    disabled={page <= 1 || loading}
+                                    onClick={() => load(activeTab, page - 1, pageSize)}
+                                >
+                                    ‹ Prev
+                                </Button>
+                                {(() => {
+                                    const pages = [];
+                                    const maxVisible = 5;
+                                    let start = Math.max(1, page - 2);
+                                    let end = Math.min(totalPages, start + maxVisible - 1);
+                                    if (end - start + 1 < maxVisible) {
+                                        start = Math.max(1, end - maxVisible + 1);
+                                    }
+                                    for (let i = start; i <= end; i++) {
+                                        pages.push(
+                                            <Button
+                                                key={i}
+                                                size="sm"
+                                                color={page === i ? "primary" : "secondary"}
+                                                outline={page !== i}
+                                                disabled={loading}
+                                                onClick={() => load(activeTab, i, pageSize)}
+                                            >
+                                                {i}
+                                            </Button>
+                                        );
+                                    }
+                                    return pages;
+                                })()}
+                                <Button
+                                    size="sm"
+                                    color="secondary"
+                                    outline
+                                    disabled={page >= totalPages || loading}
+                                    onClick={() => load(activeTab, page + 1, pageSize)}
+                                >
+                                    Next ›
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+                </>
             )}
         </div>
     );

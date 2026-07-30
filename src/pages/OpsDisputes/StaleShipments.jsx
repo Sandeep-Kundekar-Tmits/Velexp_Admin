@@ -6,41 +6,40 @@ import Select from "react-select";
 import TableContainer from "../../components/Table/TableContainer";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
 import usePostApiCall from "../../hooks/usePostApiCall";
-import { OPS_DISPUTES_STALE, OPS_DISPUTES_MARK_DIS, SERVICE_CENTER } from "../../api";
+import { OPS_DISPUTES_STALE, OPS_DISPUTES_MARK_DIS, SERVICE_CENTER_LIST } from "../../api";
 import { GridLoader } from "react-spinners";
 import MainHeaderComp from "../../components/MainHeaderCom";
-
-const SERVER_PAGE_SIZE = 100;
+import { customStyles } from "../../helpers/CustomStyle";
 
 const StaleShipments = () => {
     useEffect(() => { document.title = "Stale Shipments"; }, []);
 
     const userId = useMemo(() => JSON.parse(localStorage.getItem("authUser"))?.user?.id, []);
     const { apifunc: fetchStale, data: staleData, loading } = useGetApiCall();
-    const { apifunc: fetchSCs, data: scData } = useGetApiCall();
+    const { apifunc: fetchSCs, data: scData } = usePostApiCall();
     const { apifunc: markDis, loading: markLoading } = usePostApiCall(null, "AWB marked as Disputed");
 
     const [modal, setModal] = useState(false);
     const [selectedAWB, setSelectedAWB] = useState(null);
     const [selectedSCs, setSelectedSCs] = useState([]);
     const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(20);
 
-    const loadStale = useCallback((targetPage = 1) => {
-        fetchStale(`${OPS_DISPUTES_STALE}?user_id=${userId}&page=${targetPage}&page_size=${SERVER_PAGE_SIZE}`);
+    const loadStale = useCallback((targetPage = 1, targetPageSize = pageSize) => {
+        fetchStale(`${OPS_DISPUTES_STALE}?user_id=${userId}&page=${targetPage}&page_size=${targetPageSize}`);
         setPage(targetPage);
-    }, [fetchStale, userId]);
+    }, [fetchStale, userId, pageSize]);
 
     useEffect(() => {
         loadStale(1);
-        fetchSCs(`${SERVICE_CENTER}`);
+        fetchSCs(SERVICE_CENTER_LIST, {});
     }, []);
 
     const scOptions = useMemo(() => {
-        if (!scData) return [];
-        const list = Array.isArray(scData) ? scData : scData?.results || [];
+        const list = scData?.results?.results || [];
         return list.map(sc => ({
             value: sc.id,
-            label: `${sc.service_center_code || sc.code || sc.name} — ${sc.city || ""}`
+            label: `${sc.service_center_code} — ${sc.company_name}${sc.city ? ` (${sc.city})` : ""}`
         }));
     }, [scData]);
 
@@ -53,7 +52,7 @@ const StaleShipments = () => {
     const handleMarkDis = async () => {
         if (!selectedSCs.length) return;
         const res = await markDis(OPS_DISPUTES_MARK_DIS, {
-            employee_id: userId,
+            user_id: userId,
             awbno: selectedAWB,
             service_center_ids: selectedSCs.map(s => s.value)
         });
@@ -65,8 +64,7 @@ const StaleShipments = () => {
 
     const rows = useMemo(() => staleData?.results || [], [staleData]);
     const total = staleData?.total ?? 0;
-    const hasMore = staleData?.has_more ?? false;
-    const totalPages = Math.max(1, Math.ceil(total / SERVER_PAGE_SIZE));
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
     const columns = useMemo(() => [
         {
@@ -158,32 +156,88 @@ const StaleShipments = () => {
                     tableClass="table-bordered table-nowrap"
                 />
 
-                {totalPages > 1 && (
-                    <div className="d-flex justify-content-between align-items-center px-1 py-2 border-top">
-                        <span className="text-muted small">
-                            Page <strong>{page}</strong> of <strong>{totalPages}</strong>
-                            &nbsp;·&nbsp;{total.toLocaleString()} total records
-                        </span>
-                        <div className="d-flex gap-2">
-                            <Button
-                                size="sm"
-                                color="secondary"
-                                outline
-                                disabled={page <= 1}
-                                onClick={() => loadStale(page - 1)}
-                            >
-                                ‹ Prev
-                            </Button>
-                            <Button
-                                size="sm"
-                                color="secondary"
-                                outline
-                                disabled={!hasMore}
-                                onClick={() => loadStale(page + 1)}
-                            >
-                                Next ›
-                            </Button>
+                {total > 0 && (
+                    <div className="d-flex flex-wrap justify-content-between align-items-center mt-3 px-3 py-3 bg-light rounded border">
+                        <div className="d-flex align-items-center gap-3 mb-2 mb-sm-0">
+                            <span className="text-muted small">
+                                Showing <strong>{total > 0 ? (page - 1) * pageSize + 1 : 0}</strong> to <strong>{Math.min(page * pageSize, total)}</strong> of <strong>{total.toLocaleString()}</strong> entries
+                            </span>
+                            {total > 10 && (
+                                <div className="d-flex align-items-center gap-2 ps-3 border-start">
+                                    <label className="text-muted small mb-0">Per page:</label>
+                                    <select
+                                        className="form-select form-select-sm"
+                                        style={{ width: "70px", cursor: "pointer" }}
+                                        value={pageSize}
+                                        onChange={(e) => {
+                                            const newSize = Number(e.target.value);
+                                            setPageSize(newSize);
+                                            setPage(1);
+                                            loadStale(1, newSize);
+                                        }}
+                                    >
+                                        <option value={10}>10</option>
+                                        <option value={20}>20</option>
+                                        <option value={50}>50</option>
+                                        <option value={100}>100</option>
+                                    </select>
+                                </div>
+                            )}
                         </div>
+
+                        {totalPages > 1 && (
+                            <div className="d-flex align-items-center gap-2">
+                                <Button
+                                    size="sm"
+                                    color="secondary"
+                                    outline
+                                    disabled={page <= 1 || loading}
+                                    onClick={() => loadStale(page - 1, pageSize)}
+                                    className="px-3"
+                                >
+                                    ‹ Prev
+                                </Button>
+
+                                <div className="d-flex gap-1">
+                                    {(() => {
+                                        const pages = [];
+                                        const maxVisible = 5;
+                                        let start = Math.max(1, page - 2);
+                                        let end = Math.min(totalPages, start + maxVisible - 1);
+                                        if (end - start + 1 < maxVisible) {
+                                            start = Math.max(1, end - maxVisible + 1);
+                                        }
+                                        for (let i = start; i <= end; i++) {
+                                            pages.push(
+                                                <Button
+                                                    key={i}
+                                                    size="sm"
+                                                    color={page === i ? "primary" : "secondary"}
+                                                    outline={page !== i}
+                                                    disabled={loading}
+                                                    className="px-2"
+                                                    onClick={() => loadStale(i, pageSize)}
+                                                >
+                                                    {i}
+                                                </Button>
+                                            );
+                                        }
+                                        return pages;
+                                    })()}
+                                </div>
+
+                                <Button
+                                    size="sm"
+                                    color="secondary"
+                                    outline
+                                    disabled={page >= totalPages || loading}
+                                    onClick={() => loadStale(page + 1, pageSize)}
+                                    className="px-3"
+                                >
+                                    Next ›
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>
@@ -199,10 +253,14 @@ const StaleShipments = () => {
                         </Label>
                         <Select
                             isMulti
+                            isSearchable
                             options={scOptions}
                             value={selectedSCs}
                             onChange={setSelectedSCs}
-                            placeholder="Select service centers..."
+                            placeholder="Search by code, company or city..."
+                            styles={customStyles}
+                            menuPortalTarget={document.body}
+                            menuPosition="fixed"
                         />
                         <small className="text-muted mt-1 d-block">
                             Managers at these SCs will see this dispute.

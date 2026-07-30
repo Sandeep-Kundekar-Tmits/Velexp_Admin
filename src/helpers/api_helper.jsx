@@ -13,6 +13,46 @@ const axiosApi = axios.create({
 
 axiosApi.defaults.headers.common["Authorization"] = token;
 
+// Function to retrieve the latest Bearer token from localStorage
+const getBearerToken = () => {
+  try {
+    const authUser = localStorage.getItem("authUser");
+    if (authUser) {
+      const parsedUser = JSON.parse(authUser);
+      if (parsedUser && parsedUser.access) {
+        return `Bearer ${parsedUser.access}`;
+      }
+    }
+  } catch (error) {
+    console.error("Error parsing authUser from localStorage", error);
+  }
+  return null;
+};
+
+// Request interceptor for custom axiosApi instance
+axiosApi.interceptors.request.use(
+  (config) => {
+    const token = getBearerToken();
+    if (token) {
+      config.headers["Authorization"] = token;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Request interceptor for default axios instance to cover direct axios imports
+axios.interceptors.request.use(
+  (config) => {
+    const token = getBearerToken();
+    if (token) {
+      config.headers["Authorization"] = token;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 axiosApi.interceptors.response.use(
   (response) => response,
   (error) => Promise.reject(error)

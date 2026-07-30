@@ -1,5 +1,4 @@
 // const BASE_URL = "http://192.168.1.151:8000"
-// const BASE_URL = "https://velexp.com"
 // const BASE_URL = "http://velexp.com:8000"
 const BASE_URL = "https://velexp.com"
 // const BASE_URL = "http://192.168.1.166:8000"
@@ -50,6 +49,9 @@ export const GET_DELIVARY_B2C_LABEL_GENERATION = `${BASE_URL}/delhivery_b2c_gene
 // get service center (get)
 // export const SERVICE_CENTER = `${BASE_URL}/service_centers/`
 export const SERVICE_CENTER = `${BASE_URL}/unique-service-centers/`
+
+// full service center directory, paginated, for search-driven pickers (post {})
+export const SERVICE_CENTER_LIST = `${BASE_URL}/service-centers/get-list/`
 
 // get all regions (get)
 export const GET_ALL_REGION = `${BASE_URL}/regions/`
@@ -559,6 +561,9 @@ export const OPS_DISPUTES_BASE = `${BASE_URL}/ops/disputes/`
 export const OPS_DISPUTES_LOST = `${BASE_URL}/ops/disputes/lost/`
 export const OPS_DISPUTES_MARK_DIS = `${BASE_URL}/ops/disputes/mark-dis/`
 
+// Shipment Trace
+export const SHIPMENT_TRACE = `https://velexp.com/shipment-trace/`
+
 // Ops pending report
 export const GET_OPS_PENDING_REPORT = `${BASE_URL}/api/admin-reports/pending-shipments/`;
 export const DOWNLOAD_OPS_PENDING_REPORT = `${BASE_URL}/api/admin-reports/pending-shipments/download/`;
@@ -579,3 +584,6 @@ export const RECONCILED_HISTORY = `${BASE_URL}/reconciled-history/`;
 
 export const BULK_CANCEL_BOOKING = `${BASE_URL}/bulk_cancel_booking_api/`;
 export const USER_CANCELLATION_REPORT = `${BASE_URL}/user_cancellation_report_api/`;
+
+// International Reports
+export const INTERNATIONAL_SHIPMENTS_REPORT = `${BASE_URL}/api/admin-reports/international-shipments/`;
