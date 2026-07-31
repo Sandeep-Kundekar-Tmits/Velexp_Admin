@@ -624,6 +624,9 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
                   <li>
                     <Link to="/international-mis-report">{props.t("MIS Report")}</Link>
                   </li>
+                  <li>
+                    <Link to="/international-dimension-change-log">{props.t("Dimension Change Log")}</Link>
+                  </li>
                 </ul>
               </li>
             }

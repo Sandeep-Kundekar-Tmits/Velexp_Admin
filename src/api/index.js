@@ -587,3 +587,6 @@ export const USER_CANCELLATION_REPORT = `${BASE_URL}/user_cancellation_report_ap
 
 // International Reports
 export const INTERNATIONAL_SHIPMENTS_REPORT = `${BASE_URL}/api/admin-reports/international-shipments/`;
+
+// International AWB dimension/weight change log — GET/POST ?awbno=&from_date=&to_date= (defaults to last 7 days)
+export const INTERNATIONAL_DIMENSION_CHANGE_LOG = `${BASE_URL}/api/admin-reports/international-awb-measurements-log/`;

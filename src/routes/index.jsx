@@ -98,6 +98,7 @@ const AutoReconciliation = lazy(() => import("../pages/Dashboard/AutoReconciliat
 const MisReport = lazy(() => import("../pages/Dashboard/Reports/MisReport"));
 const ITrack = lazy(() => import("../pages/ITrack/ITrack"));
 const InternationalMisReport = lazy(() => import("../pages/Dashboard/Reports/InternationalMisReport"));
+const InternationalDimensionChangeLog = lazy(() => import("../pages/Dashboard/Reports/InternationalDimensionChangeLog"));
 
 // Ops Disputes (admin features)
 const OpsStaleShipments = lazy(() => import("../pages/OpsDisputes/StaleShipments"));
@@ -229,6 +230,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/intl-rate-data", component: <InternationRateData /> },
     { path: "/itrack", component: <ITrack /> },
     { path: "/international-mis-report", component: <InternationalMisReport /> },
+    { path: "/international-dimension-change-log", component: <InternationalDimensionChangeLog /> },
 
     // Ops Disputes
     { path: "/ops-disputes/stale", component: <OpsStaleShipments /> },
