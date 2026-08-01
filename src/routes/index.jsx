@@ -219,6 +219,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/employee-attendance", component: <EmployeeAttendence /> },
     { path: "/trip-detail", component: <TripDetail /> },
     { path: "/privileges", component: <Privilege /> },
+    { path: "/admin-privileges", component: <Privilege /> },
     // track awb
     { path: "/tracking", component: <TrackAWB /> },
     { path: "/track-awb/:awbno/details", component: <ShipmentTraceDetail /> },

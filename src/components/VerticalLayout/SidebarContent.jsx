@@ -825,7 +825,17 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
                 <li>
                   <Link to="/privileges" className="has">
                     <i className="bx bx-shield-quarter"></i>
-                    <span>{props.t("Privileges")}</span>
+                    <span>{props.t("OPS Privileges")}</span>
+                  </Link>
+                </li>
+            }
+
+            {
+              isAdmin &&
+                <li>
+                  <Link to="/admin-privileges" className="has">
+                    <i className="bx bx-shield-quarter"></i>
+                    <span>{props.t("Admin Privileges")}</span>
                   </Link>
                 </li>
             }
