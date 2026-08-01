@@ -9,6 +9,10 @@ const BASE_URL = "https://velexp.com"
 export const SECRET_KEY = "Velexp.admin"
 // login api
 export const LOGIN_API_URL = `${BASE_URL}/api_login/`
+// refresh access token via SimpleJWT default endpoint
+// ASSUMPTION - verify against the real Django urls.py before shipping:
+// expects POST { refresh } -> { access, refresh? }
+export const TOKEN_REFRESH_API_URL = `${BASE_URL}/api/token/refresh/`
 // get all users  
 export const GET_USER_API = `${BASE_URL}/users`  // GET_USER_API/{id}  to get perticular user
 // get the filtered Product list

@@ -3,6 +3,7 @@ import { Button, Input } from "reactstrap"
 import MainHeaderComp from "../../../components/MainHeaderCom"
 import TableContainer from "../../../components/Table/TableContainer"
 import { useGetApiCall } from "../../../hooks/useGetApiCall"
+import { useExcelExport } from "../../../hooks/useExcelExport"
 import { INTERNATIONAL_DIMENSION_CHANGE_LOG } from "../../../api"
 import ToasterProvider from "../../../helpers/ToasterProvider"
 import { GridLoader } from "react-spinners"
@@ -53,6 +54,23 @@ const isChanged = (oldValue, newValue) => {
     return oldNum !== newNum
 }
 
+const formatSourceLabel = (source) => {
+    if (!source) return "-"
+    return String(source)
+        .split("_")
+        .filter(Boolean)
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(" ")
+}
+
+const getSourceBadgeColor = (source) => {
+    const key = String(source || "").toLowerCase()
+    if (key.includes("api") || key.includes("tracking")) return "primary"
+    if (key.includes("manual")) return "warning"
+    if (key.includes("webhook")) return "success"
+    return "secondary"
+}
+
 const oldValueColumn = (accessorKey) => ({
     header: "Old",
     accessorKey,
@@ -82,8 +100,6 @@ const InternationalDimensionChangeLog = () => {
 
     const [data, setData] = useState([])
     const [totalCount, setTotalCount] = useState(0)
-    const [page, setPage] = useState(1)
-    const [pageSize, setPageSize] = useState(20)
     const [awbno, setAwbno] = useState("")
     const [startDate, setStartDate] = useState(() => {
         const d = new Date()
@@ -93,6 +109,7 @@ const InternationalDimensionChangeLog = () => {
     const [endDate, setEndDate] = useState(() => toYMD(new Date()))
 
     const { apifunc: fetchReport, loading } = useGetApiCall()
+    const { exportToExcel, isExporting } = useExcelExport()
     const { ErrorToaster, SucceesToaster } = ToasterProvider()
 
     const handleDateRangeChange = (start, end) => {
@@ -114,7 +131,6 @@ const InternationalDimensionChangeLog = () => {
             if (res?.data && Array.isArray(res.data)) {
                 setData(res.data)
                 setTotalCount(res.total_count ?? res.data.length)
-                setPage(1)
                 if (res.data.length === 0) {
                     ErrorToaster("No dimension changes found for the selected filters")
                 } else {
@@ -137,18 +153,56 @@ const InternationalDimensionChangeLog = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
+    const handleDownloadExcel = () => {
+        if (data.length === 0) {
+            ErrorToaster("No data to export")
+            return
+        }
+
+        const meta = {
+            "AWB No": awbno.trim() || "All",
+            "From Date": formatDate(startDate),
+            "To Date": formatDate(endDate),
+        }
+
+        exportToExcel(data, "International_Dimension_Change_Log", (item) => ({
+            "AWB No": item.awbno,
+            "Booking ID": item.booking_id,
+            "Old Actual Weight (kg)": fmtNum(item.old_actual_weight),
+            "New Actual Weight (kg)": fmtNum(item.new_actual_weight),
+            "Old Length (cm)": fmtNum(item.old_vol_weightL),
+            "New Length (cm)": fmtNum(item.new_vol_weightL),
+            "Old Width (cm)": fmtNum(item.old_vol_weightW),
+            "New Width (cm)": fmtNum(item.new_vol_weightW),
+            "Old Height (cm)": fmtNum(item.old_vol_weightH),
+            "New Height (cm)": fmtNum(item.new_vol_weightH),
+            "Source": formatSourceLabel(item.source),
+            "Changed At": formatDateTime(item.created_at),
+        }), meta)
+    }
+
     const columns = useMemo(() => [
         {
             header: "AWB No",
-            accessorKey: "awbno",
-            enableSorting: true,
-            enableColumnFilter: false,
+            columns: [
+                {
+                    header: "",
+                    accessorKey: "awbno",
+                    enableSorting: true,
+                    enableColumnFilter: false,
+                },
+            ]
         },
         {
             header: "Booking ID",
-            accessorKey: "booking_id",
-            enableSorting: true,
-            enableColumnFilter: false,
+            columns: [
+                {
+                    header: "",
+                    accessorKey: "booking_id",
+                    enableSorting: true,
+                    enableColumnFilter: false,
+                },
+            ]
         },
         {
             header: "Actual Weight (kg)",
@@ -186,7 +240,7 @@ const InternationalDimensionChangeLog = () => {
             cell: ({ getValue }) => {
                 const source = getValue()
                 if (!source) return "-"
-                return <span className="badge bg-info text-dark">{String(source).replace(/_/g, " ")}</span>
+                return <span className={`badge rounded-pill bg-${getSourceBadgeColor(source)}`}>{formatSourceLabel(source)}</span>
             }
         },
         {
@@ -197,9 +251,6 @@ const InternationalDimensionChangeLog = () => {
             cell: ({ getValue }) => formatDateTime(getValue())
         },
     ], [])
-
-    const totalPages = Math.max(1, Math.ceil(data.length / pageSize))
-    const paginatedData = data.slice((page - 1) * pageSize, page * pageSize)
 
     return (
         <div className="page-content">
@@ -260,97 +311,21 @@ const InternationalDimensionChangeLog = () => {
                         <GridLoader color="#556ee6" />
                     </div>
                 ) : (
-                    <>
-                        <TableContainer
-                            columns={columns}
-                            data={paginatedData}
-                            isGlobalFilter={true}
-                            isPagination={false}
-                            SearchPlaceholder="Search AWB, Booking ID, Source..."
-                            tableClass="table-bordered table-nowrap"
-                        />
-
-                        {/* Pagination */}
-                        {data.length > 0 && (
-                            <div className="d-flex flex-wrap justify-content-between align-items-center mt-3 px-3 py-2 bg-light rounded border">
-                                <div className="d-flex align-items-center gap-2 mb-2 mb-sm-0">
-                                    <span className="text-muted small">
-                                        Showing <strong>{data.length > 0 ? (page - 1) * pageSize + 1 : 0}</strong> to <strong>{Math.min(page * pageSize, data.length)}</strong> of <strong>{totalCount}</strong> entries
-                                    </span>
-                                    {data.length > 10 && (
-                                        <div className="d-flex align-items-center gap-1 ms-3">
-                                            <label className="text-muted small mb-0">Per page:</label>
-                                            <select
-                                                className="form-select form-select-sm"
-                                                style={{ width: "70px", cursor: "pointer" }}
-                                                value={pageSize}
-                                                onChange={(e) => {
-                                                    const newSize = Number(e.target.value)
-                                                    setPageSize(newSize)
-                                                    setPage(1)
-                                                }}
-                                            >
-                                                <option value={10}>10</option>
-                                                <option value={20}>20</option>
-                                                <option value={50}>50</option>
-                                                <option value={100}>100</option>
-                                            </select>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {totalPages > 1 && (
-                                    <div className="d-flex align-items-center gap-1">
-                                        <Button
-                                            size="sm"
-                                            color="secondary"
-                                            outline
-                                            disabled={page <= 1}
-                                            onClick={() => setPage(page - 1)}
-                                        >
-                                            ‹ Prev
-                                        </Button>
-
-                                        <div className="d-flex gap-1">
-                                            {(() => {
-                                                const pages = []
-                                                const maxVisible = 5
-                                                let start = Math.max(1, page - 2)
-                                                let end = Math.min(totalPages, start + maxVisible - 1)
-                                                if (end - start + 1 < maxVisible) {
-                                                    start = Math.max(1, end - maxVisible + 1)
-                                                }
-                                                for (let i = start; i <= end; i++) {
-                                                    pages.push(
-                                                        <Button
-                                                            key={i}
-                                                            size="sm"
-                                                            color={page === i ? "primary" : "secondary"}
-                                                            outline={page !== i}
-                                                            onClick={() => setPage(i)}
-                                                        >
-                                                            {i}
-                                                        </Button>
-                                                    )
-                                                }
-                                                return pages
-                                            })()}
-                                        </div>
-
-                                        <Button
-                                            size="sm"
-                                            color="secondary"
-                                            outline
-                                            disabled={page >= totalPages}
-                                            onClick={() => setPage(page + 1)}
-                                        >
-                                            Next ›
-                                        </Button>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </>
+                    <TableContainer
+                        columns={columns}
+                        data={data}
+                        isGlobalFilter={true}
+                        isPagination={true}
+                        isCustomPageSize={true}
+                        defaultPageSize={20}
+                        pagination="pagination"
+                        paginationWrapper="dataTables_paginate paging_simple_numbers"
+                        isDownloadExcle={true}
+                        onDownloadExcle={handleDownloadExcel}
+                        ExcleLoading={isExporting}
+                        SearchPlaceholder="Search AWB, Booking ID, Source..."
+                        tableClass="table-bordered table-nowrap"
+                    />
                 )}
             </div>
         </div>

@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
-import { Button, Card, CardBody, CardHeader, Col, FormGroup, Input, Label, Row } from "reactstrap"
+import { Button, Card, CardBody, CardHeader, Col, FormGroup, Input, Label, Row, FormFeedback } from "reactstrap"
 import { Country, State, City } from "country-state-city";
 import Select from "react-select";
 import { customStyles } from "../../../helpers/CustomStyle";
 const EditAddress = ({ formData, onInputChange ,onSelectChange }) => {
 
     const [StateOptions, setStatesOptions] = useState([])
+    const [errors, setErrors] = useState({})
+    const addressPattern = /^[a-zA-Z0-9\s,.\-/']*$/
+
     useEffect(() => {
 
         const states = State.getStatesOfCountry("IN").map((state) => ({
@@ -14,6 +17,27 @@ const EditAddress = ({ formData, onInputChange ,onSelectChange }) => {
         }));
         setStatesOptions(states)
     }, [])
+
+    const handleAddressInputChange = (e) => {
+        const { name, value } = e.target
+
+        if ((name === 'address' || name === 'landmark') && value) {
+            if (!addressPattern.test(value)) {
+                const fieldLabel = name === 'address' ? 'Address' : 'Landmark'
+                setErrors(prev => ({
+                    ...prev,
+                    [name]: `${fieldLabel}: Special characters not allowed. Use only letters, numbers, spaces, commas, periods, hyphens, slashes, and apostrophes`
+                }))
+                return
+            }
+            setErrors(prev => ({
+                ...prev,
+                [name]: undefined
+            }))
+        }
+
+        onInputChange(e)
+    }
 
     const [CityOptions, setCityOptions] = useState([])
 
@@ -45,9 +69,10 @@ const EditAddress = ({ formData, onInputChange ,onSelectChange }) => {
                                 type="textarea"
                                 name="address"
                                 value={formData?.address}
-                                onChange={onInputChange}
+                                onChange={handleAddressInputChange}
+                                invalid={!!errors?.address}
                             />
-
+                            {errors?.address && <FormFeedback className="d-block">{errors.address}</FormFeedback>}
                         </FormGroup>
                     </Col>
 
@@ -146,9 +171,10 @@ const EditAddress = ({ formData, onInputChange ,onSelectChange }) => {
                                 type="text"
                                 name="landmark"
                                 value={formData?.landmark}
-                                onChange={onInputChange}
+                                onChange={handleAddressInputChange}
+                                invalid={!!errors?.landmark}
                             />
-
+                            {errors?.landmark && <FormFeedback className="d-block">{errors.landmark}</FormFeedback>}
                         </FormGroup>
                     </Col>
                 </Row>

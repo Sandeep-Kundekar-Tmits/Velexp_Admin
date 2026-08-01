@@ -65,7 +65,14 @@ const MultipleAddressForm = ({ addresses, setAddresses, onNextButtonClick, onPre
   const handleAddressChange = (e) => {
     const { name, value } = e.target
     const error = {}
+    const addressPattern = /^[a-zA-Z0-9\s,.\-/']*$/
+
     if (name === "address") {
+      if (!addressPattern.test(value)) {
+        error.address = "Special characters not allowed. Use only letters, numbers, spaces, commas, periods, hyphens, slashes, and apostrophes"
+        setAddressErrors(error)
+        return
+      }
       let count = value.trim().length
       setAddressCount(count)
       if (count < 200) {
@@ -83,6 +90,18 @@ const MultipleAddressForm = ({ addresses, setAddresses, onNextButtonClick, onPre
         error.address = "Not allowed to enter more then 200 characters"
       }
       setAddressErrors(error)
+    }
+    else if (name === "landmark") {
+      if (!addressPattern.test(value)) {
+        error.landmark = "Special characters not allowed. Use only letters, numbers, spaces, commas, periods, hyphens, slashes, and apostrophes"
+        setAddressErrors(error)
+        return
+      }
+      setAddresses({
+        ...addresses,
+        [name]: value
+      })
+      setAddressErrors({})
     }
     else {
       setAddresses({

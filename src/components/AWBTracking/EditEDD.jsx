@@ -25,10 +25,12 @@ const Detail = ({ label, value, fullWidth }) => (
 );
 
 
-const EditEDD = ({ isOpen, toggle, shipmentDetails = {}, onSuccess }) => {
+const EditEDD = ({ isOpen, toggle, shipmentDetails, onSuccess }) => {
   const [newEdd, setNewEdd] = useState("");
   const [remark, setRemark] = useState("");
   const [errors, setErrors] = useState({});
+
+  const safeShipmentDetails = shipmentDetails || {};
 
   const { apifunc: updateEdd, loading } = usePostApiCall();
   const { ErrorToaster, SucceesToaster } = ToasterProvider();
@@ -67,7 +69,7 @@ const EditEDD = ({ isOpen, toggle, shipmentDetails = {}, onSuccess }) => {
     const changed_by = JSON.parse(localStorage.getItem("authUser"))?.user?.id;
 
     const payload = {
-      awbno: shipmentDetails.awbno,
+      awbno: safeShipmentDetails.awbno,
       new_edd: newEdd,
       changed_by: changed_by,
       remark: remark
@@ -115,7 +117,7 @@ const EditEDD = ({ isOpen, toggle, shipmentDetails = {}, onSuccess }) => {
       style={{ width: "500px" }}
     >
       <OffcanvasHeader toggle={toggle} className="border-bottom">
-        {shipmentDetails.awbno ? `Edit EDD for AWB: ${shipmentDetails.awbno}` : "Edit Estimated Delivery Date"}
+        {safeShipmentDetails.awbno ? `Edit EDD for AWB: ${safeShipmentDetails.awbno}` : "Edit Estimated Delivery Date"}
       </OffcanvasHeader>
 
       <OffcanvasBody>

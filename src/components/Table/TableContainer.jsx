@@ -185,7 +185,7 @@ const TableContainer = ({
                 <div className="d-flex flex-wrap mb-0 align-items-center  p-0 justify-content-between" style={{ height: "45px" }} >
                     {/* Left section (Page size + Excel download) */}
                     <div className="d-flex  align-items-center w-75 mb-0 p-0">
-                        {isCustomPageSize && defaultPageSize === 10 && (
+                        {isCustomPageSize && (
                             <div className=" mb-0 d-flex align-items-center" style={{ minWidth: "90px", borderRight: "solid #B0ACAC 1px", height: "45px", marginLeft: "10px", marginRight: "10px" }}>
                                 <select
                                     className="form-select pageSize  border-0 "

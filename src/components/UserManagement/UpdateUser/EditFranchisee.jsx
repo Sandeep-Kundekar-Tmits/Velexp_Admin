@@ -1,20 +1,50 @@
 import { Card, CardBody, CardHeader, Col, FormFeedback, FormGroup, Input, Label, Row } from "reactstrap";
+import { useState } from "react";
 
 const EditFranchisee = ({ formData, handleChange }) => {
-    const renderInput = (label, name, errorMessage, type = 'text') => (
-        <FormGroup className="mb-3">
-            <Label for={name}>{label}</Label>
-            <Input
-                type={type}
-                name={name}
-                id={name}
-                value={formData?.franchise_profile?.[name] || ''}
-                onChange={handleChange}
-                invalid={!!errorMessage}
-            />
-            <FormFeedback>{errorMessage}</FormFeedback>
-        </FormGroup>
-    );
+    const [addressErrors, setAddressErrors] = useState({})
+    const addressPattern = /^[a-zA-Z0-9\s,.\-/']*$/
+
+    const handleAddressChange = (e) => {
+        const { name, value } = e.target
+
+        if ((name === 'address1' || name === 'address2') && value) {
+            if (!addressPattern.test(value)) {
+                const fieldLabel = name === 'address1' ? 'Address Line 1' : 'Address Line 2'
+                setAddressErrors(prev => ({
+                    ...prev,
+                    [name]: `${fieldLabel}: Special characters not allowed. Use only letters, numbers, spaces, commas, periods, hyphens, slashes, and apostrophes`
+                }))
+                return
+            }
+            setAddressErrors(prev => ({
+                ...prev,
+                [name]: undefined
+            }))
+        }
+
+        handleChange(e)
+    }
+
+    const renderInput = (label, name, errorMessage, type = 'text') => {
+        const isAddressField = name === 'address1' || name === 'address2'
+        const error = isAddressField ? addressErrors?.[name] : errorMessage
+
+        return (
+            <FormGroup className="mb-3">
+                <Label for={name}>{label}</Label>
+                <Input
+                    type={type}
+                    name={name}
+                    id={name}
+                    value={formData?.franchise_profile?.[name] || ''}
+                    onChange={isAddressField ? handleAddressChange : handleChange}
+                    invalid={!!error}
+                />
+                <FormFeedback>{error}</FormFeedback>
+            </FormGroup>
+        )
+    };
 
     const renderCheckbox = (label, name) => (
         <FormGroup check className="mb-2">

@@ -1,5 +1,6 @@
 import axios from "axios";
 import accessToken from "./jwt-token-access/accessToken";
+import { refreshAccessToken, isAuthExemptUrl } from "./tokenRefresh";
 
 //pass new generated access token here
 const token = accessToken;
@@ -53,10 +54,36 @@ axios.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-axiosApi.interceptors.response.use(
-  (response) => response,
-  (error) => Promise.reject(error)
-);
+// On a 401 (expired/invalid access token), transparently refresh it via the
+// stored refresh token and retry the original request once.
+function attachAuthRefreshInterceptor(instance) {
+  instance.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+      const originalRequest = error.config;
+      const status = error.response?.status;
+
+      if (
+        status === 401 &&
+        originalRequest &&
+        !isAuthExemptUrl(originalRequest.url) &&
+        !originalRequest._retry
+      ) {
+        originalRequest._retry = true;
+        try {
+          await refreshAccessToken();
+          return instance(originalRequest);
+        } catch (refreshError) {
+          return Promise.reject(refreshError);
+        }
+      }
+      return Promise.reject(error);
+    }
+  );
+}
+
+attachAuthRefreshInterceptor(axiosApi);
+attachAuthRefreshInterceptor(axios);
 
 export async function get(url, config = {}) {
   return await axiosApi

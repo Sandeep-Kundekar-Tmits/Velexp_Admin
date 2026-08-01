@@ -57,7 +57,7 @@ const TrackAWB = () => {
                 }
 
                 let details = res.find(ele => ele?.multipiece_type === "parent" || ele?.multipiece_type === "single");
-                setShipmentDetails({ ...details, edd: trackRes[0]?.Parent[0]?.EDD } || {});
+                setShipmentDetails({ ...details, edd: trackRes?.[0]?.Parent?.[0]?.EDD } || {});
                 let pieces = res.map((ele, index) => {
                     return {
                         piece_no: ele.piece_no || 0,
@@ -111,7 +111,7 @@ const TrackAWB = () => {
             <MainHeaderComp
                 title="Track AWB"
                 extraFields={
-                    (awbDetails && Object.keys(shipmentDetails).length > 0) &&
+                    (awbDetails && shipmentDetails && Object.keys(shipmentDetails).length > 0) &&
                     <button className="btn btn-primary" onClick={() => {
                         setActiveComponent("edit_edd")
                     }}>

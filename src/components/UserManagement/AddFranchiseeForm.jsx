@@ -22,8 +22,26 @@ const AddFranchiseeForm = ({ formData, setFormData, SubmitForm, onPreButtonClick
     // api callings
     const { apifunc: getAddresses, data, error, loading } = useGetApiCall()
 
+    const addressPattern = /^[a-zA-Z0-9\s,.\-/']*$/
+
     const handleChange = (e) => {
         const { name, type, value, checked } = e.target;
+
+        if ((name === 'address1' || name === 'address2') && type !== 'checkbox') {
+            if (!addressPattern.test(value)) {
+                const fieldLabel = name === 'address1' ? 'Address Line 1' : 'Address Line 2'
+                setErrors(prev => ({
+                    ...prev,
+                    [name]: `${fieldLabel}: Special characters not allowed. Use only letters, numbers, spaces, commas, periods, hyphens, slashes, and apostrophes`
+                }))
+                return
+            }
+            setErrors(prev => ({
+                ...prev,
+                [name]: undefined
+            }))
+        }
+
         setFormData(prev => ({
             ...prev,
             [name]: type === 'checkbox' ? checked : value

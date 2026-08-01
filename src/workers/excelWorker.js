@@ -1,7 +1,8 @@
 import * as XLSX from 'xlsx';
 
 self.onmessage = async (e) => {
-  const { data, fileName, sheetName, mainHeading } = e.data;
+  const { data, fileName, sheetName: rawSheetName, mainHeading } = e.data;
+  const sheetName = rawSheetName && String(rawSheetName).trim() ? String(rawSheetName).trim().slice(0, 31) : 'Sheet1';
 
   try {
     const workbook = XLSX.utils.book_new();
