@@ -189,7 +189,14 @@
  * (141 uses) are reproduced here; the other ~44k lines stay deleted.
  */
 @layer base {
-  .page-content { padding: 0.5rem; }
+  /* Pages fill the viewport rather than collapsing to content height, so
+     short screens don't leave the layout looking half-drawn. */
+  .page-content {
+    padding: 0.5rem;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
   .main-content { width: 100%; }
   .account-pages { padding-block: 2rem; }
 

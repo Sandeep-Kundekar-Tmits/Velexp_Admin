@@ -166,12 +166,52 @@
   border-radius: 3px;
 }
 
-/* Footer badge: pinned to the bottom, never overlapped by the menu. */
-.user-badge {
-  margin-top: auto;
+/*
+ * Sidebar footer (role badge + logout dropdown).
+ *
+ * This is the Dropdown wrapper, a direct flex child of .vertical-menu. The
+ * generic Dropdown primitive is inline-block, which is right for a toolbar
+ * button but wrong here -- as a flex child it would not span the sidebar, so
+ * the badge sat in a narrow box that spilled past the sidebar edge.
+ */
+.sidebar-footer {
+  display: block !important;
+  width: 100%;
+  margin-top: auto;   /* pins to the bottom; must be on the flex child itself */
   flex-shrink: 0;
   border-top: 1px solid rgb(255 255 255 / 0.12);
   background: rgb(0 0 0 / 0.15);
+}
+.sidebar-footer > button {
+  width: 100%;
+  display: block;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: inherit;
+}
+/* Opens upward, so it must clear the footer rather than overlap it. */
+.sidebar-footer [role="menu"] {
+  left: 0.5rem;
+  right: 0.5rem;
+  bottom: 100%;
+  margin-bottom: 0.5rem;
+}
+.sidebar-footer .dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  color: var(--color-ink);
+  text-decoration: none;
+  font-size: 13px;
+}
+.sidebar-footer .dropdown-item:hover {
+  background: #f1f5f9;
+}
+
+.user-badge {
+  width: 100%;
   color: #fff;
 }
 .user-badge .icon-wrapper {

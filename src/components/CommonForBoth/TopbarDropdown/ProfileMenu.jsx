@@ -96,7 +96,10 @@ const ProfileMenu = (props) => {
         }}
         direction="up"
         style={{ zIndex: 9999, position: "relative", outline: "none" }}
-        className="border-0"
+        // sidebar-footer: this Dropdown is a direct flex child of
+        // .vertical-menu and acts as its footer, so it needs to be a
+        // full-width block pinned to the bottom rather than an inline-block.
+        className="sidebar-footer border-0"
       >
         <DropdownToggle
           className="w-100 bg-transparent border-0 btn-outline-info" style={{ cursor: "pointer", outline: "none" }}
