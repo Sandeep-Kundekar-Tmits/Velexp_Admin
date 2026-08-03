@@ -1,0 +1,58 @@
+/**
+ * Reference data — the slow-moving lists that populate filter dropdowns on
+ * almost every report screen.
+ *
+ * Before this existed each screen called the endpoint itself on mount:
+ * GET_USER_API was refetched on 33 pages and SERVICE_CENTER on 35, with no
+ * caching, so moving between two reports refetched everything.
+ *
+ * The `{ value, label }` mapping lives here too. It used to be duplicated in
+ * a useEffect on every screen — including the null-name filter below, which
+ * appeared verbatim in 22 files.
+ */
+import { GET_ALL_REGION, GET_USER_API, PRODUCT_LIST, SERVICE_CENTER } from "@/api";
+import { http } from "@/lib/http";
+
+/**
+ * The customer list contains rows whose name is genuinely missing and rows
+ * where it is the *string* "null"/"undefined" from upstream serialization.
+ * Both must be dropped or they render as selectable options.
+ */
+export function toCustomerOptions(rows) {
+  return (rows ?? [])
+    .filter((row) => {
+      const name = row?.customer_name?.trim();
+      return name && name !== "null" && name !== "undefined";
+    })
+    .map((row) => ({ value: row.customer_name, label: row.customer_name }));
+}
+
+export function toServiceCenterOptions(rows) {
+  return (rows ?? []).map((row) => ({ value: row?.ec_code, label: row?.ec_code }));
+}
+
+export function toProductOptions(rows) {
+  return (rows ?? []).map((row) => ({ value: row?.name, label: row?.name }));
+}
+
+/** Regions arrive with case-variant duplicates; collapse them. */
+export function toRegionOptions(rows) {
+  const seen = new Set();
+  const options = [];
+  for (const row of rows ?? []) {
+    const value = row?.region;
+    if (!value) continue;
+    const key = String(value).toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    options.push({ value, label: value });
+  }
+  return options;
+}
+
+// GET_USER_API needs the trailing slash; the constant omits it because other
+// call sites append an id.
+export const fetchCustomers = () => http.get(`${GET_USER_API}/`);
+export const fetchServiceCenters = () => http.get(SERVICE_CENTER);
+export const fetchProducts = () => http.get(PRODUCT_LIST);
+export const fetchRegions = () => http.get(GET_ALL_REGION);
