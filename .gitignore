@@ -30,3 +30,6 @@ dist-ssr
 # Build/analysis artifacts
 build_error.txt
 unused_report.json
+
+# Vite writes these while resolving the config
+vite.config.js.timestamp-*
