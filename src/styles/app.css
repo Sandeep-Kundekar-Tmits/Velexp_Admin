@@ -2,6 +2,8 @@
 /* Shrinking shim for the ~6,244 Bootstrap utility classes still in the JSX.
    Delete rules from it as screens are migrated to real Tailwind classes. */
 @import "./bootstrap-compat.css";
+/* Sidebar, layout chrome and DataTables styling that theme.scss used to own. */
+@import "./layout-compat.css";
 
 /*
  * Velexp "Dense Ops" design tokens.

@@ -17,7 +17,11 @@ import NonAuthLayout from "./components/NonAuthLayout";
 import Loader from "./Loaders/Loader";
 
 // Import scss
-// Skote/Bootstrap SCSS removed — replaced by styles/app.css (Tailwind + compat shim)
+// Skote/Bootstrap SCSS removed — replaced by styles/app.css (Tailwind + compat shim).
+// icons.scss is kept: it only declares the boxicons/materialdesignicons/
+// fontawesome/dripicons @font-face rules and their class maps, with no
+// Bootstrap dependency. The app uses bx-*, mdi-* and fa-* in 33 files.
+import "./assets/scss/icons.scss";
 import "./styles/app.css";
 
 

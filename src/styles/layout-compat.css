@@ -1,0 +1,326 @@
+/*
+ * Sidebar, layout chrome and data-table styling.
+ *
+ * These were provided by the Skote theme.scss that Phase 3 removed. Unlike
+ * the utility classes in bootstrap-compat.css, this is real component CSS:
+ * the sidebar is position-fixed with its own scroll region, the menu is an
+ * accordion whose open/closed state MetisMenu toggles by adding mm-active /
+ * mm-show classes, and TableContainer passes Skote's DataTables-flavoured
+ * class names through from ~90 call sites.
+ *
+ * Written against the Dense Ops tokens rather than copied from Skote, so the
+ * sidebar now uses the real brand navy (#2E386A) instead of the template's.
+ *
+ * This file goes away when the data-driven sidebar and the report engine
+ * replace these components.
+ */
+
+:root {
+  --sidebar-width: 250px;
+  --header-height: 70px;
+}
+
+/* ---------------------------------------------------------------- sidebar */
+
+.vertical-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--sidebar-width);
+  z-index: 1001;
+  background: var(--color-brand-700);
+  color: #cbd5e1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Clears the fixed sidebar. Without this every page renders underneath it. */
+.main-content {
+  margin-left: var(--sidebar-width);
+  min-height: 100vh;
+  /* Wide report tables (15-25 columns) must scroll inside their own container
+     rather than pushing the whole document sideways. */
+  max-width: calc(100% - var(--sidebar-width));
+  overflow-x: hidden;
+}
+
+@media (max-width: 991.98px) {
+  .vertical-menu {
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+  body.sidebar-enable .vertical-menu {
+    transform: translateX(0);
+  }
+  .main-content {
+    margin-left: 0;
+  }
+}
+
+/* ------------------------------------------------------------- menu tree */
+
+.metismenu {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.metismenu li {
+  display: block;
+  width: 100%;
+}
+
+.metismenu li > a {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.6rem 1.25rem;
+  color: #cbd5e1;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.15s, background-color 0.15s;
+}
+.metismenu li > a:hover {
+  color: #fff;
+  background: rgb(255 255 255 / 0.06);
+}
+.metismenu li > a > i {
+  min-width: 1.25rem;
+  font-size: 15px;
+  text-align: center;
+}
+
+/* MetisMenu marks the active branch by adding mm-active on the <li>. */
+.metismenu li.mm-active > a,
+.metismenu li > a.active {
+  color: #fff;
+  background: rgb(255 255 255 / 0.1);
+}
+
+/* Nested lists: collapsed by default, revealed when MetisMenu adds mm-show. */
+.metismenu .sub-menu {
+  margin: 0;
+  padding: 0 0 0 1.75rem;
+  list-style: none;
+  display: none;
+}
+.metismenu .sub-menu.mm-show,
+.metismenu li.mm-active > .sub-menu {
+  display: block;
+}
+.metismenu .sub-menu li > a {
+  padding: 0.4rem 1.25rem;
+  font-size: 12.5px;
+  font-weight: 400;
+  color: #94a3b8;
+}
+.metismenu .sub-menu li > a:hover {
+  color: #fff;
+}
+
+/* Disclosure caret on expandable items; rotates when the branch is open. */
+.metismenu .has-arrow {
+  position: relative;
+}
+.metismenu .has-arrow::after {
+  content: "";
+  position: absolute;
+  right: 1.25rem;
+  top: 50%;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-65%) rotate(-45deg);
+  transition: transform 0.15s ease;
+  opacity: 0.7;
+}
+.metismenu li.mm-active > .has-arrow::after,
+.metismenu .has-arrow[aria-expanded="true"]::after {
+  transform: translateY(-35%) rotate(45deg);
+}
+
+/*
+ * Sidebar scroll region.
+ *
+ * Sidebar.jsx renders the menu inside a div with an inline height:75vh that
+ * relied on SimpleBar for scrolling. Without the theme's SimpleBar CSS the
+ * menu overflowed and rendered on top of the ProfileMenu footer.
+ *
+ * !important is needed to beat the inline height; the element becomes a
+ * normal flex child that scrolls, and the footer is pinned below it.
+ */
+.vertical-menu > [data-simplebar] {
+  height: auto !important;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.vertical-menu > [data-simplebar]::-webkit-scrollbar {
+  width: 6px;
+}
+.vertical-menu > [data-simplebar]::-webkit-scrollbar-thumb {
+  background: rgb(255 255 255 / 0.18);
+  border-radius: 3px;
+}
+
+/* Footer badge: pinned to the bottom, never overlapped by the menu. */
+.user-badge {
+  margin-top: auto;
+  flex-shrink: 0;
+  border-top: 1px solid rgb(255 255 255 / 0.12);
+  background: rgb(0 0 0 / 0.15);
+  color: #fff;
+}
+.user-badge .icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.user-badge .user-info small {
+  color: #94a3b8;
+  font-size: 11px;
+}
+.fs-4 {
+  font-size: 1.25rem;
+}
+
+.menu-title {
+  padding: 0.75rem 1.25rem 0.35rem;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #64748b;
+}
+
+.list-unstyled {
+  list-style: none;
+  padding-left: 0;
+}
+
+/* ---------------------------------------------------------------- tables */
+
+/*
+ * TableContainer forwards Skote's DataTables-style class names from ~90 call
+ * sites, e.g. "table-bordered table-nowrap dt-responsive nowrap w-100
+ * dataTable no-footer dtr-inline". They are reproduced here at the Dense Ops
+ * density (34px rows, 13px, tabular figures) rather than Bootstrap's.
+ */
+table.dataTable,
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.table > thead th,
+table.dataTable > thead th {
+  background: #f1f5f9;
+  color: var(--color-ink);
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+  padding: 0.4rem 0.5rem;
+  height: 34px;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.table > tbody td,
+table.dataTable > tbody td {
+  padding: 0.35rem 0.5rem;
+  height: 34px;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--color-line);
+}
+
+.table-bordered th,
+.table-bordered td {
+  border: 1px solid var(--color-line);
+}
+
+.table-nowrap th,
+.table-nowrap td,
+.nowrap th,
+.nowrap td {
+  white-space: nowrap;
+}
+
+.table-hover tbody tr:hover {
+  background: var(--color-brand-50);
+}
+
+.table-striped tbody tr:nth-child(odd) {
+  background: #f8fafc;
+}
+
+.table-sm th,
+.table-sm td {
+  height: 28px;
+  padding: 0.2rem 0.4rem;
+  font-size: 12px;
+}
+
+.table-responsive,
+.dt-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Sticky header used by the report screens. */
+.table-sticky thead th,
+thead.table-light th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+/* DataTables chrome that TableContainer renders around the table. */
+.dataTables_wrapper {
+  width: 100%;
+}
+.dataTables_info {
+  font-size: 12px;
+  color: var(--color-ink-muted);
+}
+.dataTables_paginate {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.dataTables_paginate .pagination {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.dataTables_paginate .page-item .page-link,
+.pagination .page-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  padding: 0 0.5rem;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-DEFAULT);
+  background: #fff;
+  color: var(--color-ink);
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: none;
+}
+.pagination .page-item.active .page-link {
+  background: var(--color-brand-500);
+  border-color: var(--color-brand-500);
+  color: #fff;
+}
+.pagination .page-item.disabled .page-link {
+  opacity: 0.5;
+  pointer-events: none;
+}
