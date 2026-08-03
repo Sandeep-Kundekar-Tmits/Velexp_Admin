@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import withRouter from "../../components/Common/withRouter";
 
 import {
@@ -21,12 +21,15 @@ import { useState } from "react";
 import usePostApiCall from "../../hooks/usePostApiCall";
 import { LOGIN_API_URL } from "../../api";
 import { resolveMenuAccess } from "../../helpers/checkMenuAccess";
+import { useAuthStore } from "@/stores/authStore";
 import { ClipLoader } from "react-spinners"
 import SingleLogo from "../../assets/images/vellocity-express-single-logo.png"
 
 const Login = (props) => {
   const { apifunc: login, data, error: apiError, loading } = usePostApiCall()
   const navigate = useNavigate()
+  const location = useLocation()
+  const setSession = useAuthStore((s) => s.setSession)
   const [loginInfo, setLoginInfo] = useState({
     username: "",
     password: ""
@@ -68,17 +71,23 @@ const Login = (props) => {
       if (userData?.status === "success") {
         // Non-admin, non-staff accounts don't get an admin-panel session.
         if (userData?.user?.is_staff === false && !userData?.user?.is_admin) {
-          navigate("/login");
+          // Previously navigated to "/login" (already here) with no message,
+          // so the form just sat there and looked broken.
+          setErrors({ error: "This account does not have admin panel access." });
           return
         }
 
-        localStorage.setItem("authUser", JSON.stringify(userData));
+        // Writes through to localStorage["authUser"] in the same shape as
+        // before, so tokenRefresh/checkMenuAccess/ProfileMenu keep working.
+        setSession(userData);
 
         // Route based on privileges, not customer type -- admin always
         // lands on /user-list, staff lands on the first screen their
-        // privileges actually grant.
+        // privileges actually grant. If the guard bounced them here from a
+        // protected page, honour that destination instead.
         const { defaultRoute } = resolveMenuAccess(userData?.user, userData?.privileges);
-        navigate(defaultRoute);
+        const intended = location.state?.from?.pathname;
+        navigate(intended || defaultRoute, { replace: true });
       }
 
     }

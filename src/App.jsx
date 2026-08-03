@@ -6,6 +6,8 @@ import { getAuthProtectedRoutes, publicRoutes } from "./routes/index";
 
 // Import all middleware
 import Authmiddleware from "./routes/route";
+import PublicOnlyRoute from "./routes/PublicOnlyRoute";
+import { usePrivilegesQuery } from "./features/auth/usePrivilegesQuery";
 
 // layouts Format
 import VerticalLayout from "./components/VerticalLayout/";
@@ -22,11 +24,13 @@ import "./assets/scss/theme.scss";
 const App = () => {
 
   const [routesReady, setRoutesReady] = useState(false);
-  // const [authRoutes, setAuthRoutes] = useState([]);
+
+  // Refresh the signed-in user's privileges from the server. Seeded from the
+  // stored tree so there is no flash, and written back on success -- which is
+  // what finally makes a role change take effect without re-login.
+  usePrivilegesQuery();
 
   useEffect(() => {
-    // This ensures permissions are checked fresh when the app loads
-    // setAuthRoutes(getAuthProtectedRoutes());
     setRoutesReady(true);
   }, []);
 
@@ -42,7 +46,15 @@ const App = () => {
           {publicRoutes.map((route, idx) => (
             <Route
               path={route.path}
-              element={<NonAuthLayout>{route.component}</NonAuthLayout>}
+              element={
+                <NonAuthLayout>
+                  {route.publicOnly ? (
+                    <PublicOnlyRoute>{route.component}</PublicOnlyRoute>
+                  ) : (
+                    route.component
+                  )}
+                </NonAuthLayout>
+              }
               key={idx}
             />
           ))}

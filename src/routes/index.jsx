@@ -110,8 +110,19 @@ const getMenuAccess = () => {
   try {
     return checkMenuAccess();
   } catch (error) {
+    // Fails CLOSED. This previously returned isAdmin:true with canAccess:()=>true,
+    // meaning a corrupt or unparseable authUser entry silently granted full
+    // admin access to every route. Denying instead is the safe direction: the
+    // user lands on /no_role rather than an unintended admin session.
     console.error("Permission check failed:", error);
-    return { isAdmin: true, isStaff: true, canAccess: () => true, canAccessAny: () => true, accessibleUrls: new Set(), defaultRoute: "/user-list" };
+    return {
+      isAdmin: false,
+      isStaff: false,
+      canAccess: () => false,
+      canAccessAny: () => false,
+      accessibleUrls: new Set(),
+      defaultRoute: "/no_role",
+    };
   }
 };
 
@@ -316,13 +327,15 @@ const getAuthProtectedRoutes = () => {
 // };
 
 
-// Keep publicRoutes the same
+// publicOnly: redirect to the user's landing route if already signed in.
+// /logout and /no_role must stay reachable while authenticated, and the
+// password-reset link arrives by email and clears the session itself.
 const publicRoutes = [
   { path: "/no_role", component: <RoleNotDefinedScreen /> },
   { path: "/logout", component: <Logout /> },
-  { path: "/login", component: <Login /> },
-  { path: "/forgot-password", component: <ForgetPwd /> },
-  { path: "/register", component: <Register /> },
+  { path: "/login", component: <Login />, publicOnly: true },
+  { path: "/forgot-password", component: <ForgetPwd />, publicOnly: true },
+  { path: "/register", component: <Register />, publicOnly: true },
   { path: "/password-reset-confirm/:uid/:token/", component: <PasswordResetConfirm /> }
 ];
 

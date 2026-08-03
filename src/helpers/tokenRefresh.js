@@ -28,9 +28,19 @@ export function isAuthExemptUrl(url) {
 }
 
 export function clearSessionAndRedirectToLogin(message = "Session expired, please log in again.") {
-    localStorage.removeItem("authUser");
+    // Imported lazily: authStore -> ... -> api/index.js -> config/env, and a
+    // static import here would create a cycle back into this module.
+    import("../stores/authStore")
+        .then(({ useAuthStore }) => useAuthStore.getState().clearSession())
+        .catch(() => localStorage.removeItem("authUser"));
+
     toast.error(message, { position: "bottom-right", autoClose: 5000, theme: "light" });
+
     if (window.location.pathname !== "/login") {
+        // Still a hard navigation rather than router.navigate(): this runs
+        // outside React (from an interceptor), and a full reload is actually
+        // desirable here -- it guarantees no component keeps rendering with
+        // data from the dead session.
         window.location.href = "/login";
     }
 }
