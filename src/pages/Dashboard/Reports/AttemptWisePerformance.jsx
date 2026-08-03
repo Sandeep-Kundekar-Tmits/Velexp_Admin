@@ -27,22 +27,28 @@ const AttemptWisePerformance = () => {
     useEffect(() => {
         document.title = "Attempt Wise Delivery Performance";
     }, []);
+    // base column config
     const baseColumnConfig = {
         enableColumnFilter: false,
         enableSorting: true,
     };
 
+    // date range state
     const [selectedRange, setSelectedRange] = useState({
         startDate: "",
         endDate: "",
     });
 
+    // date range change handler
     const handleChange = (range) => {
         setSelectedRange(range);
     };
 
+    // final status count state
     const [FinalStatusCount, setFinalStatusCount] = useState({})
+    // selected payload state
     const [SelectedPayload, setSelectedPayload] = useState(null)
+    // payment mode options state
     const [paymentModeOptions, setpaymentModeOptions] = useState([
         {
             value: "ALL",
@@ -57,12 +63,16 @@ const AttemptWisePerformance = () => {
             label: "PAID"
         }
     ])
+    // payment mode state
     const [PaymentMode, setPaymentMode] = useState({
         value: "ALL",
         label: "ALL"
     },)
+    // username state
     const [username, setUsername] = useState({})
+    // first mile data state
     const [FirstMiles, setFirstMiles] = useState([])
+    // second mile data state
     const [SecondMiles, setSecondMiles] = useState([])
     // to show and hide the filter
     const [isShowFilter, setIsShowFilter] = useState(false)
@@ -72,6 +82,7 @@ const AttemptWisePerformance = () => {
     const [UserListOptions, setUserListOption] = useState([])
     // product list
     const [ProductListOption, setProductListOption] = useState([])
+    // selected product state
     const [SelectedProduct, setSelectedProduct] = useState()
     const [AllRegions, setAllRegions] = useState([])
     // defining get user api

@@ -1,6 +1,7 @@
 // const BASE_URL = "http://192.168.1.151:8000"
-// const BASE_URL = "http://velexp.com:8000"
-const BASE_URL = "https://velexp.com"
+// const BASE_URL = "https://velexp.com"
+const BASE_URL = "http://velexp.com:8000"
+// const BASE_URL = "https://velexp.com"
 // const BASE_URL = "http://192.168.1.166:8000"
 // const BASE_URL = "http://103.108.57.51:8001"
 

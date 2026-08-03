@@ -11,7 +11,16 @@ import usePostApiCall from '../../../hooks/usePostApiCall';
 import MissingPodTable from './MissingPodTable';
 import TableContainer from '../../Table/TableContainer';
 
+/**
+ * MissingPod Component
+ * An Offcanvas/Modal component used to find and display missing PODs (Proof of Delivery) for a selected customer.
+ * Users can select a date range and fetch a list of AWB numbers that are missing a POD.
+ *
+ * @param {Object} props
+ * @param {Function} props.onClose - Function to close the Offcanvas/Modal.
+ */
 const MissingPod = ({ onClose }) => {
+    // Table column definitions for the Missing Pods list
     const columns = useMemo(
         () => [
             {
