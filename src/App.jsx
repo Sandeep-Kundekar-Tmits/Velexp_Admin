@@ -51,7 +51,7 @@ const App = () => {
             <Route
               path={route.path}
               element={
-                <Authmiddleware>
+                <Authmiddleware path={route.path}>
                   <VerticalLayout>{route.component}</VerticalLayout>
                 </Authmiddleware>
               }

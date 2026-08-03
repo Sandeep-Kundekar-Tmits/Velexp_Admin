@@ -1,6 +1,6 @@
 import React, { lazy } from "react";
 import { Navigate } from "react-router-dom";
-import { checkCustomerPermissions } from "../helpers/checkCustomerPermissions";
+import { checkMenuAccess } from "../helpers/checkMenuAccess";
 
 // ✅ Lazy load every page (Vite will automatically code-split these)
 // Authentication
@@ -72,6 +72,7 @@ const AttemptWiseOperationPickupReport = lazy(() => import("../pages/Dashboard/R
 const CustomerLastMileOperationClone = lazy(() => import("../pages/Dashboard/Reports/customer_Performance/CustomerLastMileOperationClone"));
 const CustomerAttemptwisePerformanceClone = lazy(() => import("../pages/Dashboard/Reports/customer_Performance/CustomerAttemptwisePerformanceClone"));
 const Privilege = lazy(() => import("../pages/Privileges/Privilege"));
+const AdminPrivilegesHome = lazy(() => import("../pages/AdminPrivileges/AdminPrivilegesHome"));
 const TrackAWB = lazy(() => import("../pages/AWBtracking/TrackAWB"));
 const ShipmentTraceDetail = lazy(() => import("../pages/AWBtracking/ShipmentTraceDetail"));
 const RtoApproval = lazy(() => import("../pages/RTO_Approval/RtoApproval"));
@@ -109,25 +110,19 @@ const OpsLostDashboard = lazy(() => import("../pages/OpsDisputes/LostDashboard")
 
 
 
-const getPermissions = () => {
+const getMenuAccess = () => {
   try {
-    return checkCustomerPermissions();
+    return checkMenuAccess();
   } catch (error) {
     console.error("Permission check failed:", error);
-    return {
-      canCreateUser: true,
-      canAddPod: true,
-      canCreateReport: true,
-      invoice: true,
-      canSeeBooking: true,
-    };
+    return { isAdmin: true, isStaff: true, canAccess: () => true, canAccessAny: () => true, accessibleUrls: new Set(), defaultRoute: "/user-list" };
   }
 };
 
 
 // Modify your route definitions to use functions
 const getAuthProtectedRoutes = () => {
-  getPermissions(); const { canCreateUser, canAddPod, canCreateReport, invoice, canSeeBooking, canTrackAWB, canAccessOpsReports } = getPermissions();
+  const { defaultRoute } = getMenuAccess();
   return [
     // POD related routes
     { path: "/add-pod", component: <AddPod /> },
@@ -219,7 +214,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/employee-attendance", component: <EmployeeAttendence /> },
     { path: "/trip-detail", component: <TripDetail /> },
     { path: "/privileges", component: <Privilege /> },
-    { path: "/admin-privileges", component: <Privilege /> },
+    { path: "/admin-privileges", component: <AdminPrivilegesHome /> },
     // track awb
     { path: "/tracking", component: <TrackAWB /> },
     { path: "/track-awb/:awbno/details", component: <ShipmentTraceDetail /> },
@@ -242,15 +237,7 @@ const getAuthProtectedRoutes = () => {
     {
       path: "/",
       exact: true,
-      component: <Navigate to={
-        canCreateUser ? "/user-list" :
-          canAddPod ? "/add-pod" :
-            canCreateReport ? "/last-mile-customer-performance" :
-              invoice ? "/franchise_invoice" :
-                canSeeBooking ? "/corporate-booking" :
-                  canAccessOpsReports ? "/pending-report" :
-                    canTrackAWB ? "/tracking" : "/no_role"
-      } />
+      component: <Navigate to={defaultRoute} />
     },
 
     // Fallback

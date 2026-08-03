@@ -14,7 +14,7 @@ import withRouter from "../Common/withRouter";
 //i18n
 import { withTranslation } from "react-i18next";
 import { useCallback } from "react";
-import { checkCustomerPermissions } from "../../helpers/checkCustomerPermissions";
+import { checkMenuAccess } from "../../helpers/checkMenuAccess";
 import ProfileMenu from "../CommonForBoth/TopbarDropdown/ProfileMenu";
 
 const SidebarContent = ({ onLinkClick, ...props }) => {
@@ -152,11 +152,66 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
 
 
 
-  const {
-    canCreateUser, canAddPod, canCreateReport, invoice, canSeeBooking,
-    canAccessNewFeatures, isAdmin, canAccessPrivileges, canTrackAWB, canApproveRTO, canAccessITrack,
-    canAccessOpsReports, canAccessAutoReconciliation, canAccessCustomerPerformance, canCancelShipments
-  } = checkCustomerPermissions()
+  const { isAdmin, canAccess, canAccessAny } = checkMenuAccess()
+
+  // Reports > Operation Performance
+  const opPerfUrls = ["/last-mile-operation", "/first-mile-operation", "/attempt-wise-delivery-performance"];
+  const canAccessOperationPerformance = canAccessAny(opPerfUrls);
+  // Reports > Customer Performance
+  const custPerfUrls = ["/last-mile-customer-performance", "/first-mile-customer-performance", "/customer-attempt-wise-delivery-performance"];
+  const canAccessCustomerPerfSub = canAccessAny(custPerfUrls);
+  // Reports > Others
+  const otherReportUrls = ["/pickup-performance", "/status-update", "/cd-update", "/customer-performance", "/performance-report"];
+  const canAccessOtherReports = canAccessAny(otherReportUrls);
+  const canAccessStatusUpdateAudit = canAccess("/status-update-audit");
+  const canAccessProductivityReport = canAccess("/productivity-report");
+  const canAccessReports = canAccessAny([
+    ...opPerfUrls, ...custPerfUrls, ...otherReportUrls,
+    "/status-update-audit", "/productivity-report",
+  ]);
+
+  // OPS Reports
+  const opsReportUrls = ["/pending-report", "/mis-report"];
+  const canAccessOpsReports = canAccessAny(opsReportUrls);
+
+  // Customers
+  const customerUrls = [
+    "/user-list", "/customer-rate-data", "/retail-pincode", "/franchise-pincode", "/corporate-pincode",
+    "/corporate-rate-data", "/retail-rate-data", "/franchise-rate-data", "/intl-rate-data", "/intl-pincode",
+  ];
+  const canAccessCustomers = canAccessAny(customerUrls);
+
+  // International Billing
+  const intlBillingUrls = ["/intl-rate-data", "/intl-pincode"];
+  const canAccessIntlBilling = canAccessAny(intlBillingUrls);
+
+  // Booking
+  const bookingUrls = ["/service-provider-booking"];
+  const canSeeBooking = canAccessAny(bookingUrls);
+
+  // Invoices
+  const invoiceUrls = ["/franchise_invoice", "/manual_invoice", "/corporate-billing", "/edit_invoice", "/mark-invoice-no"];
+  const canAccessInvoices = canAccessAny(invoiceUrls);
+
+  // Revenue
+  const revenueUrls = ["/revenue-report", "/daily-revenue", "/mis-tally", "/cod-report"];
+  const canAccessRevenue = canAccessAny(revenueUrls);
+
+  // International Report
+  const intlReportUrls = ["/international-mis-report", "/international-dimension-change-log"];
+  const canAccessIntlReport = canAccessAny(intlReportUrls);
+
+  // Billing (automation)
+  const billingUrls = ["/bill-master", "/shipment-billing", "/billing-working", "/billing-automation", "/invoice-flow", "/all-booking"];
+  const canAccessBilling = canAccessAny(billingUrls);
+
+  // Trip Management
+  const tripUrls = ["/employee-attendance", "/trip-detail"];
+  const canAccessTripManagement = canAccessAny(tripUrls);
+
+  // Ops Disputes
+  const opsDisputeUrls = ["/ops-disputes/stale", "/ops-disputes", "/ops-disputes/lost"];
+  const canAccessOpsDisputes = canAccessAny(opsDisputeUrls);
 
   // Temporarily hidden for ALL users (re-enable by restoring the isAdmin gate below)
   const showCodReconciliation = false
@@ -175,7 +230,7 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
               <Link to="/#" className="has-arrow">
                 <i className="bx bx-home-circle"></i>
                 <span>{props.t("Dashboards")}</span>
-              </Link> 
+              </Link>
               <ul className="sub-menu" aria-expanded="false">
                 <li>
                   <Link to="/dashboard">{props.t("Default")}</Link>
@@ -198,7 +253,7 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
             </li> */}
 
             {
-              canAddPod && <li>
+              canAccess("/add-pod") && <li>
                 <Link to="/add-pod" className=" ">
                   <i className="bx bx-upload"></i>
                   <span>{props.t("Add POD")}</span>
@@ -214,7 +269,7 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
             </li> */}
 
             {
-              (canCreateReport || canAccessCustomerPerformance) && <li className="">
+              canAccessReports && <li className="">
                 <Link to="/#" className="has-arrow">
                   <i className="bx bx-file"></i>
                   <span>{props.t("Reports")}</span>
@@ -254,25 +309,31 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
 
                   {/* sub menu */}
 
-                  {canCreateReport && (
+                  {canAccessOperationPerformance && (
                   <li>
                     <Link to="/#" className="has-arrow">
                       {/* <i className="bx bx-file"></i> */}
                       <span>{props.t("Operation Performance")}</span>
                     </Link>
                     <ul className="sub-menu" aria-expanded="false">
+                      {canAccess("/last-mile-operation") && (
                       <li>
                         <Link to="/last-mile-operation">{props.t("Delivery Strike Rate (FDSR)")}</Link>
                       </li>
+                      )}
+                      {canAccess("/first-mile-operation") && (
                       <li>
                         <Link to="/first-mile-operation">{props.t("Pickup Strike Rate (FPSR)")}</Link>
                       </li>
+                      )}
                       <li>
                         {/* <Link to="/ofd-operations-performance">{props.t("OFD Operations Performance (FASR)")}</Link> */}
                       </li>
+                      {canAccess("/attempt-wise-delivery-performance") && (
                       <li>
                         <Link to="/attempt-wise-delivery-performance">{props.t("Attempt-wise Delivery Performance")}</Link>
                       </li>
+                      )}
                       {/* <li>
                         <Link to="/operation-attempt-wise-pickup-performance">{props.t(" Operation Attempt-wise Pickup Performance")}</Link>
                       </li> */}
@@ -282,54 +343,72 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
 
                   {/* Customer Performance */}
 
+                  {canAccessCustomerPerfSub && (
                   <li>
                     <Link to="/#" className="has-arrow">
                       {/* <i className="bx bx-file"></i> */}
                       <span>{props.t("Customer Performance")}</span>
                     </Link>
                     <ul className="sub-menu" aria-expanded="false">
+                      {canAccess("/last-mile-customer-performance") && (
                       <li>
                         <Link to="/last-mile-customer-performance">{props.t("Delivery Strike Rate (FDSR)")}</Link>
                       </li>
+                      )}
+                      {canAccess("/first-mile-customer-performance") && (
                       <li>
                         <Link to="/first-mile-customer-performance">{props.t("Pickup Strike Rate (FPSR)")}</Link>
                       </li>
+                      )}
                       <li>
                         {/* <Link to="/ofd-customer-operations-performance">{props.t("OFP Performance (FASR)")}</Link> */}
                       </li>
+                      {canAccess("/customer-attempt-wise-delivery-performance") && (
                       <li>
                         <Link to="/customer-attempt-wise-delivery-performance">{props.t("Attempt-wise Delivery Performance")}</Link>
                       </li>
+                      )}
                       {/* <li>
                         <Link to="/customer-attempt-wise-pickup-performance">{props.t("Customer Attempt-wise Delivery Performance")}</Link>
                       </li> */}
                     </ul>
                   </li>
+                  )}
 
                   {/* others */}
-                  {canCreateReport && (
+                  {canAccessOtherReports && (
                   <li>
                     <Link to="/#" className="has-arrow">
                       {/* <i className="bx bx-file"></i> */}
                       <span>{props.t("Others")}</span>
                     </Link>
                     <ul className="sub-menu" aria-expanded="false">
+                      {canAccess("/pickup-performance") && (
                       <li>
                         <Link to="/pickup-performance">{props.t("Pickup Performance")}</Link>
                       </li>
+                      )}
+                      {canAccess("/status-update") && (
                       <li>
                         <Link to="/status-update">{props.t("Status Update")}</Link>
                       </li>
+                      )}
 
+                      {canAccess("/cd-update") && (
                       <li>
                         <Link to="/cd-update">{props.t("CD Update")}</Link>
                       </li>
+                      )}
+                      {canAccess("/customer-performance") && (
                       <li>
                         <Link to="/customer-performance">{props.t("Customer Performance")}</Link>
                       </li>
+                      )}
+                      {canAccess("/performance-report") && (
                       <li>
                         <Link to="/performance-report">{props.t("Performance Report")}</Link>
                       </li>
+                      )}
                       {/* <li>
                         <Link to="/status-update-audit">{props.t("Status Update Audit")}</Link>
                       </li> */}
@@ -340,12 +419,12 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
                     </ul>
                   </li>
                   )}
-                  {canCreateReport && (
+                  {canAccessStatusUpdateAudit && (
                   <li>
                     <Link to="/status-update-audit">{props.t("Status Update Audit")}</Link>
                   </li>
                   )}
-                  {canCreateReport && (
+                  {canAccessProductivityReport && (
                   <li>
                     <Link to="/productivity-report">{props.t("Productivity Report")}</Link>
                   </li>
@@ -356,18 +435,22 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
 
             {/* OPS Reports */}
             {
-              (canCreateReport || canAccessOpsReports) && <li>
+              canAccessOpsReports && <li>
                 <Link to="/#" className="has-arrow">
                   <i className="bx bx-desktop"></i>
                   <span>{props.t("OPS Reports")}</span>
                 </Link>
                 <ul className="sub-menu" aria-expanded="false">
+                  {canAccess("/pending-report") && (
                   <li>
                     <Link to="/pending-report">{props.t("Pending Report")}</Link>
                   </li>
+                  )}
+                  {canAccess("/mis-report") && (
                   <li>
                     <Link to="/mis-report">{props.t("MIS Run")}</Link>
                   </li>
+                  )}
                 </ul>
               </li>
             }
@@ -403,49 +486,69 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
 
 
             {
-              canCreateUser && <li>
+              canAccessCustomers && <li>
                 <Link to="/#" className="has-arrow">
                   <i className="bx bx-user"></i>
                   <span>{props.t("Customers")}</span>
                 </Link>
                 <ul className="sub-menu" aria-expanded="false">
+                  {canAccess("/user-list") && (
                   <li>
                     <Link to="/user-list">{props.t("Customer List")}</Link>
                   </li>
+                  )}
 
                   {/*   need to deside were to keep till that time keep  it  in admin */}
                   {/* <li>
                     <Link to="/customer_pincode">{props.t("Customer Picode")}</Link>
                   </li> */}
+                  {canAccess("/customer-rate-data") && (
                   <li>
                     <Link to="/customer-rate-data">{props.t("Rate Data")}</Link>
                   </li>
+                  )}
+                  {canAccess("/retail-pincode") && (
                   <li>
                     <Link to="/retail-pincode">{props.t("Retail Pincode")}</Link>
                   </li>
+                  )}
+                  {canAccess("/franchise-pincode") && (
                   <li>
                     <Link to="/franchise-pincode">{props.t("Franchise Pincode")}</Link>
                   </li>
+                  )}
+                  {canAccess("/corporate-pincode") && (
                   <li>
                     <Link to="/corporate-pincode">{props.t("Corporate Pincode")}</Link>
                   </li>
+                  )}
 
                   {/*  rate datas */}
+                  {canAccess("/corporate-rate-data") && (
                   <li>
                     <Link to="/corporate-rate-data">{props.t("Corporate Rate Data")}</Link>
                   </li>
+                  )}
+                  {canAccess("/retail-rate-data") && (
                   <li>
                     <Link to="/retail-rate-data">{props.t("Retail Rate Data")}</Link>
                   </li>
+                  )}
+                  {canAccess("/franchise-rate-data") && (
                   <li>
                     <Link to="/franchise-rate-data">{props.t("Franchise Rate Data")}</Link>
                   </li>
+                  )}
+                  {canAccess("/intl-rate-data") && (
                   <li>
                     <Link to="/intl-rate-data">{props.t("International Rates")}</Link>
                   </li>
+                  )}
+                  {canAccess("/intl-pincode") && (
                   <li>
                     <Link to="/intl-pincode">{props.t("International Pincodes")}</Link>
                   </li>
+                  )}
                   {/* yet to show */}
                   {/* <li>
                     <Link to="/int-rate-data">{props.t("INTL Rate Upload")}</Link>
@@ -455,18 +558,22 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
             }
 
             {
-              canCreateUser && <li>
+              canAccessIntlBilling && <li>
                 <Link to="/#" className="has-arrow">
                   <i className="bx bx-globe"></i>
                   <span>{props.t("International Billing")}</span>
                 </Link>
                 <ul className="sub-menu" aria-expanded="false">
+                  {canAccess("/intl-rate-data") && (
                   <li>
                     <Link to="/intl-rate-data">{props.t("International Rates")}</Link>
                   </li>
+                  )}
+                  {canAccess("/intl-pincode") && (
                   <li>
                     <Link to="/intl-pincode">{props.t("International Pincodes")}</Link>
                   </li>
+                  )}
                 </ul>
               </li>
             }
@@ -498,11 +605,11 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
                     <span>{props.t("Invoices")}</span>
                   </Link>
                   <ul className="sub-menu" aria-expanded="false">
-               
+
                     <li>
                       <Link to="/franchise_invoice">{props.t("Franchise Invoices")}</Link>
                     </li>
-                  
+
                     <li>
                       <Link to="/edit_invoice">{props.t("Edit Invoices")}</Link>
                     </li>
@@ -523,9 +630,11 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
                     {/* <li>
                       <Link to="/corporate-booking">{props.t("Corporate Booking")}</Link>
                     </li> */}
+                    {canAccess("/service-provider-booking") && (
                     <li>
                       <Link to="/service-provider-booking">{props.t("Service Provider Booking")}</Link>
                     </li>
+                    )}
                     {/* <li>
                       <Link to="/sales-booking">{props.t("Sales Booking")}</Link>
                     </li> */}
@@ -535,7 +644,7 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
             }
 
             {
-              invoice &&
+              canAccessInvoices &&
               <>
 
 
@@ -546,48 +655,60 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
                     <span>{props.t("Invoices")}</span>
                   </Link>
                   <ul className="sub-menu" aria-expanded="false">
+                    {canAccess("/franchise_invoice") && (
                     <li>
                       <Link to="/franchise_invoice">{props.t("Franchise Billing")}</Link>
                     </li>
+                    )}
+                    {canAccess("/manual_invoice") && (
                     <li>
                       <Link to="/manual_invoice">{props.t("Manual Billing")}</Link>
                     </li>
+                    )}
+                    {canAccess("/corporate-billing") && (
                     <li>
                       <Link to="/corporate-billing">{props.t("Corporate Bills")}</Link>
                     </li>
+                    )}
                     {/* edit_invoice */}
+                    {canAccess("/edit_invoice") && (
                     <li>
                       <Link to="/edit_invoice">{props.t("Download Invoices")}</Link>
                     </li>
+                    )}
+                    {canAccess("/mark-invoice-no") && (
                     <li>
                       <Link to="/mark-invoice-no">{props.t("Mark Invoice Number")}</Link>
                     </li>
+                    )}
                   </ul>
                 </li>
               </>
             }
 
             {
-              //  only for admin
-              (canCreateUser && canAddPod && canCreateReport && invoice && canSeeBooking)
-              &&
-              <>
+              (isAdmin || canAccess("/delhivery-warehouse")) &&
                 <li>
                   <Link to="/delhivery-warehouse" className="has">
                     <i className="bx bx-package"></i>
                     <span>{props.t("Delhivery Warehouse")}</span>
                   </Link>
                 </li>
+            }
 
-
-                {/*  payment details */}
+            {/*  payment details */}
+            {
+              (isAdmin || canAccess("/payment-deatils")) &&
                 <li>
                   <Link to="/payment-deatils" className="has">
                     <i className='bx bx-credit-card'></i>
                     <span>{props.t("Payment Details")}</span>
                   </Link>
                 </li>
+            }
 
+            {
+              (isAdmin || canAccessRevenue) &&
                 <li>
                   <Link to="/#" className="has-arrow">
                     <i className="bx bx-file"></i>
@@ -597,72 +718,95 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
                     {/* <li>
                       <Link to="/revenue-daily-report">{props.t("Revenue Report")}</Link>
                     </li> */}
+                    {canAccess("/revenue-report") && (
                     <li>
                       <Link to="/revenue-report">{props.t("Old Revenue Report")}</Link>
                     </li>
+                    )}
+                    {canAccess("/daily-revenue") && (
                     <li>
                       <Link to="/daily-revenue">{props.t("Daily Revenue")}</Link>
                     </li>
+                    )}
+                    {canAccess("/mis-tally") && (
                     <li>
                       <Link to="/mis-tally">{props.t("MIS Tally")}</Link>
                     </li>
+                    )}
+                    {canAccess("/cod-report") && (
                     <li>
                       <Link to="/cod-report">{props.t("COD Report")}</Link>
                     </li>
+                    )}
                   </ul>
                 </li>
-              </>
             }
 
             {
-              canCreateReport && <li>
+              canAccessIntlReport && <li>
                 <Link to="/#" className="has-arrow">
                   <i className="bx bx-world"></i>
                   <span>{props.t("International Report")}</span>
                 </Link>
                 <ul className="sub-menu" aria-expanded="false">
+                  {canAccess("/international-mis-report") && (
                   <li>
                     <Link to="/international-mis-report">{props.t("MIS Report")}</Link>
                   </li>
+                  )}
+                  {canAccess("/international-dimension-change-log") && (
                   <li>
                     <Link to="/international-dimension-change-log">{props.t("Dimension Change Log")}</Link>
                   </li>
+                  )}
                 </ul>
               </li>
             }
 
             {
-              canAccessNewFeatures &&
+              (isAdmin || canAccessBilling) &&
               <li>
                 <Link to="/#" className="has-arrow">
                   <i className="bx bx-receipt"></i>
                   <span>{props.t("Billing")}</span>
                 </Link>
                 <ul className="sub-menu" aria-expanded="false">
+                  {canAccess("/bill-master") && (
                   <li>
                     <Link to="/bill-master">{props.t("Customer Billing")}</Link>
                   </li>
+                  )}
+                  {canAccess("/shipment-billing") && (
                   <li>
                     <Link to="/shipment-billing">{props.t("Shipment Billing")}</Link>
                   </li>
+                  )}
+                  {canAccess("/billing-working") && (
                   <li>
                     <Link to="/billing-working">{props.t("Billing Working")}</Link>
                   </li>
+                  )}
+                  {canAccess("/billing-automation") && (
                   <li>
                     <Link to="/billing-automation">{props.t("Billing Automation")}</Link>
                   </li>
+                  )}
+                  {canAccess("/invoice-flow") && (
                   <li>
                     <Link to="/invoice-flow">{props.t("Invoice Flow")}</Link>
                   </li>
+                  )}
+                  {canAccess("/all-booking") && (
                   <li>
                     <Link to="/all-booking">{props.t("All Booking")}</Link>
                   </li>
+                  )}
                 </ul>
               </li>
             }
 
             {
-              canAccessNewFeatures &&
+              (isAdmin || canAccess("/update-weight")) &&
               <li>
                 <Link to="/update-weight">
                   <i className="bx bx-ruler"></i>
@@ -672,23 +816,27 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
             }
 
             {
-              isAdmin &&
+              (isAdmin || canAccessTripManagement) &&
                 <li>
                   <Link to="/#" className="has-arrow">
                     <i className="bx bx-map-alt"></i>
                     <span>{props.t("Trip Management")}</span>
                   </Link>
                   <ul className="sub-menu" aria-expanded="false">
+                    {canAccess("/employee-attendance") && (
                     <li>
                       <Link to="/employee-attendance">{props.t("Employee Trip Details")}</Link>
                     </li>
+                    )}
+                    {canAccess("/trip-detail") && (
                     <li>
                       <Link to="/trip-detail">{props.t("Ops Trip Management")}</Link>
                     </li>
+                    )}
                   </ul>
                 </li>
             }
-            
+
             {
               showCodReconciliation &&
                 <li>
@@ -710,7 +858,7 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
             }
 
             {
-              isAdmin &&
+              (isAdmin || canAccess("/auto-reconciliation")) &&
                 <li>
                   <Link to="/auto-reconciliation" className="">
                     <i className="bx bx-sync"></i>
@@ -720,7 +868,7 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
             }
 
             {
-              (canAccessNewFeatures || canCancelShipments) &&
+              (isAdmin || canAccess("/cancel-shipments")) &&
                 <li>
                   <Link to="/cancel-shipments" className="">
                     <i className="bx bx-x-circle"></i>
@@ -730,7 +878,7 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
             }
 
             {
-              canAccessNewFeatures &&
+              (isAdmin || canAccess("/automated-mis")) &&
                 <li>
                   <Link to="/automated-mis" className="">
                     <i className="bx bx-spreadsheet"></i>
@@ -740,7 +888,7 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
             }
 
             {
-              canAccessNewFeatures &&
+              (isAdmin || canAccess("/raw-mis")) &&
                 <li>
                   <Link to="/raw-mis" className="">
                     <i className="bx bx-table"></i>
@@ -750,28 +898,34 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
             }
 
             {
-              isAdmin &&
+              (isAdmin || canAccessOpsDisputes) &&
                 <li>
                   <Link to="/#" className="has-arrow">
                     <i className="bx bx-error-circle"></i>
                     <span>{props.t("Ops Disputes")}</span>
                   </Link>
                   <ul className="sub-menu" aria-expanded="false">
+                    {canAccess("/ops-disputes/stale") && (
                     <li>
                       <Link to="/ops-disputes/stale">{props.t("Stale Shipments")}</Link>
                     </li>
+                    )}
+                    {canAccess("/ops-disputes") && (
                     <li>
                       <Link to="/ops-disputes">{props.t("Disputes")}</Link>
                     </li>
+                    )}
+                    {canAccess("/ops-disputes/lost") && (
                     <li>
                       <Link to="/ops-disputes/lost">{props.t("Lost Dashboard")}</Link>
                     </li>
+                    )}
                   </ul>
                 </li>
             }
 
             {
-              isAdmin &&
+              (isAdmin || canAccess("/awb-print")) &&
                 <li>
                   <Link to="/awb-print" className="has">
                     <i className="bx bx-printer"></i>
@@ -781,7 +935,7 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
             }
 
             {
-              isAdmin &&
+              (isAdmin || canAccess("/inscan-weight")) &&
                 <li>
                   <Link to="/inscan-weight" className="has">
                     <i className="bx bx-ruler"></i>
@@ -791,7 +945,7 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
             }
 
             {
-              canApproveRTO &&
+              (isAdmin || canAccess("/rto-approval")) &&
                 <li>
                   <Link to="/rto-approval" className="has">
                     <i className="bx bx-check-shield"></i>
@@ -801,7 +955,7 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
             }
 
             {
-              canTrackAWB &&
+              (isAdmin || canAccess("/tracking")) &&
                 <li>
                   <Link to="/tracking" className="has">
                     <i className="bx bx-search-alt-2 "></i>
@@ -811,7 +965,7 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
             }
 
             {
-              canAccessITrack &&
+              (isAdmin || canAccess("/itrack")) &&
                 <li>
                   <Link to="/itrack" className="has">
                     <i className="bx bx-barcode"></i>
@@ -821,22 +975,26 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
             }
 
             {
-              canAccessPrivileges &&
+              (isAdmin || canAccess("/privileges")) &&
                 <li>
-                  <Link to="/privileges" className="has">
+                  <Link to="/#" className="has-arrow">
                     <i className="bx bx-shield-quarter"></i>
-                    <span>{props.t("OPS Privileges")}</span>
+                    <span>{props.t("Privileges")}</span>
                   </Link>
-                </li>
-            }
-
-            {
-              isAdmin &&
-                <li>
-                  <Link to="/admin-privileges" className="has">
-                    <i className="bx bx-shield-quarter"></i>
-                    <span>{props.t("Admin Privileges")}</span>
-                  </Link>
+                  <ul className="sub-menu" aria-expanded="false">
+                    {
+                      (isAdmin || canAccess("/privileges")) &&
+                        <li>
+                          <Link to="/privileges">{props.t("OPS Privileges")}</Link>
+                        </li>
+                    }
+                    {
+                      isAdmin &&
+                        <li>
+                          <Link to="/admin-privileges">{props.t("Admin Privileges")}</Link>
+                        </li>
+                    }
+                  </ul>
                 </li>
             }
           </ul>

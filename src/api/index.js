@@ -520,6 +520,40 @@ export const DELETE_PRIVILEGE = `${BASE_URL}/role-privileges/delete-all/` // POS
 //     "role_id": 1
 // }
 
+// ---- Admin Privileges (role + per-user panel access) ----
+// Roles: GET (list, ?search=&is_active=) / POST (create). Detail: `${ADMIN_ROLES_API}${id}/` GET/PUT/PATCH/DELETE
+export const ADMIN_ROLES_API = `${BASE_URL}/api/admin-privileges/roles/`
+
+// Menus: GET (list, ?search=&parent_id=&is_active=) / POST (create) body: {link_name, link_url, parent, exc_ord, is_active, show_panel, faicon}.
+// Detail: `${ADMIN_MENUS_API}${menu_id}/` GET/PUT/PATCH/DELETE (same link_name/link_url body shape)
+export const ADMIN_MENUS_API = `${BASE_URL}/api/admin-privileges/menus/`
+export const ADMIN_MENUS_TREE_API = `${BASE_URL}/api/admin-privileges/menus/tree/` // GET -> [{menu_id, menu_name, menu_url, faicon, show_panel, children}] (read-only shape, different field names than the write body above)
+export const ADMIN_MENUS_REORDER_API = `${BASE_URL}/api/admin-privileges/menus/reorder/` // POST {items:[{menu_id, exc_ord}]}
+
+// Role Privileges
+export const ADMIN_ROLE_PRIVILEGES_API = `${BASE_URL}/api/admin-privileges/role-privileges/` // GET overview
+export const ADMIN_ROLE_PRIVILEGES_BY_ROLE_API = `${BASE_URL}/api/admin-privileges/role-privileges/by-role/` // GET ?role_id=
+export const ADMIN_ROLE_PRIVILEGES_SAVE_API = `${BASE_URL}/api/admin-privileges/role-privileges/save/` // POST {role_id, menus:[...]}
+export const ADMIN_ROLE_PRIVILEGES_REMOVE_MENU_API = `${BASE_URL}/api/admin-privileges/role-privileges/remove-menu/` // POST {role_id, menu_id}
+export const ADMIN_ROLE_PRIVILEGES_DELETE_ALL_API = `${BASE_URL}/api/admin-privileges/role-privileges/delete-all/` // POST {role_id}
+
+// User Overrides
+export const ADMIN_USER_OVERRIDES_BY_USER_API = `${BASE_URL}/api/admin-privileges/user-overrides/by-user/` // GET ?user_id=
+export const ADMIN_USER_OVERRIDES_SAVE_API = `${BASE_URL}/api/admin-privileges/user-overrides/save/` // POST {user_id, menus:[...]}
+export const ADMIN_USER_OVERRIDES_REMOVE_MENU_API = `${BASE_URL}/api/admin-privileges/user-overrides/remove-menu/` // POST {user_id, menu_id}
+export const ADMIN_USER_OVERRIDES_DELETE_ALL_API = `${BASE_URL}/api/admin-privileges/user-overrides/delete-all/` // POST {user_id}
+
+// User Roles
+export const ADMIN_USER_ROLES_API = `${BASE_URL}/api/admin-privileges/user-roles/` // GET list
+export const ADMIN_USER_ROLES_ASSIGN_API = `${BASE_URL}/api/admin-privileges/user-roles/assign/` // POST {user_id, role_id}
+export const ADMIN_USER_ROLES_REMOVE_API = `${BASE_URL}/api/admin-privileges/user-roles/remove/` // POST {user_id}
+
+// Admin Users search (paginated) ?search=&is_admin=&is_staff=&is_active=&has_role=
+export const ADMIN_USERS_SEARCH_API = `${BASE_URL}/api/admin-privileges/admin-users/`
+
+// My Privileges (any authenticated user, resolved role + override tree)
+export const MY_PRIVILEGES_API = `${BASE_URL}/api/admin-privileges/my-privileges/`
+
 
 //domestic-history/details/
 export const GET_DOMESTIC_HISTORY_DETAILS = `${BASE_URL}/domestic-history/details/` // post with payload {awbno: "1234567890"}
