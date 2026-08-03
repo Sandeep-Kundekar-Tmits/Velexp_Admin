@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import withRouter from "../Common/withRouter";
 
 import { withTranslation } from "react-i18next";
-import SidebarContent from "./SidebarContent";
+import SidebarNav from "./SidebarNav";
 import { Link } from "react-router-dom";
 
 import logoLightPng from "../../assets/images/vellocity-express-white-bg.png";
@@ -63,7 +63,7 @@ const Sidebar = (props) => {
         </div>
 
         <div data-simplebar className="mt-3" style={{ height: "75vh" }}>
-          <SidebarContent
+          <SidebarNav
             onLinkClick={() => { if (isMobile) onMobileClose?.(); }}
           />
         </div>

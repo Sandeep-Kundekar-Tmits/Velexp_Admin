@@ -1,0 +1,397 @@
+/**
+ * Sidebar menu definition.
+ *
+ * Extracted verbatim from the 1,013-line hardcoded SidebarContent.jsx, whose
+ * commented-out entries were excluded, so the rendered menu is unchanged.
+ *
+ * Why this is a data file rather than being read from the privileges tree:
+ * checkMenuAccess lets `is_admin` bypass privileges entirely, so an admin's
+ * privileges array can be empty. A purely tree-driven sidebar would render
+ * nothing for them. Structure therefore lives here and is FILTERED by
+ * privileges at render time -- admins see everything, staff see what they are
+ * granted, which is exactly the previous behaviour.
+ *
+ * scripts/menuDiff.js verifies this stays in sync with the routes (65/65).
+ *
+ * Shape:
+ *   { label, icon?, url }                      leaf
+ *   { label, icon?, children: [...] }          expandable group
+ */
+export const MENU = [
+  {
+    label: "Add POD",
+    icon: "bx bx-upload",
+    url: "/add-pod"
+  },
+  {
+    label: "Reports",
+    icon: "bx bx-file",
+    children: [
+      {
+        label: "Operation Performance",
+        children: [
+          {
+            label: "Delivery Strike Rate (FDSR)",
+            url: "/last-mile-operation"
+          },
+          {
+            label: "Pickup Strike Rate (FPSR)",
+            url: "/first-mile-operation"
+          },
+          {
+            label: "Attempt-wise Delivery Performance",
+            url: "/attempt-wise-delivery-performance"
+          }
+        ]
+      },
+      {
+        label: "Customer Performance",
+        children: [
+          {
+            label: "Delivery Strike Rate (FDSR)",
+            url: "/last-mile-customer-performance"
+          },
+          {
+            label: "Pickup Strike Rate (FPSR)",
+            url: "/first-mile-customer-performance"
+          },
+          {
+            label: "Attempt-wise Delivery Performance",
+            url: "/customer-attempt-wise-delivery-performance"
+          }
+        ]
+      },
+      {
+        label: "Others",
+        children: [
+          {
+            label: "Pickup Performance",
+            url: "/pickup-performance"
+          },
+          {
+            label: "Status Update",
+            url: "/status-update"
+          },
+          {
+            label: "CD Update",
+            url: "/cd-update"
+          },
+          {
+            label: "Customer Performance",
+            url: "/customer-performance"
+          },
+          {
+            label: "Performance Report",
+            url: "/performance-report"
+          }
+        ]
+      },
+      {
+        label: "Status Update Audit",
+        url: "/status-update-audit"
+      },
+      {
+        label: "Productivity Report",
+        url: "/productivity-report"
+      }
+    ]
+  },
+  {
+    label: "OPS Reports",
+    icon: "bx bx-desktop",
+    children: [
+      {
+        label: "Pending Report",
+        url: "/pending-report"
+      },
+      {
+        label: "MIS Run",
+        url: "/mis-report"
+      }
+    ]
+  },
+  {
+    label: "Customers",
+    icon: "bx bx-user",
+    children: [
+      {
+        label: "Customer List",
+        url: "/user-list"
+      },
+      {
+        label: "Rate Data",
+        url: "/customer-rate-data"
+      },
+      {
+        label: "Retail Pincode",
+        url: "/retail-pincode"
+      },
+      {
+        label: "Franchise Pincode",
+        url: "/franchise-pincode"
+      },
+      {
+        label: "Corporate Pincode",
+        url: "/corporate-pincode"
+      },
+      {
+        label: "Corporate Rate Data",
+        url: "/corporate-rate-data"
+      },
+      {
+        label: "Retail Rate Data",
+        url: "/retail-rate-data"
+      },
+      {
+        label: "Franchise Rate Data",
+        url: "/franchise-rate-data"
+      },
+      {
+        label: "International Rates",
+        url: "/intl-rate-data"
+      },
+      {
+        label: "International Pincodes",
+        url: "/intl-pincode"
+      }
+    ]
+  },
+  {
+    label: "International Billing",
+    icon: "bx bx-globe",
+    children: [
+      {
+        label: "International Rates",
+        url: "/intl-rate-data"
+      },
+      {
+        label: "International Pincodes",
+        url: "/intl-pincode"
+      }
+    ]
+  },
+  {
+    label: "Booking",
+    icon: "bx bx-book",
+    children: [
+      {
+        label: "Service Provider Booking",
+        url: "/service-provider-booking"
+      }
+    ]
+  },
+  {
+    label: "Invoices",
+    icon: "bx bx-file",
+    children: [
+      {
+        label: "Franchise Billing",
+        url: "/franchise_invoice"
+      },
+      {
+        label: "Manual Billing",
+        url: "/manual_invoice"
+      },
+      {
+        label: "Corporate Bills",
+        url: "/corporate-billing"
+      },
+      {
+        label: "Download Invoices",
+        url: "/edit_invoice"
+      },
+      {
+        label: "Mark Invoice Number",
+        url: "/mark-invoice-no"
+      }
+    ]
+  },
+  {
+    label: "Delhivery Warehouse",
+    icon: "bx bx-package",
+    url: "/delhivery-warehouse"
+  },
+  {
+    label: "Payment Details",
+    icon: "bx bx-credit-card",
+    url: "/payment-deatils"
+  },
+  {
+    label: "Revenue",
+    icon: "bx bx-file",
+    children: [
+      {
+        label: "Old Revenue Report",
+        url: "/revenue-report"
+      },
+      {
+        label: "Daily Revenue",
+        url: "/daily-revenue"
+      },
+      {
+        label: "MIS Tally",
+        url: "/mis-tally"
+      },
+      {
+        label: "COD Report",
+        url: "/cod-report"
+      }
+    ]
+  },
+  {
+    label: "International Report",
+    icon: "bx bx-world",
+    children: [
+      {
+        label: "MIS Report",
+        url: "/international-mis-report"
+      },
+      {
+        label: "Dimension Change Log",
+        url: "/international-dimension-change-log"
+      }
+    ]
+  },
+  {
+    label: "Billing",
+    icon: "bx bx-receipt",
+    children: [
+      {
+        label: "Customer Billing",
+        url: "/bill-master"
+      },
+      {
+        label: "Shipment Billing",
+        url: "/shipment-billing"
+      },
+      {
+        label: "Billing Working",
+        url: "/billing-working"
+      },
+      {
+        label: "Billing Automation",
+        url: "/billing-automation"
+      },
+      {
+        label: "Invoice Flow",
+        url: "/invoice-flow"
+      },
+      {
+        label: "All Booking",
+        url: "/all-booking"
+      }
+    ]
+  },
+  {
+    label: "Update Weight",
+    icon: "bx bx-ruler",
+    url: "/update-weight"
+  },
+  {
+    label: "Trip Management",
+    icon: "bx bx-map-alt",
+    children: [
+      {
+        label: "Employee Trip Details",
+        url: "/employee-attendance"
+      },
+      {
+        label: "Ops Trip Management",
+        url: "/trip-detail"
+      }
+    ]
+  },
+  {
+    // Hidden by a kill-switch in the old sidebar
+    // (showCodReconciliation / showPopReconciliation were both `false`).
+    hidden: true,
+    label: "COD Reconciliation",
+    icon: "bx bx-money",
+    url: "/cod-reconciliation"
+  },
+  {
+    // Hidden by a kill-switch in the old sidebar
+    // (showCodReconciliation / showPopReconciliation were both `false`).
+    hidden: true,
+    label: "POP Reconciliation",
+    icon: "bx bx-shuffle",
+    url: "/pop-reconcilation"
+  },
+  {
+    label: "Auto Reconciliation",
+    icon: "bx bx-sync",
+    url: "/auto-reconciliation"
+  },
+  {
+    label: "Cancel Shipments",
+    icon: "bx bx-x-circle",
+    url: "/cancel-shipments"
+  },
+  {
+    label: "Automated MIS",
+    icon: "bx bx-spreadsheet",
+    url: "/automated-mis"
+  },
+  {
+    label: "Raw MIS",
+    icon: "bx bx-table",
+    url: "/raw-mis"
+  },
+  {
+    label: "Ops Disputes",
+    icon: "bx bx-error-circle",
+    children: [
+      {
+        label: "Stale Shipments",
+        url: "/ops-disputes/stale"
+      },
+      {
+        label: "Disputes",
+        url: "/ops-disputes"
+      },
+      {
+        label: "Lost Dashboard",
+        url: "/ops-disputes/lost"
+      }
+    ]
+  },
+  {
+    label: "AWB Label Print",
+    icon: "bx bx-printer",
+    url: "/awb-print"
+  },
+  {
+    label: "InScan Weight",
+    icon: "bx bx-ruler",
+    url: "/inscan-weight"
+  },
+  {
+    label: "RTO Approval",
+    icon: "bx bx-check-shield",
+    url: "/rto-approval"
+  },
+  {
+    label: "Track AWB",
+    icon: "bx bx-search-alt-2 ",
+    url: "/tracking"
+  },
+  {
+    label: "ITrack",
+    icon: "bx bx-barcode",
+    url: "/itrack"
+  },
+  {
+    label: "Privileges",
+    icon: "bx bx-shield-quarter",
+    children: [
+      {
+        label: "OPS Privileges",
+        url: "/privileges"
+      },
+      {
+        label: "Admin Privileges",
+        url: "/admin-privileges"
+      }
+    ]
+  }
+];
