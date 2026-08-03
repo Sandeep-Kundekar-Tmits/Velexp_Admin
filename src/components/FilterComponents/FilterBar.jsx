@@ -4,15 +4,15 @@ import Select from "react-select";
 
 export const FilterBar = ({ filterObj, setFilterObj, checkpointOptions, onApply, onClear, isFilterActive, customStyles }) => {
     return (
-        <Row className="g-3 my-3 bg-light rounded-2">
+        <Row className="gap-4 my-4 bg-canvas rounded-2">
             <Col md={3}>
                 <FormGroup>
-                    <Label for="checkpoint" className="fw-bold">Select Checkpoint</Label>
+                    <Label for="checkpoint" className="font-bold">Select Checkpoint</Label>
                     <Select
                         id="checkpoint"
                         value={filterObj.checkpt ? checkpointOptions.find(opt => opt.value === filterObj.checkpt) : null}
                         options={checkpointOptions}
-                        className="bg-light"
+                        className="bg-canvas"
                         onChange={(val) => setFilterObj({ ...filterObj, checkpt: val?.value })}
                         placeholder="Search Checkpoint"
                         isClearable
@@ -21,13 +21,13 @@ export const FilterBar = ({ filterObj, setFilterObj, checkpointOptions, onApply,
                 </FormGroup>
             </Col>
 
-            <Col md={3} className="d-flex align-items-end mb-3">
+            <Col md={3} className="flex items-end mb-4">
                 <button className="btn btn-primary w-full" onClick={onApply}>Apply Filters</button>
             </Col>
 
-            <Col md={3} className="d-flex align-items-end mb-3">
+            <Col md={3} className="flex items-end mb-4">
                 {isFilterActive && (
-                    <button className="btn bg-danger text-white w-full" onClick={onClear}>
+                    <button className="btn bg-danger-500 text-white w-full" onClick={onClear}>
                         Clear Filters
                     </button>
                 )}

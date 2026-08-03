@@ -211,9 +211,9 @@ const ProductivityReport = () => {
             id: "region_report",
             label: "Region Report",
             component: reportLoading ? (
-                <div style={{ height: "40vh" }} className="container-fluid d-flex flex-column justify-content-center align-items-center">
+                <div style={{ height: "40vh" }} className="container-fluid flex flex-col justify-center items-center">
                     <GridLoader size={20} />
-                    <p className="mt-5 h5">Loading Region Report ...</p>
+                    <p className="mt-12 h5">Loading Region Report ...</p>
                 </div>
             ) : (
                 <TableContainer
@@ -233,9 +233,9 @@ const ProductivityReport = () => {
             id: "service_center_report",
             label: "Service Center Report",
             component: reportLoading ? (
-                <div style={{ height: "40vh" }} className="container-fluid d-flex flex-column justify-content-center align-items-center">
+                <div style={{ height: "40vh" }} className="container-fluid flex flex-col justify-center items-center">
                     <GridLoader size={20} />
-                    <p className="mt-5 h5">Loading SC Report ...</p>
+                    <p className="mt-12 h5">Loading SC Report ...</p>
                 </div>
             ) : (
                 <TableContainer
@@ -255,9 +255,9 @@ const ProductivityReport = () => {
             id: "raw_data",
             label: "Raw Data",
             component: reportLoading ? (
-                <div style={{ height: "40vh" }} className="container-fluid d-flex flex-column justify-content-center align-items-center">
+                <div style={{ height: "40vh" }} className="container-fluid flex flex-col justify-center items-center">
                     <GridLoader size={20} />
-                    <p className="mt-5 h5">Loading Raw Data ...</p>
+                    <p className="mt-12 h5">Loading Raw Data ...</p>
                 </div>
             ) : (
                 <TableContainer
@@ -288,7 +288,7 @@ const ProductivityReport = () => {
                             <Col md={6}>
                                 <FormGroup>
                                     <Label>Region</Label>
-                                    <div className="d-flex align-items-center">
+                                    <div className="flex items-center">
                                         <div style={{ minWidth: "250px", flex: "0 0 250px" }}>
                                             <Select
                                                 isMulti
@@ -300,7 +300,7 @@ const ProductivityReport = () => {
                                                 components={{ MultiValue: () => null }}
                                             />
                                         </div>
-                                        <div className="flex-grow-1">
+                                        <div className="grow">
                                             <SelectedItemsDisplay
                                                 selectedItems={filters.region}
                                                 onRemove={(item) => handleRemoveItem("region", item)}
@@ -314,7 +314,7 @@ const ProductivityReport = () => {
                             <Col md={6}>
                                 <FormGroup>
                                     <Label>Service Center</Label>
-                                    <div className="d-flex align-items-center">
+                                    <div className="flex items-center">
                                         <div style={{ minWidth: "250px", flex: "0 0 250px" }}>
                                             <Select
                                                 isMulti
@@ -326,7 +326,7 @@ const ProductivityReport = () => {
                                                 components={{ MultiValue: () => null }}
                                             />
                                         </div>
-                                        <div className="flex-grow-1">
+                                        <div className="grow">
                                             <SelectedItemsDisplay
                                                 selectedItems={filters.service_center}
                                                 onRemove={(item) => handleRemoveItem("service_center", item)}
@@ -350,7 +350,7 @@ const ProductivityReport = () => {
                                     />
                                 </FormGroup>
                             </Col>
-                            <Col md={3} className="d-flex align-items-end mb-3 gap-2" style={{ marginLeft: "-14px" }}>
+                            <Col md={3} className="flex items-end mb-4 gap-2" style={{ marginLeft: "-14px" }}>
                                 <Button
                                     color="primary"
                                     onClick={handleApply}
@@ -364,7 +364,7 @@ const ProductivityReport = () => {
                                     <Button
                                         disabled={excelLoading}
                                         onClick={handleDownloadExcel}
-                                        className="d-flex align-items-center px-2 bg-success border-success text-white w-1/2"
+                                        className="flex items-center px-2 bg-success-500 border-success text-white w-1/2"
                                         style={{
                                             height: "35px",
                                             borderRadius: "4px",
@@ -372,9 +372,9 @@ const ProductivityReport = () => {
                                         }}
                                     >
                                         {
-                                            excelLoading ? <span className="me-2">Exporting...</span> : <span className="me-2">Download </span>
+                                            excelLoading ? <span className="mr-2">Exporting...</span> : <span className="mr-2">Download </span>
                                         }
-                                        <FaFileExcel size={18} className="me-2" />
+                                        <FaFileExcel size={18} className="mr-2" />
                                     </Button>
                                 )}
                             </Col>

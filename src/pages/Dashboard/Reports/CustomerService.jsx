@@ -276,8 +276,8 @@ const CustomerService = () => {
         <div className='page-content'>
             <div className="container-fluid">
                 <div>
-                    <h3 className='pb-3 border-bottom'>Download Customer Services</h3>
-                    <Row className='gx-3 d-flex align-items-center '>
+                    <h3 className='pb-4 border-bottom'>Download Customer Services</h3>
+                    <Row className='gx-3 flex items-center '>
                         <Col md={3}>
                             <FormGroup className="mb-2">
                                 <Label for="Customer">Select Customer</Label>
@@ -320,15 +320,15 @@ const CustomerService = () => {
                             </FormGroup>
                         </Col>
 
-                        <Col md={2} className=' d-flex align-items-cente'>
-                            <div className="d-flex align-items-center gap-2 mt-2">
+                        <Col md={2} className=' flex align-items-cente'>
+                            <div className="flex items-center gap-2 mt-2">
                                 <Button color="primary" disabled={bookingLoading} style={{ height: "2.2rem", width: "4rem" }} onClick={OnCheckClick}>
                                     Check
                                 </Button>
 
                                 <Button
                                     color="primary"
-                                    className='d-flex justify-content-center align-items-center'
+                                    className='flex justify-center items-center'
                                     disabled={BookingData.length < 1}
                                     // onClick={DownloadBookingDetails}
                                     title='Download'
@@ -350,11 +350,11 @@ const CustomerService = () => {
                 </div>
 
                 <div className=''>
-                    <div className='mt-3'>
+                    <div className='mt-4'>
                         {
-                            bookingLoading ? <div style={{ height: "40vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+                            bookingLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
                                 <GridLoader size={20} />
-                                <p className="mt-5 h5">Loading Customer Services ...</p>
+                                <p className="mt-12 h5">Loading Customer Services ...</p>
                             </div>
                                 :
                                 <TableContainer

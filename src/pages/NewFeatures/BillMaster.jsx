@@ -183,7 +183,7 @@ const BillMaster = () => {
                     <MainHeaderComp 
                         title="Customer Billing" 
                         extraFields={
-                            <div className="d-flex align-items-center gap-2">
+                            <div className="flex items-center gap-2">
                                 <div style={{ width: "300px" }}>
                                     <SearchableDropdown
                                         locations={customerOptions}
@@ -196,7 +196,7 @@ const BillMaster = () => {
                                     color="success" 
                                     onClick={handleDownloadExcel} 
                                     disabled={!selectedCustomer || isExporting || isFetching}
-                                    className="d-flex align-items-center gap-1"
+                                    className="flex items-center gap-1"
                                 >
                                     {(isExporting || isFetching) ? <Spinner size="sm" /> : <FaFileExcel />}
                                     Download Excel
@@ -207,15 +207,15 @@ const BillMaster = () => {
                 </div>
 
                 <div className="container-fluid px-0">
-                    <Nav tabs className="nav-tabs-custom nav-justified bg-light border-bottom">
+                    <Nav tabs className="nav-tabs-custom nav-justified bg-canvas border-bottom">
                         <NavItem>
                             <NavLink
                                 className={classnames({ active: activeTab === "1" })}
                                 onClick={() => toggleTab("1")}
                                 style={{ cursor: "pointer" }}
                             >
-                                <span className="d-block d-sm-none"><i className="fas fa-home"></i></span>
-                                <span className="d-none d-sm-block">Customer Config</span>
+                                <span className="block sm:hidden"><i className="fas fa-home"></i></span>
+                                <span className="hidden sm:block">Customer Config</span>
                             </NavLink>
                         </NavItem>
                         <NavItem>
@@ -224,8 +224,8 @@ const BillMaster = () => {
                                 onClick={() => toggleTab("2")}
                                 style={{ cursor: "pointer" }}
                             >
-                                <span className="d-block d-sm-none"><i className="far fa-user"></i></span>
-                                <span className="d-none d-sm-block">Pincode</span>
+                                <span className="block sm:hidden"><i className="far fa-user"></i></span>
+                                <span className="hidden sm:block">Pincode</span>
                             </NavLink>
                         </NavItem>
                         <NavItem>
@@ -234,8 +234,8 @@ const BillMaster = () => {
                                 onClick={() => toggleTab("3")}
                                 style={{ cursor: "pointer" }}
                             >
-                                <span className="d-block d-sm-none"><i className="far fa-envelope"></i></span>
-                                <span className="d-none d-sm-block">Rate</span>
+                                <span className="block sm:hidden"><i className="far fa-envelope"></i></span>
+                                <span className="hidden sm:block">Rate</span>
                             </NavLink>
                         </NavItem>
                         <NavItem>
@@ -244,8 +244,8 @@ const BillMaster = () => {
                                 onClick={() => toggleTab("4")}
                                 style={{ cursor: "pointer" }}
                             >
-                                <span className="d-block d-sm-none"><i className="fas fa-cog"></i></span>
-                                <span className="d-none d-sm-block">VAS</span>
+                                <span className="block sm:hidden"><i className="fas fa-cog"></i></span>
+                                <span className="hidden sm:block">VAS</span>
                             </NavLink>
                         </NavItem>
                     </Nav>

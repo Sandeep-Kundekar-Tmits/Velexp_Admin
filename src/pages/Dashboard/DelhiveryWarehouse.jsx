@@ -113,14 +113,14 @@ const DelhiveryWarehouse = () => {
                     }
                 />
             </div>
-            <div className="container-fluid mt-4 px-3">
+            <div className="container-fluid mt-6 px-4">
 
                 {/* tabel */}
                 <div className='mt-1'>
                     {
-                        warehouseloading ? <div style={{ height: "40vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+                        warehouseloading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
                             <GridLoader size={20} />
-                            <p className="mt-5 h5">Loading Warehouses Services ...</p>
+                            <p className="mt-12 h5">Loading Warehouses Services ...</p>
                         </div>
                             :
                             <TableContainer

@@ -214,7 +214,7 @@ const TripDetail = () => {
                 cell: ({ row }) => 
                     row.original.start?.odometer_image ? (
                         <button
-                            className="px-2 py-1 rounded bg-light border-0 text-primary"
+                            className="px-2 py-1 rounded bg-canvas border-0 text-brand-500"
                             onClick={() => {
                                 setSelectedImgSrc(getImageSrc(row.original.start.odometer_image));
                                 setIsModalOpen(true);
@@ -223,7 +223,7 @@ const TripDetail = () => {
                             View
                         </button>
                     ) : (
-                        <span className="text-muted">No Image</span>
+                        <span className="text-ink-muted">No Image</span>
                     ),
             },
             {
@@ -253,7 +253,7 @@ const TripDetail = () => {
                 cell: ({ row }) => 
                     row.original.end?.odometer_image ? (
                         <button
-                            className="px-2 py-1 rounded bg-light border-0 text-primary"
+                            className="px-2 py-1 rounded bg-canvas border-0 text-brand-500"
                             onClick={() => {
                                 setSelectedImgSrc(getImageSrc(row.original.end.odometer_image));
                                 setIsModalOpen(true);
@@ -262,7 +262,7 @@ const TripDetail = () => {
                             View
                         </button>
                     ) : (
-                        <span className="text-muted">No Image</span>
+                        <span className="text-ink-muted">No Image</span>
                     ),
             },
             {
@@ -272,7 +272,7 @@ const TripDetail = () => {
                 enableColumnFilter: false,
                 size: 120,
                 cell: ({ row }) => (
-                    <span className="fw-bold text-success">
+                    <span className="font-bold text-success-500">
                         {row.original.distance_km || "-"}
                     </span>
                 ),
@@ -287,13 +287,13 @@ const TripDetail = () => {
                 <MainHeaderComp title="Ops Trip Details" />
             </div>
             
-            <div className="container-fluid px-3 mt-4">
+            <div className="container-fluid px-4 mt-6">
                 <Card>
                     <CardBody>
-                        <Row className="align-items-end">
+                        <Row className="items-end">
                             <Col md={4}>
                                 <FormGroup className="mb-0">
-                                    <Label>Employee Code <span className="text-danger">*</span></Label>
+                                    <Label>Employee Code <span className="text-danger-500">*</span></Label>
                                     <Input 
                                         type="text" 
                                         value={employeeCode} 
@@ -305,7 +305,7 @@ const TripDetail = () => {
                             </Col>
                             <Col md={4}>
                                 <FormGroup className="mb-0">
-                                    <Label>Trip Date <span className="text-danger">*</span></Label>
+                                    <Label>Trip Date <span className="text-danger-500">*</span></Label>
                                     <Input 
                                         type="date" 
                                         value={tripDate} 
@@ -314,7 +314,7 @@ const TripDetail = () => {
                                     />
                                 </FormGroup>
                             </Col>
-                            <Col md={4} className="d-flex align-items-end" style={{gap: '10px'}}>
+                            <Col md={4} className="flex items-end" style={{gap: '10px'}}>
                                 <Button onClick={onGetData} color="primary" className="w-full" style={{ height: "39px" }}>
                                     Get Trip Details
                                 </Button>
@@ -327,10 +327,10 @@ const TripDetail = () => {
                 </Card>
 
                 {tripsApiData && !tripsLoading && (
-                    <Row className="mt-3 mb-3">
+                    <Row className="mt-4 mb-4">
                         <Col md={12}>
-                            <Card className="bg-primary text-white">
-                                <CardBody className="d-flex justify-content-between align-items-center py-2">
+                            <Card className="bg-brand-500 text-white">
+                                <CardBody className="flex justify-between items-center py-2">
                                     <h5 className="mb-0 text-white">Total Distance for the Day</h5>
                                     <h3 className="mb-0 text-white">{dayTotalDistance} km</h3>
                                 </CardBody>
@@ -341,9 +341,9 @@ const TripDetail = () => {
 
                 <div className='mt-2'>
                     {tripsLoading ? (
-                        <div style={{ height: "50vh" }} className="d-flex flex-column justify-content-center align-items-center">
+                        <div style={{ height: "50vh" }} className="flex flex-col justify-center items-center">
                             <GridLoader size={20} color="#556ee6" />
-                            <p className="mt-3 h5 text-muted">Loading Trip Details...</p>
+                            <p className="mt-4 h5 text-ink-muted">Loading Trip Details...</p>
                         </div>
                     ) : (
                         <TableContainer
@@ -393,7 +393,7 @@ const TripDetail = () => {
                             <Row>
                                 <Col md={6}>
                                     <FormGroup>
-                                        <Label>Employee Code <span className="text-danger">*</span></Label>
+                                        <Label>Employee Code <span className="text-danger-500">*</span></Label>
                                         <Input type="text" name="employee_code" value={uploadForm.employee_code} onChange={handleUploadChange} required />
                                     </FormGroup>
                                 </Col>
@@ -411,13 +411,13 @@ const TripDetail = () => {
                                 </Col>
                                 <Col md={6}>
                                     <FormGroup>
-                                        <Label>Trip Date & Time <span className="text-danger">*</span></Label>
+                                        <Label>Trip Date & Time <span className="text-danger-500">*</span></Label>
                                         <Input type="datetime-local" name="trip_date" value={uploadForm.trip_date} onChange={handleUploadChange} required />
                                     </FormGroup>
                                 </Col>
                                 <Col md={6}>
                                     <FormGroup>
-                                        <Label>Info Type <span className="text-danger">*</span></Label>
+                                        <Label>Info Type <span className="text-danger-500">*</span></Label>
                                         <Input type="select" name="info_type" value={uploadForm.info_type} onChange={handleUploadChange}>
                                             <option value="START">START</option>
                                             <option value="END">END</option>
@@ -426,7 +426,7 @@ const TripDetail = () => {
                                 </Col>
                                 <Col md={6}>
                                     <FormGroup>
-                                        <Label>Odometer Reading <span className="text-danger">*</span></Label>
+                                        <Label>Odometer Reading <span className="text-danger-500">*</span></Label>
                                         <Input type="number" step="0.01" name="odometer_reading" value={uploadForm.odometer_reading} onChange={handleUploadChange} required />
                                     </FormGroup>
                                 </Col>

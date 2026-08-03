@@ -2,7 +2,7 @@ const renderCountWithPercent = (getValue) => {
   const { count = 0, percent = 0 } = getValue() || {};
 
   return (
-    <div className="d-flex align-items-center gap-1">
+    <div className="flex items-center gap-1">
       <div
         className=""
         style={{

@@ -293,7 +293,7 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
     };
 
     return (
-        <div className="mt-4">
+        <div className="mt-6">
             <h4>Add New User</h4>
             {/* add user form */}
             <div>
@@ -302,7 +302,7 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
                     <Col md={6}>
                         <FormGroup>
                             <Label>GST No (Optional)</Label>
-                            <div className="d-flex gap-2 align-items-start">
+                            <div className="flex gap-2 items-start">
                                 <div style={{ flex: 1 }}>
                                     <Input
                                         type="text"
@@ -330,12 +330,12 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
                                 </Button>
                             </div>
                             {gstVerifyError && (
-                                <Alert color="danger" className="mt-2 py-2 px-3 mb-0" style={{ fontSize: '0.85rem' }}>
+                                <Alert color="danger" className="mt-2 py-2 px-4 mb-0" style={{ fontSize: '0.85rem' }}>
                                     {gstVerifyError}
                                 </Alert>
                             )}
                             {gstVerified && gstVerifyData && (
-                                <Alert color="success" className="mt-2 py-2 px-3 mb-0" style={{ fontSize: '0.85rem' }}>
+                                <Alert color="success" className="mt-2 py-2 px-4 mb-0" style={{ fontSize: '0.85rem' }}>
                                     <strong>{gstVerifyData.legal_name}</strong> — Status: <strong>{gstVerifyData.status}</strong>
                                     {gstVerifyData.registration_date && ` | Reg: ${gstVerifyData.registration_date}`}
                                 </Alert>
@@ -343,7 +343,7 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
                         </FormGroup>
                     </Col>
                 </Row>
-                <hr className="mb-3" />
+                <hr className="mb-4" />
                 <Row>
                     <Col md={6}>
                         <FormGroup>
@@ -497,7 +497,7 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
                         </FormGroup>
                     </Col>
                     <Col md={6}>
-                        <FormGroup check className="mt-4">
+                        <FormGroup check className="mt-6">
                             <Label check>
                                 <Input type="checkbox" name="kyc_approved" checked={formData.kyc_approved} onChange={handleChange} />
                                 KYC Approved (Optional)
@@ -536,7 +536,7 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
                                 placeholder="Select Cities"
                                 styles={customStyles}
                             />
-                            <small className='text-danger'>{errors?.city}</small>
+                            <small className='text-danger-500'>{errors?.city}</small>
                         </FormGroup>
                     </Col>
                     <Col md={6}>
@@ -569,18 +569,18 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
 
 
 
-            <div className='d-flex gap-3 mt-5 justify-content-end'>
-                <Button color="primary" className='px-4 py-2' onClick={handleSubmit}>Next</Button>
+            <div className='flex gap-4 mt-12 justify-end'>
+                <Button color="primary" className='px-6 py-2' onClick={handleSubmit}>Next</Button>
             </div>
 
             {/* GST Already Exists Modal */}
             <Modal isOpen={gstAlreadyExistsModal} toggle={() => setGstAlreadyExistsModal(false)} centered>
-                <ModalHeader toggle={() => setGstAlreadyExistsModal(false)} className="bg-warning text-dark">
+                <ModalHeader toggle={() => setGstAlreadyExistsModal(false)} className="bg-warning-500 text-ink">
                     ⚠️ GST Number Already Exists
                 </ModalHeader>
                 <ModalBody>
                     <p className="mb-2">{gstAlreadyExistsMsg || 'This GST number is already registered in the system.'}</p>
-                    <p className="mb-0 text-muted" style={{ fontSize: '0.9rem' }}>
+                    <p className="mb-0 text-ink-muted" style={{ fontSize: '0.9rem' }}>
                         You can still continue adding this customer if needed. Click <strong>Continue Anyway</strong> to proceed.
                     </p>
                 </ModalBody>

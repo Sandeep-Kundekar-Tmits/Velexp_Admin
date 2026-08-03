@@ -191,7 +191,7 @@ const AddFranchisee = () => {
         <h3 className=''>Add Franchisee</h3>
         <Form onSubmit={handleSubmit} >
 
-          <div className='mt-3'>
+          <div className='mt-4'>
             <Row form className=''>
               <Col md={4}>
                 <FormGroup>
@@ -304,7 +304,7 @@ const AddFranchisee = () => {
               </Col>
             </Row>
 
-            <h4 className='mt-4 fw-bold'>Bank Details</h4>
+            <h4 className='mt-6 font-bold'>Bank Details</h4>
             <Row form className=''>
               <Col md={4}>
                 <FormGroup>
@@ -359,7 +359,7 @@ const AddFranchisee = () => {
               </Col>
             </Row>
 
-            <Button color="primary" onClick={handleSubmit} className='mt-4' style={{ marginLeft: "-12px", width: "10rem" }}>Submit</Button>
+            <Button color="primary" onClick={handleSubmit} className='mt-6' style={{ marginLeft: "-12px", width: "10rem" }}>Submit</Button>
           </div>
         </Form>
       </div>

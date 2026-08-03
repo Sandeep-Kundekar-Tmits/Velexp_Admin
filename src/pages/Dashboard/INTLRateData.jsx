@@ -15,7 +15,7 @@ const INTLRateData = () => {
 
     return (
         <div className="page-content">
-            <Nav tabs className="nav-tabs-custom nav-justified rounded-top bg-light">
+            <Nav tabs className="nav-tabs-custom nav-justified rounded-top bg-canvas">
                 <NavItem>
                     <NavLink
                         className={`nav-link py-3 ${activeTab === 1 ? 'active bg-white' : ''}`}
@@ -23,7 +23,7 @@ const INTLRateData = () => {
                         role="tab"
                         aria-selected={activeTab === 1}
                     >
-                        <div className="d-flex align-items-center justify-content-center">
+                        <div className="flex items-center justify-center">
                             <span>INT Customer Rates</span>
                         </div>
                     </NavLink>
@@ -35,7 +35,7 @@ const INTLRateData = () => {
                         role="tab"
                         aria-selected={activeTab === 2}
                     >
-                        <div className="d-flex align-items-center justify-content-center">
+                        <div className="flex items-center justify-center">
                             <span>INT Default Rates</span>
                         </div>
                     </NavLink>
@@ -47,14 +47,14 @@ const INTLRateData = () => {
                         role="tab"
                         aria-selected={activeTab === 3}
                     >
-                        <div className="d-flex align-items-center justify-content-center">
+                        <div className="flex items-center justify-center">
                             <span>INT Corporate Rates</span>
                         </div>
                     </NavLink>
                 </NavItem> */}
             </Nav>
 
-            <TabContent activeTab={activeTab} className="p-4 bg-white">
+            <TabContent activeTab={activeTab} className="p-6 bg-white">
                 <TabPane tabId={1}>
                     {/* Your content for tab 1 */}
                     <INTCustomerRateDataComp />

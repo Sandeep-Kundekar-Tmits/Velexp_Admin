@@ -135,7 +135,7 @@ const StaleShipments = () => {
     ], [openModal]);
 
     if (loading) return (
-        <div className="d-flex justify-content-center mt-5">
+        <div className="flex justify-center mt-12">
             <GridLoader color="#556ee6" />
         </div>
     );
@@ -146,7 +146,7 @@ const StaleShipments = () => {
                 title="Stale Shipments"
                 subTitle={`AWBs with no tracking update for 7+ days — ${staleData?.total ?? rows.length} total`}
             />
-            <div className="mt-3">
+            <div className="mt-4">
                 <TableContainer
                     columns={columns}
                     data={rows}
@@ -157,14 +157,14 @@ const StaleShipments = () => {
                 />
 
                 {total > 0 && (
-                    <div className="d-flex flex-wrap justify-content-between align-items-center mt-3 px-3 py-3 bg-light rounded border">
-                        <div className="d-flex align-items-center gap-3 mb-2 mb-sm-0">
-                            <span className="text-muted small">
+                    <div className="flex flex-wrap justify-between items-center mt-4 px-4 py-4 bg-canvas rounded border">
+                        <div className="flex items-center gap-4 mb-2 mb-sm-0">
+                            <span className="text-ink-muted text-xs">
                                 Showing <strong>{total > 0 ? (page - 1) * pageSize + 1 : 0}</strong> to <strong>{Math.min(page * pageSize, total)}</strong> of <strong>{total.toLocaleString()}</strong> entries
                             </span>
                             {total > 10 && (
-                                <div className="d-flex align-items-center gap-2 ps-3 border-start">
-                                    <label className="text-muted small mb-0">Per page:</label>
+                                <div className="flex items-center gap-2 pl-4 border-start">
+                                    <label className="text-ink-muted text-xs mb-0">Per page:</label>
                                     <select
                                         className="form-select form-select-sm"
                                         style={{ width: "70px", cursor: "pointer" }}
@@ -186,19 +186,19 @@ const StaleShipments = () => {
                         </div>
 
                         {totalPages > 1 && (
-                            <div className="d-flex align-items-center gap-2">
+                            <div className="flex items-center gap-2">
                                 <Button
                                     size="sm"
                                     color="secondary"
                                     outline
                                     disabled={page <= 1 || loading}
                                     onClick={() => loadStale(page - 1, pageSize)}
-                                    className="px-3"
+                                    className="px-4"
                                 >
                                     ‹ Prev
                                 </Button>
 
-                                <div className="d-flex gap-1">
+                                <div className="flex gap-1">
                                     {(() => {
                                         const pages = [];
                                         const maxVisible = 5;
@@ -232,7 +232,7 @@ const StaleShipments = () => {
                                     outline
                                     disabled={page >= totalPages || loading}
                                     onClick={() => loadStale(page + 1, pageSize)}
-                                    className="px-3"
+                                    className="px-4"
                                 >
                                     Next ›
                                 </Button>
@@ -249,7 +249,7 @@ const StaleShipments = () => {
                 <ModalBody>
                     <FormGroup>
                         <Label>
-                            Service Centers <span className="text-danger">*</span>
+                            Service Centers <span className="text-danger-500">*</span>
                         </Label>
                         <Select
                             isMulti
@@ -262,7 +262,7 @@ const StaleShipments = () => {
                             menuPortalTarget={document.body}
                             menuPosition="fixed"
                         />
-                        <small className="text-muted mt-1 d-block">
+                        <small className="text-ink-muted mt-1 block">
                             Managers at these SCs will see this dispute.
                         </small>
                     </FormGroup>

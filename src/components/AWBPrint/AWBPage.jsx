@@ -103,20 +103,20 @@ const AWBPage = ({ awbNo = "", onBack }) => {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-6">
       {/* Back Button */}
-      <button className="btn btn-outline-secondary mb-3" onClick={handleBack}>
+      <button className="btn btn-outline-secondary mb-4" onClick={handleBack}>
         ← Back
       </button>
 
-      <h2 className="text-lg font-semibold mb-4">
+      <h2 className="text-lg font-semibold mb-6">
         Labels for AWB: <strong>{orderId}</strong>
       </h2>
 
       {/* API Loading */}
       {loading && (
-        <div className="text-center mb-3">
-          <div className="spinner-border text-primary" role="status"></div>
+        <div className="text-center mb-4">
+          <div className="spinner-border text-brand-500" role="status"></div>
           <p>Loading labels…</p>
         </div>
       )}
@@ -125,12 +125,12 @@ const AWBPage = ({ awbNo = "", onBack }) => {
       {labels.length > 0 && !loading && (
         <button
           onClick={handleDownloadPDF}
-          className="btn btn-success mb-4"
+          className="btn btn-success mb-6"
           disabled={pdfLoading}
         >
           {pdfLoading ? (
             <>
-              <span className="spinner-border spinner-border-sm me-2"></span>
+              <span className="spinner-border spinner-border-sm mr-2"></span>
               Generating PDF…
             </>
           ) : (
@@ -140,11 +140,11 @@ const AWBPage = ({ awbNo = "", onBack }) => {
       )}
 
       {labels.length === 0 && !loading && (
-        <p className="text-muted">No labels found for this AWB.</p>
+        <p className="text-ink-muted">No labels found for this AWB.</p>
       )}
 
       {/* LABEL RENDERING */}
-      <div ref={labelsRef} className="mt-4 d-flex flex-column gap-4">
+      <div ref={labelsRef} className="mt-6 flex flex-col gap-6">
         {labels.map((item) => (
           <div className="label-item" key={item.id}>
             <AirwayBillMiniTable

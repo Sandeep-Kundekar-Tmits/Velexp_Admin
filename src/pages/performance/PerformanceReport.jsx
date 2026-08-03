@@ -48,46 +48,46 @@ const PerformanceReport = () => {
                     direction="end"
                     style={{ width: '500px' }}
                 >
-                    <div className="d-flex align-items-center justify-content-between p-3 border-bottom">
-                        <h4 className="m-0 fw-bold" style={{ color: "#334155", fontSize: '18px' }}>Report title</h4>
+                    <div className="flex items-center justify-between p-4 border-bottom">
+                        <h4 className="m-0 font-bold" style={{ color: "#334155", fontSize: '18px' }}>Report title</h4>
                         <X
                             size={20}
-                            className='text-muted cursor-pointer'
+                            className='text-ink-muted cursor-pointer'
                             onClick={() => setActiveComponent("")}
                         />
                     </div>
                     <OffcanvasBody>
-                        <Row className="mb-4">
-                            <Col md={6} className="mb-3">
+                        <Row className="mb-6">
+                            <Col md={6} className="mb-4">
                                 <h5 className="mb-0">{selectedRowData?.region || "region_name"}</h5>
-                                <small className="text-muted">Region</small>
+                                <small className="text-ink-muted">Region</small>
                             </Col>
-                            <Col md={6} className="mb-3">
+                            <Col md={6} className="mb-4">
                                 <h5 className="mb-0">{selectedRowData?.service_centre || "service_centre_name"}</h5>
-                                <small className="text-muted">Service Centre</small>
+                                <small className="text-ink-muted">Service Centre</small>
                             </Col>
-                            <Col md={6} className="mb-3">
+                            <Col md={6} className="mb-4">
                                 <h5 className="mb-0">division_name</h5>
-                                <small className="text-muted">Division</small>
+                                <small className="text-ink-muted">Division</small>
                             </Col>
-                            <Col md={6} className="mb-3">
+                            <Col md={6} className="mb-4">
                                 <h5 className="mb-0">employee_code</h5>
-                                <small className="text-muted">Employee Code</small>
+                                <small className="text-ink-muted">Employee Code</small>
                             </Col>
-                            <Col md={6} className="mb-3">
+                            <Col md={6} className="mb-4">
                                 <h5 className="mb-0">{selectedRowData?.total_capacity || "200"}</h5>
-                                <small className="text-muted">Total Capacity</small>
+                                <small className="text-ink-muted">Total Capacity</small>
                             </Col>
-                            <Col md={6} className="mb-3">
+                            <Col md={6} className="mb-4">
                                 <h5 className="mb-0">{selectedRowData?.total_delivery || "180"}</h5>
-                                <small className="text-muted">Total Delivery</small>
+                                <small className="text-ink-muted">Total Delivery</small>
                             </Col>
                         </Row>
 
                         <hr />
 
-                        <ReactstrapTable bordered hover responsive className="text-center mt-3">
-                            <thead className="bg-light">
+                        <ReactstrapTable bordered hover responsive className="text-center mt-4">
+                            <thead className="bg-canvas">
                                 <tr>
                                     <th>Date</th>
                                     <th>Employees</th>
@@ -236,10 +236,10 @@ const PerformanceReport = () => {
             </div>
 
             <div className="container-fluid px-2">
-                <Row className="gx-3 d-flex align-items-center pt-2">
+                <Row className="gx-3 flex items-center pt-2">
                     <Col md={4}>
                         <FormGroup className="mb-2">
-                            <Label for="Region" className="fw-bold text-muted mb-1">Select Region</Label>
+                            <Label for="Region" className="font-bold text-ink-muted mb-1">Select Region</Label>
                             <Select
                                 value={selectedRegion}
                                 onChange={setSelectedRegion}
@@ -251,9 +251,9 @@ const PerformanceReport = () => {
                     </Col>
                     <Col md={4}>
                         <FormGroup className="mb-2">
-                            <Label for="ServiceCenter" className="fw-bold text-muted mb-1">Select Service Center</Label>
-                            <div className="d-flex align-items-center">
-                                <div className="flex-grow-1">
+                            <Label for="ServiceCenter" className="font-bold text-ink-muted mb-1">Select Service Center</Label>
+                            <div className="flex items-center">
+                                <div className="grow">
                                     <Select
                                         value={selectedServiceCentre}
                                         onChange={setSelectedServiceCentre}
@@ -275,9 +275,9 @@ const PerformanceReport = () => {
                     </Col>
                     <Col md={4}>
                         <FormGroup className="mb-2">
-                            <Label for="Division" className="fw-bold text-muted mb-1">Select Division</Label>
-                            <div className="d-flex align-items-center">
-                                <div className="flex-grow-1">
+                            <Label for="Division" className="font-bold text-ink-muted mb-1">Select Division</Label>
+                            <div className="flex items-center">
+                                <div className="grow">
                                     <Select
                                         value={selectedDivision}
                                         onChange={setSelectedDivision}
@@ -299,10 +299,10 @@ const PerformanceReport = () => {
                     </Col>
                 </Row>
 
-                <Row className="gx-3 d-flex align-items-end mt-2">
+                <Row className="gx-3 flex items-end mt-2">
                     <Col md={4}>
                         <FormGroup className="mb-2">
-                            <Label className="fw-bold text-muted mb-1">Date Range</Label>
+                            <Label className="font-bold text-ink-muted mb-1">Date Range</Label>
                             <DateRangeInput
                                 value={selectedRange}
                                 onChange={(range) => setSelectedRange(range)}
@@ -312,7 +312,7 @@ const PerformanceReport = () => {
                     </Col>
                     <Col md={3}>
                         <FormGroup className="mb-2">
-                            <Label className="fw-bold text-muted mb-1">Employee Code</Label>
+                            <Label className="font-bold text-ink-muted mb-1">Employee Code</Label>
                             <Input
                                 type="text"
                                 placeholder="Enter Employee Code"
@@ -321,8 +321,8 @@ const PerformanceReport = () => {
                             />
                         </FormGroup>
                     </Col>
-                    <Col md={2} className='d-flex mb-2 align-content-center flex-wrap gap-2'>
-                        <Button color="primary" className="fw-bold" style={{ height: "2.4rem", width: "100%" }}>
+                    <Col md={2} className='flex mb-2 content-center flex-wrap gap-2'>
+                        <Button color="primary" className="font-bold" style={{ height: "2.4rem", width: "100%" }}>
                             Get Data
                         </Button>
                     </Col>

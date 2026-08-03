@@ -53,10 +53,10 @@ export const RevenueBarChart = ({ title, subtitle, data, height = 360, valueLabe
     return (
         <Card className="shadow-sm border-0 h-full">
             <CardBody>
-                <h6 className="fw-bold mb-1">{title}</h6>
-                {subtitle && <p className="text-muted small mb-3">{subtitle}</p>}
+                <h6 className="font-bold mb-1">{title}</h6>
+                {subtitle && <p className="text-ink-muted text-xs mb-4">{subtitle}</p>}
                 {data.length === 0
-                    ? <p className="text-muted mb-0">No data.</p>
+                    ? <p className="text-ink-muted mb-0">No data.</p>
                     : <ReactApexChart options={options} series={series} type="bar" height={height} />}
             </CardBody>
         </Card>
@@ -100,9 +100,9 @@ export const RevenueShareDonut = ({ title, data, topN = 6, height = 340 }) => {
     return (
         <Card className="shadow-sm border-0 h-full">
             <CardBody>
-                <h6 className="fw-bold mb-3">{title}</h6>
+                <h6 className="font-bold mb-4">{title}</h6>
                 {series.length === 0
-                    ? <p className="text-muted mb-0">No data.</p>
+                    ? <p className="text-ink-muted mb-0">No data.</p>
                     : <ReactApexChart options={options} series={series} type="donut" height={height} />}
             </CardBody>
         </Card>
@@ -156,10 +156,10 @@ export const TopMoversChart = ({ data, height = 360 }) => {
     return (
         <Card className="shadow-sm border-0 h-full">
             <CardBody>
-                <h6 className="fw-bold mb-1">Top Movers — MTD Revenue Variation</h6>
-                <p className="text-muted small mb-3">Same top 10 customers by MTD revenue, shown as change vs same span last month</p>
+                <h6 className="font-bold mb-1">Top Movers — MTD Revenue Variation</h6>
+                <p className="text-ink-muted text-xs mb-4">Same top 10 customers by MTD revenue, shown as change vs same span last month</p>
                 {data.length === 0
-                    ? <p className="text-muted mb-0">No significant movers.</p>
+                    ? <p className="text-ink-muted mb-0">No significant movers.</p>
                     : <ReactApexChart options={options} series={series} type="bar" height={height} />}
             </CardBody>
         </Card>
@@ -171,31 +171,31 @@ export const TopMoversChart = ({ data, height = 360 }) => {
 export const AtRiskCustomersCard = ({ data, minBaseline }) => (
     <Card className="shadow-sm border-0 h-full">
         <CardBody>
-            <h6 className="fw-bold mb-1 text-danger">At-Risk Customers</h6>
-            <p className="text-muted small mb-3">
+            <h6 className="font-bold mb-1 text-danger-500">At-Risk Customers</h6>
+            <p className="text-ink-muted text-xs mb-4">
                 Biggest MTD % decline vs same span last month (baseline ≥ {formatINRCompact(minBaseline)})
             </p>
             {data.length === 0 ? (
-                <p className="text-muted mb-0">No customers declining beyond the baseline threshold.</p>
+                <p className="text-ink-muted mb-0">No customers declining beyond the baseline threshold.</p>
             ) : (
                 <div className="table-responsive">
                     <table className="table table-sm table-hover mb-0">
                         <thead>
-                            <tr className="text-muted small">
+                            <tr className="text-ink-muted text-xs">
                                 <th>Customer</th>
-                                <th className="text-end">Same Span Last Month</th>
-                                <th className="text-end">MTD</th>
-                                <th className="text-end">% Change</th>
+                                <th className="text-right">Same Span Last Month</th>
+                                <th className="text-right">MTD</th>
+                                <th className="text-right">% Change</th>
                             </tr>
                         </thead>
                         <tbody>
                             {data.map((d) => (
                                 <tr key={d.key}>
-                                    <td className="text-truncate" style={{ maxWidth: 240 }} title={d.key}>{d.key}</td>
-                                    <td className="text-end text-muted">{formatINR(d.baselineRevenue)}</td>
-                                    <td className="text-end fw-semibold">{formatINR(d.mtdRevenue)}</td>
-                                    <td className="text-end">
-                                        <span className="badge bg-danger-subtle text-danger fw-bold">
+                                    <td className="truncate" style={{ maxWidth: 240 }} title={d.key}>{d.key}</td>
+                                    <td className="text-right text-ink-muted">{formatINR(d.baselineRevenue)}</td>
+                                    <td className="text-right font-semibold">{formatINR(d.mtdRevenue)}</td>
+                                    <td className="text-right">
+                                        <span className="badge bg-danger-subtle text-danger-500 font-bold">
                                             {d.pctChange.toFixed(1)}%
                                         </span>
                                     </td>

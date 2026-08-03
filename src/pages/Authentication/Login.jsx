@@ -102,20 +102,20 @@ const Login = (props) => {
   // }, [data])
   return (
     <React.Fragment>
-      <div className="account-pages my-5 pt-sm-5">
+      <div className="account-pages my-12 pt-sm-5">
         <Container>
-          <Row className="justify-content-center">
+          <Row className="justify-center">
             <Col md={8} lg={6} xl={5}>
               <Card className="overflow-hidden">
-                <div className="bg-primary-subtle">
+                <div className="bg-brand-50">
                   <Row>
                     <Col xs={7}>
-                      <div className="text-primary p-4">
-                        <h5 className="text-primary">Welcome Back !</h5>
+                      <div className="text-brand-500 p-6">
+                        <h5 className="text-brand-500">Welcome Back !</h5>
                         <p>Sign up to Velocity.</p>
                       </div>
                     </Col>
-                    <Col className="col-5 align-self-center">
+                    <Col className="col-5 self-center">
                       <img src={CompanyLogo} alt="" className="img-fluid" />
                     </Col>
                   </Row>
@@ -123,12 +123,12 @@ const Login = (props) => {
                 <CardBody className="pt-0">
                   <div className="auth-logo">
                     <Link to="/" className="auth-logo-dark">
-                      <div className="avatar-md profile-user-wid mb-4">
-                        <span className="avatar-title rounded-circle bg-light">
+                      <div className="avatar-md profile-user-wid mb-6">
+                        <span className="avatar-title rounded-full bg-canvas">
                           <img
                             src={SingleLogo}
                             alt=""
-                            className="rounded-circle"
+                            className="rounded-full"
                             height="34"
                           />
                         </span>
@@ -139,7 +139,7 @@ const Login = (props) => {
                     <div
                       className="form-horizontal"
                     >
-                      <div className="mb-3">
+                      <div className="mb-4">
                         <Label className="form-label">User</Label>
                         <Input
                           name="username"
@@ -156,7 +156,7 @@ const Login = (props) => {
                       </div>
 
 
-                      <div className="mb-3">
+                      <div className="mb-4">
                         <Label className="form-label">Password</Label>
                         <Input
                           name="password"
@@ -171,9 +171,9 @@ const Login = (props) => {
                           {error?.password}
                         </FormFeedback>
                       </div>
-                      <div className="mt-3 d-grid">
+                      <div className="mt-4 grid">
                         <button
-                          className="btn btn-primary btn-block d-flex justify-content-center align-items-center"
+                          className="btn btn-primary btn-block flex justify-center items-center"
                           type="button"
                           onClick={!loading && onSubmitForm}
                         >
@@ -182,7 +182,7 @@ const Login = (props) => {
                           }
                         </button>
                         {
-                          apiError && <div className="text-danger mt-2 text-start fw-bold">
+                          apiError && <div className="text-danger-500 mt-2 text-left font-bold">
                             {apiError.error}
                           </div>
                         }

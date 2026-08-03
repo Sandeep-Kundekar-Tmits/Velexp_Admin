@@ -168,10 +168,10 @@ const MissingPod = ({ onClose }) => {
         <Offcanvas isOpen={true} toggle={onClose} direction="end" style={{ width: '650px' }}>
             <OffcanvasHeader toggle={onClose}>Find Missing Pod</OffcanvasHeader>
             <OffcanvasBody>
-                <div className="mb-4 w-3/4 mx-auto">
+                <div className="mb-6 w-3/4 mx-auto">
                     {/* select customer id */}
-                    <FormGroup className="mb-3">
-                        <Label className='pb-0 fw-bold'>Select Customer</Label>
+                    <FormGroup className="mb-4">
+                        <Label className='pb-0 font-bold'>Select Customer</Label>
                         <Select
                             options={CustomerOptions}
                             placeholder="Search Customer"
@@ -183,8 +183,8 @@ const MissingPod = ({ onClose }) => {
                     </FormGroup>
 
                     {/* range selector */}
-                    <FormGroup className="mb-3">
-                        <Label className='pb-1 d-block fw-bold'>Select Date Range</Label>
+                    <FormGroup className="mb-4">
+                        <Label className='pb-1 block font-bold'>Select Date Range</Label>
                         <DateRangeInput
                             value={selectedRange}
                             onChange={handleChange}
@@ -198,7 +198,7 @@ const MissingPod = ({ onClose }) => {
                 </div>
 
                 {/* desplaying missing pods */}
-                <div className='d-flex justify-content-center align-items-center w-full'>
+                <div className='flex justify-center items-center w-full'>
                     {
                         MissingPodLoading ? <Spinner>
                             Loading...
@@ -217,7 +217,7 @@ const MissingPod = ({ onClose }) => {
                                     />
                                 </div>
 
-                                : <h4 className='text-muted'>{MissingPodData?.msg}</h4>
+                                : <h4 className='text-ink-muted'>{MissingPodData?.msg}</h4>
                         )
                     }
                 </div>

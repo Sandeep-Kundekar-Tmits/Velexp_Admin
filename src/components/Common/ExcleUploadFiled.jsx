@@ -2,7 +2,7 @@ import { Button, FormGroup, FormText, Input, Label, Spinner } from "@/components
 
 const ExcleUploadFiled = ({ inputRef=null,loading = false, OnInputChange, Title = "Upload", isBtnDisabled = false, onUpload, isUploading = false }) => {
     return (
-        <div className="d-flex">
+        <div className="flex">
             <FormGroup>
                 <Label for="gstUpload">{Title}</Label>
                 <Input type="file" id="gstUpload" onChange={OnInputChange}  ref={inputRef}/>
@@ -14,7 +14,7 @@ const ExcleUploadFiled = ({ inputRef=null,loading = false, OnInputChange, Title 
 
                 <FormText color="muted">Upload file if available</FormText>
             </FormGroup>
-            <Button onClick={onUpload} disabled={isBtnDisabled} className="d-flex ms-4 justify-content-center align-items-center bg-primary" style={{ height: "35px", marginTop: "28px" }}>{isUploading ? "Uploading..." : "Upload"}</Button>
+            <Button onClick={onUpload} disabled={isBtnDisabled} className="flex ml-6 justify-center items-center bg-brand-500" style={{ height: "35px", marginTop: "28px" }}>{isUploading ? "Uploading..." : "Upload"}</Button>
         </div>
     )
 }

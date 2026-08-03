@@ -265,11 +265,11 @@ const InternationalMisReport = () => {
                 }
             />
 
-            <div className="container-fluid px-3 py-3">
+            <div className="container-fluid px-4 py-4">
                 {/* Filter Section */}
-                <div className="card mb-4">
+                <div className="card mb-6">
                     <div className="card-body">
-                        <div className="row g-3 align-items-end">
+                        <div className="row gap-4 items-end">
                             <div className="col-md-7">
                                 <DateRangePicker
                                     startDate={startDate}
@@ -295,7 +295,7 @@ const InternationalMisReport = () => {
                                 >
                                     {loading ? (
                                         <>
-                                            <span className="spinner-border spinner-border-sm me-2"></span>
+                                            <span className="spinner-border spinner-border-sm mr-2"></span>
                                             Loading...
                                         </>
                                     ) : (
@@ -309,7 +309,7 @@ const InternationalMisReport = () => {
 
                 {/* Table Section */}
                 {loading ? (
-                    <div className="d-flex justify-content-center py-5">
+                    <div className="flex justify-center py-12">
                         <GridLoader color="#556ee6" />
                     </div>
                 ) : (
@@ -325,14 +325,14 @@ const InternationalMisReport = () => {
 
                         {/* Pagination */}
                         {data.length > 0 && (
-                            <div className="d-flex flex-wrap justify-content-between align-items-center mt-3 px-3 py-2 bg-light rounded border">
-                                <div className="d-flex align-items-center gap-2 mb-2 mb-sm-0">
-                                    <span className="text-muted small">
+                            <div className="flex flex-wrap justify-between items-center mt-4 px-4 py-2 bg-canvas rounded border">
+                                <div className="flex items-center gap-2 mb-2 mb-sm-0">
+                                    <span className="text-ink-muted text-xs">
                                         Showing <strong>{data.length > 0 ? (page - 1) * pageSize + 1 : 0}</strong> to <strong>{Math.min(page * pageSize, data.length)}</strong> of <strong>{totalCount}</strong> entries
                                     </span>
                                     {data.length > 10 && (
-                                        <div className="d-flex align-items-center gap-1 ms-3">
-                                            <label className="text-muted small mb-0">Per page:</label>
+                                        <div className="flex items-center gap-1 ml-4">
+                                            <label className="text-ink-muted text-xs mb-0">Per page:</label>
                                             <select
                                                 className="form-select form-select-sm"
                                                 style={{ width: "70px", cursor: "pointer" }}
@@ -353,7 +353,7 @@ const InternationalMisReport = () => {
                                 </div>
 
                                 {totalPages > 1 && (
-                                    <div className="d-flex align-items-center gap-1">
+                                    <div className="flex items-center gap-1">
                                         <Button
                                             size="sm"
                                             color="secondary"
@@ -364,7 +364,7 @@ const InternationalMisReport = () => {
                                             ‹ Prev
                                         </Button>
 
-                                        <div className="d-flex gap-1">
+                                        <div className="flex gap-1">
                                             {(() => {
                                                 const pages = []
                                                 const maxVisible = 5

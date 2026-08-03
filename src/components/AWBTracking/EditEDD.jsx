@@ -15,10 +15,10 @@ import ToasterProvider from "../../helpers/ToasterProvider";
 
 const Detail = ({ label, value, fullWidth }) => (
   <div className={fullWidth ? "col-12 mb-2" : "col-4 mb-2"}>
-    <div className="fw-semibold small text-dark text-break">
+    <div className="font-semibold text-xs text-ink text-break">
       {value || "-"}
     </div>
-    <div className=" small">
+    <div className=" text-xs">
       {label}
     </div>
   </div>
@@ -123,13 +123,13 @@ const EditEDD = ({ isOpen, toggle, shipmentDetails, onSuccess }) => {
       <OffcanvasBody>
 
         <div className="" style={{ height: "75vh" }}>
-          <div className="mb-4 w-full d-flex flex-column justify-content-center align-items-center">
-            <h6 className="fw-bold pb-2 mb-1 mt-3">
+          <div className="mb-6 w-full flex flex-col justify-center items-center">
+            <h6 className="font-bold pb-2 mb-1 mt-4">
               Select New Estimated Delivery Date
             </h6>
-            <div className="row w-3/4 mt-3" >
+            <div className="row w-3/4 mt-4" >
               <FormGroup>
-                <Label>New EDD <span className="text-danger">*</span></Label>
+                <Label>New EDD <span className="text-danger-500">*</span></Label>
                 <Input
                   type="date"
                   value={newEdd}
@@ -144,7 +144,7 @@ const EditEDD = ({ isOpen, toggle, shipmentDetails, onSuccess }) => {
               </FormGroup>
 
               <FormGroup className="mt-0">
-                <Label>Remark <span className="text-danger">*</span></Label>
+                <Label>Remark <span className="text-danger-500">*</span></Label>
                 <Input
                   type="textarea"
                   value={remark}
@@ -162,7 +162,7 @@ const EditEDD = ({ isOpen, toggle, shipmentDetails, onSuccess }) => {
         </div>
 
         {/* Footer Buttons */}
-        <div className="d-flex justify-content-end gap-2 mt-4">
+        <div className="flex justify-end gap-2 mt-6">
           <Button color="secondary" onClick={toggle} disabled={loading}>
             Cancel
           </Button>

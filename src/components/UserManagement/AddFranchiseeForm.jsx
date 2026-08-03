@@ -183,7 +183,7 @@ const AddFranchiseeForm = ({ formData, setFormData, SubmitForm, onPreButtonClick
     }, [selectedStates])
 
     const renderInput = (label, name, errorMessage, type = 'text') => (
-        <FormGroup className="mb-3">
+        <FormGroup className="mb-4">
             <Label for={name}>{label}</Label>
             <Input
                 type={type}
@@ -193,7 +193,7 @@ const AddFranchiseeForm = ({ formData, setFormData, SubmitForm, onPreButtonClick
                 onChange={handleChange}
                 invalid={!!errorMessage}
             />
-            <FormFeedback className='text-capitalize'>{errorMessage}</FormFeedback>
+            <FormFeedback className='capitalize'>{errorMessage}</FormFeedback>
         </FormGroup>
     );
 
@@ -212,7 +212,7 @@ const AddFranchiseeForm = ({ formData, setFormData, SubmitForm, onPreButtonClick
     );
 
     return (
-        <div className="mt-4">
+        <div className="mt-6">
 
             <h4>Add Franchise</h4>
 
@@ -225,7 +225,7 @@ const AddFranchiseeForm = ({ formData, setFormData, SubmitForm, onPreButtonClick
                         {renderInput('Address Line 1 (Optional)', 'address1')}
                         {renderInput('Address Line 2', 'address2', errors?.address2)}
                         {/* {renderInput('Country (Optional)', 'country',)} */}
-                        <FormGroup className="mb-3">
+                        <FormGroup className="mb-4">
                             <Label >Country</Label>
                             <Input
                                 disabled
@@ -238,7 +238,7 @@ const AddFranchiseeForm = ({ formData, setFormData, SubmitForm, onPreButtonClick
                             />
                             {/* <FormFeedback>{errorMessage}</FormFeedback> */}
                         </FormGroup>
-                        <FormGroup className="mb-3">
+                        <FormGroup className="mb-4">
                             <Label>State</Label>
                             <Select
                                 options={AllStates}
@@ -255,9 +255,9 @@ const AddFranchiseeForm = ({ formData, setFormData, SubmitForm, onPreButtonClick
                                 isClearable={true}
                                 styles={customStyles}
                             />
-                            <small className='text-danger text-capitalize'>{errors?.state}</small>
+                            <small className='text-danger-500 capitalize'>{errors?.state}</small>
                         </FormGroup>
-                        <FormGroup className="mb-3">
+                        <FormGroup className="mb-4">
                             <Label>City</Label>
                             <Select
                                 options={AllCities}
@@ -274,7 +274,7 @@ const AddFranchiseeForm = ({ formData, setFormData, SubmitForm, onPreButtonClick
                                 isClearable={true}
                                 styles={customStyles}
                             />
-                            <small className='text-danger'>{errors?.city}</small>
+                            <small className='text-danger-500'>{errors?.city}</small>
                         </FormGroup>
 
                         {/* {renderInput('State', 'state', errors?.state)} */}
@@ -292,7 +292,7 @@ const AddFranchiseeForm = ({ formData, setFormData, SubmitForm, onPreButtonClick
                         {renderInput('GST No. (Optional)', 'gst_no')}
                         {renderInput('PAN No. (Optional)', 'pan_no')}
                         {renderInput('TAN No. (Optional)', 'tan_no')}
-                        {/* <FormGroup className="mb-3">
+                        {/* <FormGroup className="mb-4">
                             <Label for="billing_type">Billing Type (Optional)</Label>
                             <Input
                                 type="select"
@@ -328,7 +328,7 @@ const AddFranchiseeForm = ({ formData, setFormData, SubmitForm, onPreButtonClick
                         {/* {renderInput('Velexp Address', 'velexp_address',"","number")} */}
 
 
-                        <FormGroup className="mb-3">
+                        <FormGroup className="mb-4">
                             <Label>Velexp Address</Label>
                             <Select
                                 options={AddressOptions}
@@ -343,7 +343,7 @@ const AddFranchiseeForm = ({ formData, setFormData, SubmitForm, onPreButtonClick
                             />
                             <h6 className='mt-2'>Velexp Address</h6>
                           
-                            <small className='text-danger'>{errors?.velexp_address}</small>
+                            <small className='text-danger-500'>{errors?.velexp_address}</small>
                         </FormGroup>
 
 
@@ -360,11 +360,11 @@ const AddFranchiseeForm = ({ formData, setFormData, SubmitForm, onPreButtonClick
                         {renderCheckbox('WhatsApp Delivery Info', 'whatsapp_delivery_info')}
                     </Col>
                 </Row>
-                <div className='d-flex gap-3 mt-5 justify-content-end'>
-                    <Button color="primary" className='px-4 py-2' onClick={() => {
+                <div className='flex gap-4 mt-12 justify-end'>
+                    <Button color="primary" className='px-6 py-2' onClick={() => {
                         onPreButtonClick(2)
                     }}>Prev</Button>
-                    <Button color="primary" className='px-4 py-2' onClick={handleSubmit}>Submit</Button>
+                    <Button color="primary" className='px-6 py-2' onClick={handleSubmit}>Submit</Button>
                 </div>
             </div>
         </div>

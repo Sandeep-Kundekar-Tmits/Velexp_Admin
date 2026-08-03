@@ -63,17 +63,17 @@ const AutomationDashboardTab = ({ period, selectedCustomers = [], batchCtl }) =>
                     const Icon = a.icon
                     const running = isPolling && batch?.batch_type === a.key
                     return (
-                        <Col md={4} key={a.key} className="mb-3">
+                        <Col md={4} key={a.key} className="mb-4">
                             <Card className="shadow-sm border-0 h-full">
-                                <CardBody className="d-flex flex-column">
-                                    <div className="d-flex align-items-center gap-2 mb-2">
+                                <CardBody className="flex flex-col">
+                                    <div className="flex items-center gap-2 mb-2">
                                         <Icon size={26} className={`text-${a.color}`} />
-                                        <h5 className="mb-0 fw-bold">{a.title}</h5>
+                                        <h5 className="mb-0 font-bold">{a.title}</h5>
                                     </div>
-                                    <p className="text-muted flex-grow-1">{a.confirmMsg}</p>
+                                    <p className="text-ink-muted grow">{a.confirmMsg}</p>
                                     <Button
                                         color={a.color}
-                                        className="w-full fw-bold py-2"
+                                        className="w-full font-bold py-2"
                                         onClick={() => handleTrigger(a)}
                                         disabled={isTriggering || isPolling}
                                     >
@@ -94,9 +94,9 @@ const AutomationDashboardTab = ({ period, selectedCustomers = [], batchCtl }) =>
                     Confirm — {pendingAction?.title}
                 </ModalHeader>
                 <ModalBody>
-                    <p className="text-muted mb-3">{pendingAction?.confirmMsg}</p>
+                    <p className="text-ink-muted mb-4">{pendingAction?.confirmMsg}</p>
 
-                    <div className="mb-2 fw-semibold small">
+                    <div className="mb-2 font-semibold text-xs">
                         Selected Customers ({selectedCustomers.length}):
                     </div>
                     <div
@@ -104,13 +104,13 @@ const AutomationDashboardTab = ({ period, selectedCustomers = [], batchCtl }) =>
                         style={{ maxHeight: 220, overflowY: "auto", backgroundColor: "#f8f9fa" }}
                     >
                         {selectedCustomers.length === 0 ? (
-                            <span className="text-muted small">No customers selected</span>
+                            <span className="text-ink-muted text-xs">No customers selected</span>
                         ) : (
                                 <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "4px" }}>
                                 {selectedCustomers.map((c) => (
                                     <div
                                         key={c.value}
-                                        className="border rounded px-2 py-1 small text-truncate"
+                                        className="border rounded px-2 py-1 text-xs truncate"
                                         style={{ backgroundColor: "#fff", fontSize: "0.8rem" }}
                                         title={c.label}
                                     >

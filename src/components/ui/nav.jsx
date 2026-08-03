@@ -122,7 +122,14 @@ export const ListGroupItem = forwardRef(function ListGroupItem(
 
 export const Pagination = forwardRef(function Pagination({ className, children, ...rest }, ref) {
   return (
-    <ul ref={ref} className={cn("flex list-none items-center gap-1 p-0", className)} {...rest}>
+    <ul
+      ref={ref}
+      // The literal "pagination" class is the hook for the active-page rule
+      // (.pagination li.active > a). Without it the current page rendered
+      // identically to every other page number.
+      className={cn("pagination flex list-none items-center gap-1 p-0", className)}
+      {...rest}
+    >
       {children}
     </ul>
   );

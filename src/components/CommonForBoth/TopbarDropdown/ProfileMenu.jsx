@@ -50,27 +50,27 @@ const ProfileMenu = (props) => {
   const UserBadge = ({ userType = "USER", isAdmin }) => {
     // Determine icon based on user type
     const getUserIcon = () => {
-      if (isAdmin) return <FaCrown className="text-warning" />;
-      if (userType === 'sales') return <FaUserTie style={{ height: "30px", width: "30px" }} className="text-info" />;
-      if (userType === 'pod') return <FaBox className="text-primary" />;
-      if (userType === "accounts") return <MdOutlineManageAccounts className="text-primary" />
+      if (isAdmin) return <FaCrown className="text-warning-500" />;
+      if (userType === 'sales') return <FaUserTie style={{ height: "30px", width: "30px" }} className="text-accent-500" />;
+      if (userType === 'pod') return <FaBox className="text-brand-500" />;
+      if (userType === "accounts") return <MdOutlineManageAccounts className="text-brand-500" />
       if (userType === "Retail-Franchise")
-        return <FaUser className="text-secondary" />;
+        return <FaUser className="text-ink-muted" />;
       if(userType==="operations")
-        return <FaUser className="text-secondary" />
+        return <FaUser className="text-ink-muted" />
     };
 
     // Format display text
     const displayText = isAdmin ? 'ADMIN' : (userType || 'USER').toUpperCase();
 
     return (
-      <div className="user-badge  d-flex align-items-center justify-content-center  gap-1 p-2 border-0 " style={{ width: "100%" }}>
+      <div className="user-badge  flex items-center justify-center  gap-1 p-2 border-0 " style={{ width: "100%" }}>
         <div className="icon-wrapper fs-4">
           {getUserIcon()}
         </div>
         {
           props?.showLogo && <div className="user-info">
-            <div className="fw-bold text-white ">{displayText}</div>
+            <div className="font-bold text-white ">{displayText}</div>
             <small className="">
               {
                 isAdmin ? 'Full Access' :
@@ -108,19 +108,19 @@ const ProfileMenu = (props) => {
         </DropdownToggle>
         <DropdownMenu className=" gy-2 shadow-lg border-2">
           {/* <Link to="#" className="dropdown-item">
-            <IoMdPerson style={{ width: "18px", height: "18px" }} className="bx bx-power-off  align-middle me-1 text-danger" />
+            <IoMdPerson style={{ width: "18px", height: "18px" }} className="bx bx-power-off  align-middle mr-1 text-danger-500" />
             <span>{props.t("Profile")}</span>
           </Link> */}
 
           {/* logout link */}
           <Link to="/logout" className="dropdown-item">
-            <RiLogoutBoxRLine style={{ width: "18px", height: "18px" }} className="bx bx-power-off align-middle me-1 text-danger" />
+            <RiLogoutBoxRLine style={{ width: "18px", height: "18px" }} className="bx bx-power-off align-middle mr-1 text-danger-500" />
             <span>{props.t("Logout")}</span>
           </Link>
 
           {/* forgot password link */}
           {/* <Link to="/forgot-password" className="dropdown-item">
-            <TbLockPassword style={{ width: "18px", height: "18px" }} className="bx bx-power-off align-middle me-1 text-danger" />
+            <TbLockPassword style={{ width: "18px", height: "18px" }} className="bx bx-power-off align-middle mr-1 text-danger-500" />
             <span>{props.t("Change Password")}</span>
           </Link> */}
 

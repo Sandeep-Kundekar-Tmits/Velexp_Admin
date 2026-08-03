@@ -259,7 +259,7 @@ const UpdateINTCustomerRateData = ({ Int_rateData, toggle, onSave, Loading }) =>
                 </ModalBody>
                 <ModalFooter>
                     <Button color="secondary" onClick={toggle}>Cancel</Button>
-                    <Button color="primary" type="submit" className='d-flex justify-content-center align-items-center '>
+                    <Button color="primary" type="submit" className='flex justify-center items-center '>
                         {
                             Loading ? <Spinner size="sm">
                                 Loading...

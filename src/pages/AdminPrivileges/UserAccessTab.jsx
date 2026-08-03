@@ -42,7 +42,7 @@ const UserAccessTab = () => {
         { header: "Email", accessorKey: "email", enableColumnFilter: false, cell: ({ getValue }) => getValue() || "--" },
         {
             header: "Role", accessorKey: "role_name", enableColumnFilter: false,
-            cell: ({ getValue }) => getValue() || <span className="text-muted">No role</span>,
+            cell: ({ getValue }) => getValue() || <span className="text-ink-muted">No role</span>,
         },
         { header: "Overrides", accessorKey: "override_count", enableColumnFilter: false, cell: ({ getValue }) => getValue() ?? 0 },
         {
@@ -55,7 +55,7 @@ const UserAccessTab = () => {
 
     return (
         <div>
-            <div className="d-flex flex-wrap gap-2 mb-3">
+            <div className="flex flex-wrap gap-2 mb-4">
                 <Input
                     style={{ maxWidth: 260 }}
                     placeholder="Search username / name / email"
@@ -72,7 +72,7 @@ const UserAccessTab = () => {
             </div>
 
             {loading ? (
-                <div className="d-flex justify-content-center mt-5"><GridLoader color="#556ee6" /></div>
+                <div className="flex justify-center mt-12"><GridLoader color="#556ee6" /></div>
             ) : (
                 <>
                     <TableContainer
@@ -83,11 +83,11 @@ const UserAccessTab = () => {
                         tableClass="table-bordered table-nowrap"
                     />
 
-                    <div className="d-flex justify-content-between align-items-center mt-3 px-3 py-2 bg-light rounded border">
-                        <span className="text-muted small">
+                    <div className="flex justify-between items-center mt-4 px-4 py-2 bg-canvas rounded border">
+                        <span className="text-ink-muted text-xs">
                             Showing {total > 0 ? (page - 1) * pageSize + 1 : 0} to {Math.min(page * pageSize, total)} of {total} entries
                         </span>
-                        <div className="d-flex gap-1">
+                        <div className="flex gap-1">
                             <Button size="sm" color="secondary" outline disabled={page <= 1} onClick={() => load(page - 1)}>‹ Prev</Button>
                             <Button size="sm" color="secondary" outline disabled={page >= totalPages} onClick={() => load(page + 1)}>Next ›</Button>
                         </div>

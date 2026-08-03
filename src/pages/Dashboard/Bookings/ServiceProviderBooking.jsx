@@ -224,7 +224,7 @@ const ServiceProviderBooking = () => {
                         isDownloading && SelectedLabel === awb;
 
                     return (
-                        <div className="d-flex gap-2">
+                        <div className="flex gap-2">
                             {row.original.status === "success" && (
                                 <button
                                     className="btn btn-sm btn-primary"
@@ -256,7 +256,7 @@ const ServiceProviderBooking = () => {
                 <MainHeaderComp
                     title="Bookings"
                     extraFields={
-                        <Button color="primary" className="px-4 py-2" onClick={() => {
+                        <Button color="primary" className="px-6 py-2" onClick={() => {
                             navigate("/corporate-booking")
                         }} >
                             New Booking
@@ -264,9 +264,9 @@ const ServiceProviderBooking = () => {
                     }
                 />
             </div>
-            <div className="container-fluid px-3">
+            <div className="container-fluid px-4">
 
-                <Row className="mt-3">
+                <Row className="mt-4">
                     <Col md={4}>
                         <FormGroup>
                             <Label>Select Date Range</Label>
@@ -294,7 +294,7 @@ const ServiceProviderBooking = () => {
                             />
                         </FormGroup>
                     </Col>
-                    <Col md={2} className="d-flex align-items-end mb-3">
+                    <Col md={2} className="flex items-end mb-4">
                         <Button color="primary" className="w-full" style={{ height: "35px" }} onClick={OnGetBookings} >
                             Get Data
                         </Button>
@@ -304,9 +304,9 @@ const ServiceProviderBooking = () => {
                 <div className=" mt-1">
                     <div className='mt-2'>
                         {
-                            ServiceProviderBookingloading ? <div style={{ height: "75vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+                            ServiceProviderBookingloading ? <div style={{ height: "75vh" }} className="container-fluid  flex flex-col justify-center items-center">
                                 <GridLoader size={20} />
-                                <p className="mt-5 h5">Loading Bookings ...</p>
+                                <p className="mt-12 h5">Loading Bookings ...</p>
                             </div>
                                 :
                                 <>{

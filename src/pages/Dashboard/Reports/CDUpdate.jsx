@@ -195,10 +195,10 @@ const CDUpdate = () => {
                     {/* head */}
 
                     {/*  cards */}
-                    <Row className='gx-3 d-flex align-items-end pt-2'>
+                    <Row className='gx-3 flex items-end pt-2'>
                         <Col md={3}>
                             <FormGroup className="mb-2">
-                                <Label className="fw-bold text-muted mb-1">Select Date Range</Label>
+                                <Label className="font-bold text-ink-muted mb-1">Select Date Range</Label>
                                 <DateRangeInput
                                     value={selectedRange}
                                     onChange={handleChange}
@@ -208,7 +208,7 @@ const CDUpdate = () => {
                         </Col>
                         <Col md={3}>
                             <FormGroup className="mb-2">
-                                <Label for="Region" className="fw-bold text-muted mb-1">Region</Label>
+                                <Label for="Region" className="font-bold text-ink-muted mb-1">Region</Label>
                                 <Select
                                     name="region"
                                     options={Regions}
@@ -222,7 +222,7 @@ const CDUpdate = () => {
                         </Col>
                         <Col md={3}>
                             <FormGroup className="mb-2">
-                                <Label for="ServiceCenter" className="fw-bold text-muted mb-1">Service Center</Label>
+                                <Label for="ServiceCenter" className="font-bold text-ink-muted mb-1">Service Center</Label>
                                 <Select
                                     value={CdUpdatePayload?.service_center}
                                     name="service_center"
@@ -236,7 +236,7 @@ const CDUpdate = () => {
                             </FormGroup>
                         </Col>
                         <Col md={2}>
-                            <Button color="primary" className="fw-bold mb-2" style={{ height: "38px", width: "100%" }}
+                            <Button color="primary" className="font-bold mb-2" style={{ height: "38px", width: "100%" }}
                                 onClick={GetDataFunctionCall}
                             >
                                 {
@@ -248,7 +248,7 @@ const CDUpdate = () => {
 
                     {/* delayed counts cards */}
                     {
-                        Delayed_counts.length > 0 && <div className="border-top pt-3">
+                        Delayed_counts.length > 0 && <div className="border-top pt-4">
                             <h4>Delayed Counts</h4>
                             <TableContainer
                                 columns={DelayedCountColoumn}
@@ -264,13 +264,13 @@ const CDUpdate = () => {
                         </div>
                     }
 
-                    <div className=' border-top pt-3'>
+                    <div className=' border-top pt-4'>
                         {
-                            showTable ? <div className='mt-3'>
+                            showTable ? <div className='mt-4'>
                                 {
-                                    UploadCdReportUpdateLoading ? <div style={{ height: "40vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+                                    UploadCdReportUpdateLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
                                         <GridLoader size={20} />
-                                        <p className="mt-5 h5">Loading CD Report ...</p>
+                                        <p className="mt-12 h5">Loading CD Report ...</p>
                                     </div>
                                         :
                                         <TableContainer
@@ -288,7 +288,7 @@ const CDUpdate = () => {
                                             tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
                                         />
                                 }
-                            </div> : <div className="d-flex justify-content-center align-items-center">
+                            </div> : <div className="flex justify-center items-center">
                                 <Button color="primary" onClick={() => { setShowtable(!showTable) }} disabled={CdUpdateList.length < 1}>{
                                     showTable ? "Hide Delayed Data" : "Show Delayed Data"
                                 }</Button>

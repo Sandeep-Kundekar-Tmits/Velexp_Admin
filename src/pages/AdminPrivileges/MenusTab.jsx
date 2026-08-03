@@ -87,7 +87,7 @@ const MenusTab = () => {
 
         return (
             <div key={node.menu_id} style={{ marginLeft: depth * 24 }} className="mb-2">
-                <div className="d-flex align-items-center gap-2 p-2 rounded bg-light border">
+                <div className="flex items-center gap-2 p-2 rounded bg-canvas border">
                     {hasChildren ? (
                         <span style={{ cursor: "pointer" }} onClick={() => toggleCollapse(node.menu_id)}>
                             {collapsed ? <IoMdAdd /> : <IoMdRemove />}
@@ -97,11 +97,11 @@ const MenusTab = () => {
                     )}
 
                     {node.faicon && <i className={node.faicon} />}
-                    <span className="fw-semibold">{node.menu_name}</span>
-                    <span className="text-muted small">{node.menu_url}</span>
+                    <span className="font-semibold">{node.menu_name}</span>
+                    <span className="text-ink-muted text-xs">{node.menu_url}</span>
                     {node.is_active === false && <span className="badge bg-secondary">Inactive</span>}
 
-                    <div className="d-flex gap-1 ms-auto">
+                    <div className="flex gap-1 ml-auto">
                         <Button size="sm" color="light" outline disabled={index === 0} onClick={() => handleMove(siblings, index, -1)} title="Move up">
                             <RiArrowUpLine />
                         </Button>
@@ -129,16 +129,16 @@ const MenusTab = () => {
 
     return (
         <div>
-            <div className="d-flex justify-content-end mb-3">
+            <div className="flex justify-end mb-4">
                 <Button color="primary" onClick={() => { setSelectedMenu(null); setDefaultParent(null); setFormOpen(true); }}>+ New Menu</Button>
             </div>
 
             {loading ? (
-                <div className="d-flex justify-content-center mt-5"><GridLoader color="#556ee6" /></div>
+                <div className="flex justify-center mt-12"><GridLoader color="#556ee6" /></div>
             ) : tree.length ? (
                 <div>{tree.map((node, i) => renderNode(node, 0, tree, i))}</div>
             ) : (
-                <p className="text-muted">No menus yet.</p>
+                <p className="text-ink-muted">No menus yet.</p>
             )}
 
             <MenuFormModal

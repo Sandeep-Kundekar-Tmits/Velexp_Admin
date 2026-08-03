@@ -39,10 +39,10 @@ const RevenueAreaChart = ({ rows = [] }) => {
     }
 
     return (
-        <Card className="shadow-sm border-0 mb-4 h-full">
-            <CardBody className="d-flex flex-column">
-                <h6 className="fw-bold mb-1">Last 7 Days — Gross vs Net</h6>
-                <p className="text-muted small mb-3">Daily gross &amp; net revenue trend</p>
+        <Card className="shadow-sm border-0 mb-6 h-full">
+            <CardBody className="flex flex-col">
+                <h6 className="font-bold mb-1">Last 7 Days — Gross vs Net</h6>
+                <p className="text-ink-muted text-xs mb-4">Daily gross &amp; net revenue trend</p>
                 <div className="mt-auto">
                     <ReactApexChart options={options} series={series} type="area" height={400} />
                 </div>

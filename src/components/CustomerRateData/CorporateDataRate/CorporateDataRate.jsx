@@ -252,7 +252,7 @@ const CorporateDataRate = () => {
                     enableColumnFilter: false,
                     enableSorting: false,
                     cell: ({ row }) => (
-                        <div className="d-flex gap-2">
+                        <div className="flex gap-2">
                             <button
                                 className="btn btn-sm btn-outline-primary"
                                 onClick={() => handleUpdate(row.original)}
@@ -462,27 +462,27 @@ const CorporateDataRate = () => {
     return (
 
         <div className="p-0">
-            <div className="d-flex align-items-center justify-content-between gap-2  border-bottom p-0">
+            <div className="flex items-center justify-between gap-2  border-bottom p-0">
                 <h4>
                     Rate Data For Corporate
                 </h4>
                 {/* {
                     isAdmin && <Button
                         color="primary"
-                        className='d-flex justify-content-center align-items-center'
+                        className='flex justify-center items-center'
                         disabled={RateData.length < 1}
                         onClick={DownloadCorporateData}
                         title='Download'
                     >
                         Download
-                        <IoMdCloudDownload className="ms-2" style={{ width: "25px", height: "25px" }} />
+                        <IoMdCloudDownload className="ml-2" style={{ width: "25px", height: "25px" }} />
                     </Button>
                 } */}
 
             </div>
             <div>
                 {
-                    (isAdmin && RateData?.length >= 1) && <div className="d-flex align-items-center">
+                    (isAdmin && RateData?.length >= 1) && <div className="flex items-center">
                         <FormGroup style={{ marginTop: "10px" }}>
                             <Label for="gstUpload">Upload </Label>
                             <Input type="file" id="gstUpload" onChange={UploadCorporateRateDataOnChange} />
@@ -495,7 +495,7 @@ const CorporateDataRate = () => {
                             <FormText color="muted">Upload  file if available</FormText>
                         </FormGroup>
                         {
-                            UploadData.length >= 1 && <Button color="primary" onClick={CorporateBulkUpload} className="ms-5 d-flex justify-content-center align-items-center" style={{ height: "2.2rem", width: "5rem" }} >
+                            UploadData.length >= 1 && <Button color="primary" onClick={CorporateBulkUpload} className="ml-12 flex justify-center items-center" style={{ height: "2.2rem", width: "5rem" }} >
                                 {
                                     CorporateBulkUploadLoading ? <Spinner size="sm" className="">
                                         Loading...
@@ -514,11 +514,11 @@ const CorporateDataRate = () => {
                 {/* <UpdateShippingRateModal/> */}
                 {ReturnComponent(SelectedTitle)}
                 {/* <h2>Bookings</h2> */}
-                <div className='mt-3'>
+                <div className='mt-4'>
                     {
-                        CorporateRateDataLoading ? <div style={{ height: "40vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+                        CorporateRateDataLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
                             <GridLoader size={20} />
-                            <p className="mt-5 h5">Loading Corporate Data Rate ...</p>
+                            <p className="mt-12 h5">Loading Corporate Data Rate ...</p>
                         </div>
                             :
                             <TableContainer

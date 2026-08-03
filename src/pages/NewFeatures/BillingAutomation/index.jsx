@@ -31,7 +31,7 @@ const makeCustomOption = (isAllSelected) => (props) => {
         <div
             ref={innerRef}
             {...innerProps}
-            className="d-flex align-items-center gap-2 px-3 py-2"
+            className="flex items-center gap-2 px-4 py-2"
             style={{ cursor: "pointer", backgroundColor: checked ? "#e7f1ff" : "transparent" }}
         >
             <input type="checkbox" checked={checked} onChange={() => {}} style={{ cursor: "pointer" }} />
@@ -46,7 +46,7 @@ const CustomMultiValue = (props) => {
         <div
             ref={innerRef}
             {...innerProps}
-            className="d-inline-flex align-items-center gap-2 rounded px-2 py-1 me-2"
+            className="inline-flex items-center gap-2 rounded px-2 py-1 mr-2"
             style={{ backgroundColor: "#e7f1ff", marginTop: "4px", marginBottom: "4px" }}
         >
             <input type="checkbox" checked={true} onChange={() => {}} style={{ cursor: "pointer" }} readOnly />
@@ -166,11 +166,11 @@ const BillingAutomation = () => {
                     <MainHeaderComp title="Billing Automation" />
                 </div>
 
-                <div className="container-fluid px-3 py-3">
+                <div className="container-fluid px-4 py-4">
                     {/* Shared period picker & customer selector */}
-                    <Card className="shadow-sm border-0 mb-3">
+                    <Card className="shadow-sm border-0 mb-4">
                         <CardBody>
-                            <Row className="align-items-end">
+                            <Row className="items-end">
                                 <Col md={4} className="mb-2 mb-md-0">
                                     <DateRangePicker
                                         startDate={period.startDate}
@@ -180,11 +180,11 @@ const BillingAutomation = () => {
                                     />
                                 </Col>
                                 <Col md={8}>
-                                    <Label className="fw-bold">Customers</Label>
+                                    <Label className="font-bold">Customers</Label>
                                     {loadingCustomers ? (
-                                        <div className="d-flex align-items-center gap-2">
+                                        <div className="flex items-center gap-2">
                                             <Spinner size="sm" />
-                                            <span className="text-muted small">Loading customers...</span>
+                                            <span className="text-ink-muted text-xs">Loading customers...</span>
                                         </div>
                                     ) : (
                                         <div ref={customerSelectRef}>
@@ -226,7 +226,7 @@ const BillingAutomation = () => {
                             </Row>
                             <Row className="mt-2">
                                 <Col>
-                                    <small className="text-muted">
+                                    <small className="text-ink-muted">
                                         Leave dates blank to default to the last calendar month. Selected: {selectedCustomers.length === customerOptions.length ? "All customers" : `${selectedCustomers.length} customer${selectedCustomers.length !== 1 ? "s" : ""}`}
                                     </small>
                                 </Col>
@@ -235,7 +235,7 @@ const BillingAutomation = () => {
                     </Card>
 
                     {/* Tabs */}
-                    <Nav tabs className="mb-3">
+                    <Nav tabs className="mb-4">
                         {TABS.map((t) => (
                             <NavItem key={t.id}>
                                 <NavLink

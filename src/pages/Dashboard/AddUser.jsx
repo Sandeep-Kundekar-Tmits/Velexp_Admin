@@ -377,9 +377,9 @@ const AddUser = () => {
         <>
             <TabProvider tabs={tabs} toggle={toggle} activeTab={activeTab} />
             <Modal isOpen={FormDataLoading} >
-                <ModalBody className="d-flex justify-content-center flex-column align-items-center">
+                <ModalBody className="flex justify-center flex-col items-center">
                     <GridLoader size={20} />
-                    <p className="mt-5 h5">Loading...</p>
+                    <p className="mt-12 h5">Loading...</p>
                 </ModalBody>
             </Modal>
             {

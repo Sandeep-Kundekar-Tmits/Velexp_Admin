@@ -185,12 +185,12 @@ const ShipmentBilling = () => {
                 <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
                     <MainHeaderComp title="Shipment Billing" />
                 </div>
-                <div className="container-fluid px-3 py-3">
-                    <Card className="shadow-sm border-0 mb-4">
+                <div className="container-fluid px-4 py-4">
+                    <Card className="shadow-sm border-0 mb-6">
                         <CardBody>
-                            <Row className="align-items-end">
-                                <Col md={4} className="mb-3 mb-md-0">
-                                    <Label className="fw-bold">Customer</Label>
+                            <Row className="items-end">
+                                <Col md={4} className="mb-4 mb-md-0">
+                                    <Label className="font-bold">Customer</Label>
                                     <SearchableDropdown
                                         onChange={(val) => setSelectedCustomerId(val?.id || "")}
                                         locations={customers}
@@ -199,7 +199,7 @@ const ShipmentBilling = () => {
                                         value={selectedCustomerId ? (customers.find(c => c.id === selectedCustomerId)?.name || "Select Customer") : "select"}
                                     />
                                 </Col>
-                                <Col md={4} className="mb-3 mb-md-0">
+                                <Col md={4} className="mb-4 mb-md-0">
                                     <DateRangePicker
                                         startDate={startDate}
                                         endDate={endDate}
@@ -207,10 +207,10 @@ const ShipmentBilling = () => {
                                         label="Date Range"
                                     />
                                 </Col>
-                                <Col md={4} className="d-flex justify-content-end gap-2 align-items-end">
+                                <Col md={4} className="flex justify-end gap-2 items-end">
                                     <Button 
                                         color="primary" 
-                                        className="py-1 px-3 fw-bold" 
+                                        className="py-1 px-4 font-bold" 
                                         onClick={handleSync} 
                                         disabled={syncing || auditing || exporting}
                                         style={{ fontSize: '0.8rem', minWidth: '80px' }}
@@ -219,7 +219,7 @@ const ShipmentBilling = () => {
                                     </Button>
                                     <Button 
                                         color="success" 
-                                        className="py-1 px-3 fw-bold" 
+                                        className="py-1 px-4 font-bold" 
                                         onClick={() => handleAudit(1)} 
                                         disabled={syncing || auditing || exporting}
                                         style={{ fontSize: '0.8rem', minWidth: '80px' }}
@@ -228,7 +228,7 @@ const ShipmentBilling = () => {
                                     </Button>
                                     <Button 
                                         color="info" 
-                                        className="py-1 px-3 fw-bold" 
+                                        className="py-1 px-4 font-bold" 
                                         onClick={handleAuditExcelDownload} 
                                         disabled={syncing || auditing || exporting || !report}
                                         style={{ fontSize: '0.8rem', minWidth: '80px' }}
@@ -243,7 +243,7 @@ const ShipmentBilling = () => {
                     {report && (
                         <div className="animate__animated animate__fadeIn">
                             {/* Summary Cards */}
-                            <Row className="mb-4 g-3 flex-nowrap overflow-auto pb-2">
+                            <Row className="mb-6 gap-4 flex-nowrap overflow-auto pb-2">
                                 <style>{`
                                     .overflow-auto::-webkit-scrollbar {
                                         height: 5px;
@@ -262,29 +262,29 @@ const ShipmentBilling = () => {
                                     .last-child-border-0:last-child { border-right: 0 !important; }
                                 `}</style>
                                 <Col md={3}>
-                                    <Card className="text-center border-0 shadow-sm bg-primary text-white h-full">
-                                        <CardBody className="d-flex flex-column justify-content-center py-2">
-                                            <h6 className="text-white-50 text-uppercase mb-1" style={{ fontSize: '0.65rem' }}>Total Missing</h6>
-                                            <h4 className="mb-0 fw-bold">{report.total_missing}</h4>
+                                    <Card className="text-center border-0 shadow-sm bg-brand-500 text-white h-full">
+                                        <CardBody className="flex flex-col justify-center py-2">
+                                            <h6 className="text-white-50 uppercase mb-1" style={{ fontSize: '0.65rem' }}>Total Missing</h6>
+                                            <h4 className="mb-0 font-bold">{report.total_missing}</h4>
                                         </CardBody>
                                     </Card>
                                 </Col>
                                 <Col md={3}>
                                     <Card className="text-center border-0 shadow-sm bg-info text-white h-full">
-                                        <CardBody className="d-flex flex-column justify-content-center py-2">
-                                            <h6 className="text-white-50 text-uppercase mb-1" style={{ fontSize: '0.65rem' }}>Billing Type</h6>
-                                            <h4 className="mb-0 fw-bold text-capitalize" style={{ fontSize: '1.2rem' }}>{report.billing_type}</h4>
+                                        <CardBody className="flex flex-col justify-center py-2">
+                                            <h6 className="text-white-50 uppercase mb-1" style={{ fontSize: '0.65rem' }}>Billing Type</h6>
+                                            <h4 className="mb-0 font-bold capitalize" style={{ fontSize: '1.2rem' }}>{report.billing_type}</h4>
                                         </CardBody>
                                     </Card>
                                 </Col>
                                 <Col md={6} style={{ minWidth: '400px' }}>
                                     <Card className="border-0 shadow-sm h-full">
-                                        <CardBody className="py-2 d-flex align-items-center overflow-auto">
-                                            <div className="d-flex justify-content-around text-center w-full flex-nowrap">
+                                        <CardBody className="py-2 flex items-center overflow-auto">
+                                            <div className="flex justify-around text-center w-full flex-nowrap">
                                                 {report.reason_counts && Object.entries(report.reason_counts).map(([key, val]) => (
-                                                    <div key={key} className="px-3 border-end last-child-border-0" style={{ minWidth: 'fit-content' }}>
-                                                        <h6 className="text-muted small text-uppercase mb-1" style={{ fontSize: '0.65rem' }}>{key.replace(/_/g, ' ')}</h6>
-                                                        <h5 className="mb-0 fw-bold">{val}</h5>
+                                                    <div key={key} className="px-4 border-end last-child-border-0" style={{ minWidth: 'fit-content' }}>
+                                                        <h6 className="text-ink-muted text-xs uppercase mb-1" style={{ fontSize: '0.65rem' }}>{key.replace(/_/g, ' ')}</h6>
+                                                        <h5 className="mb-0 font-bold">{val}</h5>
                                                     </div>
                                                 ))}
                                             </div>
@@ -294,16 +294,16 @@ const ShipmentBilling = () => {
                             </Row>
 
                             {/* Main Results Table */}
-                            <Card className="shadow-sm border-0 mb-4">
+                            <Card className="shadow-sm border-0 mb-6">
                                 <CardBody className="p-0">
-                                    <div className="p-3 bg-light border-bottom d-flex justify-content-between align-items-center">
+                                    <div className="p-4 bg-canvas border-bottom flex justify-between items-center">
                                         <h5 className="mb-0">Audit Results (Page {report.page})</h5>
                                         <Badge color="secondary" className="p-2">Showing {report.results?.length} records</Badge>
                                     </div>
                                     {auditing ? (
-                                        <div className="d-flex flex-column align-items-center justify-content-center" style={{ height: "550px" }}>
+                                        <div className="flex flex-col items-center justify-center" style={{ height: "550px" }}>
                                             <GridLoader color="#36d7b7" size={15} />
-                                            <p className="mt-3 text-muted fw-bold">Fetching Audit Data...</p>
+                                            <p className="mt-4 text-ink-muted font-bold">Fetching Audit Data...</p>
                                         </div>
                                     ) : (
                                         <>
@@ -321,7 +321,7 @@ const ShipmentBilling = () => {
                                                 isStickyHeader={true}
                                             />
                                             {/* Server-side Pagination Controls */}
-                                            <div className="p-3 d-flex justify-content-center border-top">
+                                            <div className="p-4 flex justify-center border-top">
                                                 <Pagination size="sm" aria-label="Page navigation example">
                                                     <PaginationItem disabled={report.page <= 1 || auditing}>
                                                         <PaginationLink onClick={() => handleAudit(report.page - 1)}>
@@ -390,9 +390,9 @@ const ShipmentBilling = () => {
                             {report.missing_products?.length > 0 && (
                                 <Card className="shadow-sm border-0 border-top border-4 border-danger">
                                     <CardBody className="p-0">
-                                        <div className="p-3 bg-danger text-white d-flex justify-content-between align-items-center">
+                                        <div className="p-4 bg-danger-500 text-white flex justify-between items-center">
                                             <h5 className="mb-0 text-white font-size-16">Missing Products Detected</h5>
-                                            <Badge color="light" className="text-danger p-2">{report.missing_products.length} AWB(s)</Badge>
+                                            <Badge color="light" className="text-danger-500 p-2">{report.missing_products.length} AWB(s)</Badge>
                                         </div>
                                         <TableContainer
                                             columns={missingProductColumns}

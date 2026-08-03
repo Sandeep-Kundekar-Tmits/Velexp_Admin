@@ -188,41 +188,41 @@ const PickupPerformanceFilter = ({ AllEntries = {}, ApplyFilter, BookingList }) 
     };
 
     return (
-        <div className="admin-booking-filter border-top pt-3">
+        <div className="admin-booking-filter border-top pt-4">
             {/* Header */}
    
 
             {/* Shipment Statistics Row */}
-            <Row className="mb-0  gap-3 border-bottom">
+            <Row className="mb-0  gap-4 border-bottom">
                 {stats.map((stat, index) => (
                     // <Col key={index} md={stat.isGroup ? 3 : 2} style={!stat.isGroup ? { height: "120px" } : { height: "280px" }}>
                     //     <Card className="text-center border-0 shadow-sm rounded-lg overflow-hidden mb-0" style={!stat.isGroup ? { height: "120px", transition: 'all 0.3s ease' } : { height: "280px", transition: 'all 0.3s ease' }}>
                     //         <CardBody className={`pt-2 pb-1 px-2 bg-${stat.color}-light position-relative`}>
                     //             {/* Decorative accent */}
                     //             <div
-                    //                 className="position-absolute top-0 left-0 h-full w-2"
+                    //                 className="absolute top-0 left-0 h-full w-2"
                     //                 style={{ backgroundColor: `var(--bs-${stat.color})` }}
                     //             ></div>
 
                     //             <div className="" style={{ minHeight: "175px" }}>
-                    //                 <CardTitle tag="h6" className="text-muted h-full text-uppercase mb-1 fs-7 fw-semibold letter-spacing-1">
+                    //                 <CardTitle tag="h6" className="text-ink-muted h-full uppercase mb-1 fs-7 font-semibold letter-spacing-1">
                     //                     {stat.title}
                     //                 </CardTitle>
 
                     //                 {!stat.isGroup ? (
                     //                     // Simple stat display
-                    //                     <div className="d-flex mt-4 align-items-baseline h-full justify-content-center">
+                    //                     <div className="flex mt-6 items-baseline h-full justify-center">
                     //                         <CardText
                     //                             tag="h2"
                     //                             className={`mb-0 h-full fw-bold text-${stat.color}`}
                     //                         >
-                    //                             {stat.value} {stat.unit && <span className="fs-6 text-muted">{stat.unit}</span>}
+                    //                             {stat.value} {stat.unit && <span className="fs-6 text-ink-muted">{stat.unit}</span>}
                     //                         </CardText>
                     //                     </div>
                     //                 ) : (
                     //                     // Grouped stat display
                     //                     <div>
-                    //                         <div className="d-flex align-items-baseline justify-content-center mb-0">
+                    //                         <div className="flex items-baseline justify-center mb-0">
                     //                             <CardText
                     //                                 tag="h4"
                     //                                 className={`mb-0 fw-bold text-${stat.color}`}
@@ -232,12 +232,12 @@ const PickupPerformanceFilter = ({ AllEntries = {}, ApplyFilter, BookingList }) 
                     //                             </CardText>
                     //                         </div>
 
-                    //                         <div className="g-1">
+                    //                         <div className="gap-1">
                     //                             {stat.breakdown.map((item, idx) => (
                     //                                 <Col key={idx} md={12}>
                     //                                     <div className={`d-flex justify-content-between my-1 align-items-center rounded p-2 bg-${item.color}-subtle`}>
                     //                                         <div className={`fw-bold text-${item.color}`}>{item.value}</div>
-                    //                                         <div className="text-muted small ms-1">({item.percent}%)</div>
+                    //                                         <div className="text-ink-muted text-xs ml-1">({item.percent}%)</div>
                     //                                     </div>
                     //                                 </Col>
                     //                             ))}
@@ -253,10 +253,10 @@ const PickupPerformanceFilter = ({ AllEntries = {}, ApplyFilter, BookingList }) 
             </Row>
 
             {/* Form Controls Row */}
-            <Row className="g-3 my-3 bg-light rounded-2">
+            <Row className="gap-4 my-4 bg-canvas rounded-2">
                 <Col md={3}>
                     <FormGroup>
-                        <Label for="checkpoint" className="fw-bold">Select Checkpoint</Label>
+                        <Label for="checkpoint" className="font-bold">Select Checkpoint</Label>
                         <Select
                             id="checkpoint"
                             value={checkpointOptions.find(opt => opt.value === filterObj.checkpt) || null}
@@ -269,16 +269,16 @@ const PickupPerformanceFilter = ({ AllEntries = {}, ApplyFilter, BookingList }) 
                     </FormGroup>
                 </Col>
 
-                <Col md={3} className="d-flex align-items-end mb-3">
+                <Col md={3} className="flex items-end mb-4">
                     <button className="btn btn-primary w-full" onClick={applyFilters}>
                         Apply Filters
                     </button>
                 </Col>
 
-                <Col md={3} className="d-flex align-items-end mb-3">
+                <Col md={3} className="flex items-end mb-4">
                     {isFilterActive && (
                         <button
-                            className="btn bg-danger text-white w-full"
+                            className="btn bg-danger-500 text-white w-full"
                             onClick={clearFilters}
                         >
                             Clear Filters

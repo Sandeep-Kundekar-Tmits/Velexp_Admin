@@ -236,7 +236,7 @@ const AsusDataRate = () => {
                     enableColumnFilter: false,
                     enableSorting: false,
                     cell: ({ row }) => (
-                        <div className="d-flex gap-2">
+                        <div className="flex gap-2">
                             <button
                                 className="btn btn-sm btn-outline-primary"
                                 onClick={() => handleUpdate(row.original)}
@@ -440,13 +440,13 @@ const AsusDataRate = () => {
     return (
 
         <div className="p-0">
-            <div className="d-flex align-items-baseline justify-content-between gap-2 border-bottom p-0">
+            <div className="flex items-baseline justify-between gap-2 border-bottom p-0">
                 <h4>
                     Rate Data For Asus
                 </h4>
                 <div>
                     {
-                        (isAdmin && RateData?.length >= 1) && <div className="d-flex ">
+                        (isAdmin && RateData?.length >= 1) && <div className="flex ">
                             <FormGroup>
                                 <Input type="file" id="gstUpload" onChange={UploadAsusOnChange} />
                                 {
@@ -458,7 +458,7 @@ const AsusDataRate = () => {
                                 <FormText color="muted">Upload  file if available</FormText>
                             </FormGroup>
                             {
-                                UploadData.length >= 1 && <Button color="primary" onClick={AsusBulkUpoad} className="ms-5 d-flex justify-content-center align-items-center" style={{ height: "2.2rem", width: "5rem" }} >
+                                UploadData.length >= 1 && <Button color="primary" onClick={AsusBulkUpoad} className="ml-12 flex justify-center items-center" style={{ height: "2.2rem", width: "5rem" }} >
                                     {
                                         AsusBulkUpoadLoading ? <Spinner size="sm" className="">
                                             Loading...
@@ -479,11 +479,11 @@ const AsusDataRate = () => {
                 {/* <UpdateShippingRateModal/> */}
                 {ReturnComponent(SelectedTitle)}
                 {/* <h2>Bookings</h2> */}
-                <div className='mt-3'>
+                <div className='mt-4'>
                     {
-                        RateDataLoading ? <div style={{ height: "40vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+                        RateDataLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
                             <GridLoader size={20} />
-                            <p className="mt-5 h5">Loading Asus Data Rate ...</p>
+                            <p className="mt-12 h5">Loading Asus Data Rate ...</p>
                         </div>
                             :
                             <TableContainer

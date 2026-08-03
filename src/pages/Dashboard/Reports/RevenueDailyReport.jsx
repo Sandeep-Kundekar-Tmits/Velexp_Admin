@@ -37,8 +37,8 @@ const trendCell = (formatText) => {
         const text = formatText(v);
         if (typeof v !== "number" || v === 0) return text;
         return v > 0
-            ? <span className="text-success fw-semibold">▲ {text}</span>
-            : <span className="text-danger fw-semibold">▼ {text}</span>;
+            ? <span className="text-success-500 font-semibold">▲ {text}</span>
+            : <span className="text-danger-500 font-semibold">▼ {text}</span>;
     };
 };
 
@@ -151,31 +151,31 @@ const StatTile = ({ title, icon: Icon, accent, value, delta, deltaValueText, com
     const trendColor = TREND_COLOR[trend];
     return (
         <Card className="border-0 shadow-sm h-full" style={{ borderTop: `3px solid ${accent}` }}>
-            <CardBody className="px-3 py-2">
-                <div className="d-flex align-items-center justify-content-between mb-2">
+            <CardBody className="px-4 py-2">
+                <div className="flex items-center justify-between mb-2">
                     <span
-                        className="fw-bold text-uppercase rounded px-2 py-1"
+                        className="font-bold uppercase rounded px-2 py-1"
                         style={{ fontSize: "11.5px", letterSpacing: ".5px", background: tint(accent), color: accent }}
                     >
                         {title}
                     </span>
                     <span
-                        className="d-inline-flex align-items-center justify-content-center rounded-circle"
+                        className="inline-flex items-center justify-center rounded-full"
                         style={{ width: 34, height: 34, background: tint(accent), color: accent }}
                     >
                         <Icon size={18} />
                     </span>
                 </div>
-                <h4 className="fw-bold mb-2" style={{ color: accent }}>{value}</h4>
-                <div className="d-flex align-items-center flex-wrap gap-1 small">
+                <h4 className="font-bold mb-2" style={{ color: accent }}>{value}</h4>
+                <div className="flex items-center flex-wrap gap-1 text-xs">
                     <span
-                        className="d-inline-flex align-items-center gap-1 rounded px-2 py-1 fw-bold"
+                        className="inline-flex items-center gap-1 rounded px-2 py-1 font-bold"
                         style={{ background: tint(trendColor, 0.14), color: trendColor }}
                     >
                         <TrendIcon size={14} />
                         {deltaValueText}
                     </span>
-                    <span className="text-muted">{comparisonLabel}</span>
+                    <span className="text-ink-muted">{comparisonLabel}</span>
                 </div>
             </CardBody>
         </Card>
@@ -206,10 +206,10 @@ const aggregateMtdWithBaseline = (rows, keyFn) => {
 };
 
 const InfoPill = ({ icon: Icon, label, value }) => (
-    <span className="d-inline-flex align-items-center gap-1 badge bg-light text-dark border fw-normal px-2 py-2">
-        <Icon size={14} className="text-primary" />
-        <span className="text-muted">{label}:</span>
-        <span className="fw-bold">{value}</span>
+    <span className="inline-flex items-center gap-1 badge bg-canvas text-ink border font-normal px-2 py-2">
+        <Icon size={14} className="text-brand-500" />
+        <span className="text-ink-muted">{label}:</span>
+        <span className="font-bold">{value}</span>
     </span>
 );
 
@@ -393,15 +393,15 @@ const RevenueDailyReport = () => {
 
     return (
         <div className="page-content py-0 px-0">
-            <div className="position-sticky bg-white" style={{ top: 0, zIndex: 100 }}>
+            <div className="sticky bg-white" style={{ top: 0, zIndex: 100 }}>
                 <MainHeaderComp title="Revenue Report" />
             </div>
 
-            <div className="container-fluid px-3">
-                <Row className="align-items-end pt-3 pb-2">
+            <div className="container-fluid px-4">
+                <Row className="items-end pt-4 pb-2">
                     <Col md={3}>
                         <FormGroup className="mb-2">
-                            <Label className="mb-1 small fw-semibold">Date (optional)</Label>
+                            <Label className="mb-1 text-xs font-semibold">Date (optional)</Label>
                             <Input
                                 type="date"
                                 max={today}
@@ -418,9 +418,9 @@ const RevenueDailyReport = () => {
                 </Row>
 
                 {loading ? (
-                    <div className="d-flex flex-column justify-content-center align-items-center" style={{ height: "40vh" }}>
+                    <div className="flex flex-col justify-center items-center" style={{ height: "40vh" }}>
                         <GridLoader size={20} />
-                        <p className="mt-4 h5">Loading Revenue Report...</p>
+                        <p className="mt-6 h5">Loading Revenue Report...</p>
                     </div>
                 ) : (
                     hasSearched && (
@@ -428,7 +428,7 @@ const RevenueDailyReport = () => {
                             {summary && (
                                 <>
                                     {meta && (
-                                        <div className="d-flex flex-wrap align-items-center gap-2 border-top pt-3 pb-3">
+                                        <div className="flex flex-wrap items-center gap-2 border-top pt-4 pb-4">
                                             <InfoPill icon={MdToday} label="Today" value={longDate(meta.labels.today) || meta.labels.today || "—"} />
                                             <InfoPill icon={MdHistory} label="Same Day Last Month" value={longDate(meta.labels.same_day_last_month) || meta.labels.same_day_last_month || "—"} />
                                             <InfoPill icon={MdDateRange} label="MTD Range" value={meta.labels.mtd_range || "—"} />
@@ -436,7 +436,7 @@ const RevenueDailyReport = () => {
                                             <InfoPill icon={MdAccessTime} label="Data as of" value={formatAsOf(meta.asOf)} />
                                         </div>
                                     )}
-                                    <Row className="g-3 pb-3">
+                                    <Row className="gap-4 pb-4">
                                         <Col lg={3} md={6}>
                                             <StatTile
                                                 title="Today Volume"
@@ -485,7 +485,7 @@ const RevenueDailyReport = () => {
                                 </>
                             )}
 
-                            <div className="d-flex align-items-center justify-content-between border-bottom">
+                            <div className="flex items-center justify-between border-bottom">
                                 <Nav tabs className="mb-0 border-bottom-0">
                                     <NavItem>
                                         <NavLink
@@ -516,17 +516,17 @@ const RevenueDailyReport = () => {
                                     </NavItem>
                                 </Nav>
                                 {activeTab !== "dashboard" && (
-                                    <span className="badge bg-light text-muted border mb-1">
+                                    <span className="badge bg-canvas text-ink-muted border mb-1">
                                         {(activeTab === "company" ? companyData.length : branchData.length).toLocaleString()} records
                                     </span>
                                 )}
                             </div>
-                            <div className="pt-3">
+                            <div className="pt-4">
                                 <TabContent activeTab={activeTab}>
                                     <TabPane tabId="dashboard">
                                         {activeTab === "dashboard" && (
                                             <>
-                                                <Row className="g-3 mb-3">
+                                                <Row className="gap-4 mb-4">
                                                     <Col lg={6}>
                                                         <RevenueBarChart
                                                             title="Top 10 Customers by MTD Revenue"
@@ -539,12 +539,12 @@ const RevenueDailyReport = () => {
                                                         <TopMoversChart data={topMovers} height={400} />
                                                     </Col>
                                                 </Row>
-                                                <Row className="g-3 mb-3">
+                                                <Row className="gap-4 mb-4">
                                                     <Col lg={12}>
                                                         <AtRiskCustomersCard data={atRiskCustomers} minBaseline={AT_RISK_MIN_BASELINE} />
                                                     </Col>
                                                 </Row>
-                                                <Row className="g-3 mb-3">
+                                                <Row className="gap-4 mb-4">
                                                     <Col lg={4}>
                                                         <RevenueShareDonut title="MTD Revenue by Customer Group" data={byCustomerGroup} />
                                                     </Col>

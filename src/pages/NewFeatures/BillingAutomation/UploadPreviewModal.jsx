@@ -91,9 +91,9 @@ const UploadPreviewModal = ({ isOpen, toggle, onGenerated }) => {
         <Modal isOpen={isOpen} toggle={handleClose} size="xl" centered>
             <ModalHeader toggle={handleClose}>Upload Working File → Preview → Invoice</ModalHeader>
             <ModalBody>
-                <div className="d-flex align-items-end gap-2 mb-3 flex-wrap">
-                    <div className="flex-grow-1">
-                        <Label className="fw-bold">Working file (.xlsx)</Label>
+                <div className="flex items-end gap-2 mb-4 flex-wrap">
+                    <div className="grow">
+                        <Label className="font-bold">Working file (.xlsx)</Label>
                         <Input
                             type="file"
                             accept=".xlsx,.xls"
@@ -106,9 +106,9 @@ const UploadPreviewModal = ({ isOpen, toggle, onGenerated }) => {
                 </div>
 
                 {summary && (
-                    <div className="d-flex flex-wrap gap-2 mb-3">
+                    <div className="flex flex-wrap gap-2 mb-4">
                         {Object.entries(summary).map(([k, v]) => (
-                            <Badge key={k} color="light" className="text-dark border p-2">
+                            <Badge key={k} color="light" className="text-ink border p-2">
                                 {k.replace(/_/g, " ")}: {typeof v === "object" ? JSON.stringify(v) : String(v)}
                             </Badge>
                         ))}
@@ -128,7 +128,7 @@ const UploadPreviewModal = ({ isOpen, toggle, onGenerated }) => {
                     />
                 )}
             </ModalBody>
-            <ModalFooter className="justify-content-between">
+            <ModalFooter className="justify-between">
                 <div className="form-check">
                     <Input
                         type="checkbox"
@@ -136,9 +136,9 @@ const UploadPreviewModal = ({ isOpen, toggle, onGenerated }) => {
                         checked={updateVecom}
                         onChange={(e) => setUpdateVecom(e.target.checked)}
                     />
-                    <Label for="updateVecom" className="form-check-label ms-1">Push to Vecom</Label>
+                    <Label for="updateVecom" className="form-check-label ml-1">Push to Vecom</Label>
                 </div>
-                <div className="d-flex gap-2">
+                <div className="flex gap-2">
                     <Button color="secondary" onClick={handleClose}>Cancel</Button>
                     <Button color="success" onClick={handleGenerate} disabled={generating || !preview}>
                         {generating ? <Spinner size="sm" /> : "Generate Invoice"}

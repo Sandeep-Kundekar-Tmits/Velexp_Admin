@@ -479,15 +479,15 @@ const CorporateBilling = () => {
                     title="Generate Corporate Bills"
                 />
             </div>
-            <div className="container-fluid px-3">
-                <div className="mt-3">
-                    <Row className="pb-0 align-items-end border-bottom">
+            <div className="container-fluid px-4">
+                <div className="mt-4">
+                    <Row className="pb-0 items-end border-bottom">
                         <Col md={4}>
                             <FormGroup className="mb-0">
                                 <Label for="gstUpload">Upload Invoice</Label>
                                 <Input type="file" id="gstUpload" onChange={UploadInvoiceChange} />
                                 {
-                                    JsonLoadingError && <Spinner size="sm" className="ms-2">
+                                    JsonLoadingError && <Spinner size="sm" className="ml-2">
                                         Loading...
                                     </Spinner>
                                 }
@@ -504,7 +504,7 @@ const CorporateBilling = () => {
                             </Button>
                         </Col>
                     </Row>
-                    <Row className="pt-3 pb-3 align-items-end border-bottom">
+                    <Row className="pt-4 pb-4 items-end border-bottom">
                         <Col md={4}>
                             <FormGroup className="mb-0">
                                 <Label>Select Customer</Label>
@@ -540,9 +540,9 @@ const CorporateBilling = () => {
                 <div className=" mt-1">
                     <div className='mt-2'>
                         {
-                            CorporateBillingLoading ? <div style={{ height: "75vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+                            CorporateBillingLoading ? <div style={{ height: "75vh" }} className="container-fluid  flex flex-col justify-center items-center">
                                 <GridLoader size={20} />
-                                <p className="mt-5 h5">Loading Corpotate Billing ...</p>
+                                <p className="mt-12 h5">Loading Corpotate Billing ...</p>
                             </div>
                                 :
                                 <>{

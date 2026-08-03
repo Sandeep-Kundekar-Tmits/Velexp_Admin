@@ -20,7 +20,7 @@ const AdminPrivilegesHome = () => {
         <div className="container-fluid mt-2 py-0 px-0">
             <MainHeaderComp title="Admin Privileges" subTitle="Manage roles, menus, role privileges, and per-user access" />
 
-            <div className="px-3 pt-3">
+            <div className="px-4 pt-4">
                 <Nav tabs>
                     {TABS.map((tab) => (
                         <NavItem key={tab.key}>
@@ -35,7 +35,7 @@ const AdminPrivilegesHome = () => {
                     ))}
                 </Nav>
 
-                <TabContent activeTab={activeTab} className="pt-3">
+                <TabContent activeTab={activeTab} className="pt-4">
                     {TABS.map(({ key, Component }) => (
                         <TabPane key={key} tabId={key}>
                             {activeTab === key && <Component />}

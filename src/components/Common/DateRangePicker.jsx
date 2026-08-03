@@ -56,14 +56,14 @@ const DateRangePicker = ({ startDate, endDate, onChange, label = "Date Range" })
 
     return (
         <div ref={ref} style={{ position: "relative" }}>
-            {label && <label className="fw-bold form-label">{label}</label>}
+            {label && <label className="font-bold form-label">{label}</label>}
             <div
                 onClick={() => setOpen((o) => !o)}
-                className="form-control d-flex align-items-center gap-2"
+                className="form-control flex items-center gap-2"
                 style={{ cursor: "pointer", userSelect: "none", background: "#fff", minWidth: 0 }}
             >
-                <i className="mdi mdi-calendar-range text-muted" />
-                <span className="text-truncate" style={{ fontSize: "0.875rem" }}>{display}</span>
+                <i className="mdi mdi-calendar-range text-ink-muted" />
+                <span className="truncate" style={{ fontSize: "0.875rem" }}>{display}</span>
             </div>
             {open && (
                 <div
@@ -90,7 +90,7 @@ const DateRangePicker = ({ startDate, endDate, onChange, label = "Date Range" })
                         showDateDisplay={false}
                         maxDate={new Date()}
                     />
-                    <div className="d-flex justify-content-end gap-2 px-3 py-2 border-top">
+                    <div className="flex justify-end gap-2 px-4 py-2 border-top">
                         <button
                             className="btn btn-sm btn-outline-secondary"
                             onClick={() => setOpen(false)}

@@ -32,9 +32,9 @@ const fmtDate = (v) => {
 };
 
 const StatBadge = ({ label, value, color = "primary" }) => (
-    <div className="d-inline-flex align-items-center gap-1 border rounded px-2 py-1">
-        <span className="small text-muted">{label}</span>
-        <Badge color={color} className="ms-1">{value ?? "—"}</Badge>
+    <div className="inline-flex items-center gap-1 border rounded px-2 py-1">
+        <span className="text-xs text-ink-muted">{label}</span>
+        <Badge color={color} className="ml-1">{value ?? "—"}</Badge>
     </div>
 );
 
@@ -51,7 +51,7 @@ const DataTable = ({ rows, emptyMsg = "No data", exportName = "export" }) => {
     const [search, setSearch] = useState("");
 
     if (!rows?.length)
-        return <p className="text-muted small py-3 text-center">{emptyMsg}</p>;
+        return <p className="text-ink-muted text-xs py-4 text-center">{emptyMsg}</p>;
 
     const cols = Object.keys(rows[0]);
     const q = search.trim().toLowerCase();
@@ -73,7 +73,7 @@ const DataTable = ({ rows, emptyMsg = "No data", exportName = "export" }) => {
 
     return (
         <div>
-            <div className="d-flex align-items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-2">
                 <input
                     type="text"
                     className="form-control form-control-sm"
@@ -84,7 +84,7 @@ const DataTable = ({ rows, emptyMsg = "No data", exportName = "export" }) => {
                 />
                 <button
                     type="button"
-                    className="btn btn-success btn-sm d-flex align-items-center gap-1 flex-shrink-0"
+                    className="btn btn-success btn-sm flex items-center gap-1 shrink-0"
                     onClick={handleExport}
                 >
                     <i className="bx bx-download" />
@@ -95,25 +95,25 @@ const DataTable = ({ rows, emptyMsg = "No data", exportName = "export" }) => {
                 <table className="table table-sm table-hover mb-0">
                     <thead className="table-light" style={{ position: "sticky", top: 0 }}>
                         <tr>
-                            <th className="small">#</th>
+                            <th className="text-xs">#</th>
                             {cols.map((c) => (
-                                <th key={c} className="small" style={{ whiteSpace: "nowrap" }}>{fmtCol(c)}</th>
+                                <th key={c} className="text-xs" style={{ whiteSpace: "nowrap" }}>{fmtCol(c)}</th>
                             ))}
                         </tr>
                     </thead>
                     <tbody>
                         {filtered.length ? filtered.map((row, i) => (
                             <tr key={i}>
-                                <td className="small">{i + 1}</td>
+                                <td className="text-xs">{i + 1}</td>
                                 {cols.map((c) => (
-                                    <td key={c} className="small" style={{ whiteSpace: "nowrap" }}>
+                                    <td key={c} className="text-xs" style={{ whiteSpace: "nowrap" }}>
                                         {renderCell(row[c])}
                                     </td>
                                 ))}
                             </tr>
                         )) : (
                             <tr>
-                                <td colSpan={cols.length + 1} className="text-center text-muted small py-3">
+                                <td colSpan={cols.length + 1} className="text-center text-ink-muted text-xs py-4">
                                     No results for &ldquo;{search}&rdquo;
                                 </td>
                             </tr>
@@ -121,7 +121,7 @@ const DataTable = ({ rows, emptyMsg = "No data", exportName = "export" }) => {
                     </tbody>
                 </table>
             </div>
-            {q && <div className="mt-1 small text-muted">{filtered.length} of {rows.length} rows</div>}
+            {q && <div className="mt-1 text-xs text-ink-muted">{filtered.length} of {rows.length} rows</div>}
         </div>
     );
 };
@@ -171,20 +171,20 @@ const fmtDDMMYYYY = (v) => {
 
 const renderMfVal = (k, v) => {
     if (isAmt(k)) return <span className={amtClass(k)}>{fmtAmt(v)}</span>;
-    if (DATE_KEY_RE.test(k)) return <span className="text-secondary">{fmtDDMMYYYY(v)}</span>;
+    if (DATE_KEY_RE.test(k)) return <span className="text-ink-muted">{fmtDDMMYYYY(v)}</span>;
     if (v != null && typeof v === "object") {
         const display = k === "service_center" ? (v.code ?? v.name ?? "—") : coerce(v);
-        return <span className="text-secondary">{display || "—"}</span>;
+        return <span className="text-ink-muted">{display || "—"}</span>;
     }
     const str = renderCell(v);
-    return <span className="text-secondary">{str === "—" ? <span className="text-muted">—</span> : str}</span>;
+    return <span className="text-ink-muted">{str === "—" ? <span className="text-ink-muted">—</span> : str}</span>;
 };
 
 const ManifestTable = ({ rows, emptyMsg = "No data", exportName = "export" }) => {
     const [search, setSearch] = useState("");
 
     if (!rows?.length)
-        return <p className="text-muted small py-3 text-center">{emptyMsg}</p>;
+        return <p className="text-ink-muted text-xs py-4 text-center">{emptyMsg}</p>;
 
     const allKeys  = Object.keys(rows[0]).filter((k) => !HIDDEN_KEY_RE.test(k));
     const empKey   = EMP_KEYS.find((k) => allKeys.includes(k)) ?? null;
@@ -228,7 +228,7 @@ const ManifestTable = ({ rows, emptyMsg = "No data", exportName = "export" }) =>
 
     return (
         <div>
-            <div className="d-flex align-items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-2">
                 <input
                     type="text"
                     className="form-control form-control-sm"
@@ -239,7 +239,7 @@ const ManifestTable = ({ rows, emptyMsg = "No data", exportName = "export" }) =>
                 />
                 <button
                     type="button"
-                    className="btn btn-success btn-sm d-flex align-items-center gap-1 flex-shrink-0"
+                    className="btn btn-success btn-sm flex items-center gap-1 shrink-0"
                     onClick={handleExport}
                 >
                     <i className="bx bx-download" />
@@ -251,9 +251,9 @@ const ManifestTable = ({ rows, emptyMsg = "No data", exportName = "export" }) =>
                 <table className="table table-sm table-hover mb-0" style={{ borderCollapse: "collapse" }}>
                     <thead className="table-light" style={{ position: "sticky", top: 0, zIndex: 1 }}>
                         <tr>
-                            <th className="small px-3" style={{ whiteSpace: "nowrap" }}>SL</th>
+                            <th className="text-xs px-4" style={{ whiteSpace: "nowrap" }}>SL</th>
                             {dispKeys.map((k) => (
-                                <th key={k} className="small px-3" style={{ whiteSpace: "nowrap" }}>{fmtCol(k)}</th>
+                                <th key={k} className="text-xs px-4" style={{ whiteSpace: "nowrap" }}>{fmtCol(k)}</th>
                             ))}
                         </tr>
                     </thead>
@@ -272,9 +272,9 @@ const ManifestTable = ({ rows, emptyMsg = "No data", exportName = "export" }) =>
                                 {dispKeys.map((k) => {
                                     if (k === empKey) {
                                         return (
-                                            <td key={k} className="text-center align-middle small fw-semibold px-3">
+                                            <td key={k} className="text-center align-middle text-xs font-semibold px-4">
                                                 {empVal}
-                                                <div className="text-muted fw-normal" style={{ fontSize: 11 }}>
+                                                <div className="text-ink-muted font-normal" style={{ fontSize: 11 }}>
                                                     ({groupRows.length})
                                                 </div>
                                             </td>
@@ -299,7 +299,7 @@ const ManifestTable = ({ rows, emptyMsg = "No data", exportName = "export" }) =>
                     </tbody>
                 </table>
             </div>
-            {q && <div className="mt-1 small text-muted">{filtered.length} of {rows.length} rows</div>}
+            {q && <div className="mt-1 text-xs text-ink-muted">{filtered.length} of {rows.length} rows</div>}
         </div>
     );
 };
@@ -455,12 +455,12 @@ const AutoReconciliation = () => {
     // ─────────────────────────────────────────────────────────────
     return (
         <div className="page-content py-0 px-0">
-            <div className="position-sticky bg-white" style={{ top: 0, zIndex: 100 }}>
+            <div className="sticky bg-white" style={{ top: 0, zIndex: 100 }}>
                 <MainHeaderComp title="Auto Reconciliation" />
             </div>
 
-            <div className="container-fluid px-3 pt-3">
-                <Nav tabs className="mb-3">
+            <div className="container-fluid px-4 pt-4">
+                <Nav tabs className="mb-4">
                     {[
                         { id: TAB_UPLOAD, label: "Upload Statement" },
                         { id: TAB_MANIFESTS, label: "Pending Manifests" },
@@ -482,18 +482,18 @@ const AutoReconciliation = () => {
                     <Row className="gx-3" style={{ minHeight: "70vh" }}>
 
                         {/* ── LEFT: upload form + statement list ── */}
-                        <Col md={4} className="d-flex flex-column gap-3">
+                        <Col md={4} className="flex flex-col gap-4">
 
                             {/* Upload form */}
                             <Card className="shadow-sm">
-                                <CardBody className="p-3">
-                                    <div className="d-flex align-items-center gap-2 mb-3">
-                                        <FileText size={16} className="text-primary" />
-                                        <h6 className="mb-0 fw-semibold small">Upload Bank Statement</h6>
+                                <CardBody className="p-4">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <FileText size={16} className="text-brand-500" />
+                                        <h6 className="mb-0 font-semibold text-xs">Upload Bank Statement</h6>
                                     </div>
 
                                     <div
-                                        className="d-flex align-items-center gap-2 rounded px-3 py-2 mb-2"
+                                        className="flex items-center gap-2 rounded px-4 py-2 mb-2"
                                         style={{
                                             border: "2px dashed #ced4da",
                                             cursor: uploadFile ? "default" : "pointer",
@@ -504,23 +504,23 @@ const AutoReconciliation = () => {
                                         <input
                                             ref={fileRef}
                                             type="file"
-                                            className="d-none"
+                                            className="hidden"
                                             onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
                                         />
                                         {uploadFile ? (
                                             <>
-                                                <CheckCircle size={14} className="text-success flex-shrink-0" />
-                                                <span className="small fw-semibold text-success text-truncate">{uploadFile.name}</span>
+                                                <CheckCircle size={14} className="text-success-500 shrink-0" />
+                                                <span className="text-xs font-semibold text-success-500 truncate">{uploadFile.name}</span>
                                                 <button
                                                     type="button"
-                                                    className="btn btn-sm btn-link text-danger ms-auto p-0"
+                                                    className="btn btn-sm btn-link text-danger-500 ml-auto p-0"
                                                     onClick={(e) => { e.stopPropagation(); resetUpload(); }}
                                                 >✕</button>
                                             </>
                                         ) : (
                                             <>
-                                                <Upload size={14} className="text-muted flex-shrink-0" />
-                                                <span className="small text-muted">Click to select file</span>
+                                                <Upload size={14} className="text-ink-muted shrink-0" />
+                                                <span className="text-xs text-ink-muted">Click to select file</span>
                                             </>
                                         )}
                                     </div>
@@ -532,11 +532,11 @@ const AutoReconciliation = () => {
                                         disabled={!uploadFile || uploading}
                                         onClick={handleUpload}
                                     >
-                                        {uploading ? <><Spinner size="sm" className="me-1" />Uploading…</> : "Upload"}
+                                        {uploading ? <><Spinner size="sm" className="mr-1" />Uploading…</> : "Upload"}
                                     </Button>
 
                                     {uploadResult && (
-                                        <div className="mt-2 d-flex flex-wrap gap-1">
+                                        <div className="mt-2 flex flex-wrap gap-1">
                                             {(() => {
                                                 const s = uploadResult.summary ?? uploadResult;
                                                 return [
@@ -556,16 +556,16 @@ const AutoReconciliation = () => {
                             </Card>
 
                             {/* Statement list */}
-                            <Card className="shadow-sm flex-grow-1">
-                                <CardBody className="p-0 d-flex flex-column">
-                                    <div className="px-3 py-2 border-bottom d-flex align-items-center justify-content-between">
-                                        <div className="d-flex align-items-center gap-2">
-                                            <span className="fw-semibold small">Uploads</span>
+                            <Card className="shadow-sm grow">
+                                <CardBody className="p-0 flex flex-col">
+                                    <div className="px-4 py-2 border-bottom flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-semibold text-xs">Uploads</span>
                                             {totalCount > 0 && <Badge color="secondary" pill>{totalCount}</Badge>}
                                         </div>
                                         <button
                                             type="button"
-                                            className="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1 py-0"
+                                            className="btn btn-sm btn-outline-secondary flex items-center gap-1 py-0"
                                             onClick={fetchStmtList}
                                             disabled={listLoading}
                                         >
@@ -575,9 +575,9 @@ const AutoReconciliation = () => {
 
                                     <div style={{ overflowY: "auto", maxHeight: "50vh" }}>
                                         {listLoading ? (
-                                            <div className="text-center py-4"><Spinner color="primary" /></div>
+                                            <div className="text-center py-6"><Spinner color="primary" /></div>
                                         ) : !stmtList.length ? (
-                                            <p className="text-muted small py-3 text-center">No uploads yet</p>
+                                            <p className="text-ink-muted text-xs py-4 text-center">No uploads yet</p>
                                         ) : stmtList.map((s, i) => (
                                             <div
                                                 key={s.id}
@@ -585,25 +585,25 @@ const AutoReconciliation = () => {
                                                 style={{ cursor: "pointer" }}
                                                 className={`px-3 py-2 border-bottom ${selectedId === s.id ? "bg-primary bg-opacity-10" : ""}`}
                                             >
-                                                <div className="d-flex align-items-center justify-content-between mb-1">
-                                                    <span className="fw-semibold small">#{s.id}</span>
-                                                    <span className="text-muted" style={{ fontSize: 11 }}>{fmtDate(s.uploaded_at)}</span>
+                                                <div className="flex items-center justify-between mb-1">
+                                                    <span className="font-semibold text-xs">#{s.id}</span>
+                                                    <span className="text-ink-muted" style={{ fontSize: 11 }}>{fmtDate(s.uploaded_at)}</span>
                                                 </div>
-                                                <div className="d-flex align-items-center gap-2 flex-wrap">
-                                                    <span className="text-muted" style={{ fontSize: 11 }}>{s.uploaded_by ?? "—"}</span>
-                                                    <Badge color="primary" className="fw-normal" style={{ fontSize: 10 }}>CR {s.summary?.total_cr_rows ?? s.total_cr_rows ?? 0}</Badge>
-                                                    <Badge color="success" className="fw-normal" style={{ fontSize: 10 }}>Stored {s.summary?.stored_count ?? s.stored_count ?? 0}</Badge>
-                                                    <Badge color="warning" className="fw-normal" style={{ fontSize: 10 }}>Skip {s.summary?.skipped_count ?? s.skipped_count ?? 0}</Badge>
+                                                <div className="flex items-center gap-2 flex-wrap">
+                                                    <span className="text-ink-muted" style={{ fontSize: 11 }}>{s.uploaded_by ?? "—"}</span>
+                                                    <Badge color="primary" className="font-normal" style={{ fontSize: 10 }}>CR {s.summary?.total_cr_rows ?? s.total_cr_rows ?? 0}</Badge>
+                                                    <Badge color="success" className="font-normal" style={{ fontSize: 10 }}>Stored {s.summary?.stored_count ?? s.stored_count ?? 0}</Badge>
+                                                    <Badge color="warning" className="font-normal" style={{ fontSize: 10 }}>Skip {s.summary?.skipped_count ?? s.skipped_count ?? 0}</Badge>
                                                     {s.file_url && (
                                                         <a
                                                             href={s.file_url}
                                                             target="_blank"
                                                             rel="noreferrer"
                                                             onClick={(e) => e.stopPropagation()}
-                                                            className="ms-auto"
+                                                            className="ml-auto"
                                                             title="Download file"
                                                         >
-                                                            <i className="bx bx-download text-primary" style={{ fontSize: 14 }} />
+                                                            <i className="bx bx-download text-brand-500" style={{ fontSize: 14 }} />
                                                         </a>
                                                     )}
                                                 </div>
@@ -618,20 +618,20 @@ const AutoReconciliation = () => {
                         <Col md={8}>
                             {!selectedId ? (
                                 <div
-                                    className="h-full d-flex flex-column align-items-center justify-content-center text-muted"
+                                    className="h-full flex flex-col items-center justify-center text-ink-muted"
                                     style={{ minHeight: 300 }}
                                 >
                                     <i className="bx bx-spreadsheet" style={{ fontSize: 48, opacity: 0.3 }} />
-                                    <p className="mt-2 small">Select a statement from the left to view entries</p>
+                                    <p className="mt-2 text-xs">Select a statement from the left to view entries</p>
                                 </div>
                             ) : (
                                 <Card className="shadow-sm h-full">
-                                    <CardBody className="p-0 d-flex flex-column">
+                                    <CardBody className="p-0 flex flex-col">
                                         {/* header */}
-                                        <div className="px-3 py-2 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2">
-                                            <span className="fw-semibold small">Statement #{selectedId}</span>
+                                        <div className="px-4 py-2 border-bottom flex items-center justify-between flex-wrap gap-2">
+                                            <span className="font-semibold text-xs">Statement #{selectedId}</span>
                                             {detailLoading ? <Spinner size="sm" /> : stmtDetail?.summary && (
-                                                <div className="d-flex flex-wrap gap-2">
+                                                <div className="flex flex-wrap gap-2">
                                                     {[
                                                         { label: "CR Rows", value: stmtDetail.summary.total_cr_rows, color: "primary" },
                                                         { label: "Stored", value: stmtDetail.summary.stored_count, color: "success" },
@@ -647,7 +647,7 @@ const AutoReconciliation = () => {
                                         </div>
 
                                         {/* entries filter */}
-                                        <div className="px-3 py-2 border-bottom d-flex align-items-center gap-2">
+                                        <div className="px-4 py-2 border-bottom flex items-center gap-2">
                                             <div className="btn-group btn-group-sm">
                                                 {[
                                                     { value: "all", label: "All" },
@@ -665,9 +665,9 @@ const AutoReconciliation = () => {
                                         </div>
 
                                         {/* entries table */}
-                                        <div className="p-3 flex-grow-1" style={{ overflowY: "auto" }}>
+                                        <div className="p-4 grow" style={{ overflowY: "auto" }}>
                                             {entriesLoading ? (
-                                                <div className="text-center py-4"><Spinner color="primary" /></div>
+                                                <div className="text-center py-6"><Spinner color="primary" /></div>
                                             ) : (
                                                 <DataTable
                                                     rows={entries}
@@ -687,7 +687,7 @@ const AutoReconciliation = () => {
                 {activeTab === TAB_MANIFESTS && (
                     <Card className="shadow-sm">
                         <CardBody className="p-0">
-                            <div className="px-3 py-2 border-bottom d-flex align-items-center gap-3 flex-wrap">
+                            <div className="px-4 py-2 border-bottom flex items-center gap-4 flex-wrap">
                                 {mfData && (
                                     <>
                                         <StatBadge label="Total" value={mfData.total} color="primary" />
@@ -699,7 +699,7 @@ const AutoReconciliation = () => {
                                 )}
                                 <button
                                     type="button"
-                                    className="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1 py-0 ms-auto"
+                                    className="btn btn-sm btn-outline-secondary flex items-center gap-1 py-0 ml-auto"
                                     onClick={fetchManifests}
                                     disabled={mfLoading}
                                 >
@@ -707,9 +707,9 @@ const AutoReconciliation = () => {
                                 </button>
                             </div>
 
-                            <div className="p-3">
+                            <div className="p-4">
                                 {mfLoading ? (
-                                    <div className="text-center py-4"><Spinner color="primary" /></div>
+                                    <div className="text-center py-6"><Spinner color="primary" /></div>
                                 ) : (
                                     <ManifestTable rows={mfData?.rows} emptyMsg="No pending manifests" exportName="Pending_Manifests" />
                                 )}

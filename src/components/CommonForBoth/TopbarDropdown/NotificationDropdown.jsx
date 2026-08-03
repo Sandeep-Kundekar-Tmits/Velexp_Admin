@@ -20,26 +20,26 @@ const NotificationDropdown = props => {
       <Dropdown
         isOpen={menu}
         toggle={() => setMenu(!menu)}
-        className="dropdown d-inline-block"
+        className="dropdown inline-block"
         tag="li"
       >
         <DropdownToggle
-          className="btn header-item noti-icon position-relative"
+          className="btn header-item noti-icon relative"
           tag="button"
           id="page-header-notifications-dropdown"
         >
           <i className="bx bx-bell bx-tada" />
-          <span className="badge bg-danger rounded-pill">3</span>
+          <span className="badge bg-danger-500 rounded-full">3</span>
         </DropdownToggle>
 
         <DropdownMenu className="dropdown-menu dropdown-menu-lg p-0 dropdown-menu-end">
-          <div className="p-3">
-            <Row className="align-items-center">
+          <div className="p-4">
+            <Row className="items-center">
               <Col>
                 <h6 className="m-0"> {props.t("Notifications")} </h6>
               </Col>
               <div className="col-auto">
-                <a href="#!" className="small">
+                <a href="#!" className="text-xs">
                   {" "}
                   View All
                 </a>
@@ -49,17 +49,17 @@ const NotificationDropdown = props => {
 
           <SimpleBar style={{ height: "230px" }}>
             <Link to="" className="text-reset notification-item">
-              <div className="d-flex">
-                <div className="avatar-xs me-3">
-                  <span className="avatar-title bg-primary rounded-circle font-size-16">
+              <div className="flex">
+                <div className="avatar-xs mr-4">
+                  <span className="avatar-title bg-brand-500 rounded-full font-size-16">
                     <i className="bx bx-cart" />
                   </span>
                 </div>
-                <div className="flex-grow-1">
+                <div className="grow">
                   <h6 className="mt-0 mb-1">
                     {props.t("Your order is placed")}
                   </h6>
-                  <div className="font-size-12 text-muted">
+                  <div className="font-size-12 text-ink-muted">
                     <p className="mb-1">
                       {props.t("If several languages coalesce the grammar")}
                     </p>
@@ -72,15 +72,15 @@ const NotificationDropdown = props => {
               </div>
             </Link>
             <Link to="" className="text-reset notification-item">
-              <div className="d-flex">
+              <div className="flex">
                 <img
                   src={avatar3}
-                  className="me-3 rounded-circle avatar-xs"
+                  className="mr-4 rounded-full avatar-xs"
                   alt="user-pic"
                 />
-                <div className="flex-grow-1">
+                <div className="grow">
                   <h6 className="mt-0 mb-1">James Lemire</h6>
-                  <div className="font-size-12 text-muted">
+                  <div className="font-size-12 text-ink-muted">
                     <p className="mb-1">
                       {props.t("It will seem like simplified English") + "."}
                     </p>
@@ -93,17 +93,17 @@ const NotificationDropdown = props => {
               </div>
             </Link>
             <Link to="" className="text-reset notification-item">
-              <div className="d-flex">
-                <div className="avatar-xs me-3">
-                  <span className="avatar-title bg-success rounded-circle font-size-16">
+              <div className="flex">
+                <div className="avatar-xs mr-4">
+                  <span className="avatar-title bg-success-500 rounded-full font-size-16">
                     <i className="bx bx-badge-check" />
                   </span>
                 </div>
-                <div className="flex-grow-1">
+                <div className="grow">
                   <h6 className="mt-0 mb-1">
                     {props.t("Your item is shipped")}
                   </h6>
-                  <div className="font-size-12 text-muted">
+                  <div className="font-size-12 text-ink-muted">
                     <p className="mb-1">
                       {props.t("If several languages coalesce the grammar")}
                     </p>
@@ -117,15 +117,15 @@ const NotificationDropdown = props => {
             </Link>
 
             <Link to="" className="text-reset notification-item">
-              <div className="d-flex">
+              <div className="flex">
                 <img
                   src={avatar4}
-                  className="me-3 rounded-circle avatar-xs"
+                  className="mr-4 rounded-full avatar-xs"
                   alt="user-pic"
                 />
-                <div className="flex-grow-1">
+                <div className="grow">
                   <h6 className="mt-0 mb-1">Salena Layfield</h6>
-                  <div className="font-size-12 text-muted">
+                  <div className="font-size-12 text-ink-muted">
                     <p className="mb-1">
                       {props.t(
                         "As a skeptical Cambridge friend of mine occidental"
@@ -140,12 +140,12 @@ const NotificationDropdown = props => {
               </div>
             </Link>
           </SimpleBar>
-          <div className="p-2 border-top d-grid">
+          <div className="p-2 border-top grid">
             <Link
               className="btn btn-sm btn-link font-size-14 btn-block text-center"
               to="#"
             >
-              <i className="mdi mdi-arrow-right-circle me-1"></i>
+              <i className="mdi mdi-arrow-right-circle mr-1"></i>
               {" "}
               {props.t("View all")}{" "}
             </Link>

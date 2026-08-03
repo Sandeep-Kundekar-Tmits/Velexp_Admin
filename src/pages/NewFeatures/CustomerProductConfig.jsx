@@ -242,7 +242,7 @@ const CustomerProductConfig = ({ externalCustomerId = "", onCustomerChange = nul
             id: "actions",
             enableSorting: false,
             cell: (cell) => (
-                <div className="d-flex gap-2 justify-content-center">
+                <div className="flex gap-2 justify-center">
                     <Button color="info" size="sm" title="View Details" onClick={() => handleView(cell.row.original)}>
                         <MdVisibility size={16} />
                     </Button>
@@ -267,8 +267,8 @@ const CustomerProductConfig = ({ externalCustomerId = "", onCustomerChange = nul
                         />
                     </div>
                 )}
-                <div className="container-fluid px-3 py-3">
-                    <div className="d-flex justify-content-between align-items-center mb-3">
+                <div className="container-fluid px-4 py-4">
+                    <div className="flex justify-between items-center mb-4">
                         <h5 className="mb-0">{isListView ? "Configuration List" : (isEdit ? "Edit Configuration" : "Add Configuration")}</h5>
                         <Button 
                             color={isListView ? "primary" : "secondary"} 
@@ -289,10 +289,10 @@ const CustomerProductConfig = ({ externalCustomerId = "", onCustomerChange = nul
                         <Card className="shadow-sm">
                             <CardBody className={selectedCustomerId ? "p-0" : "p-3"}>
                                 {!hideHeader && (
-                                    <div className="p-3 bg-light border-bottom">
+                                    <div className="p-4 bg-canvas border-bottom">
                                         <Row>
                                             <Col md={4}>
-                                                <Label className="fw-bold">Filter by Customer</Label>
+                                                <Label className="font-bold">Filter by Customer</Label>
                                                 <SearchableDropdown
                                                     onChange={(val) => {
                                                         const id = val?.id || ""
@@ -310,15 +310,15 @@ const CustomerProductConfig = ({ externalCustomerId = "", onCustomerChange = nul
                                 )}
                                 
                                 {!selectedCustomerId ? (
-                                    <div className="text-center p-5">
-                                        <div className="mb-3">
-                                            <i className="mdi mdi-account-search-outline text-muted" style={{ fontSize: "3rem" }}></i>
+                                    <div className="text-center p-12">
+                                        <div className="mb-4">
+                                            <i className="mdi mdi-account-search-outline text-ink-muted" style={{ fontSize: "3rem" }}></i>
                                         </div>
-                                        <h5 className="text-muted">Please select a customer to view configurations</h5>
-                                        <p className="text-muted small">Configurations will be fetched once a customer is selected.</p>
+                                        <h5 className="text-ink-muted">Please select a customer to view configurations</h5>
+                                        <p className="text-ink-muted text-xs">Configurations will be fetched once a customer is selected.</p>
                                     </div>
                                 ) : configsLoading ? (
-                                    <div className="text-center p-5">
+                                    <div className="text-center p-12">
                                         <Spinner color="primary" />
                                         <p className="mt-2">Loading configurations...</p>
                                     </div>
@@ -343,9 +343,9 @@ const CustomerProductConfig = ({ externalCustomerId = "", onCustomerChange = nul
                             <CardBody>
                                 <Form onSubmit={handleSubmit}>
                                     <Row>
-                                        <Col md={6} className="mb-3">
+                                        <Col md={6} className="mb-4">
                                             <FormGroup>
-                                                <Label className="fw-bold">Customer</Label>
+                                                <Label className="font-bold">Customer</Label>
                                                 <SearchableDropdown
                                                     onChange={(val) => setFormData(prev => ({ ...prev, customer_id: val?.id || "" }))}
                                                     locations={customers}
@@ -353,12 +353,12 @@ const CustomerProductConfig = ({ externalCustomerId = "", onCustomerChange = nul
                                                     className="w-full"
                                                     value={isEdit ? (customers.find(c => c.id === formData.customer_id)?.name || "N/A") : "select"}
                                                 />
-                                                {errors.customer_id && <div className="text-danger small mt-1">{errors.customer_id}</div>}
+                                                {errors.customer_id && <div className="text-danger-500 text-xs mt-1">{errors.customer_id}</div>}
                                             </FormGroup>
                                         </Col>
-                                        <Col md={6} className="mb-3">
+                                        <Col md={6} className="mb-4">
                                             <FormGroup>
-                                                <Label className="fw-bold">Product</Label>
+                                                <Label className="font-bold">Product</Label>
                                                 <SearchableDropdown
                                                     onChange={(val) => setFormData(prev => ({ ...prev, product_id: val?.id || "" }))}
                                                     locations={products}
@@ -366,14 +366,14 @@ const CustomerProductConfig = ({ externalCustomerId = "", onCustomerChange = nul
                                                     className="w-full"
                                                     value={isEdit ? (products.find(p => p.id === formData.product_id)?.name || "N/A") : "select"}
                                                 />
-                                                {errors.product_id && <div className="text-danger small mt-1">{errors.product_id}</div>}
+                                                {errors.product_id && <div className="text-danger-500 text-xs mt-1">{errors.product_id}</div>}
                                             </FormGroup>
                                         </Col>
                                     </Row>
                                     <Row>
-                                        <Col md={4} className="mb-3">
+                                        <Col md={4} className="mb-4">
                                             <FormGroup>
-                                                <Label className="fw-bold">Billing Mode</Label>
+                                                <Label className="font-bold">Billing Mode</Label>
                                                 <Input
                                                     type="select"
                                                     name="billing_mode"
@@ -388,9 +388,9 @@ const CustomerProductConfig = ({ externalCustomerId = "", onCustomerChange = nul
                                                 <FormFeedback>{errors.billing_mode}</FormFeedback>
                                             </FormGroup>
                                         </Col>
-                                        <Col md={4} className="mb-3">
+                                        <Col md={4} className="mb-4">
                                             <FormGroup>
-                                                <Label className="fw-bold">Volumetric Divisor</Label>
+                                                <Label className="font-bold">Volumetric Divisor</Label>
                                                 <Input
                                                     type="number"
                                                     name="volumetric_divisor"
@@ -402,9 +402,9 @@ const CustomerProductConfig = ({ externalCustomerId = "", onCustomerChange = nul
                                                 <FormFeedback>{errors.volumetric_divisor}</FormFeedback>
                                             </FormGroup>
                                         </Col>
-                                        <Col md={4} className="mb-3">
+                                        <Col md={4} className="mb-4">
                                             <FormGroup>
-                                                <Label className="fw-bold">FSC Percentage (%)</Label>
+                                                <Label className="font-bold">FSC Percentage (%)</Label>
                                                 <Input
                                                     type="number"
                                                     name="fsc_percentage"
@@ -418,9 +418,9 @@ const CustomerProductConfig = ({ externalCustomerId = "", onCustomerChange = nul
                                         </Col>
                                     </Row>
                                     <Row>
-                                        <Col md={4} className="mb-3">
+                                        <Col md={4} className="mb-4">
                                             <FormGroup>
-                                                <Label className="fw-bold">Docket Charge</Label>
+                                                <Label className="font-bold">Docket Charge</Label>
                                                 <Input
                                                     type="number"
                                                     name="docket_charge"
@@ -432,9 +432,9 @@ const CustomerProductConfig = ({ externalCustomerId = "", onCustomerChange = nul
                                                 <FormFeedback>{errors.docket_charge}</FormFeedback>
                                             </FormGroup>
                                         </Col>
-                                        <Col md={4} className="mb-3">
+                                        <Col md={4} className="mb-4">
                                             <FormGroup>
-                                                <Label className="fw-bold">RTO Multiplier</Label>
+                                                <Label className="font-bold">RTO Multiplier</Label>
                                                 <Input
                                                     type="number"
                                                     step="0.1"
@@ -447,9 +447,9 @@ const CustomerProductConfig = ({ externalCustomerId = "", onCustomerChange = nul
                                                 <FormFeedback>{errors.rto_multiplier}</FormFeedback>
                                             </FormGroup>
                                         </Col>
-                                        <Col md={4} className="mb-3">
+                                        <Col md={4} className="mb-4">
                                             <FormGroup>
-                                                <Label className="fw-bold">GST Rate (%)</Label>
+                                                <Label className="font-bold">GST Rate (%)</Label>
                                                 <Input
                                                     type="number"
                                                     name="gst_rate"
@@ -461,25 +461,25 @@ const CustomerProductConfig = ({ externalCustomerId = "", onCustomerChange = nul
                                                 <FormFeedback>{errors.gst_rate}</FormFeedback>
                                             </FormGroup>
                                         </Col>
-                                        <Col md={4} className="mb-3 d-flex align-items-center">
+                                        <Col md={4} className="mb-4 flex items-center">
                                             <FormGroup check>
-                                                <Label check className="fw-bold">
+                                                <Label check className="font-bold">
                                                     <Input
                                                         type="checkbox"
                                                         name="show_detailed_extra_charges"
                                                         checked={formData.show_detailed_extra_charges}
                                                         onChange={handleInputChange}
-                                                        className="me-2"
+                                                        className="mr-2"
                                                     />
                                                     Show Detailed Extra Charges
                                                 </Label>
                                             </FormGroup>
                                         </Col>
                                     </Row>
-                                    <div className="d-flex justify-content-end mt-4">
-                                        <Button color="primary" type="submit" disabled={submitting} className="px-5" style={{ minWidth: "150px" }}>
+                                    <div className="flex justify-end mt-6">
+                                        <Button color="primary" type="submit" disabled={submitting} className="px-12" style={{ minWidth: "150px" }}>
                                             {submitting ? (
-                                                <><Spinner size="sm" className="me-2" /> Saving...</>
+                                                <><Spinner size="sm" className="mr-2" /> Saving...</>
                                             ) : (isEdit ? "Update Configuration" : "Save Configuration")}
                                         </Button>
                                     </div>
@@ -497,39 +497,39 @@ const CustomerProductConfig = ({ externalCustomerId = "", onCustomerChange = nul
                         <Table bordered responsive>
                             <tbody>
                                 <tr>
-                                    <th className="bg-light w-1/4">Customer</th>
+                                    <th className="bg-canvas w-1/4">Customer</th>
                                     <td>{viewData.customer_name} ({viewData.customer_id})</td>
                                 </tr>
                                 <tr>
-                                    <th className="bg-light">Product</th>
+                                    <th className="bg-canvas">Product</th>
                                     <td>{viewData.product_name} ({viewData.product_id})</td>
                                 </tr>
                                 <tr>
-                                    <th className="bg-light">Billing Mode</th>
+                                    <th className="bg-canvas">Billing Mode</th>
                                     <td>{viewData.billing_mode}</td>
                                 </tr>
                                 <tr>
-                                    <th className="bg-light">Volumetric Divisor</th>
+                                    <th className="bg-canvas">Volumetric Divisor</th>
                                     <td>{viewData.volumetric_divisor}</td>
                                 </tr>
                                 <tr>
-                                    <th className="bg-light">FSC Percentage</th>
+                                    <th className="bg-canvas">FSC Percentage</th>
                                     <td>{viewData.fsc_percentage}%</td>
                                 </tr>
                                 <tr>
-                                    <th className="bg-light">Docket Charge</th>
+                                    <th className="bg-canvas">Docket Charge</th>
                                     <td>{viewData.docket_charge}</td>
                                 </tr>
                                 <tr>
-                                    <th className="bg-light">RTO Multiplier</th>
+                                    <th className="bg-canvas">RTO Multiplier</th>
                                     <td>{viewData.rto_multiplier}</td>
                                 </tr>
                                 <tr>
-                                    <th className="bg-light">GST Rate</th>
+                                    <th className="bg-canvas">GST Rate</th>
                                     <td>{viewData.gst_rate}%</td>
                                 </tr>
                                 <tr>
-                                    <th className="bg-light">Show Detailed Extra Charges</th>
+                                    <th className="bg-canvas">Show Detailed Extra Charges</th>
                                     <td>{viewData.show_detailed_extra_charges ? "Yes" : "No"}</td>
                                 </tr>
                             </tbody>
@@ -548,11 +548,11 @@ const CustomerProductConfig = ({ externalCustomerId = "", onCustomerChange = nul
             </Modal>
 
             <Modal isOpen={isDeleteModalOpen} toggle={toggleDeleteModal} centered>
-                <ModalHeader toggle={toggleDeleteModal} className="text-danger">Confirm Delete</ModalHeader>
-                <ModalBody className="py-4 text-center">
-                    <i className="mdi mdi-alert-circle-outline text-danger" style={{ fontSize: "3rem" }}></i>
-                    <h5 className="mt-3">Are you sure you want to delete this configuration?</h5>
-                    <p className="text-muted">This action cannot be undone.</p>
+                <ModalHeader toggle={toggleDeleteModal} className="text-danger-500">Confirm Delete</ModalHeader>
+                <ModalBody className="py-6 text-center">
+                    <i className="mdi mdi-alert-circle-outline text-danger-500" style={{ fontSize: "3rem" }}></i>
+                    <h5 className="mt-4">Are you sure you want to delete this configuration?</h5>
+                    <p className="text-ink-muted">This action cannot be undone.</p>
                 </ModalBody>
                 <ModalFooter>
                     <Button color="secondary" onClick={toggleDeleteModal}>Cancel</Button>

@@ -42,7 +42,7 @@ const TabsProvider = ({
               role="tab"
               aria-selected={activeTab === tab.id}
             >
-              <div className="d-flex align-items-center justify-content-center">
+              <div className="flex items-center justify-center">
                 <span>{tab.label}</span>
               </div>
             </NavLink>

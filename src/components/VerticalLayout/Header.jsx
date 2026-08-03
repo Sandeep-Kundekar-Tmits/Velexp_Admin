@@ -74,11 +74,11 @@ const Header = ({ onMobileToggle }) => {
     <React.Fragment>
       <header id="page-topbar">
         <div className="navbar-header">
-          <div className="d-flex align-items-center">
+          <div className="flex items-center">
             <button
               type="button"
               onClick={onMobileToggle}
-              className="btn btn-sm px-3 font-size-16 header-item"
+              className="btn btn-sm px-4 font-size-16 header-item"
               id="vertical-menu-btn"
             >
               <i className="fa fa-fw fa-bars" />

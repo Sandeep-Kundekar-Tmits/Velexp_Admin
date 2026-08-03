@@ -6,26 +6,26 @@ const DeleteModal = ({ show, onDeleteClick, onCloseClick, loading = false }) => 
   return (
     <Modal size="md" isOpen={show} toggle={onCloseClick} centered={true} className="delete-modal">
       <div className="modal-content border-0">
-        <ModalBody className="px-4 py-5 text-center">
+        <ModalBody className="px-6 py-12 text-center">
           <button
             type="button"
             onClick={onCloseClick}
-            className="btn-close position-absolute end-0 top-0 m-3"
+            className="btn-close absolute end-0 top-0 m-4"
             aria-label="Close"
           ></button>
 
-          {/* <div className="icon-container mb-4 mx-auto">
-            <div className="icon-wrapper bg-danger bg-opacity-10 text-danger">
+          {/* <div className="icon-container mb-6 mx-auto">
+            <div className="icon-wrapper bg-danger-500 bg-opacity-10 text-danger-500">
               <i className="mdi mdi-alert-circle-outline"></i>
             </div>
           </div> */}
 
-          <h4 className="mb-3">Confirm Deletion</h4>
-          <p className="text-muted mb-4">
+          <h4 className="mb-4">Confirm Deletion</h4>
+          <p className="text-ink-muted mb-6">
             Are you sure you want to delete this item? This action cannot be undone.
           </p>
 
-          <div className="d-flex justify-content-center gap-3">
+          <div className="flex justify-center gap-4">
             <button
               type="button"
               className="btn btn-light w-1/2"
@@ -35,7 +35,7 @@ const DeleteModal = ({ show, onDeleteClick, onCloseClick, loading = false }) => 
             </button>
             <button
               type="button"
-              className="btn btn-danger w-1/2 d-flex justify-content-center align-items-center"
+              className="btn btn-danger w-1/2 flex justify-center items-center"
               onClick={onDeleteClick}
             >
               {

@@ -181,7 +181,7 @@ const UpdateUser = () => {
 
     if (selectedUserLoading) {
         return (
-            <div className='position-fixed top-0 z-3 start-0 w-full h-full d-flex justify-content-center align-content-center'>
+            <div className='fixed top-0 z-3 start-0 w-full h-full flex justify-center content-center'>
                 <Spinner>Loading...</Spinner>
             </div>
         );
@@ -191,7 +191,7 @@ const UpdateUser = () => {
         <div className="page-content">
             <Row>
                 <Col>
-                    <h2 className="mb-4">Update Franchise Profile</h2>
+                    <h2 className="mb-6">Update Franchise Profile</h2>
                     <div>
                         <EditUserInfo
                             formData={updatedData}
@@ -250,7 +250,7 @@ const UpdateUser = () => {
                             </div>
                         )}
 
-                        <div className="d-flex justify-content-end mb-4">
+                        <div className="flex justify-end mb-6">
                             <Button color="primary" size="lg" type="button" onClick={toggle}>
                                 Update Profile
                             </Button>
@@ -269,7 +269,7 @@ const UpdateUser = () => {
                 <ModalFooter>
                     {isUpdated && (
                         <Button
-                            className='d-flex justify-content-center align-content-center'
+                            className='flex justify-center content-center'
                             color="primary"
                             onClick={updateUserInfo}
                         >

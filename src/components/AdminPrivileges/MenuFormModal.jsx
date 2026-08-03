@@ -51,14 +51,14 @@ const MenuFormModal = ({ isOpen, toggle, initialData, parentOptions = [], defaul
                 <Row>
                     <Col md={6}>
                         <FormGroup>
-                            <Label>Name <span className="text-danger">*</span></Label>
+                            <Label>Name <span className="text-danger-500">*</span></Label>
                             <Input name="link_name" value={formData.link_name} invalid={!!errors.link_name} onChange={handleChange} />
                             <FormFeedback>{errors.link_name}</FormFeedback>
                         </FormGroup>
                     </Col>
                     <Col md={6}>
                         <FormGroup>
-                            <Label>URL <span className="text-danger">*</span></Label>
+                            <Label>URL <span className="text-danger-500">*</span></Label>
                             <Input name="link_url" value={formData.link_url} invalid={!!errors.link_url} onChange={handleChange} placeholder="/bookings" />
                             <FormFeedback>{errors.link_url}</FormFeedback>
                         </FormGroup>
@@ -99,8 +99,8 @@ const MenuFormModal = ({ isOpen, toggle, initialData, parentOptions = [], defaul
                             <Input name="faicon" value={formData.faicon} onChange={handleChange} placeholder="bx bx-box" />
                         </FormGroup>
                     </Col>
-                    <Col md={6} className="d-flex align-items-center">
-                        <FormGroup check className="mb-3">
+                    <Col md={6} className="flex items-center">
+                        <FormGroup check className="mb-4">
                             <Input type="checkbox" name="is_active" id="menu-is-active" checked={formData.is_active} onChange={handleChange} />
                             <Label check for="menu-is-active">Active</Label>
                         </FormGroup>

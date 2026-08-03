@@ -27,10 +27,10 @@ const EcommerceOrdersModal = (props) => {
         <ModalHeader toggle={toggle}>Order Details</ModalHeader>
         <ModalBody>
           <p className="mb-2">
-            Product id: <span className="text-primary">{transaction.orderId || "#SK2540"}</span>
+            Product id: <span className="text-brand-500">{transaction.orderId || "#SK2540"}</span>
           </p>
-          <p className="mb-4">
-            Billing Name: <span className="text-primary">{transaction.billingName || "Neal Matthews"}</span>
+          <p className="mb-6">
+            Billing Name: <span className="text-brand-500">{transaction.billingName || "Neal Matthews"}</span>
           </p>
 
           <div className="table-responsive">
@@ -51,10 +51,10 @@ const EcommerceOrdersModal = (props) => {
                   </th>
                   <td>
                     <div>
-                      <h5 className="text-truncate font-size-14">
+                      <h5 className="truncate font-size-14">
                         Wireless Headphone (Black)
                       </h5>
-                      <p className="text-muted mb-0">$ 225 x 1</p>
+                      <p className="text-ink-muted mb-0">$ 225 x 1</p>
                     </div>
                   </td>
                   <td>$ 255</td>
@@ -67,10 +67,10 @@ const EcommerceOrdersModal = (props) => {
                   </th>
                   <td>
                     <div>
-                      <h5 className="text-truncate font-size-14">
+                      <h5 className="truncate font-size-14">
                         Hoodie (Blue)
                       </h5>
-                      <p className="text-muted mb-0">$ 145 x 1</p>
+                      <p className="text-ink-muted mb-0">$ 145 x 1</p>
                     </div>
                   </td>
                   <td>$ 145</td>

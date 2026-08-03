@@ -12,7 +12,7 @@ const StatsCard = ({ value, label }) => {
         boxShadow: "none",
       }}
     >
-      <CardBody className="d-flex flex-column justify-content-center align-items-center">
+      <CardBody className="flex flex-col justify-center items-center">
         <div
           style={{
             fontSize: "16px",
@@ -31,7 +31,7 @@ const StatsCard = ({ value, label }) => {
             color: "#8c8c8c",
         
           }}
-          className="text-capitalize"
+          className="capitalize"
         >
           {label}
         </div>

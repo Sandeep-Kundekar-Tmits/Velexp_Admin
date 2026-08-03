@@ -285,50 +285,50 @@ const InternationPincode = () => {
                 <MainHeaderComp
                     title="International Pincode"
                     extraFields={
-                        <div className="d-flex align-items-center">
-                            <h6 className="text-black fw-bold mb-0 me-2" style={{ fontSize: "14px" }}>Template</h6>
+                        <div className="flex items-center">
+                            <h6 className="text-black font-bold mb-0 mr-2" style={{ fontSize: "14px" }}>Template</h6>
                             <Button
                                 color="success"
                                 outline
                                 onClick={downloadTemplate}
-                                className="d-flex align-items-center justify-content-center p-2"
+                                className="flex items-center justify-center p-2"
                                 style={{ borderRadius: "7px", width: "180px", fontWeight: "500", fontSize: "12px", height: "35px" }}
                             >
                                 {isExportingTemplate ? "Generating..." : "Download"}
-                                <FaFileExcel size={14} className="ms-2" />
+                                <FaFileExcel size={14} className="ml-2" />
                             </Button>
                         </div>
                     }
                 />
             </div>
-            <div className="container-fluid px-3">
+            <div className="container-fluid px-4">
 
-                <Row className="mt-2 border-bottom pb-4">
+                <Row className="mt-2 border-bottom pb-6">
                     <Col md={4}>
                         <FormGroup>
                             <Label>Upload Pincode Data</Label>
                             <Input type="file" onChange={handleFileChange} />
                         </FormGroup>
                     </Col>
-                    <Col md={2} className="d-flex align-items-end mb-3">
-                        <Button color="primary" className="w-full d-flex align-items-center justify-content-center" disabled={!file || uploadedData.length === 0 || jsonLoading || isUploadingPincodes} onClick={handleUpload}>
+                    <Col md={2} className="flex items-end mb-4">
+                        <Button color="primary" className="w-full flex items-center justify-center" disabled={!file || uploadedData.length === 0 || jsonLoading || isUploadingPincodes} onClick={handleUpload}>
                             {isUploadingPincodes ? <Spinner size="sm" /> : "Upload"}
                         </Button>
                     </Col>
-                    {jsonLoading && <Col md={1} className="d-flex align-items-end mb-4"><Spinner size="sm" color="primary" /></Col>}
+                    {jsonLoading && <Col md={1} className="flex items-end mb-6"><Spinner size="sm" color="primary" /></Col>}
                 </Row>
 
 
-                <div className="mt-4">
+                <div className="mt-6">
                     {isFetchingPincodes ? (
-                        <div style={{ height: "40vh" }} className="container-fluid d-flex flex-column justify-content-center align-items-center">
+                        <div style={{ height: "40vh" }} className="container-fluid flex flex-col justify-center items-center">
                             <GridLoader size={20} />
-                            <p className="mt-5 h5">Loading International Pincodes ...</p>
+                            <p className="mt-12 h5">Loading International Pincodes ...</p>
                         </div>
                     ) : (
                         <TableContainer
                             extraFiled={
-                                <div className="d-flex align-items-center gap-2">
+                                <div className="flex items-center gap-2">
                                     <div style={{ width: "220px" }}>
                                         <Select
                                             options={countryOptions}
@@ -376,9 +376,9 @@ const InternationPincode = () => {
                     cancelButtonName="Close"
                 >
                     <div className="text-center">
-                        <i className="ri-error-warning-line text-danger" style={{ fontSize: "3rem" }}></i>
-                        <h4 className="mt-2 text-danger">{modalTitle}</h4>
-                        <p className="mt-3 text-muted" style={{ whiteSpace: "pre-line" }}>
+                        <i className="ri-error-warning-line text-danger-500" style={{ fontSize: "3rem" }}></i>
+                        <h4 className="mt-2 text-danger-500">{modalTitle}</h4>
+                        <p className="mt-4 text-ink-muted" style={{ whiteSpace: "pre-line" }}>
                             {modalErrorMessage}
                         </p>
                     </div>
@@ -391,17 +391,17 @@ const InternationPincode = () => {
                     successButtonName="Confirm"
                     onSuccess={onConfirm}
                 >
-                    <div className="text-start p-0">
-                        <h5 className="mb-3">Confirm Deletion</h5>
-                        <p className="text-muted mb-2" style={{ fontWeight: "500", fontSize: "14px" }}>The following default pincodes will be deleted:</p>
-                        <div className="border p-2 rounded mb-2 d-flex flex-wrap gap-2" style={{ minHeight: "60px", maxHeight: "150px", overflowY: "auto", borderColor: "#e9ebec" }}>
+                    <div className="text-left p-0">
+                        <h5 className="mb-4">Confirm Deletion</h5>
+                        <p className="text-ink-muted mb-2" style={{ fontWeight: "500", fontSize: "14px" }}>The following default pincodes will be deleted:</p>
+                        <div className="border p-2 rounded mb-2 flex flex-wrap gap-2" style={{ minHeight: "60px", maxHeight: "150px", overflowY: "auto", borderColor: "#e9ebec" }}>
                             {selectedPincodes.map(id => {
                                 const pincode = pincodeData.find(p => p.id === id);
                                 return (
                                     <Badge
                                         key={id}
                                         color="light"
-                                        className="text-dark bg-opacity-10 d-flex align-items-center rounded-pill bg-gray-200"
+                                        className="text-ink bg-opacity-10 flex items-center rounded-full bg-gray-200"
                                         style={{ fontSize: "15px", fontWeight: "500", padding: "6px 12px" }}
                                     >
                                         {pincode?.pincode}
@@ -409,7 +409,7 @@ const InternationPincode = () => {
                                 );
                             })}
                         </div>
-                        <p className="text-danger mb-0" style={{ fontWeight: "600", fontSize: "14px" }}>Are you sure you want to delete pincodes?</p>
+                        <p className="text-danger-500 mb-0" style={{ fontWeight: "600", fontSize: "14px" }}>Are you sure you want to delete pincodes?</p>
                     </div>
                 </SimpleModal>
             </div>

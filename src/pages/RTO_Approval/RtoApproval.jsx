@@ -281,7 +281,7 @@ const RtoApproval = () => {
         {
             id: 'selection',
             header: ({ table }) => (
-                <div className="d-flex justify-content-center">
+                <div className="flex justify-center">
                     {selectedCustomer && (
                         <Input
                             type="checkbox"
@@ -292,7 +292,7 @@ const RtoApproval = () => {
                 </div>
             ),
             cell: ({ row }) => (
-                <div className="d-flex justify-content-center">
+                <div className="flex justify-center">
                     <Input
                         type="checkbox"
                         checked={row.getIsSelected()}
@@ -351,11 +351,11 @@ const RtoApproval = () => {
             header: "Action",
             id: "action",
             cell: ({ row }) => (
-                <div className="d-flex gap-2">
+                <div className="flex gap-2">
                     <Button
                         color="primary"
                         size="sm"
-                        className="px-3 py-1"
+                        className="px-4 py-1"
                         style={{ backgroundColor: "#0066b2", borderColor: "#0066b2", borderRadius: "8px" }}
                         onClick={() => handleApprove(row.original)}
                     >
@@ -364,7 +364,7 @@ const RtoApproval = () => {
                     <Button
                         color="secondary"
                         size="sm"
-                        className="px-3 py-1"
+                        className="px-4 py-1"
                         outline
                         style={{ borderRadius: "8px" }}
                         onClick={() => handleView(row.original)}
@@ -375,7 +375,7 @@ const RtoApproval = () => {
                     <Button
                         color="danger"
                         size="sm"
-                        className="px-3 py-1"
+                        className="px-4 py-1"
                         style={{ borderRadius: "8px" }}
                         onClick={(e) => {
                             e.stopPropagation();
@@ -402,11 +402,11 @@ const RtoApproval = () => {
                 <MainHeaderComp title="RTO Approval" />
             </div>
 
-            <div className="container-fluid px-3">
-                <Row className="mt-3 align-items-end">
+            <div className="container-fluid px-4">
+                <Row className="mt-4 items-end">
                     <Col md={4} lg={3}>
                         <FormGroup className="mb-0">
-                            <Label className="form-label fw-bold">Select Customer</Label>
+                            <Label className="form-label font-bold">Select Customer</Label>
                             <Select
                                 options={userListOptions}
                                 placeholder="Select Customer"
@@ -419,7 +419,7 @@ const RtoApproval = () => {
                     </Col>
                     <Col md={4} lg={3}>
                         <FormGroup className="mb-0">
-                            <Label className="form-label fw-bold">Select Date Range</Label>
+                            <Label className="form-label font-bold">Select Date Range</Label>
                             <DateRangeInput
                                 value={selectedRange}
                                 onChange={(range) => setSelectedRange(range)}
@@ -437,7 +437,7 @@ const RtoApproval = () => {
                             {shipmentsLoading ? "Checking.." : "Check"}
                         </Button>
                     </Col>
-                    <Col md={3} lg={3} className="ms-auto">
+                    <Col md={3} lg={3} className="ml-auto">
                         <Button
                             color="primary"
                             outline
@@ -486,7 +486,7 @@ const RtoApproval = () => {
                     </Button>
                     <Button color="danger" onClick={handleRemoveConfirm} disabled={sarLoading}>
                         {sarLoading
-                            ? <><span className="spinner-border spinner-border-sm me-1" role="status" />Removing…</>
+                            ? <><span className="spinner-border spinner-border-sm mr-1" role="status" />Removing…</>
                             : "Remove"}
                     </Button>
                 </ModalFooter>
@@ -495,7 +495,7 @@ const RtoApproval = () => {
             {/* Bulk Action Footer */}
             {selectedRowCount > 0 && (
                 <div
-                    className="position-fixed bottom-0 start-0 w-full d-flex justify-content-end align-items-center px-4 py-3 bg-white border-top shadow-lg"
+                    className="fixed bottom-0 start-0 w-full flex justify-end items-center px-6 py-4 bg-white border-top shadow-lg"
                     style={{ zIndex: 1000, gap: "15px" }}
                 >
                     <Button

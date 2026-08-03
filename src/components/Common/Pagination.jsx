@@ -32,9 +32,9 @@ const Paginations = ({ perPageData, data, currentPage, setCurrentPage, isShowing
 
     return (
         <React.Fragment>
-            <Row className="justify-content-between align-items-center">
+            <Row className="justify-between items-center">
                 {isShowingPageLength && <div className="col-sm">
-                    <div className="text-muted">Showing <span className="fw-semibold">{perPageData}</span> of <span className="fw-semibold">{data?.length}</span> entries</div>
+                    <div className="text-ink-muted">Showing <span className="font-semibold">{perPageData}</span> of <span className="font-semibold">{data?.length}</span> entries</div>
                 </div>}
                 <div className={paginationDiv}>
                     <ul className={paginationClass}>

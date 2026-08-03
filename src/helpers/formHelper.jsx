@@ -221,7 +221,7 @@ export function renderUpdatedDataJSX(updatedData) {
                                 </div>
                             )}
                             
-                            <h5 className="text-capitalize" style={{
+                            <h5 className="capitalize" style={{
                                 color: isNestedSection ? '#333' : '#555',
                                 width: isNestedSection ? '100%' : '40%',
                                 marginBottom: isNestedSection ? '16px' : '0',

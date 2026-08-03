@@ -63,12 +63,12 @@ const PasswordResetConfirm = () => {
 
     return (
         <React.Fragment>
-            <div className="account-pages my-5">
+            <div className="account-pages my-12">
                 <Container>
-                    <Row className="justify-content-center">
+                    <Row className="justify-center">
                         <Col md={8} lg={6} xl={5}>
                             {/* Logo Section */}
-                            <div className="text-center mb-4">
+                            <div className="text-center mb-6">
                                 <Link to="/">
                                     <img
                                         src={SingleLogo}
@@ -80,24 +80,24 @@ const PasswordResetConfirm = () => {
 
                             {/* Card */}
                             <Card className="border-0 shadow-sm rounded-lg">
-                                <CardBody className="p-4 p-sm-5">
-                                    <div className="text-center mb-4">
-                                        <h4 className="fw-bold">Reset Your Password</h4>
-                                        <p className="text-muted mb-0">Enter your new password below</p>
+                                <CardBody className="p-6 p-sm-5">
+                                    <div className="text-center mb-6">
+                                        <h4 className="font-bold">Reset Your Password</h4>
+                                        <p className="text-ink-muted mb-0">Enter your new password below</p>
                                     </div>
 
                                     {/* Form */}
                                     <div>
-                                        <FormGroup className="mb-4">
-                                            <Label for="password" className="form-label fw-semibold">
+                                        <FormGroup className="mb-6">
+                                            <Label for="password" className="form-label font-semibold">
                                                 New Password
                                             </Label>
-                                            <div className="position-relative">
+                                            <div className="relative">
                                                 <Input
                                                     id="password"
                                                     name="password"
                                                     value={newPassword}
-                                                    className="form-control pe-5"
+                                                    className="form-control pr-12"
                                                     placeholder="Enter new password"
                                                     type={showPassword ? "text" : "password"}
                                                     onChange={(e) => setnewPassword(e.target.value)}
@@ -105,7 +105,7 @@ const PasswordResetConfirm = () => {
                                                 />
                                                 <button
                                                     onClick={() => setShowPassword(!showPassword)}
-                                                    className="position-absolute bg-transparent border-0"
+                                                    className="absolute bg-transparent border-0"
                                                     style={{
                                                         top: "50%",
                                                         right: "12px",
@@ -119,10 +119,10 @@ const PasswordResetConfirm = () => {
                                                     }
                                                 </button>
                                             </div>
-                                            <small className="text-danger small mt-1">{Error}</small>
+                                            <small className="text-danger-500 text-xs mt-1">{Error}</small>
                                         </FormGroup>
 
-                                        <div className="d-grid gap-2 mt-4">
+                                        <div className="grid gap-2 mt-6">
                                             <button
                                                 className="btn btn-primary"
                                                 type="button"
@@ -130,7 +130,7 @@ const PasswordResetConfirm = () => {
                                                 disabled={loading}
                                             >
                                                 {
-                                                    loading ? <div className="d-flex gap-3 justify-content-center align-items-center">
+                                                    loading ? <div className="flex gap-4 justify-center items-center">
                                                         <Spinner size="sm">
                                                             Loading...
                                                         </Spinner>
@@ -142,10 +142,10 @@ const PasswordResetConfirm = () => {
                                         </div>
                                     </div>
 
-                                    <div className="text-center mt-4">
-                                        <p className="text-muted mb-0">
+                                    <div className="text-center mt-6">
+                                        <p className="text-ink-muted mb-0">
                                             Remember your password?{" "}
-                                            <Link to="/login" className="text-primary fw-semibold">
+                                            <Link to="/login" className="text-brand-500 font-semibold">
                                                 Login
                                             </Link>
                                         </p>

@@ -425,8 +425,8 @@ const AdminBooking = () => {
         <div className='page-content'>
             <div className="container-fluid">
                 <div>
-                    <h3 className='pb-3 border-bottom'>Admin Booking Download</h3>
-                    <Row className='d-flex justify-content-between pt-2'>
+                    <h3 className='pb-4 border-bottom'>Admin Booking Download</h3>
+                    <Row className='flex justify-between pt-2'>
                         <Col md={3}>
                             <FormGroup className="mb-2">
                                 <Label for="Customer">Select Customer</Label>
@@ -502,8 +502,8 @@ const AdminBooking = () => {
 
 
 
-                        <Col md={2} className='d-flex align-items-baseline flex-wrap gap-2'>
-                            {/* <div className="d-flex "> */}
+                        <Col md={2} className='flex items-baseline flex-wrap gap-2'>
+                            {/* <div className="flex "> */}
                             <FormGroup className="mb-2">
                                 <Button disabled={bookingLoading} onClick={OnCheckClick} color="primary" className='' style={{ height: "2.3rem", width: "8rem",marginTop:"28px" }}>
                                     Check
@@ -531,7 +531,7 @@ const AdminBooking = () => {
                         {
                             isShowFilter &&
                             <>
-                                <div className="d-flex justify-content-between align-items-center mb-4">
+                                <div className="flex justify-between items-center mb-6">
                                     <h3 className="m-0">Filters</h3>
                                 </div>
                                 <AdminBookingFilter
@@ -549,9 +549,9 @@ const AdminBooking = () => {
                     {/* <h2>Bookings</h2> */}
                     <div className='mt-1'>
                         {
-                            bookingLoading ? <div style={{ height: "40vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+                            bookingLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
                                 <GridLoader size={20} />
-                                <p className="mt-5 h5">Loading Admin Booking ...</p>
+                                <p className="mt-12 h5">Loading Admin Booking ...</p>
                             </div> :
                                 <TableContainer
                                     columns={columns}

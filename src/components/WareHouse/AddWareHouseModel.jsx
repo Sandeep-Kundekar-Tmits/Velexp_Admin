@@ -95,7 +95,7 @@ const AddWareHouseModel = ({ toggle, onSave, loading }) => {
                                     isClearable={true}
                                     styles={customStyles}
                                 />
-                                <small className='text-danger'>{Errors?.service_center}</small>
+                                <small className='text-danger-500'>{Errors?.service_center}</small>
                             </FormGroup>
                         </Col>
                         <Col md={5}>
@@ -161,7 +161,7 @@ const AddWareHouseModel = ({ toggle, onSave, loading }) => {
                     </Row>
                 </ModalBody>
                 <ModalFooter>
-                    <Button color="primary" onClick={onAddWareHouse} className='d-flex justify-content-center align-items-center'>
+                    <Button color="primary" onClick={onAddWareHouse} className='flex justify-center items-center'>
                         {
                             loading ? <Spinner size="sm">loading...</Spinner> : "Create"
                         }

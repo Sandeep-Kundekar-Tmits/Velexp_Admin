@@ -27,11 +27,11 @@ const AWBPrintPage = () => {
             <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
                 <MainHeaderComp title="AWB Label Print" />
             </div>
-            <div className="container-fluid px-3">
-                <Row className="mt-3 align-items-end">
+            <div className="container-fluid px-4">
+                <Row className="mt-4 items-end">
                     <Col md={4}>
                         <FormGroup className="mb-0">
-                            <Label className="form-label fw-bold">AWB</Label>
+                            <Label className="form-label font-bold">AWB</Label>
                             <Input
                                 type="text"
                                 placeholder="Enter AWB No."

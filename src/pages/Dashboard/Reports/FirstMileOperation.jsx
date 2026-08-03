@@ -440,12 +440,12 @@ const FirstMileOperation = () => {
             </div>
             <div className="container-fluid px-2">
                 <div>
-                    <Row className='gx-3 d-flex align-items-end pt-2 border-bottom pb-2'>
+                    <Row className='gx-3 flex items-end pt-2 border-bottom pb-2'>
                         {/* select region  */}
                         <Col md={6}>
                             <FormGroup className="mb-0">
-                                <Label for="Customer" className="fw-bold text-muted mb-1">Select Region</Label>
-                                <div className="d-flex align-items-center">
+                                <Label for="Customer" className="font-bold text-ink-muted mb-1">Select Region</Label>
+                                <div className="flex items-center">
                                     <div style={{ width: "250px" }}>
                                         <Select
                                             options={AllRegions}
@@ -471,8 +471,8 @@ const FirstMileOperation = () => {
                         {/*  service centers list */}
                         <Col md={6}>
                             <FormGroup className="mb-0">
-                                <Label for="Customer" className="fw-bold text-muted mb-1">Select Service Center</Label>
-                                <div className="d-flex align-items-center">
+                                <Label for="Customer" className="font-bold text-ink-muted mb-1">Select Service Center</Label>
+                                <div className="flex items-center">
                                     <div style={{ width: "250px" }}>
                                         <Select options={ServiceCenterOption}
                                             placeholder="Search"
@@ -495,7 +495,7 @@ const FirstMileOperation = () => {
                             </FormGroup>
                         </Col>
                     </Row>
-                    <Row className='gx-3 d-flex align-items-center pt-2'>
+                    <Row className='gx-3 flex items-center pt-2'>
                         <Col md={3}>
                             <FormGroup className="mb-2">
                                 <Label for="DateRange">Date Range</Label>
@@ -519,14 +519,14 @@ const FirstMileOperation = () => {
                                 </FormGroup>
                             </div>
                         </Col>
-                        <Col md={3} className=' d-flex align-items-center align-items-center gap-2 mt-2'>
+                        <Col md={3} className=' flex items-center items-center gap-2 mt-2'>
                             <Button color="primary" disabled={bookingLoading} style={{ height: "2.2rem", width: "100%" }} onClick={OnCheckClick}>
                                 Check
                             </Button>
                         </Col>
                     </Row>
 
-                    <div className='d-flex gap-4 mt-3'>
+                    <div className='flex gap-6 mt-4'>
                         {
                             Object.entries(FinalStatusCount).map(([key, value], index) => {
                                 return (
@@ -542,9 +542,9 @@ const FirstMileOperation = () => {
                     <div className='mt-0'>
                         {/* loading state */}
                         {
-                            bookingLoading ? <div style={{ height: "40vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+                            bookingLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
                                 <GridLoader size={20} />
-                                <p className="mt-5 h5">Loading Operation Performance ...</p>
+                                <p className="mt-12 h5">Loading Operation Performance ...</p>
                             </div>
                                 :
                                 <>

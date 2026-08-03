@@ -76,7 +76,7 @@ const oldValueColumn = (accessorKey) => ({
     accessorKey,
     enableSorting: true,
     enableColumnFilter: false,
-    cell: ({ getValue }) => <span className="text-muted">{fmtNum(getValue())}</span>
+    cell: ({ getValue }) => <span className="text-ink-muted">{fmtNum(getValue())}</span>
 })
 
 const newValueColumn = (oldKey, newKey) => ({
@@ -89,7 +89,7 @@ const newValueColumn = (oldKey, newKey) => ({
         return (
             <span className={changed ? "text-danger fw-semibold" : ""}>
                 {fmtNum(row.original[newKey])}
-                {changed && <i className="mdi mdi-swap-horizontal ms-1" style={{ fontSize: "12px" }}></i>}
+                {changed && <i className="mdi mdi-swap-horizontal ml-1" style={{ fontSize: "12px" }}></i>}
             </span>
         )
     }
@@ -259,13 +259,13 @@ const InternationalDimensionChangeLog = () => {
                 subTitle={`Total: ${totalCount} change(s) found${startDate && endDate ? ` — ${formatDate(startDate)} to ${formatDate(endDate)}` : ""}`}
             />
 
-            <div className="container-fluid px-3 py-3">
+            <div className="container-fluid px-4 py-4">
                 {/* Filter Section */}
-                <div className="card mb-4">
+                <div className="card mb-6">
                     <div className="card-body">
-                        <div className="row g-3 align-items-end">
+                        <div className="row gap-4 items-end">
                             <div className="col-md-3">
-                                <label className="fw-bold form-label">AWB Number (optional)</label>
+                                <label className="font-bold form-label">AWB Number (optional)</label>
                                 <Input
                                     type="text"
                                     placeholder="Enter AWB number"
@@ -293,7 +293,7 @@ const InternationalDimensionChangeLog = () => {
                                 >
                                     {loading ? (
                                         <>
-                                            <span className="spinner-border spinner-border-sm me-2"></span>
+                                            <span className="spinner-border spinner-border-sm mr-2"></span>
                                             Loading...
                                         </>
                                     ) : (
@@ -307,7 +307,7 @@ const InternationalDimensionChangeLog = () => {
 
                 {/* Table Section */}
                 {loading ? (
-                    <div className="d-flex justify-content-center py-5">
+                    <div className="flex justify-center py-12">
                         <GridLoader color="#556ee6" />
                     </div>
                 ) : (

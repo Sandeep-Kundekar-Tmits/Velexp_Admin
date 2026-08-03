@@ -554,8 +554,8 @@ const PaymentDeatils = () => {
             <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
                 <MainHeaderComp title="Payment Details" />
             </div>
-            <div className="container-fluid px-3">
-                <div className=" justify-content-between mt-3">
+            <div className="container-fluid px-4">
+                <div className=" justify-between mt-4">
                     <Row>
                         <Col md={4} className="">
                             <FormGroup>
@@ -593,9 +593,9 @@ const PaymentDeatils = () => {
                 {/* display table */}
                 {
                     PaymentDeatilsLoading ?
-                        <div style={{ height: "40vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+                        <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
                             <GridLoader size={20} />
-                            <p className="mt-5 h5">Loading ...</p>
+                            <p className="mt-12 h5">Loading ...</p>
                         </div> : <TabComponentProvider tabs={tabConfig} defaultActive={1} />
                 }
                 <SimpleModal
@@ -605,9 +605,9 @@ const PaymentDeatils = () => {
                     successButtonName={null}
                     onCancel={() => setShowAddressModal(false)}
                 >
-                    <h5 className="mb-3 fw-bold">To Address</h5>
+                    <h5 className="mb-4 font-bold">To Address</h5>
 
-                    <p className="text-muted" style={{ whiteSpace: "pre-wrap" }}>
+                    <p className="text-ink-muted" style={{ whiteSpace: "pre-wrap" }}>
                         {selectedAddress}
                     </p>
                 </SimpleModal>

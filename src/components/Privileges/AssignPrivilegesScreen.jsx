@@ -667,11 +667,11 @@ const AssignPrivilegesScreen = ({ callBack }) => {
 
     /* ================= UI ================= */
     return (
-        <div className="container-fluid p-4 min-vh-100">
+        <div className="container-fluid p-6 min-vh-100">
             {/* ROLE */}
-            <div className="mb-3">
-                <label className="form-label h5 fw-semibold">
-                    Roles <span className="text-danger">*</span>
+            <div className="mb-4">
+                <label className="form-label h5 font-semibold">
+                    Roles <span className="text-danger-500">*</span>
                 </label>
                 <select
                     className="form-select"
@@ -689,7 +689,7 @@ const AssignPrivilegesScreen = ({ callBack }) => {
                 </select>
             </div>
 
-            <div className="row g-4">
+            <div className="row gap-6">
                 {/* AVAILABLE */}
                 <div className="col-md-5">
                     <div className="card shadow-sm border-0" style={{ height: "70vh", overflowY: "auto" }}>
@@ -697,7 +697,7 @@ const AssignPrivilegesScreen = ({ callBack }) => {
                             <h5>Available Privileges</h5>
                             {allMenus.map((menu, idx) => (
                                 <div key={menu.id} className="mb-2">
-                                    <div className="d-flex justify-content-between bg-light p-2 rounded mb-2">
+                                    <div className="flex justify-between bg-canvas p-2 rounded mb-2">
 
                                         <span>{menu.menu_name}</span>
                                         {menu.children.length ? (
@@ -715,7 +715,7 @@ const AssignPrivilegesScreen = ({ callBack }) => {
 
                                     {openMenu === idx &&
                                         menu.children.map((child, cIdx) => (
-                                            <div key={child.id} className="form-check ms-4">
+                                            <div key={child.id} className="form-check ml-6">
                                                 <input
                                                     className="form-check-input"
                                                     type="checkbox"
@@ -735,7 +735,7 @@ const AssignPrivilegesScreen = ({ callBack }) => {
                 <div className="col-md-7">
                     <div className="card shadow-sm border-0 " style={{ height: "70vh", overflowY: "auto" }}>
                         <div className="card-body">
-                            <div className="d-flex justify-content-between mb-3">
+                            <div className="flex justify-between mb-4">
                                 <h5>Assigned Privileges</h5>
                                 <button
                                     className="btn btn-primary"
@@ -747,7 +747,7 @@ const AssignPrivilegesScreen = ({ callBack }) => {
                             </div>
 
                             {selectedMenus.map((menu, mIdx) => (
-                                <div key={menu.id} className="card mb-3 border">
+                                <div key={menu.id} className="card mb-4 border">
                                     <div className="card-body">
                                         <h6>{menu.menu_name}</h6>
                                         {console.log(menu, "menu.menu_name")}
@@ -755,7 +755,7 @@ const AssignPrivilegesScreen = ({ callBack }) => {
                                             (item, cIdx) => (
                                                 <div key={item.id} className="border p-2 mb-2">
                                                     {menu.children.length > 0 && <strong>{item.menu_name}</strong>}
-                                                    <div className="d-flex gap-3 flex-wrap">
+                                                    <div className="flex gap-4 flex-wrap">
                                                         {PERMISSIONS.map(perm => (
                                                             <div className="form-check form-switch" key={perm}>
                                                                 <input

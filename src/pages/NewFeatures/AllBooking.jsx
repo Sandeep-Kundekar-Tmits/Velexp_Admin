@@ -144,15 +144,15 @@ const AllBooking = () => {
                 <div className="bg-white" style={{ position: "sticky", top: "0px", zIndex: 1001, width: "100%" }}>
                     <MainHeaderComp title="All Bookings" />
                 </div>
-                <div className="container-fluid px-3 py-3">
+                <div className="container-fluid px-4 py-4">
 
                     {/* Filter Card */}
-                    <Card className="shadow-sm border-0 mb-3">
-                        <CardBody className="py-3">
-                            <Row className="align-items-end g-3">
+                    <Card className="shadow-sm border-0 mb-4">
+                        <CardBody className="py-4">
+                            <Row className="items-end gap-4">
                                 <Col md={3}>
                                     <FormGroup className="mb-0">
-                                        <Label className="fw-bold small">Customer</Label>
+                                        <Label className="font-bold text-xs">Customer</Label>
                                         <Select
                                             options={customerOptions}
                                             value={customerOptions.find(o => o.value === selectedCustomer?.value) || ALL_OPTION}
@@ -175,24 +175,24 @@ const AllBooking = () => {
                                     </FormGroup>
                                 </Col>
                                 <Col md={2}>
-                                    <div className="d-flex gap-2">
+                                    <div className="flex gap-2">
                                         <Button
                                             color="primary"
-                                            className="flex-fill"
+                                            className="flex-1"
                                             onClick={() => fetchBookings(1)}
                                             disabled={loading}
                                             id="view-bookings-btn"
                                         >
-                                            {loading ? <><Spinner size="sm" className="me-1" /> Loading...</> : <><MdSearch size={18} className="me-1" /> View Bookings</>}
+                                            {loading ? <><Spinner size="sm" className="mr-1" /> Loading...</> : <><MdSearch size={18} className="mr-1" /> View Bookings</>}
                                         </Button>
                                         <Button
                                             color="success"
-                                            className="flex-fill"
+                                            className="flex-1"
                                             onClick={handleExport}
                                             disabled={exporting}
                                             id="export-bookings-btn"
                                         >
-                                            {exporting ? <><Spinner size="sm" className="me-1" /> Exporting...</> : <><MdFileDownload size={18} className="me-1" /> Export</>}
+                                            {exporting ? <><Spinner size="sm" className="mr-1" /> Exporting...</> : <><MdFileDownload size={18} className="mr-1" /> Export</>}
                                         </Button>
                                     </div>
                                 </Col>
@@ -203,20 +203,20 @@ const AllBooking = () => {
                     {/* Results */}
                     {!hasFetched ? (
                         <Card className="shadow-sm border-0">
-                            <CardBody className="text-center py-5">
-                                <i className="mdi mdi-clipboard-list-outline text-muted" style={{ fontSize: "3rem" }} />
-                                <h5 className="text-muted mt-2">Set your filters and click <strong>View Bookings</strong> to load data</h5>
+                            <CardBody className="text-center py-12">
+                                <i className="mdi mdi-clipboard-list-outline text-ink-muted" style={{ fontSize: "3rem" }} />
+                                <h5 className="text-ink-muted mt-2">Set your filters and click <strong>View Bookings</strong> to load data</h5>
                             </CardBody>
                         </Card>
                     ) : (
                         <Card className="shadow-sm border-0">
                             <CardBody className="p-0">
-                                <div className="d-flex justify-content-between align-items-center px-3 py-2 border-bottom bg-light">
-                                    <span className="fw-bold small text-muted">
+                                <div className="flex justify-between items-center px-4 py-2 border-bottom bg-canvas">
+                                    <span className="font-bold text-xs text-ink-muted">
                                         Showing page {currentPage} of {totalPages} &nbsp;|&nbsp; Total: <strong>{totalCount.toLocaleString()}</strong> bookings
                                     </span>
                                     {totalPages > 1 && (
-                                        <div className="d-flex gap-2">
+                                        <div className="flex gap-2">
                                             <Button size="sm" color="outline-secondary" disabled={currentPage <= 1} onClick={() => fetchBookings(currentPage - 1)}>
                                                 &laquo; Prev
                                             </Button>

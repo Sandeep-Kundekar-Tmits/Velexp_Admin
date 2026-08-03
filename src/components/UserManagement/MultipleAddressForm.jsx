@@ -201,10 +201,10 @@ const MultipleAddressForm = ({ addresses, setAddresses, onNextButtonClick, onPre
   }
 
   return (
-    <div className="mt-4">
+    <div className="mt-6">
       <h4>Add Address</h4>
       <div>
-        <div className="  mb-4 rounded">
+        <div className="  mb-6 rounded">
           <Row>
             <Col md={12}>
               <FormGroup>
@@ -232,7 +232,7 @@ const MultipleAddressForm = ({ addresses, setAddresses, onNextButtonClick, onPre
                   // onChange={(e) => handleAddressChange(e)}
                   invalid={!!addressErrors?.country}
                 />
-                <small className='text-danger'>{addressErrors?.country}</small>
+                <small className='text-danger-500'>{addressErrors?.country}</small>
               </FormGroup>
             </Col>
 
@@ -261,7 +261,7 @@ const MultipleAddressForm = ({ addresses, setAddresses, onNextButtonClick, onPre
                   onChange={(e) => handleAddressChange(e)}
                   invalid={!!addressErrors?.state}
                 /> */}
-                <small className='text-danger'>{addressErrors?.state}</small>
+                <small className='text-danger-500'>{addressErrors?.state}</small>
               </FormGroup>
             </Col>
 
@@ -289,7 +289,7 @@ const MultipleAddressForm = ({ addresses, setAddresses, onNextButtonClick, onPre
                   onChange={(e) => handleAddressChange(e)}
                   invalid={!!addressErrors?.city}
                 /> */}
-                <small className='text-danger'>{addressErrors?.city}</small>
+                <small className='text-danger-500'>{addressErrors?.city}</small>
               </FormGroup>
             </Col>
 
@@ -343,16 +343,16 @@ const MultipleAddressForm = ({ addresses, setAddresses, onNextButtonClick, onPre
 
 
         {
-          cust_type === "3" ? <div className='d-flex gap-3 mt-5 justify-content-end'>
-            <Button color="primary" className='px-4 py-2' onClick={() => {
+          cust_type === "3" ? <div className='flex gap-4 mt-12 justify-end'>
+            <Button color="primary" className='px-6 py-2' onClick={() => {
               onPreButtonClick(1)
             }}>Prev</Button>
-            <Button color="primary" className='px-4 py-2' onClick={handleSubmit}>Next</Button>
-          </div> : <div className='d-flex gap-3 mt-5 justify-content-end'>
-            <Button color="primary" className='px-4 py-2' onClick={() => {
+            <Button color="primary" className='px-6 py-2' onClick={handleSubmit}>Next</Button>
+          </div> : <div className='flex gap-4 mt-12 justify-end'>
+            <Button color="primary" className='px-6 py-2' onClick={() => {
               onPreButtonClick(1)
             }}>Prev</Button>
-            <Button color="primary" className='px-4 py-2' onClick={SubmitwholeForm}>Submit</Button>
+            <Button color="primary" className='px-6 py-2' onClick={SubmitwholeForm}>Submit</Button>
           </div>
         }
 

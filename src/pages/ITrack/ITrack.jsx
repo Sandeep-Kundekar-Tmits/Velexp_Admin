@@ -89,13 +89,13 @@ const ITrack = () => {
         <div className="page-content py-0 px-0">
             <MainHeaderCom title="ITrack - AWB Scan History" />
             
-            <div className="container-fluid px-3 mt-3">
+            <div className="container-fluid px-4 mt-4">
                 <Card>
                     <CardBody>
-                        <Row className="align-items-center">
+                        <Row className="items-center">
                             <Col md={6}>
-                                <div className="d-flex align-items-center gap-2">
-                                    <Label for="awbInput" className="mb-0 text-nowrap">Scan AWB:</Label>
+                                <div className="flex items-center gap-2">
+                                    <Label for="awbInput" className="mb-0 whitespace-nowrap">Scan AWB:</Label>
                                     <Input
                                         id="awbInput"
                                         type="text"
@@ -119,11 +119,11 @@ const ITrack = () => {
                     </CardBody>
                 </Card>
 
-                <div className="mt-4">
+                <div className="mt-6">
                     {loading ? (
-                        <div className="d-flex flex-column justify-content-center align-items-center py-5">
+                        <div className="flex flex-col justify-center items-center py-12">
                             <GridLoader size={15} color="#34c38f" />
-                            <p className="mt-3">Fetching scan records...</p>
+                            <p className="mt-4">Fetching scan records...</p>
                         </div>
                     ) : (
                         <TableContainer

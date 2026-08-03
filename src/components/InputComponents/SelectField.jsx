@@ -24,7 +24,7 @@ const SelectField = ({
     return (
       <>
         {parts[0]}
-        {text.includes("*") && <span className="text-danger">*</span>}
+        {text.includes("*") && <span className="text-danger-500">*</span>}
       </>
     );
   };
@@ -38,7 +38,7 @@ const SelectField = ({
   return (
     <FormGroup className="mb-2" style={{ width }}>
       {label && (
-        <Label className="fw-bold">
+        <Label className="font-bold">
           {renderLabel(label)}
         </Label>
       )}
@@ -84,7 +84,7 @@ const SelectField = ({
       />
 
       {error && (
-        <FormText className="text-danger small">
+        <FormText className="text-danger-500 text-xs">
           {error}
         </FormText>
       )}

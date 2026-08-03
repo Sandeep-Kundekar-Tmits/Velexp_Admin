@@ -458,7 +458,7 @@ const InvoiceEditModal = ({ invoice, isOpen, toggle, onSave, loading }) => {
         const isVisible = (column) => visibleColumns.includes(column);
 
         return (
-            <div className="table-responsive mt-3">
+            <div className="table-responsive mt-4">
                 <Table bordered striped>
                     <thead className="thead-dark">
                         <tr>
@@ -489,7 +489,7 @@ const InvoiceEditModal = ({ invoice, isOpen, toggle, onSave, loading }) => {
                                             invalid={!!errors[`items[${index}].description`]}
                                         />
                                         {errors[`items[${index}].description`] && (
-                                            <div className="text-danger small">
+                                            <div className="text-danger-500 text-xs">
                                                 {errors[`items[${index}].description`]}
                                             </div>
                                         )}
@@ -596,7 +596,7 @@ const InvoiceEditModal = ({ invoice, isOpen, toggle, onSave, loading }) => {
                                         <Button
                                             color="danger"
                                             size="sm"
-                                            className='d-flex justify-content-center align-items-center'
+                                            className='flex justify-center items-center'
                                             onClick={() => removeItem(item)}
                                         >
                                             {(PdfEnvoiceLoading && item.id === SelectedItemId) ? (
@@ -622,7 +622,7 @@ const InvoiceEditModal = ({ invoice, isOpen, toggle, onSave, loading }) => {
             </ModalHeader>
             <Form onSubmit={handleSubmit}>
                 <ModalBody style={{ maxHeight: '80vh', overflowY: 'auto' }}>
-                    <h5 className="mb-3 border-bottom pb-2">Basic Information</h5>
+                    <h5 className="mb-4 border-bottom pb-2">Basic Information</h5>
                     <Row>
                         <Col md={6}>
                             <FormGroup>
@@ -636,7 +636,7 @@ const InvoiceEditModal = ({ invoice, isOpen, toggle, onSave, loading }) => {
                                 // onChange={handleChange}
                                 // invalid={!!errors.invoice_no}
                                 />
-                                {errors.invoice_no && <div className="text-danger">{errors.invoice_no}</div>}
+                                {errors.invoice_no && <div className="text-danger-500">{errors.invoice_no}</div>}
                             </FormGroup>
                         </Col>
                         <Col md={6}>
@@ -650,7 +650,7 @@ const InvoiceEditModal = ({ invoice, isOpen, toggle, onSave, loading }) => {
                                     onChange={handleChange}
                                     invalid={!!errors.invoice_date}
                                 />
-                                {errors.invoice_date && <div className="text-danger">{errors.invoice_date}</div>}
+                                {errors.invoice_date && <div className="text-danger-500">{errors.invoice_date}</div>}
                             </FormGroup>
                         </Col>
                     </Row>
@@ -689,7 +689,7 @@ const InvoiceEditModal = ({ invoice, isOpen, toggle, onSave, loading }) => {
 
                     </Row>
 
-                    <h5 className="mt-4 mb-3 border-bottom pb-2">Sender Details</h5>
+                    <h5 className="mt-6 mb-4 border-bottom pb-2">Sender Details</h5>
                     <Row>
                         <Col md={6}>
                             <FormGroup>
@@ -702,7 +702,7 @@ const InvoiceEditModal = ({ invoice, isOpen, toggle, onSave, loading }) => {
                                     onChange={handleChange}
                                     invalid={!!errors.from_name}
                                 />
-                                {errors.from_name && <div className="text-danger">{errors.from_name}</div>}
+                                {errors.from_name && <div className="text-danger-500">{errors.from_name}</div>}
                             </FormGroup>
                         </Col>
                         <Col md={6}>
@@ -729,7 +729,7 @@ const InvoiceEditModal = ({ invoice, isOpen, toggle, onSave, loading }) => {
                             rows={2}
                             invalid={!!errors.from_address}
                         />
-                        {errors.from_address && <div className="text-danger">{errors.from_address}</div>}
+                        {errors.from_address && <div className="text-danger-500">{errors.from_address}</div>}
                     </FormGroup>
                     <Row>
                         <Col md={4}>
@@ -796,7 +796,7 @@ const InvoiceEditModal = ({ invoice, isOpen, toggle, onSave, loading }) => {
                         </Col>
                     </Row>
 
-                    <h5 className="mt-4 mb-3 border-bottom pb-2">Recipient Details</h5>
+                    <h5 className="mt-6 mb-4 border-bottom pb-2">Recipient Details</h5>
                     <Row>
                         <Col md={6}>
                             <FormGroup>
@@ -809,7 +809,7 @@ const InvoiceEditModal = ({ invoice, isOpen, toggle, onSave, loading }) => {
                                     onChange={handleChange}
                                     invalid={!!errors.to_name}
                                 />
-                                {errors.to_name && <div className="text-danger">{errors.to_name}</div>}
+                                {errors.to_name && <div className="text-danger-500">{errors.to_name}</div>}
                             </FormGroup>
                         </Col>
                         <Col md={6}>
@@ -836,7 +836,7 @@ const InvoiceEditModal = ({ invoice, isOpen, toggle, onSave, loading }) => {
                             rows={2}
                             invalid={!!errors.to_address}
                         />
-                        {errors.to_address && <div className="text-danger">{errors.to_address}</div>}
+                        {errors.to_address && <div className="text-danger-500">{errors.to_address}</div>}
                     </FormGroup>
                     <Row>
                         <Col md={4}>
@@ -904,11 +904,11 @@ const InvoiceEditModal = ({ invoice, isOpen, toggle, onSave, loading }) => {
                         </Col>
                     </Row>
 
-                    <div className="d-flex justify-content-between align-items-center mt-4 mb-3">
+                    <div className="flex justify-between items-center mt-6 mb-4">
                         <h5 className="mb-0">Invoice Items</h5>
                         {
                             UserType !== "franchise" && <div>
-                                <Button color="primary" size="sm" onClick={addNewItem} className="me-2">
+                                <Button color="primary" size="sm" onClick={addNewItem} className="mr-2">
                                     + Add Item
                                 </Button>
                             </div>
@@ -922,7 +922,7 @@ const InvoiceEditModal = ({ invoice, isOpen, toggle, onSave, loading }) => {
                         <Alert color="info" className="text-center">No items added yet</Alert>
                     )}
 
-                    <div className="mt-4 p-3 bg-light rounded">
+                    <div className="mt-6 p-4 bg-canvas rounded">
                         <Row>
                             <Col md={3}>
                                 <FormGroup>
@@ -1021,7 +1021,7 @@ const InvoiceEditModal = ({ invoice, isOpen, toggle, onSave, loading }) => {
                                         value={formData?.total_amount}
                                         onChange={handleChange}
                                         step="0.01"
-                                        className="fw-bold"
+                                        className="font-bold"
                                     />
                                 </FormGroup>
                             </Col>
@@ -1029,7 +1029,7 @@ const InvoiceEditModal = ({ invoice, isOpen, toggle, onSave, loading }) => {
                     </div>
                 </ModalBody>
                 <ModalFooter>
-                    <Button color="primary" className='d-flex justify-content-center align-items-center' type="submit">
+                    <Button color="primary" className='flex justify-center items-center' type="submit">
                         {
                             loading ? <Spinner size="sm">
                                 Loading...

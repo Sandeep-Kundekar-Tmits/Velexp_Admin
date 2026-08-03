@@ -27,13 +27,13 @@ const CustomerServiceEmployeeFilter = ({ data = [] }) => {
     }
   };
   return (
-    <Container fluid className="mt-4">
+    <Container fluid className="mt-6">
       <Row>
         {data.map(emp => (
-          <Col md={4} className="mb-3" key={emp.empid}>
-            <Card className="small">
-              <CardHeader className="d-flex justify-content-between align-items-center p-2 bg-light">
-                <strong className="text-truncate" style={{ maxWidth: '70%' }} title={emp.empname}>
+          <Col md={4} className="mb-4" key={emp.empid}>
+            <Card className="text-xs">
+              <CardHeader className="flex justify-between items-center p-2 bg-canvas">
+                <strong className="truncate" style={{ maxWidth: '70%' }} title={emp.empname}>
                   {emp.empname}
                 </strong>
                 <Badge color="dark" pill>{emp.empid}</Badge>
@@ -47,8 +47,8 @@ const CustomerServiceEmployeeFilter = ({ data = [] }) => {
                       <h6 className="mb-1">SPU PUD</h6>
                       {Object.entries(emp.spu_pud).map(([type, value]) => (
                         <div key={`spu-${type}`} className="mb-1">
-                          <div className="d-flex justify-content-between">
-                            <span className="text-capitalize small">{type.replace('_', ' ')}:</span>
+                          <div className="flex justify-between">
+                            <span className="capitalize text-xs">{type.replace('_', ' ')}:</span>
                             <Badge color={getBadgeColor('spu_pud', type, value)} pill>
                               {value}
                             </Badge>
@@ -70,8 +70,8 @@ const CustomerServiceEmployeeFilter = ({ data = [] }) => {
     
                       {Object.entries(emp.ofd_spd).map(([type, value]) => (
                         <div key={`ofd-${type}`} className="mb-1">
-                          <div className="d-flex justify-content-between">
-                            <span className="text-capitalize small">{type.replace('_', ' ')}:</span>
+                          <div className="flex justify-between">
+                            <span className="capitalize text-xs">{type.replace('_', ' ')}:</span>
                             <Badge color={getBadgeColor('ofd_spd', type, value)} pill>
                               {value}%
                             </Badge>

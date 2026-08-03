@@ -99,22 +99,22 @@ const HourlyBarChart = ({ rows = [] }) => {
     }
 
     return (
-        <Card className="shadow-sm border-0 mb-4 h-full">
+        <Card className="shadow-sm border-0 mb-6 h-full">
             <CardBody>
-                <div className="d-flex flex-wrap justify-content-between align-items-start mb-3 gap-2">
+                <div className="flex flex-wrap justify-between items-start mb-4 gap-2">
                     <div>
-                        <h6 className="fw-bold mb-1">Revenue by Hour</h6>
-                        <p className="text-muted small mb-0">Gross &amp; Net distribution across the day</p>
+                        <h6 className="font-bold mb-1">Revenue by Hour</h6>
+                        <p className="text-ink-muted text-xs mb-0">Gross &amp; Net distribution across the day</p>
                     </div>
-                    <div className="d-flex flex-wrap gap-2">
-                        <span className="fw-semibold px-2 py-1 rounded" style={{ fontSize: "12px", background: "rgba(85,110,230,0.12)", color: "#556ee6" }}>
+                    <div className="flex flex-wrap gap-2">
+                        <span className="font-semibold px-2 py-1 rounded" style={{ fontSize: "12px", background: "rgba(85,110,230,0.12)", color: "#556ee6" }}>
                             Gross {formatINRCompact(totalGross)}
                         </span>
-                        <span className="fw-semibold px-2 py-1 rounded" style={{ fontSize: "12px", background: "rgba(52,195,143,0.14)", color: "#34c38f" }}>
+                        <span className="font-semibold px-2 py-1 rounded" style={{ fontSize: "12px", background: "rgba(52,195,143,0.14)", color: "#34c38f" }}>
                             Net {formatINRCompact(totalNet)}
                         </span>
                         {peak && peak.gross > 0 && (
-                            <span className="fw-semibold px-2 py-1 rounded border" style={{ fontSize: "12px", background: "#f8f9fa", color: "#495057" }}>
+                            <span className="font-semibold px-2 py-1 rounded border" style={{ fontSize: "12px", background: "#f8f9fa", color: "#495057" }}>
                                 Peak {peak.label} · {formatINRCompact(peak.gross)}
                             </span>
                         )}
@@ -122,7 +122,7 @@ const HourlyBarChart = ({ rows = [] }) => {
                 </div>
 
                 {rows.length === 0 ? (
-                    <p className="text-muted mb-0">No hourly data.</p>
+                    <p className="text-ink-muted mb-0">No hourly data.</p>
                 ) : (
                     <ReactApexChart options={options} series={series} type="bar" height={360} />
                 )}

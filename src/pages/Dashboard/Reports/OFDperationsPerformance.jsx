@@ -404,8 +404,8 @@ const OFDperationsPerformance = () => {
         <div className='page-content'>
             <div className="container-fluid">
                 <div>
-                    <h3 className='pb-3 border-bottom '>OFD Operation Performance (FASR)</h3>
-                    <Row className='gx-3 d-flex align-items-center pt-2'>
+                    <h3 className='pb-4 border-bottom '>OFD Operation Performance (FASR)</h3>
+                    <Row className='gx-3 flex items-center pt-2'>
                         {/* <Col md={4}>
                             <FormGroup className="mb-2">
                                 <Label for="Customer">Select Customer</Label>
@@ -472,8 +472,8 @@ const OFDperationsPerformance = () => {
                         </Col>
 
 
-                        <Col md={3} className=' d-flex align-items-cente align-items-center gap-2 mt-2'>
-                            {/* <div className="d-flex 2"> */}
+                        <Col md={3} className=' flex align-items-cente items-center gap-2 mt-2'>
+                            {/* <div className="flex 2"> */}
                             <Button color="primary"
                                 // disabled={bookingLoading}
                                 style={{ height: "2.2rem", width: "100%" }}
@@ -484,7 +484,7 @@ const OFDperationsPerformance = () => {
 
                             {/* <Button
                                     color="primary"
-                                    className='d-flex justify-content-center align-items-center'
+                                    className='flex justify-center items-center'
                                     disabled={BookingData.length < 1}
                                     onClick={DownloadPerformanceDetails}
                                     title='Download'
@@ -516,9 +516,9 @@ const OFDperationsPerformance = () => {
 
                     <div className='mt-1'>
                         {
-                            OFDOperationsLoading ? <div style={{ height: "40vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+                            OFDOperationsLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
                                 <GridLoader size={20} />
-                                <p className="mt-5 h5">Loading OFD Operation Performance ...</p>
+                                <p className="mt-12 h5">Loading OFD Operation Performance ...</p>
                             </div>
                                 :
                                 <>

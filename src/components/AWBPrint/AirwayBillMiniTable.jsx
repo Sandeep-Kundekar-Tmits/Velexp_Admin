@@ -20,7 +20,7 @@ const AirwayBillMiniTable = React.forwardRef(({ data }, ref) => {
   return (
     <div
       ref={ref}
-      className="border d-flex justify-content-center"
+      className="border flex justify-center"
       style={{
         width: "75mm",
         height: "85mm", // from  75mm  to 95mm
@@ -45,7 +45,7 @@ const AirwayBillMiniTable = React.forwardRef(({ data }, ref) => {
           />
         </div>
         {/* Hidden headings */}
-        <div className="d-flex justify-content-between">
+        <div className="flex justify-between">
           <div style={{ width: "25mm", visibility: "hidden", height: "4mm" }}>
             Date/Time
           </div>
@@ -55,7 +55,7 @@ const AirwayBillMiniTable = React.forwardRef(({ data }, ref) => {
         </div>
 
         {/* Row 1 */}
-        <div className="d-flex justify-content-between">
+        <div className="flex justify-between">
           <div style={{ width: "25mm", fontWeight: "bold", padding: "3px" }}>
             {format(dateTime, "dd-MM-yyyy")}
             {/* {dateTime} */}
@@ -66,7 +66,7 @@ const AirwayBillMiniTable = React.forwardRef(({ data }, ref) => {
         </div>
 
         {/* Hidden headings */}
-        <div className="d-flex justify-content-between">
+        <div className="flex justify-between">
           <div style={{ width: "25mm", visibility: "hidden", height: "4mm" }}>
             Origin
           </div>
@@ -77,7 +77,7 @@ const AirwayBillMiniTable = React.forwardRef(({ data }, ref) => {
 
         {/* Row 2 */}
         <div className="" style={{ marginTop: "2mm" }}>
-          <div className="d-flex justify-content-between">
+          <div className="flex justify-between">
             <div style={{ width: "25mm", fontWeight: "bold", padding: "2px" }}>
               {origin}
             </div>
@@ -87,7 +87,7 @@ const AirwayBillMiniTable = React.forwardRef(({ data }, ref) => {
           </div>
 
           {/* Hidden headings */}
-          <div className="d-flex justify-content-between">
+          <div className="flex justify-between">
             <div style={{ width: "25mm", visibility: "hidden", height: "4mm" }}>
               MAWB
             </div>
@@ -99,7 +99,7 @@ const AirwayBillMiniTable = React.forwardRef(({ data }, ref) => {
 
         {/* Row 3 */}
         <div style={{ marginTop: "2mm" }}>
-          <div className="d-flex justify-content-between">
+          <div className="flex justify-between">
             <div style={{ width: "25mm", fontWeight: "bold", padding: "2px" }}>
               {mawb}
             </div>
@@ -109,7 +109,7 @@ const AirwayBillMiniTable = React.forwardRef(({ data }, ref) => {
           </div>
 
           {/* Hidden headings */}
-          <div className="d-flex justify-content-between">
+          <div className="flex justify-between">
             <div style={{ width: "25mm", visibility: "hidden", height: "4mm" }}>
               Consignor
             </div>
@@ -120,7 +120,7 @@ const AirwayBillMiniTable = React.forwardRef(({ data }, ref) => {
         </div>
 
         {/* Row 4 */}
-        <div className="d-flex justify-content-between" style={{ marginTop: "2mm" }}>
+        <div className="flex justify-between" style={{ marginTop: "2mm" }}>
           <div style={{ width: "25mm", fontWeight: "bold", padding: "2px" }}>
             {consignor}
           </div>

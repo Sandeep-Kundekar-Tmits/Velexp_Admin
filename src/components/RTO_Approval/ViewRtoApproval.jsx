@@ -31,44 +31,44 @@ const ViewRtoApproval = ({ isOpen, toggle, awbNumber, serviceCenter }) => {
     return (
         <Modal isOpen={isOpen} toggle={toggle} centered size="md">
             <ModalHeader toggle={toggle} className="border-bottom-0 pb-0 shadow-none">
-                <span className="fw-bold">{awbNumber || "Shipment History"}</span>
+                <span className="font-bold">{awbNumber || "Shipment History"}</span>
             </ModalHeader>
             <ModalBody>
                 <div className="table-responsive border rounded-3 bg-white" style={{ maxHeight: "400px", overflowY: "auto" }}>
                     <Table className="mb-0 align-middle">
-                        <thead className="bg-light">
+                        <thead className="bg-canvas">
                             <tr>
-                                <th className="border-bottom-0 py-2 ps-3" style={{ width: "40%" }}>Date</th>
+                                <th className="border-bottom-0 py-2 pl-4" style={{ width: "40%" }}>Date</th>
                                 <th className="border-bottom-0 py-2">Remark</th>
                             </tr>
                         </thead>
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td colSpan="2" className="text-center py-4 text-muted">Loading history...</td>
+                                    <td colSpan="2" className="text-center py-6 text-ink-muted">Loading history...</td>
                                 </tr>
                             ) : historyItems.length > 0 ? (
                                 historyItems.map((item, index) => (
                                     <tr key={index}>
-                                        <td className="ps-3 py-2 text-muted" style={{ fontSize: "14px" }}>
+                                        <td className="pl-4 py-2 text-ink-muted" style={{ fontSize: "14px" }}>
                                             {item.attempt_date ? moment(item.attempt_date).format("DD-MM-YYYY HH:mm") : "--"}
                                         </td>
-                                        <td className="py-2 text-muted" style={{ fontSize: "14px" }}>{item.customer_service_remark || "--"}</td>
+                                        <td className="py-2 text-ink-muted" style={{ fontSize: "14px" }}>{item.customer_service_remark || "--"}</td>
                                     </tr>
                                 ))
                             ) : (
                                 Array(7).fill(0).map((_, i) => (
                                     <tr key={i}>
-                                        <td className="py-3 ps-3 border-0">&nbsp;</td>
-                                        <td className="py-3 border-0">&nbsp;</td>
+                                        <td className="py-4 pl-4 border-0">&nbsp;</td>
+                                        <td className="py-4 border-0">&nbsp;</td>
                                     </tr>
                                 ))
                             )}
                         </tbody>
                     </Table>
                 </div>
-                <div className="d-flex justify-content-end mt-3">
-                    <Button color="secondary" onClick={toggle} size="sm" className="px-4">
+                <div className="flex justify-end mt-4">
+                    <Button color="secondary" onClick={toggle} size="sm" className="px-6">
                         Close
                     </Button>
                 </div>

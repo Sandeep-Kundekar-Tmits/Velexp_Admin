@@ -49,19 +49,19 @@ const SearchableDropdown = ({ onChange, className, locations = [], value = "sele
             style={{ width: "100%", zIndex: "999" }}
         >
             <div
-                className="d-flex align-items-center rounded px-2 border border-dark-subtle cursor-pointer"
+                className="flex items-center rounded px-2 border border-dark-subtle cursor-pointer"
                 style={{ height: height }}
                 onClick={() => setShowInputDropdown(!showInputDropdown)}
                 aria-haspopup="listbox"
                 aria-expanded={showInputDropdown}
             >
-                <div className="flex-grow-1 text-muted">
+                <div className="grow text-ink-muted">
                     {typeof selectedValue === 'object' ? selectedValue?.name : selectedValue}
                 </div>
-                <div className="d-flex align-items-center">
+                <div className="flex items-center">
                     {selectedValue !== "select" && (
                         <MdClose
-                            className="me-1"
+                            className="mr-1"
                             style={{ width: '18px', height: '18px' }}
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -78,10 +78,10 @@ const SearchableDropdown = ({ onChange, className, locations = [], value = "sele
 
             {showInputDropdown && (
                 <div
-                    className="position-absolute w-full bg-white border shadow-lg overflow-y-hidden start-0 p-2"
+                    className="absolute w-full bg-white border shadow-lg overflow-y-hidden start-0 p-2"
                     style={{ overflowX: "hidden", zIndex: 1000 }}
                 >
-                    <div className="position-relative">
+                    <div className="relative">
                         <input
                             type="text"
                             value={searchedItem}
@@ -98,7 +98,7 @@ const SearchableDropdown = ({ onChange, className, locations = [], value = "sele
                             role="listbox"
                         >
                             <div
-                                className="dropdown-item pt-1 pb-1 text-wrap text-danger"
+                                className="dropdown-item pt-1 pb-1 text-wrap text-danger-500"
                                 style={{ cursor: 'pointer' }}
                                 onClick={() => handleCancel()}
                             >
@@ -126,7 +126,7 @@ const SearchableDropdown = ({ onChange, className, locations = [], value = "sele
                                 ))
                             ) : (
                                 searchedItem.length > 2 && (
-                                    <p className="text-muted">No result found</p>
+                                    <p className="text-ink-muted">No result found</p>
                                 )
                             )}
                         </div>

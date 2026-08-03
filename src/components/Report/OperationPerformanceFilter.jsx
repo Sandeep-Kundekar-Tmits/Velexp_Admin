@@ -263,11 +263,11 @@ const OperationPerformanceFilter = ({ AllEntries = {}, ApplyFilter, BookingList 
     }, [AllEntries]);
 
     return (
-        <div className="admin-booking-filter border-top pt-3">
+        <div className="admin-booking-filter border-top pt-4">
             {/* Header */}
 
             {/* Shipment Statistics Row  for not group*/}
-            <div className="d-flex row-cols-5 flex-wrap gap-2">
+            <div className="flex row-cols-5 flex-wrap gap-2">
                 {Stats.map((stat, index) => {
                     if (!stat?.isGroup && !stat?.isNotation) {
                         return (
@@ -278,7 +278,7 @@ const OperationPerformanceFilter = ({ AllEntries = {}, ApplyFilter, BookingList 
                 })}
             </div>
             {/*  groups */}
-            <div className="mt-3 d-flex row-cols-4 flex-wrap gap-3">
+            <div className="mt-4 flex row-cols-4 flex-wrap gap-4">
                 {
                     Stats?.map((stat, index) => {
                         if (stat?.isGroup) {
@@ -297,15 +297,15 @@ const OperationPerformanceFilter = ({ AllEntries = {}, ApplyFilter, BookingList 
             </div>
             {/* Form Controls Row */}
 
-            <Row className="g-3 my-3 bg-light rounded-2">
+            <Row className="gap-4 my-4 bg-canvas rounded-2">
                 <Col md={3}>
                     <FormGroup>
-                        <Label for="checkpoint" className="fw-bold">Select Checkpoint</Label>
+                        <Label for="checkpoint" className="font-bold">Select Checkpoint</Label>
                         <Select
                             id="checkpoint"
                             value={FilterObj.checkpt ? CheckptOption.find(opt => opt.value === FilterObj.checkpt) : null}
                             options={CheckptOption}
-                            className="bg-light"
+                            className="bg-canvas"
                             onChange={(val) => {
                                 setFilterObj({
                                     ...FilterObj,
@@ -319,7 +319,7 @@ const OperationPerformanceFilter = ({ AllEntries = {}, ApplyFilter, BookingList 
                     </FormGroup>
                 </Col>
 
-                <Col md={3} className="d-flex align-items-end mb-3">
+                <Col md={3} className="flex items-end mb-4">
                     <button className="btn btn-primary w-full" onClick={() => {
                         setIsFilterActive(true)
                         let updatedCount = ApplyFilter(FilterObj)
@@ -328,10 +328,10 @@ const OperationPerformanceFilter = ({ AllEntries = {}, ApplyFilter, BookingList 
                     </button>
                 </Col>
 
-                <Col md={3} className="d-flex align-items-end mb-3">
+                <Col md={3} className="flex items-end mb-4">
                     {
                         isFilterActive && <button
-                            className="btn bg-danger text-white w-full"
+                            className="btn bg-danger-500 text-white w-full"
                             onClick={() => {
                                 setFilterObj({
                                     checkpt: null,

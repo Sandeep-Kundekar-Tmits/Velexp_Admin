@@ -56,7 +56,7 @@ const RolesTab = () => {
         {
             header: "Actions", accessorKey: "actions", enableSorting: false, enableColumnFilter: false,
             cell: ({ row }) => (
-                <div className="d-flex gap-2 justify-content-center">
+                <div className="flex gap-2 justify-center">
                     <Button size="sm" color="primary" outline onClick={() => { setSelectedRole(row.original); setFormOpen(true); }}>
                         <RiEditLine />
                     </Button>
@@ -70,12 +70,12 @@ const RolesTab = () => {
 
     return (
         <div>
-            <div className="d-flex justify-content-end mb-3">
+            <div className="flex justify-end mb-4">
                 <Button color="primary" onClick={() => { setSelectedRole(null); setFormOpen(true); }}>+ New Role</Button>
             </div>
 
             {loading ? (
-                <div className="d-flex justify-content-center mt-5"><GridLoader color="#556ee6" /></div>
+                <div className="flex justify-center mt-12"><GridLoader color="#556ee6" /></div>
             ) : (
                 <TableContainer
                     columns={columns}

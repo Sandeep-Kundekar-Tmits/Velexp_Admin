@@ -273,18 +273,18 @@ const MisTallyComponent = () => {
                 <MainHeaderComp
                     title="Tally MIS Report"
                     extraFields={
-                        <div className="d-flex align-items-center">
+                        <div className="flex items-center">
                             <FormGroup className="mb-0">
                                 <Input type="file" id="gstUpload" onChange={UploadMISOnChange} />
                             </FormGroup>
                             {
-                                JsonLoading && <Spinner size="sm" className="ms-2">
+                                JsonLoading && <Spinner size="sm" className="ml-2">
                                     Loading...
                                 </Spinner>
                             }
                             {
                                 MISJsondata.length >= 1 &&
-                                <Button color="primary" className="ms-3 d-flex justify-content-center align-items-center" onClick={MISBulkUpoad} style={{ height: "2.2rem", width: "5rem" }} >
+                                <Button color="primary" className="ml-4 flex justify-center items-center" onClick={MISBulkUpoad} style={{ height: "2.2rem", width: "5rem" }} >
                                     {
                                         MISBulkUpoadLoading ? <Spinner size="sm" className="">
                                             Loading...
@@ -296,7 +296,7 @@ const MisTallyComponent = () => {
                     }
                 />
             </div>
-            <div className="container-fluid px-3 mt-3">
+            <div className="container-fluid px-4 mt-4">
 
                 {/* displaying the filters */}
                 <MisTallyFilter RecallInfo={RecallInfo} FilterData={FilterData} Removefilter={() => {
@@ -306,22 +306,22 @@ const MisTallyComponent = () => {
                     GetMISDataFunc(GET_MIS_TALLY_MAIN)
                 }} />
 
-                <div className="mt-3 border-top">
-                    {/* <div className="d-flex justify-content-between align-items-center">
+                <div className="mt-4 border-top">
+                    {/* <div className="flex justify-between items-center">
                     <h5>MIS Tally</h5>
                 </div> */}
                     {/* {MISData.map((item, index) => (
                     <Card key={index} className="border-2 shadow-none rounded-3 text-center">
                         <CardBody>
-                            <h5 className="fw-bold mb-1">{item.value}</h5>
-                            <p className="mb-0 text-muted small" style={{ fontSize: "13px" }}>{item.label}</p>
+                            <h5 className="font-bold mb-1">{item.value}</h5>
+                            <p className="mb-0 text-ink-muted text-xs" style={{ fontSize: "13px" }}>{item.label}</p>
                         </CardBody>
                     </Card>
                 ))} */}
                     {
                         ShowMisData && (
                             <>
-                                <Row className="gx-0 gy-0 mt-4">
+                                <Row className="gx-0 gy-0 mt-6">
                                     <Col md={2} className="rounded-3 text-center">
 
                                         <Card className="shadow-none border ">
@@ -329,24 +329,24 @@ const MisTallyComponent = () => {
                                                 {/* Common Key (Bottom) */}
 
                                                 <p
-                                                    className="mt-2 pt-0 py-2 text-white mb-0 fw-semibold text-dark "
+                                                    className="mt-2 pt-0 py-2 text-white mb-0 font-semibold text-ink "
                                                     style={{ fontSize: "14px" }}
                                                 >
                                                     inviisble
                                                 </p>
 
-                                                <div className="d-flex justify-content-between border-bottom border-top py-2 px-3" >
+                                                <div className="flex justify-between border-bottom border-top py-2 px-4" >
                                                     <p
-                                                        className="mb-0 text-muted small fw-bold"
+                                                        className="mb-0 text-ink-muted text-xs font-bold"
                                                         style={{ fontSize: "13px" }}
                                                     >
                                                         Count
                                                     </p>
                                                 </div>
-                                                <div className="d-flex justify-content-between border-bottom py-2 px-3"
+                                                <div className="flex justify-between border-bottom py-2 px-4"
                                                 >
                                                     <p
-                                                        className="mb-0 text-muted small fw-bold"
+                                                        className="mb-0 text-ink-muted text-xs font-bold"
                                                         style={{ fontSize: "13px" }}
                                                     >
                                                         Delivared
@@ -372,7 +372,7 @@ const MisTallyComponent = () => {
                                                         {/* Common Key (Bottom) */}
                                                         {group[0]?.commanKey && (
                                                             <p
-                                                                className="mt-2 pt-0 py-2 mb-0 fw-semibold text-dark"
+                                                                className="mt-2 pt-0 py-2 mb-0 font-semibold text-ink"
                                                                 style={{ fontSize: "14px" }}
                                                             >
                                                                 {group[0].commanKey}
@@ -382,15 +382,15 @@ const MisTallyComponent = () => {
                                                         {group.map((item, index) => (
                                                             <div
                                                                 key={index}
-                                                                className="d-flex justify-content-center text-center border-top py-2 px-3"
+                                                                className="flex justify-center text-center border-top py-2 px-4"
                                                             >
                                                                 <p
-                                                                    className="mb-0  fw-bold text-center"
+                                                                    className="mb-0  font-bold text-center"
                                                                     style={{ fontSize: "13px" }}
                                                                 >
                                                                     {item.value}
                                                                 </p>
-                                                                {/* <h6 className="fw-bold mb-0">{item.value}</h6> */}
+                                                                {/* <h6 className="font-bold mb-0">{item.value}</h6> */}
                                                             </div>
                                                         ))}
 
@@ -423,9 +423,9 @@ const MisTallyComponent = () => {
 
 
                     {
-                        (MISDataLoading || MISGroupedDataLoading) ? <div style={{ height: "75vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+                        (MISDataLoading || MISGroupedDataLoading) ? <div style={{ height: "75vh" }} className="container-fluid  flex flex-col justify-center items-center">
                             <GridLoader size={20} />
-                            <p className="mt-5 h5">Loading MIS Tally ...</p>
+                            <p className="mt-12 h5">Loading MIS Tally ...</p>
                         </div>
                             : <TableContainer
                                 columns={columns}

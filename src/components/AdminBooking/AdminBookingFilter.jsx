@@ -215,27 +215,27 @@ const AdminBookingFilter = ({ AllEntries = {}, ApplyFilter, BookingList, avarage
         ])
     }
     return (
-        <div className="admin-booking-filter pt-3 border-top">
+        <div className="admin-booking-filter pt-4 border-top">
             {/* Header */}
 
             {/* Shipment Statistics Row */}
-            <div className="mb-0 g-3 d-flex  row-cols-md-5 flex-wrap gap-3 ">
+            <div className="mb-0 gap-4 flex  row-cols-md-5 flex-wrap gap-4 ">
                 {Stats.map((stat, index) => (
                     <div key={index} md={3} className="m" style={{ maxWidth: "195px" }}>
                         <Card className="text-center border-2 rounded-lg overflow-hidden mb-0" style={{ transition: 'all 0.3s ease' }}>
                             <CardBody className={`py-2 px-2 bg-${stat.color}-light position-relative`}>
                                 {/* Optional decorative accent */}
                                 <div
-                                    className="position-absolute top-0 left-0 h-full w-3"
+                                    className="absolute top-0 left-0 h-full w-3"
                                     style={{ backgroundColor: `var(--bs-${stat.color})` }}
                                 ></div>
 
-                                <div className="position-relative">
-                                    <CardTitle tag="h6" className="text-muted text-uppercase mb-2 fs-6 fw-semibold letter-spacing-1">
+                                <div className="relative">
+                                    <CardTitle tag="h6" className="text-ink-muted uppercase mb-2 fs-6 font-semibold letter-spacing-1">
                                         {stat.title}
                                     </CardTitle>
 
-                                    <div className="d-flex align-items-baseline justify-content-center">
+                                    <div className="flex items-baseline justify-center">
                                         <CardText
                                             tag="h4"
                                             className={`mb-0 fw-bold text-${stat.color}`}
@@ -250,7 +250,7 @@ const AdminBookingFilter = ({ AllEntries = {}, ApplyFilter, BookingList, avarage
                                             <span>Filtered Total</span>
                                             <CardText
                                                 tag="span"
-                                                className="text-primary ms-2 fs-6 fw-medium"
+                                                className="text-brand-500 ml-2 fs-6 font-medium"
                                                 title="Filtered total shipment count"
                                                 aria-label={`Filtered total shipment count: ${stat.subValue}`}
                                             >
@@ -268,11 +268,11 @@ const AdminBookingFilter = ({ AllEntries = {}, ApplyFilter, BookingList, avarage
             </div>
 
             {/* Form Controls Row */}
-            <div className="mt-3 rounded-3 border bg-light p-3">
-                <Row className="g-3 ">
+            <div className="mt-4 rounded-3 border bg-canvas p-4">
+                <Row className="gap-4 ">
                     <Col md={3}>
                         <FormGroup>
-                            <Label for="checkpoint" className="fw-bold">Select Checkpoint</Label>
+                            <Label for="checkpoint" className="font-bold">Select Checkpoint</Label>
                             <Select
                                 id="checkpoint"
                                 value={FilterObj.checkpt ? CheckptOption.find(opt => opt.value === FilterObj.checkpt) : null}
@@ -291,7 +291,7 @@ const AdminBookingFilter = ({ AllEntries = {}, ApplyFilter, BookingList, avarage
                     </Col>
                     {/* <Col md={3}>
                     <FormGroup>
-                        <Label for="orgsc" className="fw-bold">Select ORGSC</Label>
+                        <Label for="orgsc" className="font-bold">Select ORGSC</Label>
                         <Select
                             id="orgsc"
                             value={FilterObj.Orgsc ? ORGSC_Options.find(opt => opt.value === FilterObj.Orgsc) : null}
@@ -310,7 +310,7 @@ const AdminBookingFilter = ({ AllEntries = {}, ApplyFilter, BookingList, avarage
                 </Col> */}
                     <Col md={3}>
                         <FormGroup>
-                            <Label for="checkpoint" className="fw-bold">Regions</Label>
+                            <Label for="checkpoint" className="font-bold">Regions</Label>
                             <Select
                                 id="checkpoint"
                                 value={FilterObj.region ? AllRegions.find(opt => opt.value === FilterObj.region) : null}
@@ -329,7 +329,7 @@ const AdminBookingFilter = ({ AllEntries = {}, ApplyFilter, BookingList, avarage
                     </Col>
                     <Col md={3}>
                         <FormGroup>
-                            <Label for="checkpoint" className="fw-bold">Service Center</Label>
+                            <Label for="checkpoint" className="font-bold">Service Center</Label>
                             <Select
                                 id="checkpoint"
                                 value={FilterObj.serviceCenter ? ServiceCenterOption.find(opt => opt.value === FilterObj.serviceCenter) : null}
@@ -358,7 +358,7 @@ const AdminBookingFilter = ({ AllEntries = {}, ApplyFilter, BookingList, avarage
 
 
 
-                    <Col md={3} className="d-flex align-items-end gap-2 mb-3">
+                    <Col md={3} className="flex items-end gap-2 mb-4">
                         <button className="btn btn-primary w-1/2" onClick={() => {
                             setIsFilterActive(true)
                             let updatedCount = ApplyFilter(FilterObj)
@@ -371,7 +371,7 @@ const AdminBookingFilter = ({ AllEntries = {}, ApplyFilter, BookingList, avarage
                         </button>
                         {
                             isFilterActive && <button
-                                className="btn bg-danger shadow-sm text-white"
+                                className="btn bg-danger-500 shadow-sm text-white"
                                 onClick={() => {
                                     setFilterObj({
                                         checkpt: null,
@@ -397,7 +397,7 @@ const AdminBookingFilter = ({ AllEntries = {}, ApplyFilter, BookingList, avarage
 
                 {
                     FilteredStats.length > 0 &&
-                    <div className="mb-0 g-3 border-top d-flex flex-wrap gap-2 row-cols-md-6">
+                    <div className="mb-0 gap-4 border-top flex flex-wrap gap-2 row-cols-md-6">
                         {/* <h4 className="mb-0">Filtered Stats</h4> */}
                         {FilteredStats.map((stat, index) => (
                             <div key={index} style={{ width: "160px" }}>
@@ -405,16 +405,16 @@ const AdminBookingFilter = ({ AllEntries = {}, ApplyFilter, BookingList, avarage
                                     <CardBody className={`py-2 px-1 bg-${stat.color}-light position-relative`}>
                                         {/* Optional decorative accent */}
                                         <div
-                                            className="position-absolute top-0 left-0 h-full w-3"
+                                            className="absolute top-0 left-0 h-full w-3"
                                             style={{ backgroundColor: `var(--bs-${stat.color})` }}
                                         ></div>
 
-                                        <div className="position-relative">
-                                            <CardTitle style={{ fontSize: "12px" }} className="text-muted text-uppercase mb-2 fs-6 fw-semibold letter-spacing-1">
+                                        <div className="relative">
+                                            <CardTitle style={{ fontSize: "12px" }} className="text-ink-muted uppercase mb-2 fs-6 font-semibold letter-spacing-1">
                                                 {stat.title}
                                             </CardTitle>
 
-                                            <div className="d-flex align-items-baseline justify-content-center">
+                                            <div className="flex items-baseline justify-center">
                                                 <CardText
                                                     tag="h4"
                                                     className={`mb-0 fw-bold text-${stat.color}`}
@@ -429,7 +429,7 @@ const AdminBookingFilter = ({ AllEntries = {}, ApplyFilter, BookingList, avarage
                                                     <span>Filtered Total</span>
                                                     <CardText
                                                         tag="span"
-                                                        className="text-primary ms-2 fs-6 fw-medium"
+                                                        className="text-brand-500 ml-2 fs-6 font-medium"
                                                         title="Filtered total shipment count"
                                                         aria-label={`Filtered total shipment count: ${stat.subValue}`}
                                                     >

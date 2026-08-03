@@ -106,7 +106,7 @@ const CODReconciliation = () => {
                         : manifests.join(", ") || "N/A"
                     return (
                         <span
-                            className="text-primary fw-semibold"
+                            className="text-brand-500 font-semibold"
                             style={{ cursor: "pointer", textDecoration: "underline" }}
                             onClick={() => { setViewRecord(row); setIsViewModalOpen(true) }}
                             title="View Manifest Details"
@@ -130,7 +130,7 @@ const CODReconciliation = () => {
                 header: "Attachment",
                 accessorKey: "photo",
                 cell: (cell) => (
-                    <div className="d-flex justify-content-center">
+                    <div className="flex justify-center">
                         <Button
                             color="info"
                             size="sm"
@@ -151,7 +151,7 @@ const CODReconciliation = () => {
                     const row = cell.row.original
                     if (row.is_approved) {
                         return (
-                            <div className="d-flex justify-content-end">
+                            <div className="flex justify-end">
                                 <Badge color="primary" className="px-2 py-1" style={{ fontSize: "12px", borderRadius: "4px" }}>
                                     Success
                                 </Badge>
@@ -160,15 +160,15 @@ const CODReconciliation = () => {
                     }
                     if (row.dispute_remark) {
                         return (
-                            <div className="d-flex justify-content-end">
-                                <Badge color="warning" className="px-2 py-1 text-dark" style={{ fontSize: "12px", borderRadius: "4px" }}>
+                            <div className="flex justify-end">
+                                <Badge color="warning" className="px-2 py-1 text-ink" style={{ fontSize: "12px", borderRadius: "4px" }}>
                                     Exception
                                 </Badge>
                             </div>
                         )
                     }
                     return (
-                        <div className="d-flex gap-2 justify-content-end ">
+                        <div className="flex gap-2 justify-end ">
                             <Button
                                 color="success"
                                 size="sm"
@@ -199,13 +199,13 @@ const CODReconciliation = () => {
                 <MainHeaderComp title="COD Reconciliation" />
             </div>
             
-            <Container fluid className="px-3 mt-3">
-                <Card className="shadow-sm border-0 mb-4">
+            <Container fluid className="px-4 mt-4">
+                <Card className="shadow-sm border-0 mb-6">
                     <CardBody>
-                        <Row className="align-items-end">
+                        <Row className="items-end">
                             <Col md={4}>
-                                <div className="mb-3">
-                                    <label className="form-label fw-bold">Select Date Range</label>
+                                <div className="mb-4">
+                                    <label className="form-label font-bold">Select Date Range</label>
                                     <DateRangeInput
                                         value={selectedRange}
                                         onChange={setSelectedRange}
@@ -214,7 +214,7 @@ const CODReconciliation = () => {
                                 </div>
                             </Col>
                             <Col md={2}>
-                                <div className="mb-3">
+                                <div className="mb-4">
                                     <Button
                                         color="primary"
                                         className="w-full"
@@ -227,10 +227,10 @@ const CODReconciliation = () => {
                                 </div>
                             </Col>
                             <Col md={2}>
-                                <div className="mb-3">
+                                <div className="mb-4">
                                     <Button
                                         color="success"
-                                        className="w-full d-flex align-items-center justify-content-center gap-1"
+                                        className="w-full flex items-center justify-center gap-1"
                                         onClick={exportToExcel}
                                         disabled={loading || reconciliationData.length === 0}
                                         style={{ height: "38px" }}
@@ -246,9 +246,9 @@ const CODReconciliation = () => {
                 <Card className="shadow-sm border-0">
                     <CardBody className="p-0">
                         {loading ? (
-                            <div style={{ height: "40vh" }} className="d-flex flex-column justify-content-center align-items-center">
+                            <div style={{ height: "40vh" }} className="flex flex-col justify-center items-center">
                                 <GridLoader size={20} color="#5b73e8" />
-                                <p className="mt-3 text-muted">Fetching reconciliation data...</p>
+                                <p className="mt-4 text-ink-muted">Fetching reconciliation data...</p>
                             </div>
                         ) : (
                             <TableContainer

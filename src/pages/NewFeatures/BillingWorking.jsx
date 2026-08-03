@@ -221,7 +221,7 @@ const BillingWorking = () => {
                 const isReRunning = reRunningIds.has(run.id)
                 const isGenerated = run.status === "GENERATED" || run.status === "COMPLETED"
                 return (
-                    <div className="d-flex gap-2 justify-content-center">
+                    <div className="flex gap-2 justify-center">
                         <Button color="light" size="sm" title="Refresh Status" onClick={() => handleRefreshStatus(run.id)}>
                             <MdRefresh size={18} />
                         </Button>
@@ -268,13 +268,13 @@ const BillingWorking = () => {
                 <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
                     <MainHeaderComp title="Billing Working" />
                 </div>
-                <div className="container-fluid px-3 py-3">
-                    <Card className="shadow-sm border-0 mb-4">
+                <div className="container-fluid px-4 py-4">
+                    <Card className="shadow-sm border-0 mb-6">
                         <CardBody>
-                            <h5 className="mb-4 text-primary fw-bold">Queue New Billing Run</h5>
-                            <Row className="align-items-end">
-                                <Col md={4} className="mb-3">
-                                    <Label className="fw-bold">Select Corporate Customer</Label>
+                            <h5 className="mb-6 text-brand-500 font-bold">Queue New Billing Run</h5>
+                            <Row className="items-end">
+                                <Col md={4} className="mb-4">
+                                    <Label className="font-bold">Select Corporate Customer</Label>
                                     <SearchableDropdown
                                         onChange={(val) => setSelectedCustomer(val)}
                                         locations={customers}
@@ -283,7 +283,7 @@ const BillingWorking = () => {
                                         value={selectedCustomer ? selectedCustomer.name : "select"}
                                     />
                                 </Col>
-                                <Col md={5} className="mb-3">
+                                <Col md={5} className="mb-4">
                                     <DateRangePicker
                                         startDate={startDate}
                                         endDate={endDate}
@@ -291,10 +291,10 @@ const BillingWorking = () => {
                                         label="Date Range"
                                     />
                                 </Col>
-                                <Col md={3} className="mb-3 d-flex align-items-end">
+                                <Col md={3} className="mb-4 flex items-end">
                                     <Button 
                                         color="primary" 
-                                        className="w-full py-2 fw-bold" 
+                                        className="w-full py-2 font-bold" 
                                         onClick={handleQueueRun} 
                                         disabled={queuing}
                                     >
@@ -307,8 +307,8 @@ const BillingWorking = () => {
 
                     <Card className="shadow-sm border-0">
                         <CardBody className="p-0">
-                            <div className="p-3 bg-light border-bottom d-flex justify-content-between align-items-center">
-                                <h5 className="mb-0 fw-bold">Billing Run History</h5>
+                            <div className="p-4 bg-canvas border-bottom flex justify-between items-center">
+                                <h5 className="mb-0 font-bold">Billing Run History</h5>
                                 <Button color="secondary" size="sm" onClick={loadRuns} disabled={runsLoading}>
                                     {runsLoading ? <Spinner size="sm" /> : "Refresh Table"}
                                 </Button>

@@ -42,10 +42,10 @@ const AuditTab = ({ batchCtl }) => {
             cell: (cell) => {
                 const chips = reasonChips(cell.row.original.reason_counts)
                 return (
-                    <div className="d-flex flex-wrap gap-1">
+                    <div className="flex flex-wrap gap-1">
                         {chips.length
-                            ? chips.map((c) => <Badge key={c.key} color="light" className="text-dark border">{c.label}: {c.count}</Badge>)
-                            : <span className="text-muted">—</span>}
+                            ? chips.map((c) => <Badge key={c.key} color="light" className="text-ink border">{c.label}: {c.count}</Badge>)
+                            : <span className="text-ink-muted">—</span>}
                     </div>
                 )
             },
@@ -56,7 +56,7 @@ const AuditTab = ({ batchCtl }) => {
         {
             header: "Batch ID",
             accessorKey: "billing_batch_id",
-            cell: (c) => <span className="fw-semibold">#{c.getValue() ?? "—"}</span>,
+            cell: (c) => <span className="font-semibold">#{c.getValue() ?? "—"}</span>,
         },
         {
             header: "Date & Time",
@@ -68,7 +68,7 @@ const AuditTab = ({ batchCtl }) => {
                 return (
                     <div>
                         <div>{v.slice(0, 10).split("-").reverse().join("-")}</div>
-                        <div className="text-muted small">{v.slice(11, 16)}</div>
+                        <div className="text-ink-muted text-xs">{v.slice(11, 16)}</div>
                     </div>
                 )
             },
@@ -108,19 +108,19 @@ const AuditTab = ({ batchCtl }) => {
     return (
         <div>
             {/* Latest batch issue headline */}
-            <Card className="shadow-sm border-0 mb-4">
+            <Card className="shadow-sm border-0 mb-6">
                 <CardBody>
-                    <h5 className="fw-bold mb-3">Latest Sync &amp; Audit Issues</h5>
+                    <h5 className="font-bold mb-4">Latest Sync &amp; Audit Issues</h5>
                     {batch ? (
                         <>
                             {summaryChips.length > 0 ? (
-                                <div className="d-flex flex-wrap gap-2 mb-3">
+                                <div className="flex flex-wrap gap-2 mb-4">
                                     {summaryChips.map((c) => (
                                         <Badge key={c.key} color="danger" className="p-2">{c.label}: {c.count}</Badge>
                                     ))}
                                 </div>
                             ) : (
-                                <p className="text-muted">No blocking issues in the latest batch.</p>
+                                <p className="text-ink-muted">No blocking issues in the latest batch.</p>
                             )}
                             {issueRows.length > 0 && (
                                 <TableContainer
@@ -136,7 +136,7 @@ const AuditTab = ({ batchCtl }) => {
                             )}
                         </>
                     ) : (
-                        <p className="text-muted mb-0">Run a Sync &amp; Audit batch to see issues here.</p>
+                        <p className="text-ink-muted mb-0">Run a Sync &amp; Audit batch to see issues here.</p>
                     )}
                 </CardBody>
             </Card>
@@ -144,8 +144,8 @@ const AuditTab = ({ batchCtl }) => {
             {/* Audit report history */}
             <Card className="shadow-sm border-0">
                 <CardBody className="p-0">
-                    <div className="p-3 bg-light border-bottom d-flex justify-content-between align-items-center">
-                        <h5 className="mb-0 fw-bold">Audit Report History</h5>
+                    <div className="p-4 bg-canvas border-bottom flex justify-between items-center">
+                        <h5 className="mb-0 font-bold">Audit Report History</h5>
                         <Button color="secondary" size="sm" onClick={loadReports} disabled={reportsLoading}>
                             {reportsLoading ? <Spinner size="sm" /> : <><MdRefresh size={16} /> Refresh</>}
                         </Button>

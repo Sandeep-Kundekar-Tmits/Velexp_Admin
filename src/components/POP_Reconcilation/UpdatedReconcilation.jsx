@@ -5,12 +5,12 @@ import { POP_RECONCILATION_PAYMENT_CONFIRMATION } from "../../api";
 
 const Inputfiled = ({ title = "Title", name = "", value = "", onChange = null, placeholder, type = "text", errorMessage }) => {
     return (
-        <div className='w-full mb-3'>
+        <div className='w-full mb-4'>
             <Label>{title}</Label>
-            <div className="d-flex  rounded-3" style={{ border: "solid #D3D3D3 1px", }}>
+            <div className="flex  rounded-3" style={{ border: "solid #D3D3D3 1px", }}>
                 <Input type={type} step="0.01" className="border-0" placeholder={placeholder} name={name} value={value} onChange={onChange} />
             </div>
-            <small className="fw-bold text-danger">{errorMessage}</small>
+            <small className="font-bold text-danger-500">{errorMessage}</small>
         </div>
     )
 }
@@ -61,12 +61,12 @@ const UpdatedReconcilation = ({ show = false, onCloseClick, onUpdate, loading })
                     <button
                         type="button"
                         onClick={onCloseClick}
-                        className="btn-close position-absolute end-0 top-0 m-2"
+                        className="btn-close absolute end-0 top-0 m-2"
                         aria-label="Close"
                     ></button>
 
                     <h4 className="">Update POP Status</h4>
-                    <div className="border-top px-3 pt-2">
+                    <div className="border-top px-4 pt-2">
                         <Inputfiled
                             placeholder={"Transaction Id"}
                             title="Transaction Id"
@@ -85,7 +85,7 @@ const UpdatedReconcilation = ({ show = false, onCloseClick, onUpdate, loading })
                             onChange={(e) => onInputChange("total_amount", e.target.value)}
                             errorMessage={Errors?.total_amount}
                         />
-                        <div className="mb-3">
+                        <div className="mb-4">
                             <Inputfiled
                                 placeholder={"VE100078610,..."}
                                 title="AWB Numbers"
@@ -95,12 +95,12 @@ const UpdatedReconcilation = ({ show = false, onCloseClick, onUpdate, loading })
                                 rows={3}
                                 errorMessage={Errors?.AwbNumbers}
                             />
-                            <small className="text-muted mt-1 d-block">
+                            <small className="text-ink-muted mt-1 block">
                                 Enter AWB numbers separated by commas
                             </small>
                         </div>
 
-                        <Button className="bg-primary float-end" onClick={OnUpdate}>{loading ? "Updating..." : "Update"}</Button>
+                        <Button className="bg-brand-500 float-end" onClick={OnUpdate}>{loading ? "Updating..." : "Update"}</Button>
                     </div>
                 </ModalBody>
             </div>

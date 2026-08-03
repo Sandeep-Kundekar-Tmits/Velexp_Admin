@@ -201,7 +201,7 @@ const EmployeeAttendence = () => {
                 cell: ({ getValue }) =>
                     getValue() ? (
                         <button
-                            className="px-3 py-1 rounded-2 bg-light"
+                            className="px-4 py-1 rounded-2 bg-canvas"
                             onClick={() => {
                                 setSelectedImgSrc(getImageSrc(getValue()))
                                 setIsModalOpen(true)
@@ -222,11 +222,11 @@ const EmployeeAttendence = () => {
             <div className="bg-white sticky-top" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
                 <MainHeaderComp title=" Employee Trip Details" />
             </div>
-            <div className="container-fluid px-3">
+            <div className="container-fluid px-4">
                 {/*  header */}
 
                 {/* filters */}
-                <Row className="mt-3">
+                <Row className="mt-4">
                     <Col md={4}>
                         <FormGroup className="mb-2">
                             <Label for="Customer">Select Employee</Label>
@@ -252,7 +252,7 @@ const EmployeeAttendence = () => {
                         </FormGroup>
                     </Col>
                     <Col md={4}>
-                        <Button onClick={onGetData} className="bg-primary" style={{ marginTop: "28px" }}>Get Data</Button>
+                        <Button onClick={onGetData} className="bg-brand-500" style={{ marginTop: "28px" }}>Get Data</Button>
                     </Col>
                 </Row>
 
@@ -260,9 +260,9 @@ const EmployeeAttendence = () => {
                 <div>
                     <div className='mt-2'>
                         {
-                            EmployeeFilterLoading ? <div style={{ height: "75vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+                            EmployeeFilterLoading ? <div style={{ height: "75vh" }} className="container-fluid  flex flex-col justify-center items-center">
                                 <GridLoader size={20} />
-                                <p className="mt-5 h5">Loading Bookings ...</p>
+                                <p className="mt-12 h5">Loading Bookings ...</p>
                             </div>
                                 :
                                 <>{

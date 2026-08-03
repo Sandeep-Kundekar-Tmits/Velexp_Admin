@@ -309,8 +309,8 @@ const CorporateBooking = () => {
     };
 
     const renderInput = (label, name, type = "text", maxLength = null) => (
-        <FormGroup className="mb-3">
-            <Label for={name} className="fw-bold">{label}</Label>
+        <FormGroup className="mb-4">
+            <Label for={name} className="font-bold">{label}</Label>
             <Input
                 type={type}
                 name={name}
@@ -333,19 +333,19 @@ const CorporateBooking = () => {
             <div className="container-fluid p-0">
                 <div className=" p-0 m-0">
                     <Card className="p-0 m-0">
-                        <CardHeader className="bg-white d-flex justify-content-between align-items-center">
-                            <h4 className="mb-0"><Package className="me-2" /> Corporate Booking </h4>
-                            <button className="btn btn-primary px-4 py-2" onClick={() => {
+                        <CardHeader className="bg-white flex justify-between items-center">
+                            <h4 className="mb-0"><Package className="mr-2" /> Corporate Booking </h4>
+                            <button className="btn btn-primary px-6 py-2" onClick={() => {
                                 navigate("/service-provider-booking")
                             }} >
                                 View Bookings
                             </button>
                         </CardHeader>
-                        <CardBody className="p-4">
+                        <CardBody className="p-6">
                             <Form onSubmit={handleSubmit}>
 
                                 {/* Account Info */}
-                                <h5 className="text-primary mb-1"><User className="me-2" /> Account Information</h5>
+                                <h5 className="text-brand-500 mb-1"><User className="mr-2" /> Account Information</h5>
                                 {/* <Row>
                                     <Col md={6}>{renderInput("Username", "username", "text", 20)}</Col>
                                     <Col md={6}>{renderInput("Password", "password", "password", 20)}</Col>
@@ -373,7 +373,7 @@ const CorporateBooking = () => {
                                                 isClearable
                                                 styles={customStyles}
                                             />
-                                            <small className="text-danger fw-2">{errors.CustomerName}</small>
+                                            <small className="text-danger-500 fw-2">{errors.CustomerName}</small>
                                         </FormGroup>
                                     </Col>
                                     <Col md={4}>
@@ -392,7 +392,7 @@ const CorporateBooking = () => {
                                                 isClearable
                                                 styles={customStyles}
                                             />
-                                            <small className="text-danger fw-2">{errors.serviceType}</small>
+                                            <small className="text-danger-500 fw-2">{errors.serviceType}</small>
                                         </FormGroup>
 
                                     </Col>
@@ -404,7 +404,7 @@ const CorporateBooking = () => {
 
                                 {/* ---- */}
                                 {/* Pickup */}
-                                <h5 className="text-primary mt-2 mb-1"><Truck className="me-2" /> Shipper Details</h5>
+                                <h5 className="text-brand-500 mt-2 mb-1"><Truck className="mr-2" /> Shipper Details</h5>
 
                                 <Row>
                                     <Col md={6}>{renderInput("Pickup Name", "pickup_Name", "text", 50)}</Col>
@@ -428,7 +428,7 @@ const CorporateBooking = () => {
 
 
                                 {/* Drop */}
-                                <h5 className="text-primary mt-2 mb-1"><MapPin className="me-2" /> Consignee Details</h5>
+                                <h5 className="text-brand-500 mt-2 mb-1"><MapPin className="mr-2" /> Consignee Details</h5>
 
                                 <Row>
                                     <Col md={6}>{renderInput("Drop Name", "drop_Name", "text", 50)}</Col>
@@ -451,7 +451,7 @@ const CorporateBooking = () => {
 
 
                                 {/* Dimensions */}
-                                <h5 className="text-primary mt-2 mb-1"><Package className="me-2" /> Package Details</h5>
+                                <h5 className="text-brand-500 mt-2 mb-1"><Package className="mr-2" /> Package Details</h5>
                                 <Row>
                                     {renderInput("Product Description", "Product_Description", "textarea", 255)}
                                     <Col md={4}>{renderInput("Length (cm)", "length", "number")}</Col>
@@ -463,7 +463,7 @@ const CorporateBooking = () => {
                                 </Row>
 
                                 {/* Schedule */}
-                                {/* <h5 className="text-primary mt-2 mb-1"><Calendar className="me-2" /> Schedule</h5> */}
+                                {/* <h5 className="text-brand-500 mt-2 mb-1"><Calendar className="mr-2" /> Schedule</h5> */}
                                 {/* <Row>
                                     <Col md={4}>{renderInput("Schedule Date", "schedule_date", "date")}</Col>
                                     <Col md={4}>{renderInput("From Time", "from_Time", "time")}</Col>
@@ -489,12 +489,12 @@ const CorporateBooking = () => {
                                                 isClearable
                                                 styles={customStyles}
                                             />
-                                            <small className="text-danger fw-2">{errors.delhivery_booking_type}</small>
+                                            <small className="text-danger-500 fw-2">{errors.delhivery_booking_type}</small>
                                         </FormGroup>
                                     </Col>
                                     <Col md={4}>
-                                        <FormGroup switch className="d-flex flex-column">
-                                            <Label className="fw-bold mb-2 text-start" for="send_otp">
+                                        <FormGroup switch className="flex flex-col">
+                                            <Label className="font-bold mb-2 text-left" for="send_otp">
                                                 Send OTP
                                             </Label>
                                             <div>
@@ -502,7 +502,7 @@ const CorporateBooking = () => {
                                                     type="switch"
                                                     id="send_otp"
                                                     name="send_otp"
-                                                    className="mt-2 ms-2 p-2 px-3"
+                                                    className="mt-2 ml-2 p-2 px-4"
                                                     checked={formData.send_otp === "True"}
                                                     onChange={(e) =>
                                                         setFormData({
@@ -511,7 +511,7 @@ const CorporateBooking = () => {
                                                         })
                                                     }
                                                 />
-                                                {/* <span className="fw-semibold">
+                                                {/* <span className="font-semibold">
                                                     {formData.send_otp === "True" ? "True" : "False"}
                                                 </span> */}
                                             </div>
@@ -522,7 +522,7 @@ const CorporateBooking = () => {
                                 </Row>
 
                                 {/* <FormGroup>
-                                    <Label className="fw-bold">Payment Mode</Label>
+                                    <Label className="font-bold">Payment Mode</Label>
                                     <Input
                                         type="select"
                                         name="payment_mode"
@@ -536,7 +536,7 @@ const CorporateBooking = () => {
 
 
                                 {/* RTO */}
-                                <h5 className="text-primary mt-2 mb-1"><MapPin className="me-2" /> RTO Vendor Info</h5>
+                                <h5 className="text-brand-500 mt-2 mb-1"><MapPin className="mr-2" /> RTO Vendor Info</h5>
                                 <Row>
                                     <Col md={6}>{renderInput("RTO Vendor Name", "RTO_vendorname", "text", 30)}</Col>
                                     <Col md={6}>{renderInput("RTO Vendor Contact No", "RTO_vendorcontactno", "text", 20)}</Col>
@@ -547,8 +547,8 @@ const CorporateBooking = () => {
                                     {/* <Col md={6}>{renderInput("RTO Vendor Contact No", "RTO_vendorcontactno", "text", 20)}</Col> */}
                                 </Row>
 
-                                <div className="text-end mt-4">
-                                    <Button color="primary" size="lg" type="submit" className="px-5 shadow-sm">
+                                <div className="text-right mt-6">
+                                    <Button color="primary" size="lg" type="submit" className="px-12 shadow-sm">
                                         {
                                             corporatebookingloading ?
                                                 <Spinner size="sm">loading...</Spinner>

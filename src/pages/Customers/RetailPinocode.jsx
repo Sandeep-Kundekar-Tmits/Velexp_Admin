@@ -296,12 +296,12 @@ const RetailPincode = () => {
                 <MainHeaderCom
                     title="Retail Pincode"
                     extraFields={
-                        <div className="d-flex align-items-center">
-                            <h6 className="text-black fw-bold mb-0 me-2" style={{ fontSize: "14px" }}>Template</h6>
+                        <div className="flex items-center">
+                            <h6 className="text-black font-bold mb-0 mr-2" style={{ fontSize: "14px" }}>Template</h6>
                             <Button
                                 // disabled={data.length < 1}
                                 onClick={converToExcel}
-                                className="d-flex align-items-center px-2 bg-transparent border-success text-success"
+                                className="flex items-center px-2 bg-transparent border-success text-success-500"
                                 style={{
                                     borderRadius: "7px",
                                     fontWeight: "500",
@@ -310,25 +310,25 @@ const RetailPincode = () => {
                                 }}
                             >
                                 {
-                                    ConvertingEmptyExcelLoading ? <span className="me-2">Exporting...</span> : <span className="me-2">Download</span>
+                                    ConvertingEmptyExcelLoading ? <span className="mr-2">Exporting...</span> : <span className="mr-2">Download</span>
                                 }
-                                <FaFileExcel size={14} className="me-1" />
+                                <FaFileExcel size={14} className="mr-1" />
                             </Button>
                         </div>
                     }
                 />
             </div>
-            <div className="container-fluid mt-3">
-                <div className="d-flex pb-3 border-bottom justify-content-between align-items-center">
-                    <div className="d-flex align-items-center me-auto">
+            <div className="container-fluid mt-4">
+                <div className="flex pb-4 border-bottom justify-between items-center">
+                    <div className="flex items-center mr-auto">
                         {/* <h2 className="">Retail Pincode</h2> */}
-                        <div className="d-flex align-items-center">
-                            <div className="d-flex align-items-center me-2">
+                        <div className="flex items-center">
+                            <div className="flex items-center mr-2">
                                 {/*  upload file */}
                                 <Input type="file" onChange={UploadChange} style={{ width: "250px" }} />
                                 {
-                                    RetailPincodeExcelData?.length >= 1 && <Button onClick={UploadPincode} className="bg-primary text-white ms-2 d-flex align-items-center">{
-                                        UploadPincodeLoading ? <span className="me-2">Uploading...</span> : <span className="me-2">Upload</span>
+                                    RetailPincodeExcelData?.length >= 1 && <Button onClick={UploadPincode} className="bg-brand-500 text-white ml-2 flex items-center">{
+                                        UploadPincodeLoading ? <span className="mr-2">Uploading...</span> : <span className="mr-2">Upload</span>
                                     }</Button>
                                 }
                             </div>
@@ -345,9 +345,9 @@ const RetailPincode = () => {
 
                 <div className='mt-1'>
                     {
-                        PincodeDataLoading ? <div style={{ height: "40vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+                        PincodeDataLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
                             <GridLoader size={20} />
-                            <p className="mt-5 h5">Loading Pincodes ...</p>
+                            <p className="mt-12 h5">Loading Pincodes ...</p>
                         </div>
                             :
                             <TableContainer
@@ -399,11 +399,11 @@ const RetailPincode = () => {
                                     padding: "8px"
                                 }}
                             >
-                                <div className="d-flex flex-wrap gap-2">
+                                <div className="flex flex-wrap gap-2">
                                     {visiblePincodes.map(item => (
                                         <span
                                             key={item.id}
-                                            className="badge bg-light text-dark border px-2 py-1"
+                                            className="badge bg-canvas text-ink border px-2 py-1"
                                             style={{ fontSize: "0.85rem" }}
                                         >
                                             {item.pincode}
@@ -428,7 +428,7 @@ const RetailPincode = () => {
                             )}
 
 
-                            <p className="fw-semibold text-danger">
+                            <p className="font-semibold text-danger-500">
                                 Are you sure you want to delete pincodes
 
                             </p>

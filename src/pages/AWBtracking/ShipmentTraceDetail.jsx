@@ -107,7 +107,7 @@ const ShipmentTraceDetail = () => {
         return (
             <div className="page-content">
                 <MainHeaderComp title="Shipment Trace Details" />
-                <div className="d-flex justify-content-center align-items-center" style={{ height: "60vh" }}>
+                <div className="flex justify-center items-center" style={{ height: "60vh" }}>
                     <Spinner color="primary" />
                 </div>
             </div>
@@ -118,7 +118,7 @@ const ShipmentTraceDetail = () => {
         return (
             <div className="page-content">
                 <MainHeaderComp title="Shipment Trace Details" />
-                <div className="alert alert-danger m-3">
+                <div className="alert alert-danger m-4">
                     No data found for AWB: {awbno}
                 </div>
             </div>
@@ -131,19 +131,19 @@ const ShipmentTraceDetail = () => {
                 title="Shipment Trace Details"
                 subTitle={`AWB: ${awbno}`}
                 extraFields={
-                    <div className="d-flex gap-2">
+                    <div className="flex gap-2">
                         <Button color="secondary" outline onClick={() => navigate(-1)}>
                             ← Back
                         </Button>
                         <Button color="success" onClick={handleDownload} disabled={downloading}>
                             {downloading ? (
                                 <>
-                                    <Spinner size="sm" className="me-2" />
+                                    <Spinner size="sm" className="mr-2" />
                                     Downloading...
                                 </>
                             ) : (
                                 <>
-                                    <i className="bx bx-download me-2"></i>Download Excel
+                                    <i className="bx bx-download mr-2"></i>Download Excel
                                 </>
                             )}
                         </Button>
@@ -151,123 +151,123 @@ const ShipmentTraceDetail = () => {
                 }
             />
 
-            <div className="container-fluid px-3 py-4">
+            <div className="container-fluid px-4 py-6">
                 {/* Booking Info */}
-                <div className="card mb-4">
-                    <div className="card-header bg-primary bg-opacity-10 border-0">
-                        <h6 className="mb-0 fw-bold text-dark">Booking Information</h6>
+                <div className="card mb-6">
+                    <div className="card-header bg-brand-500 bg-opacity-10 border-0">
+                        <h6 className="mb-0 font-bold text-ink">Booking Information</h6>
                     </div>
                     <div className="card-body">
-                        <div className="row g-3">
+                        <div className="row gap-4">
                             <div className="col-md-3">
-                                <small className="text-muted">Order ID</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.orderid}</p>
+                                <small className="text-ink-muted">Order ID</small>
+                                <p className="mb-0 font-semibold">{shipmentTrace.booking?.orderid}</p>
                             </div>
                             <div className="col-md-3">
-                                <small className="text-muted">Product</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.product}</p>
+                                <small className="text-ink-muted">Product</small>
+                                <p className="mb-0 font-semibold">{shipmentTrace.booking?.product}</p>
                             </div>
                             <div className="col-md-3">
-                                <small className="text-muted">Weight</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.weight} kg</p>
+                                <small className="text-ink-muted">Weight</small>
+                                <p className="mb-0 font-semibold">{shipmentTrace.booking?.weight} kg</p>
                             </div>
                             <div className="col-md-3">
-                                <small className="text-muted">Pieces</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.no_of_pieces}</p>
+                                <small className="text-ink-muted">Pieces</small>
+                                <p className="mb-0 font-semibold">{shipmentTrace.booking?.no_of_pieces}</p>
                             </div>
                             <div className="col-md-3">
-                                <small className="text-muted">Booked Date</small>
-                                <p className="mb-0 fw-semibold">{formatDate(shipmentTrace.booking?.booked_date)}</p>
+                                <small className="text-ink-muted">Booked Date</small>
+                                <p className="mb-0 font-semibold">{formatDate(shipmentTrace.booking?.booked_date)}</p>
                             </div>
                             <div className="col-md-3">
-                                <small className="text-muted">Vol. Weight</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.volumetric_weight} kg</p>
+                                <small className="text-ink-muted">Vol. Weight</small>
+                                <p className="mb-0 font-semibold">{shipmentTrace.booking?.volumetric_weight} kg</p>
                             </div>
                             <div className="col-md-3">
-                                <small className="text-muted">Customer</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.customer_name}</p>
+                                <small className="text-ink-muted">Customer</small>
+                                <p className="mb-0 font-semibold">{shipmentTrace.booking?.customer_name}</p>
                             </div>
                             <div className="col-md-3">
-                                <small className="text-muted">Multipiece Type</small>
-                                <p className="mb-0"><span className="badge bg-info text-capitalize">{shipmentTrace.booking?.multipiece_type}</span></p>
+                                <small className="text-ink-muted">Multipiece Type</small>
+                                <p className="mb-0"><span className="badge bg-info capitalize">{shipmentTrace.booking?.multipiece_type}</span></p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Shipper Details */}
-                <div className="card mb-4">
-                    <div className="card-header bg-success bg-opacity-10 border-0">
-                        <h6 className="mb-0 fw-bold text-dark">Shipper Details</h6>
+                <div className="card mb-6">
+                    <div className="card-header bg-success-500 bg-opacity-10 border-0">
+                        <h6 className="mb-0 font-bold text-ink">Shipper Details</h6>
                     </div>
                     <div className="card-body">
-                        <div className="row g-3">
+                        <div className="row gap-4">
                             <div className="col-md-6">
-                                <small className="text-muted">Name</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.shipper_name}</p>
+                                <small className="text-ink-muted">Name</small>
+                                <p className="mb-0 font-semibold">{shipmentTrace.booking?.shipper_name}</p>
                             </div>
                             <div className="col-md-6">
-                                <small className="text-muted">Mobile</small>
-                                <p className="mb-0 fw-semibold">
-                                    <a href={`tel:${shipmentTrace.booking?.shipper_mobile}`} className="text-decoration-none">
+                                <small className="text-ink-muted">Mobile</small>
+                                <p className="mb-0 font-semibold">
+                                    <a href={`tel:${shipmentTrace.booking?.shipper_mobile}`} className="no-underline">
                                         {shipmentTrace.booking?.shipper_mobile}
                                     </a>
                                 </p>
                             </div>
                             <div className="col-12">
-                                <small className="text-muted">Address</small>
+                                <small className="text-ink-muted">Address</small>
                                 <p className="mb-0">{shipmentTrace.booking?.shipper_address}</p>
                             </div>
                             <div className="col-md-4">
-                                <small className="text-muted">City</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.shipper_city}</p>
+                                <small className="text-ink-muted">City</small>
+                                <p className="mb-0 font-semibold">{shipmentTrace.booking?.shipper_city}</p>
                             </div>
                             <div className="col-md-4">
-                                <small className="text-muted">State</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.shipper_state}</p>
+                                <small className="text-ink-muted">State</small>
+                                <p className="mb-0 font-semibold">{shipmentTrace.booking?.shipper_state}</p>
                             </div>
                             <div className="col-md-4">
-                                <small className="text-muted">Pincode</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.shipper_pincode}</p>
+                                <small className="text-ink-muted">Pincode</small>
+                                <p className="mb-0 font-semibold">{shipmentTrace.booking?.shipper_pincode}</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Consignee Details */}
-                <div className="card mb-4">
-                    <div className="card-header bg-danger bg-opacity-10 border-0">
-                        <h6 className="mb-0 fw-bold text-dark">Consignee Details</h6>
+                <div className="card mb-6">
+                    <div className="card-header bg-danger-500 bg-opacity-10 border-0">
+                        <h6 className="mb-0 font-bold text-ink">Consignee Details</h6>
                     </div>
                     <div className="card-body">
-                        <div className="row g-3">
+                        <div className="row gap-4">
                             <div className="col-md-6">
-                                <small className="text-muted">Name</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.consignee_name}</p>
+                                <small className="text-ink-muted">Name</small>
+                                <p className="mb-0 font-semibold">{shipmentTrace.booking?.consignee_name}</p>
                             </div>
                             <div className="col-md-6">
-                                <small className="text-muted">Mobile</small>
-                                <p className="mb-0 fw-semibold">
-                                    <a href={`tel:${shipmentTrace.booking?.consignee_mobile}`} className="text-decoration-none">
+                                <small className="text-ink-muted">Mobile</small>
+                                <p className="mb-0 font-semibold">
+                                    <a href={`tel:${shipmentTrace.booking?.consignee_mobile}`} className="no-underline">
                                         {shipmentTrace.booking?.consignee_mobile}
                                     </a>
                                 </p>
                             </div>
                             <div className="col-12">
-                                <small className="text-muted">Address</small>
+                                <small className="text-ink-muted">Address</small>
                                 <p className="mb-0">{shipmentTrace.booking?.consignee_address}</p>
                             </div>
                             <div className="col-md-4">
-                                <small className="text-muted">City</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.consignee_city}</p>
+                                <small className="text-ink-muted">City</small>
+                                <p className="mb-0 font-semibold">{shipmentTrace.booking?.consignee_city}</p>
                             </div>
                             <div className="col-md-4">
-                                <small className="text-muted">State</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.consignee_state}</p>
+                                <small className="text-ink-muted">State</small>
+                                <p className="mb-0 font-semibold">{shipmentTrace.booking?.consignee_state}</p>
                             </div>
                             <div className="col-md-4">
-                                <small className="text-muted">Pincode</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.consignee_pincode}</p>
+                                <small className="text-ink-muted">Pincode</small>
+                                <p className="mb-0 font-semibold">{shipmentTrace.booking?.consignee_pincode}</p>
                             </div>
                         </div>
                     </div>
@@ -275,8 +275,8 @@ const ShipmentTraceDetail = () => {
 
                 {/* Tracking History */}
                 <div className="card">
-                    <div className="card-header bg-light">
-                        <h6 className="mb-0 fw-semibold">Tracking History</h6>
+                    <div className="card-header bg-canvas">
+                        <h6 className="mb-0 font-semibold">Tracking History</h6>
                     </div>
                     <div className="card-body p-0">
                         <div style={{ maxHeight: "600px", overflowY: "auto" }}>
@@ -299,7 +299,7 @@ const ShipmentTraceDetail = () => {
                                     {shipmentTrace.pieces?.[awbno]?.map((piece, index) => (
                                         <tr key={index}>
                                             <td>
-                                                <span className="badge bg-primary">{piece.status}</span>
+                                                <span className="badge bg-brand-500">{piece.status}</span>
                                             </td>
                                             <td style={{ fontSize: "12px", whiteSpace: "nowrap" }}>
                                                 {formatDateTime(piece.status_date)}

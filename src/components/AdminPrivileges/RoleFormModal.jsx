@@ -40,7 +40,7 @@ const RoleFormModal = ({ isOpen, toggle, initialData, onSubmit, loading }) => {
             <ModalHeader toggle={toggle}>{isEdit ? "Edit Role" : "New Role"}</ModalHeader>
             <ModalBody>
                 <FormGroup>
-                    <Label>Name <span className="text-danger">*</span></Label>
+                    <Label>Name <span className="text-danger-500">*</span></Label>
                     <Input name="name" value={formData.name} invalid={!!errors.name} onChange={handleChange} />
                     <FormFeedback>{errors.name}</FormFeedback>
                 </FormGroup>

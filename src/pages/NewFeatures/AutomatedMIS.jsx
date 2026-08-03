@@ -68,13 +68,13 @@ const AutomatedMIS = () => {
                     <MainHeaderComp title="Automated MIS" subTitle="Generate the billed-shipments MIS report for a date range" />
                 </div>
 
-                <div className="container-fluid px-3 py-3">
+                <div className="container-fluid px-4 py-4">
                     <Card className="shadow-sm border-0">
-                        <CardBody className="p-4">
-                            <h5 className="mb-4 fw-bold">Select Date Range</h5>
-                            <Row className="align-items-end g-3">
+                        <CardBody className="p-6">
+                            <h5 className="mb-6 font-bold">Select Date Range</h5>
+                            <Row className="items-end gap-4">
                                 <Col md={4}>
-                                    <Label className="fw-bold">Start Date</Label>
+                                    <Label className="font-bold">Start Date</Label>
                                     <Input
                                         type="date"
                                         value={startDate}
@@ -83,7 +83,7 @@ const AutomatedMIS = () => {
                                     />
                                 </Col>
                                 <Col md={4}>
-                                    <Label className="fw-bold">End Date</Label>
+                                    <Label className="font-bold">End Date</Label>
                                     <Input
                                         type="date"
                                         value={endDate}
@@ -98,7 +98,7 @@ const AutomatedMIS = () => {
                                         block
                                         onClick={handleGenerate}
                                         disabled={downloading}
-                                        className="d-flex align-items-center justify-content-center gap-2"
+                                        className="flex items-center justify-center gap-2"
                                     >
                                         {downloading
                                             ? <><Spinner size="sm" /> Generating...</>
@@ -107,8 +107,8 @@ const AutomatedMIS = () => {
                                     </Button>
                                 </Col>
                             </Row>
-                            <p className="text-muted small mb-0 mt-3">
-                                <i className="mdi mdi-information-outline me-1"></i>
+                            <p className="text-ink-muted text-xs mb-0 mt-4">
+                                <i className="mdi mdi-information-outline mr-1"></i>
                                 The report is generated on the server and downloaded as an Excel file.
                             </p>
                         </CardBody>

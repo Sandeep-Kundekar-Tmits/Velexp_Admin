@@ -316,7 +316,7 @@ const INTCustomerRateDataComp = () => {
                     enableColumnFilter: false,
                     enableSorting: false,
                     cell: ({ row }) => (
-                        <div className="d-flex gap-2">
+                        <div className="flex gap-2">
                             <button
                                 className="btn btn-sm btn-outline-primary"
                                 onClick={() => handleUpdate(row.original)}
@@ -342,20 +342,20 @@ const INTCustomerRateDataComp = () => {
     );
     return (
         <div className="p-0">
-            <div className="d-flex align-items-center justify-content-between gap-2 mt-2">
+            <div className="flex items-center justify-between gap-2 mt-2">
                 <h4>
                     International Customer Rate Data
                 </h4>
                 {
                     isAdmin && <Button
                         color="primary"
-                        className='d-flex justify-content-center align-items-center'
+                        className='flex justify-center items-center'
                         disabled={RateData.length < 1}
                         onClick={DownloadIntCutomerData}
                         title='Download'
                     >
                         Download
-                        <IoMdCloudDownload className="ms-2" style={{ width: "25px", height: "25px" }} />
+                        <IoMdCloudDownload className="ml-2" style={{ width: "25px", height: "25px" }} />
                     </Button>
                 }
 
@@ -365,7 +365,7 @@ const INTCustomerRateDataComp = () => {
                 {
                     (isAdmin && RateData?.length >= 1) &&
 
-                    <div className="d-flex align-items-center">
+                    <div className="flex items-center">
                         <FormGroup style={{ marginTop: "10px" }}>
                             <Label for="gstUpload">Upload </Label>
                             <Input type="file" id="gstUpload" onChange={UploadINTCustomerOnChange} />
@@ -378,7 +378,7 @@ const INTCustomerRateDataComp = () => {
                             <FormText color="muted">Upload  file if available</FormText>
                         </FormGroup>
                         {
-                            UploadData.length >= 1 && <Button color="primary" onClick={INT_BulkUpload} className="ms-5 d-flex justify-content-center align-items-center" style={{ height: "2.2rem", width: "5rem" }} >
+                            UploadData.length >= 1 && <Button color="primary" onClick={INT_BulkUpload} className="ml-12 flex justify-center items-center" style={{ height: "2.2rem", width: "5rem" }} >
                                 {
                                     BulkINTCustomerUploadLoading ? <Spinner size="sm" className="">
                                         Loading...
@@ -395,9 +395,9 @@ const INTCustomerRateDataComp = () => {
                 {/* <h2>Bookings</h2> */}
                 <div className='mt-1'>
                     {
-                        IntCustomerDataLoading ? <div style={{ height: "40vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+                        IntCustomerDataLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
                             <GridLoader size={20} />
-                            <p className="mt-5 h5">Loading INT Customer Data Rate ...</p>
+                            <p className="mt-12 h5">Loading INT Customer Data Rate ...</p>
                         </div>
                             :
                             <TableContainer

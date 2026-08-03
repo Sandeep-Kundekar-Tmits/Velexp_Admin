@@ -272,7 +272,7 @@ const InvoiceFlow = () => {
             cell: (cell) => {
                 const inv = cell.row.original
                 return (
-                    <div className="d-flex gap-2 justify-content-center">
+                    <div className="flex gap-2 justify-center">
                         <Button color="info" size="sm" onClick={() => handleEditInvoice(inv)}>
                             <MdEdit size={18} />
                         </Button>
@@ -326,14 +326,14 @@ const InvoiceFlow = () => {
                 <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
                     <MainHeaderComp title="Invoice Flow" />
                 </div>
-                <div className="container-fluid px-3 py-3">
-                    <Nav tabs className="nav-tabs-custom nav-success mb-4">
+                <div className="container-fluid px-4 py-4">
+                    <Nav tabs className="nav-tabs-custom nav-success mb-6">
                         <NavItem>
                             <NavLink
                                 className={classnames({ active: activeTab === "1" })}
                                 onClick={() => setActiveTab("1")}
                             >
-                                <span className="d-none d-sm-block">Create Invoice</span>
+                                <span className="hidden sm:block">Create Invoice</span>
                             </NavLink>
                         </NavItem>
                         <NavItem>
@@ -341,7 +341,7 @@ const InvoiceFlow = () => {
                                 className={classnames({ active: activeTab === "2" })}
                                 onClick={() => setActiveTab("2")}
                             >
-                                <span className="d-none d-sm-block">Invoice History</span>
+                                <span className="hidden sm:block">Invoice History</span>
                             </NavLink>
                         </NavItem>
                     </Nav>
@@ -349,21 +349,21 @@ const InvoiceFlow = () => {
                     <TabContent activeTab={activeTab}>
                         <TabPane tabId="1">
                             {!previewData ? (
-                                <Card className="shadow-sm border-0 mb-4">
-                                    <CardBody className="p-4">
-                                        <h5 className="mb-4 fw-bold">1. Upload Working Excel</h5>
+                                <Card className="shadow-sm border-0 mb-6">
+                                    <CardBody className="p-6">
+                                        <h5 className="mb-6 font-bold">1. Upload Working Excel</h5>
 
-                                        <div className="text-center p-5 border-2 border-dashed rounded bg-soft-light">
-                                            <div className="mb-4">
-                                                <i className="mdi mdi-file-excel-outline text-success" style={{ fontSize: "5rem" }}></i>
+                                        <div className="text-center p-12 border-2 border-dashed rounded bg-soft-light">
+                                            <div className="mb-6">
+                                                <i className="mdi mdi-file-excel-outline text-success-500" style={{ fontSize: "5rem" }}></i>
                                             </div>
                                             <h4>Select File</h4>
-                                            <p className="text-muted mb-4">Choose the Excel file from Billing Working.</p>
-                                            <p className="text-muted small mb-4">
-                                                <i className="mdi mdi-information-outline me-1"></i>
+                                            <p className="text-ink-muted mb-6">Choose the Excel file from Billing Working.</p>
+                                            <p className="text-ink-muted text-xs mb-6">
+                                                <i className="mdi mdi-information-outline mr-1"></i>
                                                 You can optionally set Invoice Date, GST &amp; PAN overrides before selecting the file.
                                             </p>
-                                            <div className="d-flex justify-content-center">
+                                            <div className="flex justify-center">
                                                 {/* Hidden file input — triggered from the overrides modal */}
                                                 <input
                                                     type="file"
@@ -375,13 +375,13 @@ const InvoiceFlow = () => {
                                                 />
                                                 <Button
                                                     color="success"
-                                                    className="px-5 py-2"
+                                                    className="px-12 py-2"
                                                     disabled={uploading}
                                                     onClick={() => setIsOverrideModalOpen(true)}
                                                 >
                                                     {uploading
-                                                        ? <><Spinner size="sm" className="me-2" /> Uploading...</>
-                                                        : <><MdFileUpload size={20} className="me-2" /> Choose Working File</>
+                                                        ? <><Spinner size="sm" className="mr-2" /> Uploading...</>
+                                                        : <><MdFileUpload size={20} className="mr-2" /> Choose Working File</>
                                                     }
                                                 </Button>
                                             </div>
@@ -390,15 +390,15 @@ const InvoiceFlow = () => {
                                 </Card>
                             ) : (
                                 <div className="animate-fade-in">
-                                    <Card className="shadow-sm border-0 mb-4 bg-soft-success border-start border-4 border-success">
+                                    <Card className="shadow-sm border-0 mb-6 bg-soft-success border-start border-4 border-success">
                                         <CardBody>
-                                            <Row className="align-items-center">
+                                            <Row className="items-center">
                                                 <Col md={8}>
-                                                    <h5 className="mb-1 fw-bold text-success">Preview Prepared: {previewData.customer_name}</h5>
-                                                    <p className="mb-0 text-muted">Period: {formatDate(previewData.start_date)} to {formatDate(previewData.end_date)} | Total Ships: {previewData.bills?.length || 0}</p>
+                                                    <h5 className="mb-1 font-bold text-success-500">Preview Prepared: {previewData.customer_name}</h5>
+                                                    <p className="mb-0 text-ink-muted">Period: {formatDate(previewData.start_date)} to {formatDate(previewData.end_date)} | Total Ships: {previewData.bills?.length || 0}</p>
                                                 </Col>
-                                                <Col md={4} className="text-md-end mt-3 mt-md-0">
-                                                    <Button color="secondary" className="me-2" onClick={() => setPreviewData(null)}>Cancel</Button>
+                                                <Col md={4} className="text-md-end mt-4 mt-md-0">
+                                                    <Button color="secondary" className="mr-2" onClick={() => setPreviewData(null)}>Cancel</Button>
                                                     <Button color="primary" onClick={handleGenerateInvoice} disabled={generating}>
                                                         {generating ? <Spinner size="sm" /> : "Generate Final Invoice"}
                                                     </Button>
@@ -407,57 +407,57 @@ const InvoiceFlow = () => {
                                         </CardBody>
                                     </Card>
 
-                                    <Row className="mb-4">
+                                    <Row className="mb-6">
                                         <Col md={3}>
                                             <Card className="shadow-sm border-0">
                                                 <CardBody className="text-center">
-                                                    <h6 className="text-muted mb-1">Total Shipments</h6>
-                                                    <h4 className="fw-bold">{previewData.summary?.total_shipments || 0}</h4>
+                                                    <h6 className="text-ink-muted mb-1">Total Shipments</h6>
+                                                    <h4 className="font-bold">{previewData.summary?.total_shipments || 0}</h4>
                                                 </CardBody>
                                             </Card>
                                         </Col>
                                         <Col md={3}>
                                             <Card className="shadow-sm border-0">
                                                 <CardBody className="text-center">
-                                                    <h6 className="text-muted mb-1">Freight Amount</h6>
-                                                    <h4 className="fw-bold">₹{previewData.summary?.total_freight?.toLocaleString() || 0}</h4>
+                                                    <h6 className="text-ink-muted mb-1">Freight Amount</h6>
+                                                    <h4 className="font-bold">₹{previewData.summary?.total_freight?.toLocaleString() || 0}</h4>
                                                 </CardBody>
                                             </Card>
                                         </Col>
                                         <Col md={3}>
                                             <Card className="shadow-sm border-0">
                                                 <CardBody className="text-center">
-                                                    <h6 className="text-muted mb-1">GST Amount</h6>
-                                                    <h4 className="fw-bold text-info">₹{previewData.summary?.total_gst?.toLocaleString() || 0}</h4>
+                                                    <h6 className="text-ink-muted mb-1">GST Amount</h6>
+                                                    <h4 className="font-bold text-accent-500">₹{previewData.summary?.total_gst?.toLocaleString() || 0}</h4>
                                                 </CardBody>
                                             </Card>
                                         </Col>
                                         <Col md={3}>
                                             <Card className="shadow-sm border-0">
                                                 <CardBody className="text-center">
-                                                    <h6 className="text-muted mb-1">Grand Total</h6>
-                                                    <h4 className="fw-bold text-primary">₹{previewData.summary?.sum_total_amount?.toLocaleString() || 0}</h4>
+                                                    <h6 className="text-ink-muted mb-1">Grand Total</h6>
+                                                    <h4 className="font-bold text-brand-500">₹{previewData.summary?.sum_total_amount?.toLocaleString() || 0}</h4>
                                                 </CardBody>
                                             </Card>
                                         </Col>
                                     </Row>
                                     
                                     {previewData.booking && (
-                                        <div className="mb-4">
-                                            <h5 className="mb-3 fw-bold text-secondary">Zone-wise Booking Summary</h5>
+                                        <div className="mb-6">
+                                            <h5 className="mb-4 font-bold text-ink-muted">Zone-wise Booking Summary</h5>
                                             <Row>
                                                 {Object.entries(previewData.booking).map(([zone, data]) => (
-                                                    <Col md={3} key={zone} className="mb-3">
+                                                    <Col md={3} key={zone} className="mb-4">
                                                         <Card className="border-0 shadow-sm h-full bg-white">
-                                                            <CardBody className="p-3">
-                                                                <div className="d-flex justify-content-between align-items-center mb-2">
+                                                            <CardBody className="p-4">
+                                                                <div className="flex justify-between items-center mb-2">
                                                                     <Badge color={zone === "UNMAPPED" || data.total_amount === 0 ? "danger" : "info"} className="px-2 py-1">
                                                                         {zone}
                                                                     </Badge>
-                                                                    <span className="text-muted small fw-bold">{data.count} Ships</span>
+                                                                    <span className="text-ink-muted text-xs font-bold">{data.count} Ships</span>
                                                                 </div>
-                                                                <h5 className="mb-0 text-dark fw-bold">₹{data.total_amount?.toLocaleString() || 0}</h5>
-                                                                <div className="mt-1 small text-muted">Freight: ₹{data.total_freight?.toLocaleString() || 0}</div>
+                                                                <h5 className="mb-0 text-ink font-bold">₹{data.total_amount?.toLocaleString() || 0}</h5>
+                                                                <div className="mt-1 text-xs text-ink-muted">Freight: ₹{data.total_freight?.toLocaleString() || 0}</div>
                                                             </CardBody>
                                                         </Card>
                                                     </Col>
@@ -485,11 +485,11 @@ const InvoiceFlow = () => {
                         </TabPane>
 
                         <TabPane tabId="2">
-                            <Card className="shadow-sm border-0 mb-4">
+                            <Card className="shadow-sm border-0 mb-6">
                                 <CardBody>
-                                    <Row className="align-items-end">
+                                    <Row className="items-end">
                                         <Col md={4}>
-                                            <Label className="fw-bold">Filter by Customer</Label>
+                                            <Label className="font-bold">Filter by Customer</Label>
                                             <SearchableDropdown
                                                 onChange={(val) => setSelectedCustomer(val)}
                                                 locations={customers}
@@ -499,7 +499,7 @@ const InvoiceFlow = () => {
                                             />
                                         </Col>
                                         <Col md={2}>
-                                            <Label className="fw-bold">Start Date</Label>
+                                            <Label className="font-bold">Start Date</Label>
                                             <Input
                                                 type="date"
                                                 value={startDate}
@@ -508,7 +508,7 @@ const InvoiceFlow = () => {
                                             />
                                         </Col>
                                         <Col md={2}>
-                                            <Label className="fw-bold">End Date</Label>
+                                            <Label className="font-bold">End Date</Label>
                                             <Input
                                                 type="date"
                                                 value={endDate}
@@ -554,11 +554,11 @@ const InvoiceFlow = () => {
                     {currentInvoice && (
                         <Container fluid>
                             {/* Invoice Meta Section */}
-                            <h6 className="fw-bold mb-3 border-bottom pb-2 text-primary">Invoice Metadata</h6>
-                            <Row className="mb-3">
+                            <h6 className="font-bold mb-4 border-bottom pb-2 text-brand-500">Invoice Metadata</h6>
+                            <Row className="mb-4">
                                 <Col md={3}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">Invoice No</Label>
+                                        <Label className="text-xs font-bold">Invoice No</Label>
                                         <Input 
                                             type="text" 
                                             value={currentInvoice.invoice_no || ""} 
@@ -568,7 +568,7 @@ const InvoiceFlow = () => {
                                 </Col>
                                 <Col md={3}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">Invoice Date</Label>
+                                        <Label className="text-xs font-bold">Invoice Date</Label>
                                         <Input 
                                             type="date" 
                                             value={currentInvoice.invoice_date?.split('T')[0] || ""} 
@@ -578,7 +578,7 @@ const InvoiceFlow = () => {
                                 </Col>
                                 <Col md={2}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">From Date</Label>
+                                        <Label className="text-xs font-bold">From Date</Label>
                                         <Input 
                                             type="date" 
                                             value={currentInvoice.from_date?.split('T')[0] || ""} 
@@ -588,7 +588,7 @@ const InvoiceFlow = () => {
                                 </Col>
                                 <Col md={2}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">To Date</Label>
+                                        <Label className="text-xs font-bold">To Date</Label>
                                         <Input 
                                             type="date" 
                                             value={currentInvoice.to_date?.split('T')[0] || ""} 
@@ -598,7 +598,7 @@ const InvoiceFlow = () => {
                                 </Col>
                                 <Col md={2}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">Status</Label>
+                                        <Label className="text-xs font-bold">Status</Label>
                                         <Input 
                                             type="select" 
                                             value={currentInvoice.status || "PENDING"} 
@@ -613,11 +613,11 @@ const InvoiceFlow = () => {
                             </Row>
 
                             {/* From Section */}
-                            <h6 className="fw-bold mb-3 border-bottom pb-2 text-primary mt-4">Sender Details (From)</h6>
-                            <Row className="mb-3">
+                            <h6 className="font-bold mb-4 border-bottom pb-2 text-brand-500 mt-6">Sender Details (From)</h6>
+                            <Row className="mb-4">
                                 <Col md={6}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">From Name</Label>
+                                        <Label className="text-xs font-bold">From Name</Label>
                                         <Input 
                                             type="text" 
                                             value={currentInvoice.from_name || ""} 
@@ -627,7 +627,7 @@ const InvoiceFlow = () => {
                                 </Col>
                                 <Col md={6}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">From Address</Label>
+                                        <Label className="text-xs font-bold">From Address</Label>
                                         <Input 
                                             type="textarea" 
                                             rows={1}
@@ -637,160 +637,160 @@ const InvoiceFlow = () => {
                                     </FormGroup>
                                 </Col>
                             </Row>
-                            <Row className="mb-3">
+                            <Row className="mb-4">
                                 <Col md={3}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">From City</Label>
+                                        <Label className="text-xs font-bold">From City</Label>
                                         <Input type="text" value={currentInvoice.from_city || ""} onChange={(e) => setCurrentInvoice({...currentInvoice, from_city: e.target.value})} />
                                     </FormGroup>
                                 </Col>
                                 <Col md={3}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">From State</Label>
+                                        <Label className="text-xs font-bold">From State</Label>
                                         <Input type="text" value={currentInvoice.from_state || ""} onChange={(e) => setCurrentInvoice({...currentInvoice, from_state: e.target.value})} />
                                     </FormGroup>
                                 </Col>
                                 <Col md={2}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">From PIN</Label>
+                                        <Label className="text-xs font-bold">From PIN</Label>
                                         <Input type="text" value={currentInvoice.from_pincode || ""} onChange={(e) => setCurrentInvoice({...currentInvoice, from_pincode: e.target.value})} />
                                     </FormGroup>
                                 </Col>
                                 <Col md={2}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">From State-Code</Label>
+                                        <Label className="text-xs font-bold">From State-Code</Label>
                                         <Input type="text" value={currentInvoice.from_state_code || ""} onChange={(e) => setCurrentInvoice({...currentInvoice, from_state_code: e.target.value})} />
                                     </FormGroup>
                                 </Col>
                                 <Col md={2}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">Batch ID</Label>
+                                        <Label className="text-xs font-bold">Batch ID</Label>
                                         <Input type="text" value={currentInvoice.batch_id || ""} onChange={(e) => setCurrentInvoice({...currentInvoice, batch_id: e.target.value})} />
                                     </FormGroup>
                                 </Col>
                             </Row>
-                            <Row className="mb-3">
+                            <Row className="mb-4">
                                 <Col md={6}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">From GST No</Label>
+                                        <Label className="text-xs font-bold">From GST No</Label>
                                         <Input type="text" value={currentInvoice.from_gst_no || ""} onChange={(e) => setCurrentInvoice({...currentInvoice, from_gst_no: e.target.value})} />
                                     </FormGroup>
                                 </Col>
                                 <Col md={6}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">From PAN No</Label>
+                                        <Label className="text-xs font-bold">From PAN No</Label>
                                         <Input type="text" value={currentInvoice.from_pan_no || ""} onChange={(e) => setCurrentInvoice({...currentInvoice, from_pan_no: e.target.value})} />
                                     </FormGroup>
                                 </Col>
                             </Row>
 
                             {/* To Section */}
-                            <h6 className="fw-bold mb-3 border-bottom pb-2 text-primary mt-4">Recipient Details (To)</h6>
-                            <Row className="mb-3">
+                            <h6 className="font-bold mb-4 border-bottom pb-2 text-brand-500 mt-6">Recipient Details (To)</h6>
+                            <Row className="mb-4">
                                 <Col md={6}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">To Name</Label>
+                                        <Label className="text-xs font-bold">To Name</Label>
                                         <Input type="text" value={currentInvoice.to_name || ""} onChange={(e) => setCurrentInvoice({...currentInvoice, to_name: e.target.value})} />
                                     </FormGroup>
                                 </Col>
                                 <Col md={6}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">To Address</Label>
+                                        <Label className="text-xs font-bold">To Address</Label>
                                         <Input type="textarea" rows={1} value={currentInvoice.to_address || ""} onChange={(e) => setCurrentInvoice({...currentInvoice, to_address: e.target.value})} />
                                     </FormGroup>
                                 </Col>
                             </Row>
-                            <Row className="mb-3">
+                            <Row className="mb-4">
                                 <Col md={3}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">To City</Label>
+                                        <Label className="text-xs font-bold">To City</Label>
                                         <Input type="text" value={currentInvoice.to_city || ""} onChange={(e) => setCurrentInvoice({...currentInvoice, to_city: e.target.value})} />
                                     </FormGroup>
                                 </Col>
                                 <Col md={3}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">To State</Label>
+                                        <Label className="text-xs font-bold">To State</Label>
                                         <Input type="text" value={currentInvoice.to_state || ""} onChange={(e) => setCurrentInvoice({...currentInvoice, to_state: e.target.value})} />
                                     </FormGroup>
                                 </Col>
                                 <Col md={3}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">To PINCODE</Label>
+                                        <Label className="text-xs font-bold">To PINCODE</Label>
                                         <Input type="text" value={currentInvoice.to_pincode || ""} onChange={(e) => setCurrentInvoice({...currentInvoice, to_pincode: e.target.value})} />
                                     </FormGroup>
                                 </Col>
                                 <Col md={3}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">To State-Code</Label>
+                                        <Label className="text-xs font-bold">To State-Code</Label>
                                         <Input type="text" value={currentInvoice.to_state_code || ""} onChange={(e) => setCurrentInvoice({...currentInvoice, to_state_code: e.target.value})} />
                                     </FormGroup>
                                 </Col>
                             </Row>
-                            <Row className="mb-3">
+                            <Row className="mb-4">
                                 <Col md={6}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">To GST No</Label>
+                                        <Label className="text-xs font-bold">To GST No</Label>
                                         <Input type="text" value={currentInvoice.to_gst_no || ""} onChange={(e) => setCurrentInvoice({...currentInvoice, to_gst_no: e.target.value})} />
                                     </FormGroup>
                                 </Col>
                                 <Col md={6}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">To PAN No</Label>
+                                        <Label className="text-xs font-bold">To PAN No</Label>
                                         <Input type="text" value={currentInvoice.to_pan_no || ""} onChange={(e) => setCurrentInvoice({...currentInvoice, to_pan_no: e.target.value})} />
                                     </FormGroup>
                                 </Col>
                             </Row>
 
                             {/* Summary Section */}
-                            <h6 className="fw-bold mb-3 border-bottom pb-2 text-primary mt-4">Financial Summary</h6>
-                            <Row className="mb-3">
+                            <h6 className="font-bold mb-4 border-bottom pb-2 text-brand-500 mt-6">Financial Summary</h6>
+                            <Row className="mb-4">
                                 <Col md={2}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">Total Qty</Label>
+                                        <Label className="text-xs font-bold">Total Qty</Label>
                                         <Input type="number" value={currentInvoice.total_quantity || 0} onChange={(e) => setCurrentInvoice({...currentInvoice, total_quantity: e.target.value})} />
                                     </FormGroup>
                                 </Col>
                                 <Col md={2}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">Total Freight</Label>
+                                        <Label className="text-xs font-bold">Total Freight</Label>
                                         <Input type="number" value={currentInvoice.total_freight || 0} onChange={(e) => setCurrentInvoice({...currentInvoice, total_freight: e.target.value})} />
                                     </FormGroup>
                                 </Col>
                                 <Col md={2}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">CGST</Label>
+                                        <Label className="text-xs font-bold">CGST</Label>
                                         <Input type="number" value={currentInvoice.total_cgst || 0} onChange={(e) => setCurrentInvoice({...currentInvoice, total_cgst: e.target.value})} />
                                     </FormGroup>
                                 </Col>
                                 <Col md={2}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">SGST</Label>
+                                        <Label className="text-xs font-bold">SGST</Label>
                                         <Input type="number" value={currentInvoice.total_sgst || 0} onChange={(e) => setCurrentInvoice({...currentInvoice, total_sgst: e.target.value})} />
                                     </FormGroup>
                                 </Col>
                                 <Col md={2}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">IGST</Label>
+                                        <Label className="text-xs font-bold">IGST</Label>
                                         <Input type="number" value={currentInvoice.total_igst || 0} onChange={(e) => setCurrentInvoice({...currentInvoice, total_igst: e.target.value})} />
                                     </FormGroup>
                                 </Col>
                                 <Col md={2}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">Grand Total</Label>
+                                        <Label className="text-xs font-bold">Grand Total</Label>
                                         <Input type="number" value={currentInvoice.total_amount || 0} onChange={(e) => setCurrentInvoice({...currentInvoice, total_amount: e.target.value})} />
                                     </FormGroup>
                                 </Col>
                             </Row>
-                            <Row className="mb-4">
+                            <Row className="mb-6">
                                 <Col md={12}>
                                     <FormGroup>
-                                        <Label className="small fw-bold">Amount In Words</Label>
+                                        <Label className="text-xs font-bold">Amount In Words</Label>
                                         <Input type="text" value={currentInvoice.amount_in_words || ""} onChange={(e) => setCurrentInvoice({...currentInvoice, amount_in_words: e.target.value})} />
                                     </FormGroup>
                                 </Col>
                             </Row>
 
-                            <h6 className="fw-bold mb-3 border-bottom pb-2 text-primary mt-4">Invoice Origins/Items</h6>
+                            <h6 className="font-bold mb-4 border-bottom pb-2 text-brand-500 mt-6">Invoice Origins/Items</h6>
                             <div className="table-responsive" style={{ maxHeight: "400px" }}>
                                 <Table striped bordered hover size="sm">
                                     <thead className="table-light sticky-top text-center">
@@ -853,7 +853,7 @@ const InvoiceFlow = () => {
                                                     <Input 
                                                         type="number" 
                                                         bsSize="sm"
-                                                        className="text-center text-info"
+                                                        className="text-center text-accent-500"
                                                         value={item.cgst || 0} 
                                                         onChange={(e) => {
                                                             const newItems = [...currentInvoice.items];
@@ -867,7 +867,7 @@ const InvoiceFlow = () => {
                                                     <Input 
                                                         type="number" 
                                                         bsSize="sm"
-                                                        className="text-center text-info"
+                                                        className="text-center text-accent-500"
                                                         value={item.sgst || 0} 
                                                         onChange={(e) => {
                                                             const newItems = [...currentInvoice.items];
@@ -881,7 +881,7 @@ const InvoiceFlow = () => {
                                                     <Input 
                                                         type="number" 
                                                         bsSize="sm"
-                                                        className="text-center text-info"
+                                                        className="text-center text-accent-500"
                                                         value={item.igst || 0} 
                                                         onChange={(e) => {
                                                             const newItems = [...currentInvoice.items];
@@ -895,7 +895,7 @@ const InvoiceFlow = () => {
                                                     <Input 
                                                         type="number" 
                                                         bsSize="sm"
-                                                        className="text-center fw-bold text-primary"
+                                                        className="text-center font-bold text-brand-500"
                                                         value={item.total || 0} 
                                                         onChange={(e) => {
                                                             const newItems = [...currentInvoice.items];
@@ -918,12 +918,12 @@ const InvoiceFlow = () => {
                     )}
                 </ModalBody>
                 <ModalFooter>
-                    <div className="me-auto text-muted small">
+                    <div className="mr-auto text-ink-muted text-xs">
                         * Row totals are calculated automatically when freight/GST changes.
                     </div>
                     <Button color="secondary" onClick={() => setIsEditModalOpen(false)}>Close</Button>
                     <Button color="primary" onClick={handleUpdateInvoice}>
-                        <MdSave size={18} className="me-2" /> Save Changes
+                        <MdSave size={18} className="mr-2" /> Save Changes
                     </Button>
                 </ModalFooter>
             </Modal>
@@ -936,13 +936,13 @@ const InvoiceFlow = () => {
                 centered
             >
                 <ModalHeader toggle={() => setIsOverrideModalOpen(false)}>
-                    <span className="fw-bold">
-                        <i className="mdi mdi-tune-variant me-2 text-primary"></i>
+                    <span className="font-bold">
+                        <i className="mdi mdi-tune-variant mr-2 text-brand-500"></i>
                         Optional Overrides
                     </span>
                 </ModalHeader>
                 <ModalBody>
-                    <p className="text-muted mb-4">
+                    <p className="text-ink-muted mb-6">
                         All fields below are <strong>optional</strong>. If left empty, values from the Excel file will be used.
                         Fill in any field you want to override, then click <strong>Continue &amp; Select File</strong>.
                     </p>
@@ -950,10 +950,10 @@ const InvoiceFlow = () => {
                     <Row className="mb-2">
                         <Col md={4}>
                             <FormGroup>
-                                <Label className="fw-bold small">
-                                    <i className="mdi mdi-calendar-outline me-1 text-primary"></i>
+                                <Label className="font-bold text-xs">
+                                    <i className="mdi mdi-calendar-outline mr-1 text-brand-500"></i>
                                     Custom Invoice Date
-                                    <span className="text-muted fw-normal ms-1">(optional)</span>
+                                    <span className="text-ink-muted font-normal ml-1">(optional)</span>
                                 </Label>
                                 <Input
                                     type="date"
@@ -964,14 +964,14 @@ const InvoiceFlow = () => {
                         </Col>
                     </Row>
 
-                    <hr className="my-3" />
-                    <h6 className="fw-bold text-secondary mb-3">GST Numbers</h6>
+                    <hr className="my-4" />
+                    <h6 className="font-bold text-ink-muted mb-4">GST Numbers</h6>
                     <Row>
                         <Col md={6}>
                             <FormGroup>
-                                <Label className="fw-bold small">
+                                <Label className="font-bold text-xs">
                                     From GST No
-                                    <span className="text-muted fw-normal ms-1">(optional)</span>
+                                    <span className="text-ink-muted font-normal ml-1">(optional)</span>
                                 </Label>
                                 <Input
                                     type="select"
@@ -989,9 +989,9 @@ const InvoiceFlow = () => {
                         </Col>
                         <Col md={6}>
                             <FormGroup>
-                                <Label className="fw-bold small">
+                                <Label className="font-bold text-xs">
                                     To GST No
-                                    <span className="text-muted fw-normal ms-1">(optional)</span>
+                                    <span className="text-ink-muted font-normal ml-1">(optional)</span>
                                 </Label>
                                 <Input
                                     type="text"
@@ -1003,14 +1003,14 @@ const InvoiceFlow = () => {
                         </Col>
                     </Row>
 
-                    <hr className="my-3" />
-                    {/* <h6 className="fw-bold text-secondary mb-3">PAN Numbers</h6> */}
+                    <hr className="my-4" />
+                    {/* <h6 className="font-bold text-ink-muted mb-4">PAN Numbers</h6> */}
                     {/* <Row>
                         <Col md={6}>
                             <FormGroup>
-                                <Label className="fw-bold small">
+                                <Label className="font-bold text-xs">
                                     From PAN No
-                                    <span className="text-muted fw-normal ms-1">(optional)</span>
+                                    <span className="text-ink-muted font-normal ml-1">(optional)</span>
                                 </Label>
                                 <Input
                                     type="text"
@@ -1022,9 +1022,9 @@ const InvoiceFlow = () => {
                         </Col>
                         <Col md={6}>
                             <FormGroup>
-                                <Label className="fw-bold small">
+                                <Label className="font-bold text-xs">
                                     To PAN No
-                                    <span className="text-muted fw-normal ms-1">(optional)</span>
+                                    <span className="text-ink-muted font-normal ml-1">(optional)</span>
                                 </Label>
                                 <Input
                                     type="text"
@@ -1054,7 +1054,7 @@ const InvoiceFlow = () => {
                     </Button>
                     <Button
                         color="success"
-                        className="px-4"
+                        className="px-6"
                         onClick={() => {
                             setIsOverrideModalOpen(false)
                             // Small delay so modal closes before file picker opens
@@ -1067,7 +1067,7 @@ const InvoiceFlow = () => {
                             }, 150)
                         }}
                     >
-                        <MdFileUpload size={18} className="me-2" />
+                        <MdFileUpload size={18} className="mr-2" />
                         Continue &amp; Select File
                     </Button>
                 </ModalFooter>

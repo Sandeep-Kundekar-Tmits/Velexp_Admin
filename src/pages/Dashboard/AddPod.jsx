@@ -56,9 +56,9 @@ const AddPod = () => {
         cell: ({ row }) => {
           const podValue = row.original.pod; // Get the POD value from the row data
           return (
-            <span className="d-flex align-items-center gap-2" style={{ cursor: "pointer" }}>
+            <span className="flex items-center gap-2" style={{ cursor: "pointer" }}>
               <p
-                className="m-0 text-truncate flex-grow-1"
+                className="m-0 truncate grow"
                 style={{
                   maxWidth: '200px',
                   color: '#495057',
@@ -71,7 +71,7 @@ const AddPod = () => {
               <Button
                 variant="link"
                 size="sm"
-                className="flex-shrink-0"
+                className="shrink-0"
                 onClick={() => {
                   setSelectedSrc(podValue)
                   setSelectedTitle("view_pod")
@@ -305,7 +305,7 @@ const AddPod = () => {
         <MainHeaderComp
           title="POD Reports"
           extraFields={
-            <div className="d-flex gap-2">
+            <div className="flex gap-2">
               <Button color="primary" onClick={() => setSelectedTitle("add_pod")}>
                 Add POD
               </Button>
@@ -321,10 +321,10 @@ const AddPod = () => {
 
         {ReturnComponent(selectedTitle)}
         {/* Filters Section */}
-        <Row className="mt-3 align-items-end mx-0">
+        <Row className="mt-4 items-end mx-0">
           <Col md={4} lg={3}>
             <FormGroup className="mb-0">
-              <Label className="form-label fw-bold">Select Date Range</Label>
+              <Label className="form-label font-bold">Select Date Range</Label>
               <DateRangeInput
                 value={selectedRange}
                 onChange={handleChange}
@@ -347,9 +347,9 @@ const AddPod = () => {
         <div className="mt-2">
           {
             PodDataLoading ?
-              <div style={{ height: "75vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+              <div style={{ height: "75vh" }} className="container-fluid  flex flex-col justify-center items-center">
                 <GridLoader size={20} />
-                <p className="mt-5 h5">Loading POD Details ...</p>
+                <p className="mt-12 h5">Loading POD Details ...</p>
               </div> :
               <TableContainer
                 columns={columns}

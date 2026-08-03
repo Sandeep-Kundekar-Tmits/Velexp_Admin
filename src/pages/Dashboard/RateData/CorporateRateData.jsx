@@ -397,19 +397,19 @@ const CorporateRateData = () => {
                 <MainHeaderComp
                     title="Corporate Rate Data"
                     extraFields={
-                        <div className="d-flex align-items-center">
-                            <h6 className="text-black fw-bold mb-0 me-2" style={{ fontSize: "14px" }}>Template</h6>
+                        <div className="flex items-center">
+                            <h6 className="text-black font-bold mb-0 mr-2" style={{ fontSize: "14px" }}>Template</h6>
                             {["Default", "ASUS"]?.map((ele) => (
-                                <div className="ms-2" key={ele}>
+                                <div className="ml-2" key={ele}>
                                     <Button
                                         onClick={() => converToExcel(ele)}
-                                        className="d-flex align-items-center justify-content-center p-2 m-auto bg-transparent border-success text-success"
+                                        className="flex items-center justify-center p-2 m-auto bg-transparent border-success text-success-500"
                                         style={{ borderRadius: "7px", width: "100px", fontWeight: "500", fontSize: "12px" }}
                                     >
                                         {(ConvertingEmptyExcelLoading && SelectedTypeOfExcel === ele)
                                             ? <span>Exporting...</span>
                                             : <span>{ele}</span>}
-                                        <FaFileExcel size={14} className="ms-1" />
+                                        <FaFileExcel size={14} className="ml-1" />
                                     </Button>
                                 </div>
                             ))}
@@ -417,11 +417,11 @@ const CorporateRateData = () => {
                     }
                 />
             </div>
-            <div className="container-fluid px-3">
+            <div className="container-fluid px-4">
 
                 {/* filters */}
                 <div className="mainfilter">
-                    <Row className=" mt-3 border-bottom">
+                    <Row className=" mt-4 border-bottom">
                         <Col md={4}>
                             <FormGroup className="">
                                 <Label>Select Customer</Label>
@@ -438,7 +438,7 @@ const CorporateRateData = () => {
                         </Col>
                         <Col md={4} style={{ marginTop: "28px" }}>
                             <Button
-                                className="bg-primary"
+                                className="bg-brand-500"
                                 style={{ width: "50%" }}
                                 disabled={!CustomerName}
                                 onClick={onViewCustomer}
@@ -448,9 +448,9 @@ const CorporateRateData = () => {
                         </Col>
                     </Row>
                     {/* <hr /> */}
-                    <Row className="  d-flex align-align-items-center my-3">
+                    <Row className="  flex align-align-items-center my-4">
                         <Col md={4}>
-                            <div className="d-flex align-items-center w-full" >
+                            <div className="flex items-center w-full" >
                                 <Input type="file" style={{ width: "100%" }} disabled={!CustomerName} onChange={UploadChange} />
                             </div>
                         </Col>
@@ -458,7 +458,7 @@ const CorporateRateData = () => {
                             <Button
                                 style={{ width: "50%" }}
                                 disabled={!CustomerName || JsonLoading || !file || selecetedExcelData?.length === 0}
-                                className="bg-primary text-white d-flex align-items-center justify-content-center"
+                                className="bg-brand-500 text-white flex items-center justify-center"
                                 onClick={UploadRateData}
                             >
                                 {UploadCorporateRateDataLoading ? "Uploading..." : "Upload"}
@@ -471,9 +471,9 @@ const CorporateRateData = () => {
                 {/* main page */}
                 <div className="mainpage mt-1">
                     {(AllCorporateRateDataLoading || CorporateRateInfoLoading)
-                        ? <div style={{ height: "40vh" }} className="container-fluid d-flex flex-column justify-content-center align-items-center">
+                        ? <div style={{ height: "40vh" }} className="container-fluid flex flex-col justify-center items-center">
                             <GridLoader size={20} />
-                            <p className="mt-5 h5">Loading Corporate Rate Data ...</p>
+                            <p className="mt-12 h5">Loading Corporate Rate Data ...</p>
                         </div>
                         : <TableContainer
                             columns={columns}

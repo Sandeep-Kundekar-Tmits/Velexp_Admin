@@ -10,7 +10,7 @@ const SelectedItemsDisplay = ({ selectedItems, onRemove, targetId, maxDisplay = 
     if (!selectedItems || selectedItems.length === 0) {
         return (
             <div 
-                className="d-flex align-items-center justify-content-center flex-grow-1" 
+                className="flex items-center justify-center grow" 
                 style={{ 
                     marginLeft: "10px", 
                     color: "#9da7b1", 
@@ -34,7 +34,7 @@ const SelectedItemsDisplay = ({ selectedItems, onRemove, targetId, maxDisplay = 
 
     const Tag = ({ item }) => (
         <div
-            className="d-flex align-items-center"
+            className="flex items-center"
             style={{
                 padding: "4px 10px",
                 borderRadius: "6px",
@@ -49,7 +49,7 @@ const SelectedItemsDisplay = ({ selectedItems, onRemove, targetId, maxDisplay = 
         >
             {item.label}
             <span
-                className="ms-3 cursor-pointer"
+                className="ml-4 cursor-pointer"
                 onClick={() => onRemove(item)}
                 style={{
                     fontSize: "14px",
@@ -64,7 +64,7 @@ const SelectedItemsDisplay = ({ selectedItems, onRemove, targetId, maxDisplay = 
     );
 
     return (
-        <div className="d-flex align-items-center gap-2 flex-nowrap" style={{ marginLeft: "10px" }}>
+        <div className="flex items-center gap-2 flex-nowrap" style={{ marginLeft: "10px" }}>
             {displayItems.map((item, index) => (
                 <Tag key={index} item={item} />
             ))}
@@ -72,14 +72,14 @@ const SelectedItemsDisplay = ({ selectedItems, onRemove, targetId, maxDisplay = 
                 <React.Fragment>
                     <div
                         id={targetId}
-                        className="badge bg-primary text-white d-flex align-items-center justify-content-center"
+                        className="badge bg-brand-500 text-white flex items-center justify-center"
                         style={{ width: "30px", minWidth: "30px", height: "30px", borderRadius: "50%", fontSize: "12px", fontWeight: "bold", cursor: "pointer" }}
                     >
                         +{overflowCount}
                     </div>
                     <UncontrolledPopover placement="bottom" target={targetId} trigger="legacy">
                         <PopoverBody className="p-2">
-                            <div className="d-flex flex-column gap-2" style={{ maxHeight: "200px", overflowY: "auto", minWidth: "150px" }}>
+                            <div className="flex flex-col gap-2" style={{ maxHeight: "200px", overflowY: "auto", minWidth: "150px" }}>
                                 {overflowItems.map((item, index) => (
                                     <Tag key={index} item={item} />
                                 ))}

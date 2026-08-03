@@ -226,8 +226,8 @@ const CODReport = () => {
             <div className="bg-white sticky-top" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
                 <MainHeaderComp title="COD Report" />
             </div>
-            <div className="container-fluid px-3">
-                <div className="mt-3">
+            <div className="container-fluid px-4">
+                <div className="mt-4">
                     <Row>
                         <Col md={4}>
                             <FormGroup className="mb-2">
@@ -257,8 +257,8 @@ const CODReport = () => {
 
 
                         {/* buttons */}
-                        <Col md={2} className='d-flex mb-3 align-content-center flex-wrap gap-2 mt-4'>
-                            {/* <div className="d-flex "> */}
+                        <Col md={2} className='flex mb-4 content-center flex-wrap gap-2 mt-6'>
+                            {/* <div className="flex "> */}
                             <Button color="primary"
                                 onClick={CheckClick}
                                 style={{ height: "2.2rem", width: "100%" }}>
@@ -276,9 +276,9 @@ const CODReport = () => {
                 <div className=''>
                     <div className='mt-1'>
                         {
-                            CodReportLoading ? <div style={{ height: "40vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+                            CodReportLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
                                 <GridLoader size={20} />
-                                <p className="mt-5 h5">Loading COD Report ...</p>
+                                <p className="mt-12 h5">Loading COD Report ...</p>
                             </div>
                                 :
                                 <TableContainer

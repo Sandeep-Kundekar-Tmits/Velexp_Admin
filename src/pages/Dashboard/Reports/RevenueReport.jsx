@@ -285,8 +285,8 @@ const RevenueReport = () => {
             <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
                 <MainHeaderComp title="Old Revenue Report" />
             </div>
-            <div className="container-fluid px-3">
-                <div className="mt-3">
+            <div className="container-fluid px-4">
+                <div className="mt-4">
                     <Row>
                         <Col md={3}>
                             <FormGroup className="mb-2">
@@ -358,7 +358,7 @@ const RevenueReport = () => {
                                 />
                             </FormGroup>
                         </Col>
-                        <Col md={3} className='d-flex mt-3 align-content-center flex-wrap gap-2'>
+                        <Col md={3} className='flex mt-4 content-center flex-wrap gap-2'>
                             <Button color="primary" onClick={CheckClick} style={{ width: "100%", height: "38px" }}>
                                 {
                                     RevenueDataLoading ? "Checking..." : "Check"
@@ -370,35 +370,35 @@ const RevenueReport = () => {
                     {/*  filter section */}
                     {
                         RevenueListData?.total_revenue &&
-                        <Row className="border-top pt-4 ms-0" style={{ width: "100%" }}>
+                        <Row className="border-top pt-6 ml-0" style={{ width: "100%" }}>
                             <Col md="3">
-                                <Card className="mb-3 border" style={{ minHeight: "70px" }}>
+                                <Card className="mb-4 border" style={{ minHeight: "70px" }}>
                                     <CardBody className="py-2">
-                                        <h5 className="text-muted text-center">Total Revenue</h5>
+                                        <h5 className="text-ink-muted text-center">Total Revenue</h5>
                                         <h3 className="my-2 text-center">{RevenueListData?.total_revenue}</h3>
                                     </CardBody>
                                 </Card>
                             </Col>
                             <Col md="3">
-                                <Card className="mb-3 border" style={{ minHeight: "70px" }}>
+                                <Card className="mb-4 border" style={{ minHeight: "70px" }}>
                                     <CardBody className="py-2">
-                                        <h5 className="text-muted text-center">Total Shipments</h5>
+                                        <h5 className="text-ink-muted text-center">Total Shipments</h5>
                                         <h3 className="my-2 text-center">{RevenueListData?.bookings?.length}</h3>
                                     </CardBody>
                                 </Card>
                             </Col>
                             <Col md="3">
-                                <Card className="mb-3  border" style={{ minHeight: "70px" }}>
+                                <Card className="mb-4  border" style={{ minHeight: "70px" }}>
                                     <CardBody className="py-2">
-                                        <h5 className="text-muted text-center">Avarage</h5>
+                                        <h5 className="text-ink-muted text-center">Avarage</h5>
                                         <h3 className="my-0 text-center">{Math.ceil(RevenueListData?.total_revenue / RevenueListData?.bookings?.length)}</h3>
                                     </CardBody>
                                 </Card>
                             </Col>
                             {/* <Col md="3">
-                                <Card className="mb-3 shadow-sm" style={{ minHeight: "80px" }}>
+                                <Card className="mb-4 shadow-sm" style={{ minHeight: "80px" }}>
                                     <CardBody className="py-2">
-                                        <h5 className="text-muted text-center"></h5>
+                                        <h5 className="text-ink-muted text-center"></h5>
                                         <h3 className="my-2 text-center"></h3>
                                     </CardBody>
                                 </Card>
@@ -412,9 +412,9 @@ const RevenueReport = () => {
                     {/* <h2>Bookings</h2> */}
                     <div className='mt-1'>
                         {
-                            RevenueDataLoading ? <div style={{ height: "40vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+                            RevenueDataLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
                                 <GridLoader size={20} />
-                                <p className="mt-5 h5">Loading ...</p>
+                                <p className="mt-12 h5">Loading ...</p>
                             </div>
                                 :
                                 <TableContainer

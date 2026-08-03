@@ -134,7 +134,7 @@ const MarkInvoice = () => {
                     }
                 />
             </div>
-            <div className="container-fluid px-3 mt-2">
+            <div className="container-fluid px-4 mt-2">
 
 
                 {/* input filed */}

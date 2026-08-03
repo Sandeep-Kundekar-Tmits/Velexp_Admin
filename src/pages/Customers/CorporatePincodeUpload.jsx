@@ -616,7 +616,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
             enableSorting: false,
             accessorKey: "id",
             cell: (cell) => (
-                <div className="d-flex gap-1 justify-content-center">
+                <div className="flex gap-1 justify-center">
                     <Button
                         color="primary"
                         size="sm"
@@ -652,7 +652,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
     return (
         <div className="page-content py-0 px-0">
             {!hideHeader && <MainHeaderCom title="Pincode Upload" />}
-            <div className="container-fluid px-3 mt-4">
+            <div className="container-fluid px-4 mt-6">
                 <Card className="shadow-sm">
                     <CardBody>
                         <Row>
@@ -686,36 +686,36 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                                     />
                                 </FormGroup>
                             </Col>
-                            <Col md={hideHeader ? 6 : 4} className="d-flex flex-column gap-2 mb-3 mt-4 align-items-start">
+                            <Col md={hideHeader ? 6 : 4} className="flex flex-col gap-2 mb-4 mt-6 items-start">
                                 <Button
                                     color="primary"
                                     onClick={validateAndUpload}
                                     disabled={!file || parsingLoading || uploadingData || !selectedCustomer || excelData.length === 0}
-                                    className="w-full d-flex align-items-center justify-content-center"
+                                    className="w-full flex items-center justify-center"
                                     style={{ height: "38px" }}
                                 >
                                     {uploadingData ? (
-                                        <Spinner size="sm" className="me-2" />
+                                        <Spinner size="sm" className="mr-2" />
                                     ) : (
-                                        <FaUpload className="me-2" />
+                                        <FaUpload className="mr-2" />
                                     )}
                                     {uploadingData ? "Importing..." : "Start Import"}
                                 </Button>
                                 <Button
                                     color="success"
                                     onClick={handleDownloadTemplate}
-                                    className="w-full d-flex align-items-center justify-content-center"
+                                    className="w-full flex items-center justify-center"
                                     outline
                                     style={{ height: "38px" }}
                                 >
-                                    <FaDownload className="me-2" />
+                                    <FaDownload className="mr-2" />
                                     {downloadingTemplate ? "Generating..." : "Download Template"}
                                 </Button>
                             </Col>
                         </Row>
 
                         {excelData.length > 0 && (
-                            <Row className="mt-4">
+                            <Row className="mt-6">
                                 <Col md={12}>
                                     <div className="alert alert-info py-2">
                                         <strong>Ready to Import:</strong> {excelData.length} rows found in file.
@@ -728,16 +728,16 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
 
                 {selectedCustomer && (
                     <>
-                        <div className="d-flex justify-content-between align-items-center mb-3 mt-4">
+                        <div className="flex justify-between items-center mb-4 mt-6">
                             <h5 className="mb-0">Existing Pincode Services: {selectedCustomer.label}</h5>
-                            <div className="d-flex gap-2">
+                            <div className="flex gap-2">
                                 {selectedPincodeIds.length > 0 && (
                                     <Button
                                         color="danger"
                                         size="sm"
                                         onClick={() => setIsBulkDeleteModalOpen(true)}
                                         disabled={isBulkDeleting}
-                                        className="d-flex align-items-center gap-1"
+                                        className="flex items-center gap-1"
                                     >
                                         {isBulkDeleting ? <Spinner size="sm" /> : <FaTrash />}
                                         Delete Selected ({selectedPincodeIds.length})
@@ -755,9 +755,9 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                         <Card className="shadow-sm">
                             <CardBody className="p-0">
                                 {pincodesLoading ? (
-                                    <div className="text-center p-5">
+                                    <div className="text-center p-12">
                                         <Spinner color="primary" />
-                                        <p className="mt-2 text-muted">Fetching existing pincodes...</p>
+                                        <p className="mt-2 text-ink-muted">Fetching existing pincodes...</p>
                                     </div>
                                 ) : (
                                     <TableContainer
@@ -784,7 +784,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                 cancelButtonName="Close"
             >
                 <div>
-                    <h4 className="text-danger mb-3">Validation Errors</h4>
+                    <h4 className="text-danger-500 mb-4">Validation Errors</h4>
                     <pre style={{ maxHeight: "300px", overflowY: "auto", whiteSpace: "pre-wrap" }}>
                         {modalError}
                     </pre>
@@ -814,15 +814,15 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                 onSuccess={handleAddPincodeSubmit}
                 successButtonName={(postingSinglePincode || updatingSinglePincode) ? "Saving..." : (editingPincodeId ? "Update Pincode" : "Save Pincode")}
             >
-                <div className="p-3" style={{ minHeight: "300px" }}>
-                    <h5 className="mb-4 border-bottom pb-2">
+                <div className="p-4" style={{ minHeight: "300px" }}>
+                    <h5 className="mb-6 border-bottom pb-2">
                         {editingPincodeId ? "Edit Pincode" : "Add Pincode"} for {selectedCustomer?.label}
                     </h5>
-                    <h6 className="text-primary mb-3">Pincode Details</h6>
+                    <h6 className="text-brand-500 mb-4">Pincode Details</h6>
                     <Row>
                         <Col md={4}>
                             <FormGroup>
-                                <Label className="fw-bold text-muted small">Pincode</Label>
+                                <Label className="font-bold text-ink-muted text-xs">Pincode</Label>
                                 <Input
                                     type="text"
                                     maxLength={6}
@@ -834,7 +834,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                         </Col>
                         <Col md={4}>
                             <FormGroup>
-                                <Label className="fw-bold text-muted small">City</Label>
+                                <Label className="font-bold text-ink-muted text-xs">City</Label>
                                 <Input
                                     type="text"
                                     value={newPincode.city}
@@ -844,7 +844,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                         </Col>
                         <Col md={4}>
                             <FormGroup>
-                                <Label className="fw-bold text-muted small">State</Label>
+                                <Label className="font-bold text-ink-muted text-xs">State</Label>
                                 <Input
                                     type="text"
                                     value={newPincode.state}
@@ -856,7 +856,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                     <Row>
                         <Col md={3}>
                             <FormGroup>
-                                <Label className="fw-bold text-muted small">Region</Label>
+                                <Label className="font-bold text-ink-muted text-xs">Region</Label>
                                 <Input
                                     type="text"
                                     value={newPincode.region}
@@ -866,7 +866,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                         </Col>
                         <Col md={3}>
                             <FormGroup>
-                                <Label className="fw-bold text-muted small">Legacy Zone</Label>
+                                <Label className="font-bold text-ink-muted text-xs">Legacy Zone</Label>
                                 <Input
                                     type="text"
                                     value={newPincode.legacy_zone}
@@ -876,7 +876,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                         </Col>
                         <Col md={2}>
                             <FormGroup>
-                                <Label className="fw-bold text-muted small">Zone Tag</Label>
+                                <Label className="font-bold text-ink-muted text-xs">Zone Tag</Label>
                                 <Input
                                     type="text"
                                     value={newPincode.zone_tag}
@@ -886,7 +886,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                         </Col>
                         <Col md={2}>
                             <FormGroup>
-                                <Label className="fw-bold text-muted small">Service Provider</Label>
+                                <Label className="font-bold text-ink-muted text-xs">Service Provider</Label>
                                 <Input
                                     type="select"
                                     value={newPincode.service_provider}
@@ -899,8 +899,8 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                             </FormGroup>
                         </Col>
                         <Col md={2}>
-                            <FormGroup className="h-full d-flex align-items-center mb-0 mt-2">
-                                <Label className="d-flex align-items-center gap-2 cursor-pointer mb-0">
+                            <FormGroup className="h-full flex items-center mb-0 mt-2">
+                                <Label className="flex items-center gap-2 cursor-pointer mb-0">
                                     <Input
                                         type="checkbox"
                                         checked={newPincode.is_metro}
@@ -912,19 +912,19 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                         </Col>
                     </Row>
 
-                    <div className="mt-4 border-top pt-3 pb-5">
-                        <div className="d-flex justify-content-between align-items-center mb-3">
+                    <div className="mt-6 border-top pt-4 pb-12">
+                        <div className="flex justify-between items-center mb-4">
                             <h6 className="mb-0">Product Services</h6>
                             <Button color="success" size="sm" onClick={addServiceRow} outline>
-                                <FaPlus className="me-1" /> Add Product
+                                <FaPlus className="mr-1" /> Add Product
                             </Button>
                         </div>
                         {newPincode.products.map((service, index) => (
-                            <Card key={index} className="shadow-none border mb-2 bg-light bg-opacity-10" style={{ overflow: "visible" }}>
-                                <CardBody className="py-2 px-3" style={{ overflow: "visible" }}>
-                                    <Row className="align-items-start g-2" style={{ overflow: "visible" }}>
+                            <Card key={index} className="shadow-none border mb-2 bg-canvas bg-opacity-10" style={{ overflow: "visible" }}>
+                                <CardBody className="py-2 px-4" style={{ overflow: "visible" }}>
+                                    <Row className="items-start gap-2" style={{ overflow: "visible" }}>
                                         <Col md={12} className="mb-2" style={{ overflow: "visible" }}>
-                                            <div className="d-flex justify-content-between align-items-center">
+                                            <div className="flex justify-between items-center">
                                                 <div style={{ width: "80%" }}>
                                                     <SearchableDropdown
                                                         locations={productOptions}
@@ -943,7 +943,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                                         </Col>
                                         <Col md={3}>
                                             <FormGroup check className="mb-0">
-                                                <Label check className="small">
+                                                <Label check className="text-xs">
                                                     <Input
                                                         type="checkbox"
                                                         checked={service.is_active}
@@ -955,7 +955,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                                         </Col>
                                         <Col md={3}>
                                             <FormGroup check className="mb-0">
-                                                <Label check className="small">
+                                                <Label check className="text-xs">
                                                     <Input
                                                         type="checkbox"
                                                         checked={service.can_pickup}
@@ -967,7 +967,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                                         </Col>
                                         <Col md={3}>
                                             <FormGroup check className="mb-0">
-                                                <Label check className="small">
+                                                <Label check className="text-xs">
                                                     <Input
                                                         type="checkbox"
                                                         checked={service.can_deliver}
@@ -979,7 +979,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                                         </Col>
                                         <Col md={3}>
                                             <FormGroup check className="mb-0">
-                                                <Label check className="small">
+                                                <Label check className="text-xs">
                                                     <Input
                                                         type="checkbox"
                                                         checked={service.is_oda}
@@ -991,7 +991,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                                         </Col>
                                         <Col md={4} className="mt-2">
                                             <FormGroup check className="mb-0">
-                                                <Label check className="small">
+                                                <Label check className="text-xs">
                                                     <Input
                                                         type="checkbox"
                                                         checked={service.is_reverse_serviceable}
@@ -1003,7 +1003,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                                         </Col>
                                         <Col md={4} className="mt-2">
                                             <FormGroup check className="mb-0">
-                                                <Label check className="small">
+                                                <Label check className="text-xs">
                                                     <Input
                                                         type="checkbox"
                                                         checked={service.has_cod}
@@ -1015,7 +1015,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                                         </Col>
                                         <Col md={4} className="mt-2">
                                             <FormGroup check className="mb-0">
-                                                <Label check className="small">
+                                                <Label check className="text-xs">
                                                     <Input
                                                         type="checkbox"
                                                         checked={service.has_pop}
@@ -1040,64 +1040,64 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                 cancelButtonName="Close"
             >
                 <div style={{ padding: "10px" }}>
-                    <h5 className="mb-4 border-bottom pb-2">Pincode Details</h5>
+                    <h5 className="mb-6 border-bottom pb-2">Pincode Details</h5>
                     {singlePincodeLoading ? (
-                        <div className="text-center py-5">
+                        <div className="text-center py-12">
                             <Spinner color="primary" />
-                            <p className="mt-2 text-muted">Loading details...</p>
+                            <p className="mt-2 text-ink-muted">Loading details...</p>
                         </div>
                     ) : singlePincodeDetails ? (
                         <div>
-                            <Row className="mb-4">
+                            <Row className="mb-6">
                                 <Col md={4}>
-                                    <div className="text-muted small fw-bold">Pincode</div>
+                                    <div className="text-ink-muted text-xs font-bold">Pincode</div>
                                     <div className="fs-5">{singlePincodeDetails.pincode}</div>
                                 </Col>
                                 <Col md={4}>
-                                    <div className="text-muted small fw-bold">City</div>
+                                    <div className="text-ink-muted text-xs font-bold">City</div>
                                     <div>{singlePincodeDetails.city} ({singlePincodeDetails.state})</div>
                                 </Col>
                                 <Col md={4}>
-                                    <div className="text-muted small fw-bold">Region</div>
+                                    <div className="text-ink-muted text-xs font-bold">Region</div>
                                     <div>{singlePincodeDetails.region}</div>
                                 </Col>
                             </Row>
-                            <Row className="mb-4">
+                            <Row className="mb-6">
                                 <Col md={4}>
-                                    <div className="text-muted small fw-bold">Legacy Zone</div>
+                                    <div className="text-ink-muted text-xs font-bold">Legacy Zone</div>
                                     <div>{singlePincodeDetails.legacy_zone}</div>
                                 </Col>
                                 <Col md={4}>
-                                    <div className="text-muted small fw-bold">Zone Tag</div>
+                                    <div className="text-ink-muted text-xs font-bold">Zone Tag</div>
                                     <div>{singlePincodeDetails.zone_tag || "N/A"}</div>
                                 </Col>
                                 <Col md={4}>
-                                    <div className="text-muted small fw-bold">Metro Status</div>
+                                    <div className="text-ink-muted text-xs font-bold">Metro Status</div>
                                     <div className={`badge ${singlePincodeDetails.is_metro ? "bg-info" : "bg-secondary"}`}>
                                         {singlePincodeDetails.is_metro ? "Metro" : "Non-Metro"}
                                     </div>
                                 </Col>
                             </Row>
-                            <Row className="mb-4">
+                            <Row className="mb-6">
                                 <Col md={4}>
-                                    <div className="text-muted small fw-bold">Service Provider</div>
+                                    <div className="text-ink-muted text-xs font-bold">Service Provider</div>
                                     <div>{singlePincodeDetails.service_provider || "N/A"}</div>
                                 </Col>
                             </Row>
 
-                            <h6 className="mt-4 mb-3 border-top pt-3">Product Services</h6>
+                            <h6 className="mt-6 mb-4 border-top pt-4">Product Services</h6>
                             <div className="table-responsive">
                                 <table className="table table-sm table-bordered">
                                     <thead className="table-light">
                                         <tr>
                                             <th>Product</th>
-                                            <th className="text-center small">Active</th>
-                                            <th className="text-center small">Pickup</th>
-                                            <th className="text-center small">Deliver</th>
-                                            <th className="text-center small">Reverse</th>
-                                            <th className="text-center small">COD</th>
-                                            <th className="text-center small">POP</th>
-                                            <th className="text-center small">ODA</th>
+                                            <th className="text-center text-xs">Active</th>
+                                            <th className="text-center text-xs">Pickup</th>
+                                            <th className="text-center text-xs">Deliver</th>
+                                            <th className="text-center text-xs">Reverse</th>
+                                            <th className="text-center text-xs">COD</th>
+                                            <th className="text-center text-xs">POP</th>
+                                            <th className="text-center text-xs">ODA</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -1118,7 +1118,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                             </div>
                         </div>
                     ) : (
-                        <div className="text-center py-4 text-danger">
+                        <div className="text-center py-6 text-danger-500">
                             Failed to load pincode details.
                         </div>
                     )}
@@ -1145,11 +1145,11 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                 onSuccess={handleBulkDeletePincodes}
             >
                 <div>
-                    <p className="fw-bold text-danger mb-2">
-                        <i className="mdi mdi-alert-circle-outline me-1"></i>
+                    <p className="font-bold text-danger-500 mb-2">
+                        <i className="mdi mdi-alert-circle-outline mr-1"></i>
                         Are you sure you want to delete {selectedPincodeIds.length} selected pincode(s)?
                     </p>
-                    <p className="text-muted small mb-0">This action cannot be undone.</p>
+                    <p className="text-ink-muted text-xs mb-0">This action cannot be undone.</p>
                 </div>
             </SimpleModal>
         </div>

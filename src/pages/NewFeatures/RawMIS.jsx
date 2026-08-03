@@ -55,13 +55,13 @@ const RawMIS = () => {
                     <MainHeaderComp title="Raw MIS" subTitle="Download the full shipment report for a selected month" />
                 </div>
 
-                <div className="container-fluid px-3 py-3">
+                <div className="container-fluid px-4 py-4">
                     <Card className="shadow-sm border-0">
-                        <CardBody className="p-4">
-                            <h5 className="mb-4 fw-bold">Select Month &amp; Year</h5>
-                            <Row className="align-items-end g-3">
+                        <CardBody className="p-6">
+                            <h5 className="mb-6 font-bold">Select Month &amp; Year</h5>
+                            <Row className="items-end gap-4">
                                 <Col md={4}>
-                                    <Label className="fw-bold">Month</Label>
+                                    <Label className="font-bold">Month</Label>
                                     <Input
                                         type="select"
                                         value={month}
@@ -73,7 +73,7 @@ const RawMIS = () => {
                                     </Input>
                                 </Col>
                                 <Col md={4}>
-                                    <Label className="fw-bold">Year</Label>
+                                    <Label className="font-bold">Year</Label>
                                     <Input
                                         type="select"
                                         value={year}
@@ -89,15 +89,15 @@ const RawMIS = () => {
                                         color="primary"
                                         block
                                         onClick={handleGenerate}
-                                        className="d-flex align-items-center justify-content-center gap-2"
+                                        className="flex items-center justify-center gap-2"
                                     >
                                         <MdFileDownload size={18} /> Submit &amp; Download Excel
                                     </Button>
                                 </Col>
                             </Row>
 
-                            <p className="text-muted small mb-0 mt-3">
-                                <i className="mdi mdi-information-outline me-1"></i>
+                            <p className="text-ink-muted text-xs mb-0 mt-4">
+                                <i className="mdi mdi-information-outline mr-1"></i>
                                 The report is generated on the server and downloaded as an Excel file.
                                 Large months may take a few minutes to generate.
                             </p>

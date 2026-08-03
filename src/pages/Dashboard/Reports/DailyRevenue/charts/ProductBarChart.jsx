@@ -76,13 +76,13 @@ const ProductBarChart = ({ rows = [], topN = 7 }) => {
     }
 
     return (
-        <Card className="shadow-sm border-0 mb-4 h-full">
-            <CardBody className="d-flex flex-column">
-                <h6 className="fw-bold mb-1">Revenue by Product</h6>
-                <p className="text-muted small mb-3">Top products by gross revenue</p>
+        <Card className="shadow-sm border-0 mb-6 h-full">
+            <CardBody className="flex flex-col">
+                <h6 className="font-bold mb-1">Revenue by Product</h6>
+                <p className="text-ink-muted text-xs mb-4">Top products by gross revenue</p>
                 <div className="mt-auto">
                     {sorted.length === 0
-                        ? <p className="text-muted mb-0">No product data.</p>
+                        ? <p className="text-ink-muted mb-0">No product data.</p>
                         : <ReactApexChart options={options} series={series} type="bar" height={chartHeight} />}
                 </div>
             </CardBody>

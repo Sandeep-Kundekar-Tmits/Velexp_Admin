@@ -22,20 +22,20 @@ const MisAuthModel = ({
   return (
     <Modal size="md" isOpen={show}  centered={true} className="auth-modal">
       <div className="modal-content border-0">
-        <ModalBody className="px-4 py-5 text-center">
+        <ModalBody className="px-6 py-12 text-center">
           <button
             type="button"
             onClick={onCloseClick}
-            className="btn-close position-absolute end-0 top-0 m-3"
+            className="btn-close absolute end-0 top-0 m-4"
             aria-label="Close"
           ></button>
 
-          <h4 className="mb-3">Enter Password</h4>
-          <p className="text-muted mb-4">
+          <h4 className="mb-4">Enter Password</h4>
+          <p className="text-ink-muted mb-6">
             This page is restricted. Please enter the correct password to continue.
           </p>
           
-          <div className="mb-3">
+          <div className="mb-4">
             <Input 
               type="password"
               placeholder="Enter password to access"
@@ -46,10 +46,10 @@ const MisAuthModel = ({
               }}
               className={error ? "is-invalid" : ""}
             />
-            {error && <div className="invalid-feedback d-block">{error}</div>}
+            {error && <div className="invalid-feedback block">{error}</div>}
           </div>
 
-          <div className="d-flex justify-content-center gap-3 mt-4">
+          <div className="flex justify-center gap-4 mt-6">
             <button
               type="button"
               className="btn btn-light w-1/2"
@@ -59,7 +59,7 @@ const MisAuthModel = ({
             </button>
             <button
               type="button"
-              className="btn btn-primary w-1/2 d-flex justify-content-center align-items-center"
+              className="btn btn-primary w-1/2 flex justify-center items-center"
               onClick={handleSubmit}
               disabled={loading}
             >

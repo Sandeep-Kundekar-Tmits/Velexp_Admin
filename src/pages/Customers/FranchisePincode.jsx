@@ -390,18 +390,18 @@ const FranchisePincode = () => {
                 <MainHeaderCom
                     title="Franchise Pincode"
                     extraFields={
-                        <div className="d-flex align-items-center">
-                            <h6 className="text-black fw-bold mb-0 me-2" style={{ fontSize: "14px" }}>Template</h6>
+                        <div className="flex items-center">
+                            <h6 className="text-black font-bold mb-0 mr-2" style={{ fontSize: "14px" }}>Template</h6>
                             {
                                 ["Deafult", "Customer"]?.map((ele, index) => {
                                     return (
-                                        <div className="ms-2" key={index}>
+                                        <div className="ml-2" key={index}>
                                             <Button
                                                 onClick={() => {
                                                     setSelectedtemplate(ele)
                                                     converToExcel(ele === "Customer" ? "customer" : "")
                                                 }}
-                                                className="d-flex align-items-center justify-content-center p-2 m-auto bg-transparent border-success text-success"
+                                                className="flex items-center justify-center p-2 m-auto bg-transparent border-success text-success-500"
                                                 style={{
                                                     borderRadius: "7px",
                                                     width: "100px",
@@ -411,10 +411,10 @@ const FranchisePincode = () => {
                                             >
                                                 {
                                                     (ConvertingEmptyExcelLoading && selectedTemplate === ele) ?
-                                                        <span className="me-0">Exporting...</span> :
-                                                        <span className="me-0">{ele}</span>
+                                                        <span className="mr-0">Exporting...</span> :
+                                                        <span className="mr-0">{ele}</span>
                                                 }
-                                                <FaFileExcel size={14} className="ms-1" />
+                                                <FaFileExcel size={14} className="ml-1" />
                                             </Button>
 
                                         </div>
@@ -425,10 +425,10 @@ const FranchisePincode = () => {
                     }
                 />
             </div>
-            <div className="container-fluid mt-3 px-3">
+            <div className="container-fluid mt-4 px-4">
                 {/* end heading */}
                 {/* filter */}
-                <Row className=" mt-3">
+                <Row className=" mt-4">
                     <Col md={4}>
                         <FormGroup className="mb-2">
                             <Label for="Customer">Select Customer</Label>
@@ -442,7 +442,7 @@ const FranchisePincode = () => {
                         </FormGroup>
                     </Col>
                     <Col md={4} style={{ marginTop: "28px" }}>
-                        <Button className="bg-primary" style={{ width: "50%" }} disabled={!username} onClick={onViewCustomer}>View</Button>
+                        <Button className="bg-brand-500" style={{ width: "50%" }} disabled={!username} onClick={onViewCustomer}>View</Button>
                     </Col>
                 </Row>
                 <Row>
@@ -461,11 +461,11 @@ const FranchisePincode = () => {
                     </Col>
 
                     <Col md={4}>
-                        <div className="d-flex align-items-center w-full" style={{ marginTop: "28px" }}>
+                        <div className="flex items-center w-full" style={{ marginTop: "28px" }}>
                             {/*  upload file */}
                             <Input type="file" style={{ width: "100%" }} onChange={UploadChange} />
                         </div>
-                        {/* <small className="text-muted">Select Pincode Type And Customer</small> */}
+                        {/* <small className="text-ink-muted">Select Pincode Type And Customer</small> */}
                     </Col>
                     <Col md={4}>
                         {
@@ -477,10 +477,10 @@ const FranchisePincode = () => {
                                     (!file) ||
                                     // Disable if selected option is "customer" but username is missing
                                     (selectedPincodeOption?.value !== "default" && !username)
-                                } className="bg-primary text-white d-flex align-items-center text-center justify-content-center" onClick={UploadPincode} >{
+                                } className="bg-brand-500 text-white flex items-center text-center justify-center" onClick={UploadPincode} >{
                                     uploadFranchisePincodeLoading ?
-                                        <span className="me-2">Uploading...</span> :
-                                        <span className="me-2">Upload</span>
+                                        <span className="mr-2">Uploading...</span> :
+                                        <span className="mr-2">Upload</span>
                                 }</Button>
                         }
                         {
@@ -494,9 +494,9 @@ const FranchisePincode = () => {
 
                     <div className='mt-1'>
                         {
-                            (FranchisePincodeDataLoading || ViewFranchisePincodeloading) ? <div style={{ height: "40vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+                            (FranchisePincodeDataLoading || ViewFranchisePincodeloading) ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
                                 <GridLoader size={20} />
-                                <p className="mt-5 h5">Loading Franchise Pincode ...</p>
+                                <p className="mt-12 h5">Loading Franchise Pincode ...</p>
                             </div>
                                 :
                                 <TableContainer
@@ -537,7 +537,7 @@ const FranchisePincode = () => {
                             onSuccess={onDeletePincodeClick}
                         >
                             <div>
-                                <p className="fw-bold mb-2">
+                                <p className="font-bold mb-2">
                                     {username !== null
                                         ? `For customer "${username.label}", the following pincodes will be deleted:`
                                         : "The following default pincodes will be deleted:"}
@@ -553,11 +553,11 @@ const FranchisePincode = () => {
                                         padding: "8px"
                                     }}
                                 >
-                                    <div className="d-flex flex-wrap gap-2">
+                                    <div className="flex flex-wrap gap-2">
                                         {visiblePincodes.map(item => (
                                             <span
                                                 key={item.id}
-                                                className="badge bg-light text-dark border px-2 py-1"
+                                                className="badge bg-canvas text-ink border px-2 py-1"
                                                 style={{ fontSize: "0.85rem" }}
                                             >
                                                 {item.pincode}
@@ -582,7 +582,7 @@ const FranchisePincode = () => {
                                 )}
 
 
-                                <p className="fw-semibold text-danger">
+                                <p className="font-semibold text-danger-500">
                                     Are you sure you want to delete pincodes
                                     {username ? ` for "${username.value}"` : ""}?
                                 </p>

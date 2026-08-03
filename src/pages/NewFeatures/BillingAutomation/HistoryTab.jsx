@@ -23,7 +23,7 @@ const HistoryTab = ({ onOpenBatch }) => {
 
     const columns = useMemo(() => [
         { header: "Batch ID", accessorKey: "id" },
-        { header: "Type", accessorKey: "batch_type", cell: (c) => <Badge color="light" className="text-dark border">{c.getValue()}</Badge> },
+        { header: "Type", accessorKey: "batch_type", cell: (c) => <Badge color="light" className="text-ink border">{c.getValue()}</Badge> },
         {
             header: "Status",
             accessorKey: "status",
@@ -54,8 +54,8 @@ const HistoryTab = ({ onOpenBatch }) => {
     return (
         <Card className="shadow-sm border-0">
             <CardBody className="p-0">
-                <div className="p-3 bg-light border-bottom d-flex justify-content-between align-items-center">
-                    <h5 className="mb-0 fw-bold">Recent Batches</h5>
+                <div className="p-4 bg-canvas border-bottom flex justify-between items-center">
+                    <h5 className="mb-0 font-bold">Recent Batches</h5>
                     <Button color="secondary" size="sm" onClick={loadBatches} disabled={loading}>
                         {loading ? <Spinner size="sm" /> : <><MdRefresh size={16} /> Refresh</>}
                     </Button>

@@ -59,7 +59,7 @@ const LostDashboard = () => {
             enableSorting: false,
             cell: ({ getValue }) => {
                 const docs = getValue() || [];
-                if (!docs.length) return <span className="text-muted">—</span>;
+                if (!docs.length) return <span className="text-ink-muted">—</span>;
                 return (
                     <span className="badge bg-secondary">
                         {docs.length} file{docs.length > 1 ? "s" : ""}
@@ -85,7 +85,7 @@ const LostDashboard = () => {
     ], [navigate]);
 
     if (loading) return (
-        <div className="d-flex justify-content-center mt-5">
+        <div className="flex justify-center mt-12">
             <GridLoader color="#556ee6" />
         </div>
     );
@@ -96,7 +96,7 @@ const LostDashboard = () => {
                 title="Lost Shipments Dashboard"
                 subTitle={`Total declared lost: ${data?.total ?? rows.length}`}
             />
-            <div className="mt-3">
+            <div className="mt-4">
                 <TableContainer
                     columns={columns}
                     data={rows}

@@ -79,12 +79,12 @@ const CustomerBarChart = ({ rows = [], topN }) => {
     }
 
     return (
-        <Card className="shadow-sm border-0 mb-4 h-full">
+        <Card className="shadow-sm border-0 mb-6 h-full">
             <CardBody>
-                <h6 className="fw-bold mb-1">Top Customers by Revenue</h6>
-                <p className="text-muted small mb-3">Gross &amp; Net revenue per customer (highest first)</p>
+                <h6 className="font-bold mb-1">Top Customers by Revenue</h6>
+                <p className="text-ink-muted text-xs mb-4">Gross &amp; Net revenue per customer (highest first)</p>
                 {data.length === 0
-                    ? <p className="text-muted mb-0">No customer data.</p>
+                    ? <p className="text-ink-muted mb-0">No customer data.</p>
                     : <ReactApexChart options={options} series={series} type="bar" height={height} />}
             </CardBody>
         </Card>

@@ -167,15 +167,15 @@ const BulkRtsMarkModal = ({ isOpen, toggle }) => {
             <ModalBody>
                 {!result ? (
                     <>
-                        <Nav tabs className="mb-3">
+                        <Nav tabs className="mb-4">
                             <NavItem>
                                 <NavLink className={classnames({ active: activeTab === "excel" })} onClick={() => setActiveTab("excel")} style={{ cursor: "pointer" }}>
-                                    <Upload size={16} className="me-1" /> Excel Upload
+                                    <Upload size={16} className="mr-1" /> Excel Upload
                                 </NavLink>
                             </NavItem>
                             <NavItem>
                                 <NavLink className={classnames({ active: activeTab === "manual" })} onClick={() => setActiveTab("manual")} style={{ cursor: "pointer" }}>
-                                    <FileText size={16} className="me-1" /> Manual Entry
+                                    <FileText size={16} className="mr-1" /> Manual Entry
                                 </NavLink>
                             </NavItem>
                         </Nav>
@@ -183,8 +183,8 @@ const BulkRtsMarkModal = ({ isOpen, toggle }) => {
                         <TabContent activeTab={activeTab}>
                             {/* Excel upload */}
                             <TabPane tabId="excel">
-                                <div className="d-flex justify-content-end mb-2">
-                                    <Button color="link" className="p-0 d-flex align-items-center gap-1" onClick={downloadTemplate}>
+                                <div className="flex justify-end mb-2">
+                                    <Button color="link" className="p-0 flex items-center gap-1" onClick={downloadTemplate}>
                                         <Download size={15} /> Template
                                     </Button>
                                 </div>
@@ -193,7 +193,7 @@ const BulkRtsMarkModal = ({ isOpen, toggle }) => {
                                     onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
                                     onDragLeave={() => setDragOver(false)}
                                     onDrop={onDrop}
-                                    className="text-center p-4 rounded"
+                                    className="text-center p-6 rounded"
                                     style={{
                                         cursor: "pointer",
                                         border: `2px dashed ${dragOver ? "#556ee6" : "#ced4da"}`,
@@ -201,14 +201,14 @@ const BulkRtsMarkModal = ({ isOpen, toggle }) => {
                                         transition: "all .15s ease",
                                     }}
                                 >
-                                    <Upload size={34} className="text-primary mb-2" />
-                                    <div className="fw-semibold">{file ? file.name : "Drag & drop or click to select"}</div>
-                                    <div className="text-muted small">Accepts .xlsx or .csv</div>
+                                    <Upload size={34} className="text-brand-500 mb-2" />
+                                    <div className="font-semibold">{file ? file.name : "Drag & drop or click to select"}</div>
+                                    <div className="text-ink-muted text-xs">Accepts .xlsx or .csv</div>
                                     <input
                                         ref={fileInputRef}
                                         type="file"
                                         accept=".xlsx,.csv"
-                                        className="d-none"
+                                        className="hidden"
                                         onChange={(e) => acceptFile(e.target.files?.[0])}
                                     />
                                 </div>
@@ -216,7 +216,7 @@ const BulkRtsMarkModal = ({ isOpen, toggle }) => {
 
                             {/* Manual entry */}
                             <TabPane tabId="manual">
-                                <label className="fw-semibold mb-1">Paste AWB numbers (one per line)</label>
+                                <label className="font-semibold mb-1">Paste AWB numbers (one per line)</label>
                                 <textarea
                                     className="form-control"
                                     rows={8}
@@ -224,14 +224,14 @@ const BulkRtsMarkModal = ({ isOpen, toggle }) => {
                                     value={awbText}
                                     onChange={(e) => setAwbText(e.target.value)}
                                 />
-                                <div className="text-muted small mt-1">
+                                <div className="text-ink-muted text-xs mt-1">
                                     {awbText.split(/[\n,]/).map((s) => s.trim()).filter(Boolean).length} AWB(s)
                                 </div>
                             </TabPane>
                         </TabContent>
 
                         {errorMsg && (
-                            <div className="d-flex align-items-center gap-2 mt-3 text-danger small">
+                            <div className="flex items-center gap-2 mt-4 text-danger-500 text-xs">
                                 <AlertCircle size={16} /> {errorMsg}
                             </div>
                         )}
@@ -239,12 +239,12 @@ const BulkRtsMarkModal = ({ isOpen, toggle }) => {
                 ) : (
                     /* ---------- Results view ---------- */
                     <>
-                        <div className="d-flex flex-wrap gap-2 mb-3">
+                        <div className="flex flex-wrap gap-2 mb-4">
                             {buckets.map((b) => (
-                                <div key={b.id} className="px-3 py-2 rounded d-flex align-items-center gap-2" style={{ background: tint(b.color), color: b.color, minWidth: 120 }}>
+                                <div key={b.id} className="px-4 py-2 rounded flex items-center gap-2" style={{ background: tint(b.color), color: b.color, minWidth: 120 }}>
                                     <b.Icon size={18} />
                                     <div>
-                                        <div className="fw-bold" style={{ fontSize: 18, lineHeight: 1 }}>{b.count}</div>
+                                        <div className="font-bold" style={{ fontSize: 18, lineHeight: 1 }}>{b.count}</div>
                                         <div style={{ fontSize: 11 }}>{b.label}</div>
                                     </div>
                                 </div>
@@ -258,20 +258,20 @@ const BulkRtsMarkModal = ({ isOpen, toggle }) => {
                                     <div
                                         role="button"
                                         onClick={() => setOpenBuckets((p) => ({ ...p, [b.id]: !p[b.id] }))}
-                                        className="d-flex align-items-center justify-content-between px-3 py-2"
+                                        className="flex items-center justify-between px-4 py-2"
                                         style={{ cursor: "pointer", userSelect: "none" }}
                                     >
-                                        <span className="d-flex align-items-center gap-2 fw-semibold" style={{ color: b.color }}>
-                                            <b.Icon size={16} /> {b.label} <span className="text-muted">({b.items.length})</span>
+                                        <span className="flex items-center gap-2 font-semibold" style={{ color: b.color }}>
+                                            <b.Icon size={16} /> {b.label} <span className="text-ink-muted">({b.items.length})</span>
                                         </span>
-                                        <ChevronDown size={18} className="text-muted" style={{ transition: "transform .2s", transform: open ? "rotate(180deg)" : "none" }} />
+                                        <ChevronDown size={18} className="text-ink-muted" style={{ transition: "transform .2s", transform: open ? "rotate(180deg)" : "none" }} />
                                     </div>
                                     <Collapse isOpen={open}>
-                                        <div className="px-3 pb-2" style={{ maxHeight: 220, overflowY: "auto" }}>
+                                        <div className="px-4 pb-2" style={{ maxHeight: 220, overflowY: "auto" }}>
                                             {b.items.map((it, i) => (
-                                                <div key={`${it.awbno}-${i}`} className="d-flex justify-content-between border-bottom py-1" style={{ fontSize: 13 }}>
-                                                    <span className="fw-semibold">{it.awbno}</span>
-                                                    {it.reason && <span className="text-muted ms-2 text-end">{it.reason}</span>}
+                                                <div key={`${it.awbno}-${i}`} className="flex justify-between border-bottom py-1" style={{ fontSize: 13 }}>
+                                                    <span className="font-semibold">{it.awbno}</span>
+                                                    {it.reason && <span className="text-ink-muted ml-2 text-right">{it.reason}</span>}
                                                 </div>
                                             ))}
                                         </div>
@@ -293,7 +293,7 @@ const BulkRtsMarkModal = ({ isOpen, toggle }) => {
                     </>
                 ) : (
                     <>
-                        <Button color="primary" outline onClick={resetAll} className="d-flex align-items-center gap-1">
+                        <Button color="primary" outline onClick={resetAll} className="flex items-center gap-1">
                             <RotateCcw size={16} /> Mark More
                         </Button>
                         <Button color="secondary" onClick={handleClose}>Close</Button>

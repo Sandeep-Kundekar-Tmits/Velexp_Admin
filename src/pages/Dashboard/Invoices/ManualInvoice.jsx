@@ -249,7 +249,7 @@ const ManualInvoice = () => {
                     title="Generate Manual Bills"
                 />
             </div>
-            <div className="container-fluid mt-3 px-3">
+            <div className="container-fluid mt-4 px-4">
                 <div className="mt-2">
                     {/*  new design */}
                     <Row>
@@ -317,7 +317,7 @@ const ManualInvoice = () => {
                                                 locations={CompanyAddresses}
                                                 value={SelectedAddress?.name || "select"}
                                             />
-                                            <small className="text-danger ">{InvoiceErors?.SelectedAddress}</small>
+                                            <small className="text-danger-500 ">{InvoiceErors?.SelectedAddress}</small>
                                         </FormGroup>
                                     </Col>
                                     <Col md={6}>
@@ -342,10 +342,10 @@ const ManualInvoice = () => {
                             <Input type="date" name="invoice_date" value={ManualInvoiceData?.invoice_date} onChange={onManualInvoiceChange} />
                         </Col>
                     </Row>
-                    <Row className="d-flex gap-4 m-auto">
+                    <Row className="flex gap-6 m-auto">
                         <Col md={5} className="">
                             {/* box */}
-                            <Row className="border border-2 mt-3 px-2 py-3" >
+                            <Row className="border border-2 mt-4 px-2 py-4" >
                                 <Col md={12}>
                                     <FormGroup>
                                         <Label>Description</Label>
@@ -385,7 +385,7 @@ const ManualInvoice = () => {
                         >
                             <div style={{ maxHeight: "290px", height: "290px", overflowY: "auto" }}>
                                 <Table hover>
-                                    <thead className="bg-light" style={{ position: "sticky", top: 0, zIndex: 1 }}>
+                                    <thead className="bg-canvas" style={{ position: "sticky", top: 0, zIndex: 1 }}>
                                         <tr>
                                             <th>Description</th>
                                             <th>Quantity</th>
@@ -402,7 +402,7 @@ const ManualInvoice = () => {
                                                     <td>{ele?.Quantity || "—"}</td>
                                                     <td>{ele?.Amount || "—"}</td>
                                                     <td>
-                                                        <div className="d-flex gap-3">
+                                                        <div className="flex gap-4">
                                                             <Button
                                                                 color="light"
                                                                 aria-label="Delete"
@@ -412,7 +412,7 @@ const ManualInvoice = () => {
                                                             >
                                                                 <MdDelete
                                                                     style={{ width: "16px", height: "16px" }}
-                                                                    className="text-danger"
+                                                                    className="text-danger-500"
                                                                 />
                                                             </Button>
                                                         </div>
@@ -426,17 +426,17 @@ const ManualInvoice = () => {
                             {/* bottom section */}
                             <Row className="mt-0">
                                 <Col md={6}>
-                                    <FormGroup className="d-flex align-items-center">
+                                    <FormGroup className="flex items-center">
                                         <Input
                                             type="checkbox"
                                             name="retail_invoice"
                                             style={{ width: "20px", height: "20px" }}
                                             placeholder="retail_invoice"
-                                            className="d-block me-2 border-danger border-2"
+                                            className="block mr-2 border-danger border-2"
                                             onChange={onManualInvoiceChange}
                                             value={Info.retail_invoice}
                                         />
-                                        <span className="text-danger fw-bolder">Is Retail Invoice</span>
+                                        <span className="text-danger-500 font-extrabold">Is Retail Invoice</span>
                                     </FormGroup>
                                 </Col>
                                 <Col md={6}>
@@ -444,7 +444,7 @@ const ManualInvoice = () => {
                                         <Button
                                             disabled={Infotable.length < 1}
                                             onClick={OnGenerateInvoiceClick}
-                                            className="bg-primary w-3/4 d-flex justify-content-center align-items-center"
+                                            className="bg-brand-500 w-3/4 flex justify-center items-center"
                                         >
                                             {GenerateInvoiceLoading ? (
                                                 <Spinner>Loading...</Spinner>
@@ -464,7 +464,7 @@ const ManualInvoice = () => {
                     <FormGroup>
                         <Label>Is Retail Invoice</Label>
                         <Input type="checkbox" name="retail_invoice" style={{ width: "20px", height: "20px" }}
-                            placeholder="retail_invoice" className="d-block" onChange={onManualInvoiceChange} value={Info.retail_invoice} />
+                            placeholder="retail_invoice" className="block" onChange={onManualInvoiceChange} value={Info.retail_invoice} />
                         <FormFeedback>{Errors?.retail_invoice}</FormFeedback>
                     </FormGroup>
                 </Col> */}

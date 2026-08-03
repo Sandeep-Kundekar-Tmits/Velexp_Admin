@@ -377,7 +377,7 @@ const PickupPeformance = () => {
             </div>
             <div className="container-fluid px-2">
                 <div>
-                    <Row className='gx-3 d-flex align-items-center pt-2 border-bottom pb-1'>
+                    <Row className='gx-3 flex items-center pt-2 border-bottom pb-1'>
                         {/* Select Customer moved to table head */}
                         <Col md={12}>
                             <Row>
@@ -385,7 +385,7 @@ const PickupPeformance = () => {
                                 <Col md={6}>
                                     <FormGroup className="mb-2">
                                         <Label for="ServiceCenter">Select Service Center</Label>
-                                        <div className="d-flex align-items-center">
+                                        <div className="flex items-center">
                                             <div style={{ width: "250px", minWidth: "200px" }}>
                                                 <Select options={ServiceCenterOption}
                                                     placeholder="Search"
@@ -412,7 +412,7 @@ const PickupPeformance = () => {
                                 <Col md={6}>
                                     <FormGroup className="mb-2">
                                         <Label for="Region">Select Region</Label>
-                                        <div className="d-flex align-items-center">
+                                        <div className="flex items-center">
                                             <div style={{ width: "250px", minWidth: "200px" }}>
                                                 <Select
                                                     options={AllRegions}
@@ -440,7 +440,7 @@ const PickupPeformance = () => {
                         </Col>
 
                     </Row>
-                    <Row className='gx-3 d-flex align-items-end mt-2'>
+                    <Row className='gx-3 flex items-end mt-2'>
                         <Col md={3}>
                             <FormGroup className="mb-2">
                                 <Label className='mb-1'>Select Date Range</Label>
@@ -499,8 +499,8 @@ const PickupPeformance = () => {
                             </FormGroup>
                         </Col>
                     </Row>
-                    <Row className='gx-3 d-flex align-items-center mt-2'>
-                        <Col md={3} className=' d-flex align-items-center gap-2 mb-2'>
+                    <Row className='gx-3 flex items-center mt-2'>
+                        <Col md={3} className=' flex items-center gap-2 mb-2'>
                             <Button color="primary" disabled={PerformanceLoading} style={{ height: "38px", width: "100%" }} onClick={OnCheckClick}>
                                 Check
                             </Button>
@@ -517,11 +517,11 @@ const PickupPeformance = () => {
 
                 <div className=''>
 
-                    <div className='mt-3'>
+                    <div className='mt-4'>
                         {
-                            PerformanceLoading ? <div style={{ height: "40vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+                            PerformanceLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
                                 <GridLoader size={20} />
-                                <p className="mt-5 h5">Loading Pickup Performance ...</p>
+                                <p className="mt-12 h5">Loading Pickup Performance ...</p>
                             </div>
                                 :
                                 <TableContainer

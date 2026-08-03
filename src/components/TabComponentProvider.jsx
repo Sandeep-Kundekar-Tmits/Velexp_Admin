@@ -12,7 +12,7 @@ const TabComponentProvider = ({ tabs, defaultActive = 1 }) => {
 
   return (
     <>
-      <Nav tabs className="nav-tabs-custom nav-justified rounded-top bg-light">
+      <Nav tabs className="nav-tabs-custom nav-justified rounded-top bg-canvas">
         {tabs.map((tab) => (
           <NavItem key={tab.id}>
             <NavLink
@@ -21,7 +21,7 @@ const TabComponentProvider = ({ tabs, defaultActive = 1 }) => {
               role="tab"
               aria-selected={activeTab === tab.id}
             >
-              <div className="d-flex align-items-center justify-content-center">
+              <div className="flex items-center justify-center">
                 <span>{tab.label}</span>
               </div>
             </NavLink>

@@ -7,7 +7,7 @@ const EditUserInfo = ({ formData, handleChange, setUpdatedData, setIsUpdated, on
     const toggle = () => setModal(!modal);
 
     return (
-        <Card className="mb-4">
+        <Card className="mb-6">
             <CardHeader>Basic Information</CardHeader>
             <CardBody>
                 <Row>
@@ -60,7 +60,7 @@ const EditUserInfo = ({ formData, handleChange, setUpdatedData, setIsUpdated, on
                             <Label>Account No</Label>
                             <Input type="text" name="accno" value={formData?.accno} onChange={handleChange} style={{ cursor: "not-allowed" }} />
                             {/*  not allowed to change */}
-                            <small className="text-muted">User Not Allowed To Change</small>
+                            <small className="text-ink-muted">User Not Allowed To Change</small>
                         </FormGroup>
                     </Col>
                 </Row>
@@ -70,7 +70,7 @@ const EditUserInfo = ({ formData, handleChange, setUpdatedData, setIsUpdated, on
                             <Label>OTP</Label>
                             <Input type="text" name="otp" value={formData?.otp} style={{ cursor: "not-allowed" }} />
                             {/*  not allowed to change */}
-                            <small className="text-muted">User Not Allowed To Change</small>
+                            <small className="text-ink-muted">User Not Allowed To Change</small>
                         </FormGroup>
                     </Col>
                     <Col md={6}>
@@ -83,7 +83,7 @@ const EditUserInfo = ({ formData, handleChange, setUpdatedData, setIsUpdated, on
                                 <option value="3">Franchise</option>
                             </Input>
                             {/*  not allowed to change */}
-                            <small className="text-muted">User Not Allowed To Change</small>
+                            <small className="text-ink-muted">User Not Allowed To Change</small>
                         </FormGroup>
                     </Col>
                 </Row>
@@ -91,7 +91,7 @@ const EditUserInfo = ({ formData, handleChange, setUpdatedData, setIsUpdated, on
                     <Label>Customer Name</Label>
                     <Input type="text" name="customer_name" disabled value={formData?.customer_name} style={{ cursor: "not-allowed" }} />
                     {/*  not allowed to change */}
-                    <small className="text-muted">User Not Allowed To Change</small>
+                    <small className="text-ink-muted">User Not Allowed To Change</small>
                 </FormGroup>
 
                 <Row>
@@ -112,10 +112,10 @@ const EditUserInfo = ({ formData, handleChange, setUpdatedData, setIsUpdated, on
                     <Col md={6}>
                         <FormGroup>
                             <Label>KYC Document </Label>
-                            <div className="d-flex align-items-center">
+                            <div className="flex items-center">
                                 {!!formData?.kyc_document ? (
                                     <>
-                                        <div className="d-flex align-items-center justify-content-center">
+                                        <div className="flex items-center justify-center">
                                             <div>
                                                 {typeof formData.kyc_document === 'string' ?
                                                     formData.kyc_document.split("/").pop() :
@@ -131,7 +131,7 @@ const EditUserInfo = ({ formData, handleChange, setUpdatedData, setIsUpdated, on
                                                     setIsUpdated(true)
                                                     if (onImageCancel) onImageCancel()
                                                 }}
-                                                className="text-primary"
+                                                className="text-brand-500"
                                                 style={{
                                                     marginLeft: "17px",
                                                     width: "18px",
@@ -139,14 +139,14 @@ const EditUserInfo = ({ formData, handleChange, setUpdatedData, setIsUpdated, on
                                                     cursor: "pointer"
                                                 }}
                                             />
-                                            <button className="btn text-primary" onClick={toggle}>
+                                            <button className="btn text-brand-500" onClick={toggle}>
                                                 View
                                             </button>
 
                                             {/* Preview image */}
                                             {!!formData?.kyc_document && (
                                                 <Modal isOpen={modal} toggle={toggle} fullscreen="xl" size="lg" centered>
-                                                    <ModalBody className="d-flex justify-content-center align-content-center">
+                                                    <ModalBody className="flex justify-center content-center">
                                                         {(typeof formData.kyc_document === 'string' || URL.createObjectURL(formData.kyc_document)) ? (
                                                             <img
                                                                 className="m-auto"
@@ -168,7 +168,7 @@ const EditUserInfo = ({ formData, handleChange, setUpdatedData, setIsUpdated, on
                                         </div>
                                     </>
                                 ) : (
-                                    <div className="d-flex">
+                                    <div className="flex">
                                         <Input type="file" name="kyc_document" onChange={handleChange} />
                                     </div>
                                 )}
@@ -179,7 +179,7 @@ const EditUserInfo = ({ formData, handleChange, setUpdatedData, setIsUpdated, on
                         </FormGroup>
                     </Col>
                     <Col md={6}>
-                        <FormGroup check className="mt-4">
+                        <FormGroup check className="mt-6">
                             <Label check>
                                 <Input type="checkbox" name="kyc_approved" checked={formData?.kyc_approved} onChange={handleChange} />
                                 KYC Approved
@@ -259,10 +259,10 @@ const EditUserInfo = ({ formData, handleChange, setUpdatedData, setIsUpdated, on
                     <Col md={12}>
                         <FormGroup>
                             <Label>Customer Agreement Doc</Label>
-                            <div className="d-flex align-items-center">
+                            <div className="flex items-center">
                                 {!!formData?.customer_agreement_doc ? (
                                     <>
-                                        <div className="d-flex align-items-center justify-content-center">
+                                        <div className="flex items-center justify-center">
                                             <div>
                                                 {typeof formData.customer_agreement_doc === 'string' ?
                                                     formData.customer_agreement_doc.split("/").pop() :
@@ -277,7 +277,7 @@ const EditUserInfo = ({ formData, handleChange, setUpdatedData, setIsUpdated, on
                                                     }));
                                                     setIsUpdated(true)
                                                 }}
-                                                className="text-primary"
+                                                className="text-brand-500"
                                                 style={{
                                                     marginLeft: "17px",
                                                     width: "18px",
@@ -286,7 +286,7 @@ const EditUserInfo = ({ formData, handleChange, setUpdatedData, setIsUpdated, on
                                                 }}
                                             />
                                             {typeof formData.customer_agreement_doc === 'string' && (
-                                                <a href={formData.customer_agreement_doc} target="_blank" rel="noreferrer" className="btn text-primary">
+                                                <a href={formData.customer_agreement_doc} target="_blank" rel="noreferrer" className="btn text-brand-500">
                                                     View
                                                 </a>
                                             )}

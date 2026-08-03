@@ -138,7 +138,7 @@ const WorkingTab = () => {
             header: "Batch ID",
             accessorKey: "id",
             cell: (c) => (
-                <span className="fw-semibold text-primary" style={{ cursor: "pointer" }} onClick={() => handleOpenBatchDetail(c.row.original)}>
+                <span className="font-semibold text-brand-500" style={{ cursor: "pointer" }} onClick={() => handleOpenBatchDetail(c.row.original)}>
                     #{c.getValue()}
                 </span>
             ),
@@ -149,7 +149,7 @@ const WorkingTab = () => {
             cell: (cell) => {
                 const r = cell.row.original
                 const fmt = (d) => d ? d.slice(0, 10).split("-").reverse().join("-") : "—"
-                return <span className="small">{fmt(r.billing_period_start)} – {fmt(r.billing_period_end)}</span>
+                return <span className="text-xs">{fmt(r.billing_period_start)} – {fmt(r.billing_period_end)}</span>
             },
         },
         {
@@ -166,10 +166,10 @@ const WorkingTab = () => {
             cell: (cell) => {
                 const t = cell.row.original.summary?.totals || {}
                 return (
-                    <div className="d-flex flex-wrap gap-1">
-                        {t.done > 0 && <Badge color="success" className="fw-normal">Done: {t.done}</Badge>}
-                        {t.failed > 0 && <Badge color="danger" className="fw-normal">Failed: {t.failed}</Badge>}
-                        {t.skipped > 0 && <Badge color="secondary" className="fw-normal">Skipped: {t.skipped}</Badge>}
+                    <div className="flex flex-wrap gap-1">
+                        {t.done > 0 && <Badge color="success" className="font-normal">Done: {t.done}</Badge>}
+                        {t.failed > 0 && <Badge color="danger" className="font-normal">Failed: {t.failed}</Badge>}
+                        {t.skipped > 0 && <Badge color="secondary" className="font-normal">Skipped: {t.skipped}</Badge>}
                     </div>
                 )
             },
@@ -188,7 +188,7 @@ const WorkingTab = () => {
                 return (
                     <div>
                         <div>{v.slice(0, 10).split("-").reverse().join("-")}</div>
-                        <div className="text-muted small">{v.slice(11, 16)}</div>
+                        <div className="text-ink-muted text-xs">{v.slice(11, 16)}</div>
                     </div>
                 )
             },
@@ -199,7 +199,7 @@ const WorkingTab = () => {
             cell: (cell) => {
                 const id = cell.row.original.id
                 return (
-                    <div className="d-flex gap-2 justify-content-center">
+                    <div className="flex gap-2 justify-center">
                         <Button color="success" size="sm" title="Download working files (zip)" onClick={() => handleRunDownload(id)}>
                             <FaFileArchive size={15} />
                         </Button>
@@ -221,10 +221,10 @@ const WorkingTab = () => {
 
             <Card className="shadow-sm border-0">
                 <CardBody className="p-0">
-                    <div className="p-3 bg-light border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2">
-                        <h5 className="mb-0 fw-bold">Generated Working Files</h5>
-                        <div className="d-flex gap-2 flex-wrap">
-                            <Button color="primary" size="sm" onClick={() => setUploadOpen(true)} className="d-flex align-items-center gap-1">
+                    <div className="p-4 bg-canvas border-bottom flex justify-between items-center flex-wrap gap-2">
+                        <h5 className="mb-0 font-bold">Generated Working Files</h5>
+                        <div className="flex gap-2 flex-wrap">
+                            <Button color="primary" size="sm" onClick={() => setUploadOpen(true)} className="flex items-center gap-1">
                                 <MdUpload size={16} /> Upload &amp; Invoice
                             </Button>
                             <Button color="secondary" size="sm" onClick={loadRuns} disabled={runsLoading}>
@@ -255,22 +255,22 @@ const WorkingTab = () => {
                 </ModalHeader>
                 <ModalBody>
                     {batchDetailLoading && (
-                        <div className="text-center py-5"><Spinner color="primary" /></div>
+                        <div className="text-center py-12"><Spinner color="primary" /></div>
                     )}
                     {!batchDetailLoading && batchDetail && (
                         <>
                             {/* Select-all header */}
-                            <div className="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom">
-                                <div className="d-flex align-items-center gap-2">
+                            <div className="flex items-center justify-between mb-2 pb-2 border-bottom">
+                                <div className="flex items-center gap-2">
                                     <Input
                                         type="checkbox"
                                         checked={isAllSelected}
                                         onChange={toggleSelectAll}
                                         style={{ cursor: "pointer" }}
                                     />
-                                    <Label className="mb-0 fw-semibold small">Select All ({selectableRuns.length})</Label>
+                                    <Label className="mb-0 font-semibold text-xs">Select All ({selectableRuns.length})</Label>
                                 </div>
-                                <span className="text-muted small">{selectedRunIds.length} selected</span>
+                                <span className="text-ink-muted text-xs">{selectedRunIds.length} selected</span>
                             </div>
 
                             {/* Customer list */}
@@ -283,7 +283,7 @@ const WorkingTab = () => {
                                     return (
                                         <div
                                             key={p.billing_run_id || p.customer_id}
-                                            className="d-flex align-items-center gap-3 py-2 px-1 border-bottom"
+                                            className="flex items-center gap-4 py-2 px-1 border-bottom"
                                             style={{ cursor: p.billing_run_id ? "pointer" : "default" }}
                                             onClick={() => p.billing_run_id && toggleRunSelect(p.billing_run_id)}
                                         >
@@ -294,14 +294,14 @@ const WorkingTab = () => {
                                                 onChange={() => { }}
                                                 style={{ cursor: p.billing_run_id ? "pointer" : "not-allowed", flexShrink: 0 }}
                                             />
-                                            <div className="flex-grow-1 min-w-0">
-                                                <div className="fw-semibold small text-truncate">{p.customer_name}</div>
-                                                <div className="text-muted" style={{ fontSize: "0.75rem" }}>
+                                            <div className="grow min-w-0">
+                                                <div className="font-semibold text-xs truncate">{p.customer_name}</div>
+                                                <div className="text-ink-muted" style={{ fontSize: "0.75rem" }}>
                                                     Run #{p.billing_run_id ?? "—"} &nbsp;·&nbsp; {p.total_shipments ?? 0} shipments
                                                     {p.message && <> &nbsp;·&nbsp; <span className="fst-italic">{p.message}</span></>}
                                                 </div>
                                             </div>
-                                            <Badge color={statusColor} className="fw-normal flex-shrink-0">{p.stage_status}</Badge>
+                                            <Badge color={statusColor} className="font-normal shrink-0">{p.stage_status}</Badge>
                                         </div>
                                     )
                                 })}
@@ -310,11 +310,11 @@ const WorkingTab = () => {
                     )}
                 </ModalBody>
                 <ModalFooter>
-                    <span className="me-auto text-muted small">{selectedRunIds.length} customer(s) selected</span>
-                    <Button color="success" disabled={!selectedRunIds.length || zipDownloading} onClick={() => downloadSelected("zip")} className="d-flex align-items-center gap-2">
+                    <span className="mr-auto text-ink-muted text-xs">{selectedRunIds.length} customer(s) selected</span>
+                    <Button color="success" disabled={!selectedRunIds.length || zipDownloading} onClick={() => downloadSelected("zip")} className="flex items-center gap-2">
                         {zipDownloading ? <Spinner size="sm" /> : <FaFileArchive size={15} />} Download Zip
                     </Button>
-                    {/* <Button color="primary" disabled={!selectedRunIds.length || combinedDownloading} onClick={() => downloadSelected("combined")} className="d-flex align-items-center gap-2">
+                    {/* <Button color="primary" disabled={!selectedRunIds.length || combinedDownloading} onClick={() => downloadSelected("combined")} className="flex items-center gap-2">
                         {combinedDownloading ? <Spinner size="sm" /> : <FaLayerGroup size={15} />} Download Combined
                     </Button> */}
                 </ModalFooter>

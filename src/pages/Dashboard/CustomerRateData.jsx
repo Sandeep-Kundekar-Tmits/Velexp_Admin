@@ -22,7 +22,7 @@ const CustomerRateData = () => {
 
     return (
         <div className="page-content">
-            <Nav tabs className="nav-tabs-custom nav-justified rounded-top bg-light">
+            <Nav tabs className="nav-tabs-custom nav-justified rounded-top bg-canvas">
                 <NavItem>
                     <NavLink
                         className={`nav-link py-3 ${activeTab === 1 ? 'active bg-light' : ''}`}
@@ -30,7 +30,7 @@ const CustomerRateData = () => {
                         role="tab"
                         aria-selected={activeTab === 1}
                     >
-                        <div className="d-flex align-items-center justify-content-center">
+                        <div className="flex items-center justify-center">
                             <span>Asus Rates</span>
                         </div>
                     </NavLink>
@@ -42,7 +42,7 @@ const CustomerRateData = () => {
                         role="tab"
                         aria-selected={activeTab === 2}
                     >
-                        <div className="d-flex align-items-center justify-content-center">
+                        <div className="flex items-center justify-center">
                             <span>Corporate Rates</span>
                         </div>
                     </NavLink>
@@ -54,7 +54,7 @@ const CustomerRateData = () => {
                         role="tab"
                         aria-selected={activeTab === 3}
                     >
-                        <div className="d-flex align-items-center justify-content-center">
+                        <div className="flex items-center justify-center">
                             <span>Franchise Rates</span>
                         </div>
                     </NavLink>
@@ -66,7 +66,7 @@ const CustomerRateData = () => {
                         role="tab"
                         aria-selected={activeTab === 4}
                     >
-                        <div className="d-flex align-items-center justify-content-center">
+                        <div className="flex items-center justify-center">
                             <span>retail Rates</span>
                         </div>
                     </NavLink>

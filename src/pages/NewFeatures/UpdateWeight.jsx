@@ -213,9 +213,9 @@ const UpdateWeight = () => {
                     <MainHeaderComp title="Update Weight" />
                 </div>
 
-                <div className="container-fluid px-3 py-3">
+                <div className="container-fluid px-4 py-4">
 
-                    <Nav tabs className="mb-3">
+                    <Nav tabs className="mb-4">
                         {TABS.map((t) => (
                             <NavItem key={t.id}>
                                 <NavLink
@@ -233,11 +233,11 @@ const UpdateWeight = () => {
                     <TabPane tabId="single">
 
                     {/* ── Single AWB update ── */}
-                    <Card className="shadow-sm border-0 mb-3">
-                        <CardBody className="py-3">
-                            <Row className="g-3 align-items-end">
+                    <Card className="shadow-sm border-0 mb-4">
+                        <CardBody className="py-4">
+                            <Row className="gap-4 items-end">
                                 <Col md={3}>
-                                    <Label className="fw-bold small mb-1">AWB <span className="text-danger">*</span></Label>
+                                    <Label className="font-bold text-xs mb-1">AWB <span className="text-danger-500">*</span></Label>
                                     <Input
                                         placeholder="Enter AWB No."
                                         value={awb}
@@ -246,7 +246,7 @@ const UpdateWeight = () => {
                                     />
                                 </Col>
                                 <Col md={2}>
-                                    <Label className="fw-bold small mb-1">Weight (kg) <span className="text-danger">*</span></Label>
+                                    <Label className="font-bold text-xs mb-1">Weight (kg) <span className="text-danger-500">*</span></Label>
                                     <Input
                                         type="number"
                                         min="0"
@@ -257,7 +257,7 @@ const UpdateWeight = () => {
                                     />
                                 </Col>
                                 <Col md={2}>
-                                    <Label className="fw-bold small mb-1">Length</Label>
+                                    <Label className="font-bold text-xs mb-1">Length</Label>
                                     <Input
                                         type="number"
                                         min="0"
@@ -272,7 +272,7 @@ const UpdateWeight = () => {
                                     />
                                 </Col>
                                 <Col md={2}>
-                                    <Label className="fw-bold small mb-1">Breadth</Label>
+                                    <Label className="font-bold text-xs mb-1">Breadth</Label>
                                     <Input
                                         type="number"
                                         min="0"
@@ -287,7 +287,7 @@ const UpdateWeight = () => {
                                     />
                                 </Col>
                                 <Col md={3}>
-                                    <Label className="fw-bold small mb-1">Height</Label>
+                                    <Label className="font-bold text-xs mb-1">Height</Label>
                                     <Input
                                         type="number"
                                         min="0"
@@ -302,9 +302,9 @@ const UpdateWeight = () => {
                                     />
                                 </Col>
                             </Row>
-                            <Row className="g-3 align-items-end mt-1">
+                            <Row className="gap-4 items-end mt-1">
                                 <Col md={3}>
-                                    <Label className="fw-bold small mb-1">Quantity</Label>
+                                    <Label className="font-bold text-xs mb-1">Quantity</Label>
                                     <Input
                                         type="number"
                                         min="0"
@@ -315,7 +315,7 @@ const UpdateWeight = () => {
                                     />
                                 </Col>
                                 <Col md={4}>
-                                    <Label className="fw-bold small mb-1">Shipment Value</Label>
+                                    <Label className="font-bold text-xs mb-1">Shipment Value</Label>
                                     <Input
                                         type="number"
                                         min="0"
@@ -326,7 +326,7 @@ const UpdateWeight = () => {
                                     />
                                 </Col>
                                 <Col md={5}>
-                                    <Label className="fw-bold small mb-1">Volumetric Weight (kg)</Label>
+                                    <Label className="font-bold text-xs mb-1">Volumetric Weight (kg)</Label>
                                     <Input
                                         type="number"
                                         min="0"
@@ -337,9 +337,9 @@ const UpdateWeight = () => {
                                     />
                                 </Col>
                             </Row>
-                            <Row className="g-3 align-items-end mt-1">
+                            <Row className="gap-4 items-end mt-1">
                                 <Col md={9}>
-                                    <Label className="fw-bold small mb-1">Remarks <span className="text-danger">*</span></Label>
+                                    <Label className="font-bold text-xs mb-1">Remarks <span className="text-danger-500">*</span></Label>
                                     <Input
                                         placeholder="Reason for weight update"
                                         value={singleRemarks}
@@ -349,7 +349,7 @@ const UpdateWeight = () => {
                                 <Col md={3}>
                                     <Button
                                         color="primary"
-                                        className="d-flex align-items-center gap-1 fw-bold w-full justify-content-center"
+                                        className="flex items-center gap-1 font-bold w-full justify-center"
                                         onClick={handleSingleSubmit}
                                         disabled={singleLoading}
                                     >
@@ -362,9 +362,9 @@ const UpdateWeight = () => {
 
                     {/* ── Session history ── */}
                     {history.length > 0 && (
-                        <Card className="shadow-sm border-0 mb-3">
+                        <Card className="shadow-sm border-0 mb-4">
                             <CardBody>
-                                <h6 className="fw-bold mb-2 d-flex align-items-center gap-1"><MdHistory /> Recent Updates (this session)</h6>
+                                <h6 className="font-bold mb-2 flex items-center gap-1"><MdHistory /> Recent Updates (this session)</h6>
                                 <div className="table-responsive">
                                     <table className="table table-sm table-hover mb-0">
                                         <thead>
@@ -393,7 +393,7 @@ const UpdateWeight = () => {
                                                     <td>{h.shipment_value ?? "—"}</td>
                                                     <td>{h.volumetric_weight ?? "—"}</td>
                                                     <td>{h.remarks}</td>
-                                                    <td className="text-muted">{h.time}</td>
+                                                    <td className="text-ink-muted">{h.time}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -408,14 +408,14 @@ const UpdateWeight = () => {
 
                     {/* ── Bulk excel update ── */}
                     <Card className="shadow-sm border-0">
-                        <CardBody className="py-3">
-                            <Row className="g-3 align-items-end">
+                        <CardBody className="py-4">
+                            <Row className="gap-4 items-end">
                                 <Col md={5}>
-                                    <Label className="fw-bold small mb-1">Upload Excel / CSV <span className="text-danger">*</span></Label>
-                                    <div className="d-flex align-items-center gap-2">
+                                    <Label className="font-bold text-xs mb-1">Upload Excel / CSV <span className="text-danger-500">*</span></Label>
+                                    <div className="flex items-center gap-2">
                                         <label
                                             htmlFor="update-weight-file-input"
-                                            className="d-flex align-items-center gap-2 rounded flex-grow-1 text-truncate px-2 mb-0"
+                                            className="flex items-center gap-2 rounded grow truncate px-2 mb-0"
                                             style={{ border: "1.5px dashed #adb5bd", background: "#f8f9fa", cursor: "pointer", height: "38px" }}
                                             onDragOver={(e) => e.preventDefault()}
                                             onDrop={(e) => {
@@ -424,33 +424,33 @@ const UpdateWeight = () => {
                                                 if (file) handleFile({ target: { files: [file], value: "" } })
                                             }}
                                         >
-                                            <MdCloudUpload size={18} className="text-muted flex-shrink-0" />
-                                            <span className="text-truncate text-muted" style={{ fontSize: "0.8rem" }}>
+                                            <MdCloudUpload size={18} className="text-ink-muted shrink-0" />
+                                            <span className="truncate text-ink-muted" style={{ fontSize: "0.8rem" }}>
                                                 {parsing ? "Parsing…" : fileName || "Click or drag & drop .xlsx/.csv"}
                                             </span>
-                                            <input id="update-weight-file-input" ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="d-none" onChange={handleFile} />
+                                            <input id="update-weight-file-input" ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleFile} />
                                         </label>
-                                        <Button color="outline-success" size="sm" onClick={downloadTemplate} className="d-flex align-items-center gap-1 flex-shrink-0" style={{ height: "38px" }}>
+                                        <Button color="outline-success" size="sm" onClick={downloadTemplate} className="flex items-center gap-1 shrink-0" style={{ height: "38px" }}>
                                             <MdFileDownload size={14} /> Template
                                         </Button>
                                     </div>
                                 </Col>
 
                                 <Col md={4}>
-                                    <Label className="fw-bold small mb-1">Batch Remarks <span className="text-danger">*</span></Label>
+                                    <Label className="font-bold text-xs mb-1">Batch Remarks <span className="text-danger-500">*</span></Label>
                                     <Input
                                         placeholder="Reason for this batch weight update"
                                         value={bulkRemarks}
                                         onChange={(e) => { setBulkRemarks(e.target.value); setBulkRemarksError(false) }}
                                         invalid={bulkRemarksError}
                                     />
-                                    {bulkRemarksError && <FormFeedback className="d-block">Batch remarks is required before submitting.</FormFeedback>}
+                                    {bulkRemarksError && <FormFeedback className="block">Batch remarks is required before submitting.</FormFeedback>}
                                 </Col>
 
                                 <Col md={3}>
                                     <Button
                                         color="primary"
-                                        className="d-flex align-items-center gap-1 fw-bold w-full justify-content-center"
+                                        className="flex items-center gap-1 font-bold w-full justify-center"
                                         onClick={handleBulkSubmit}
                                         disabled={bulkLoading || !validRows.length}
                                     >
@@ -461,21 +461,21 @@ const UpdateWeight = () => {
                                 </Col>
                             </Row>
 
-                            <p className="text-muted mt-2 mb-0" style={{ fontSize: "0.72rem" }}>
+                            <p className="text-ink-muted mt-2 mb-0" style={{ fontSize: "0.72rem" }}>
                                 Columns: awb, weight, length, breadth, height, quantity, shipment_value, volumetric_weight
                             </p>
 
                             {parsedRows.length > 0 && (
-                                <div className="d-flex align-items-center gap-2 mt-2">
-                                    <Badge color="success" className="fw-normal">{validRows.length} valid</Badge>
-                                    {invalidRows.length > 0 && <Badge color="danger" className="fw-normal">{invalidRows.length} invalid</Badge>}
-                                    <div className="flex-grow-1" />
+                                <div className="flex items-center gap-2 mt-2">
+                                    <Badge color="success" className="font-normal">{validRows.length} valid</Badge>
+                                    {invalidRows.length > 0 && <Badge color="danger" className="font-normal">{invalidRows.length} invalid</Badge>}
+                                    <div className="grow" />
                                     <Button color="outline-secondary" size="sm" onClick={resetBulk}>Clear</Button>
                                 </div>
                             )}
 
                             {parsedRows.length > 0 && (
-                                <div className="table-responsive mt-3" style={{ maxHeight: 280, overflowY: "auto" }}>
+                                <div className="table-responsive mt-4" style={{ maxHeight: 280, overflowY: "auto" }}>
                                     <table className="table table-sm table-hover mb-0">
                                         <thead>
                                             <tr>
@@ -505,8 +505,8 @@ const UpdateWeight = () => {
                                                     <td>{r.volumetric_weight ?? "—"}</td>
                                                     <td>
                                                         {r.errors.length
-                                                            ? <span className="text-danger small">{r.errors.join(", ")}</span>
-                                                            : <span className="text-success small d-flex align-items-center gap-1"><MdOutlineCheckCircle size={14} /> OK</span>}
+                                                            ? <span className="text-danger-500 text-xs">{r.errors.join(", ")}</span>
+                                                            : <span className="text-success-500 text-xs flex items-center gap-1"><MdOutlineCheckCircle size={14} /> OK</span>}
                                                     </td>
                                                 </tr>
                                             ))}
@@ -519,35 +519,35 @@ const UpdateWeight = () => {
 
                     {/* ── Bulk submit result ── */}
                     {bulkResult && (
-                        <Card className="shadow-sm border-0 mt-3">
+                        <Card className="shadow-sm border-0 mt-4">
                             <CardBody>
-                                <h6 className="fw-bold mb-3">Bulk Update Result</h6>
-                                <Row className="g-2 mb-3">
+                                <h6 className="font-bold mb-4">Bulk Update Result</h6>
+                                <Row className="gap-2 mb-4">
                                     <Col xs={6} md={3}>
-                                        <div className="rounded-3 bg-success bg-opacity-10 border border-success border-opacity-25 p-2 text-center">
-                                            <div className="fw-bold text-success" style={{ fontSize: "1.5rem" }}>{Array.isArray(resultUpdated) ? resultUpdated.length : resultUpdated}</div>
-                                            <div className="small text-success">Updated</div>
+                                        <div className="rounded-3 bg-success-500 bg-opacity-10 border border-success border-opacity-25 p-2 text-center">
+                                            <div className="font-bold text-success-500" style={{ fontSize: "1.5rem" }}>{Array.isArray(resultUpdated) ? resultUpdated.length : resultUpdated}</div>
+                                            <div className="text-xs text-success-500">Updated</div>
                                         </div>
                                     </Col>
                                     <Col xs={6} md={3}>
-                                        <div className="rounded-3 bg-danger bg-opacity-10 border border-danger border-opacity-25 p-2 text-center">
-                                            <div className="fw-bold text-danger" style={{ fontSize: "1.5rem" }}>{Array.isArray(resultFailed) ? resultFailed.length : resultFailed}</div>
-                                            <div className="small text-danger">Failed</div>
+                                        <div className="rounded-3 bg-danger-500 bg-opacity-10 border border-danger border-opacity-25 p-2 text-center">
+                                            <div className="font-bold text-danger-500" style={{ fontSize: "1.5rem" }}>{Array.isArray(resultFailed) ? resultFailed.length : resultFailed}</div>
+                                            <div className="text-xs text-danger-500">Failed</div>
                                         </div>
                                     </Col>
                                 </Row>
 
                                 {Array.isArray(resultFailed) && resultFailed.length > 0 && (
                                     <div>
-                                        <p className="small fw-semibold text-danger mb-1 d-flex align-items-center gap-1">
+                                        <p className="text-xs font-semibold text-danger-500 mb-1 flex items-center gap-1">
                                             <MdCancel /> Failed
                                         </p>
-                                        <div className="d-flex flex-wrap gap-1">
+                                        <div className="flex flex-wrap gap-1">
                                             {resultFailed.map((item, i) => {
                                                 const itemAwb = typeof item === "string" ? item : item.awb || item.awbno || JSON.stringify(item)
                                                 const reason = typeof item === "object" ? (item.reason || item.message || item.error) : null
                                                 return (
-                                                    <Badge key={`${itemAwb}-${i}`} color="danger" className="fw-normal" style={{ fontFamily: "monospace" }} title={reason || ""}>
+                                                    <Badge key={`${itemAwb}-${i}`} color="danger" className="font-normal" style={{ fontFamily: "monospace" }} title={reason || ""}>
                                                         {itemAwb}{reason ? ` — ${reason}` : ""}
                                                     </Badge>
                                                 )

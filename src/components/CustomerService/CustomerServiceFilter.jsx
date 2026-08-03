@@ -347,9 +347,9 @@ const CustomerServiceFilter = ({ AllEntries = {}, ApplyFilter, BookingList }) =>
     }, [AllEntries]);
 
     return (
-        <div className="admin-booking-filter pt-3 border-top">
+        <div className="admin-booking-filter pt-4 border-top">
             {/* Shipment Statistics Row non group */}
-            <Row className="mb-0 g-2 gap-2">
+            <Row className="mb-0 gap-2 gap-2">
                 {Stats.map((stat, index) => {
 
 
@@ -361,7 +361,7 @@ const CustomerServiceFilter = ({ AllEntries = {}, ApplyFilter, BookingList }) =>
                 })}
             </Row>
             {/* groups */}
-            <Row className="mb-0 g-2 gap-2 mt-2">
+            <Row className="mb-0 gap-2 gap-2 mt-2">
                 {Stats.map((stat, index) => {
 
 
@@ -374,10 +374,10 @@ const CustomerServiceFilter = ({ AllEntries = {}, ApplyFilter, BookingList }) =>
             </Row>
 
             {/* Form Controls Row */}
-            <Row className="g-3 bg-light rounded-2 mt-3">
+            <Row className="gap-4 bg-canvas rounded-2 mt-4">
                 <Col md={3}>
                     <FormGroup>
-                        <Label for="checkpoint" className="fw-bold">Select Checkpoint</Label>
+                        <Label for="checkpoint" className="font-bold">Select Checkpoint</Label>
                         <Select
                             id="checkpoint"
                             value={FilterObj.checkpt ? CheckptOption.find(opt => opt.value === FilterObj.checkpt) : null}
@@ -395,7 +395,7 @@ const CustomerServiceFilter = ({ AllEntries = {}, ApplyFilter, BookingList }) =>
                     </FormGroup>
                 </Col>
 
-                <Col md={3} className="d-flex align-items-end mb-3">
+                <Col md={3} className="flex items-end mb-4">
                     <button className="btn btn-primary w-full" onClick={() => {
                         setIsFilterActive(true)
                         let updatedCount = ApplyFilter(FilterObj)
@@ -404,10 +404,10 @@ const CustomerServiceFilter = ({ AllEntries = {}, ApplyFilter, BookingList }) =>
                     </button>
                 </Col>
 
-                <Col md={3} className="d-flex align-items-end mb-3">
+                <Col md={3} className="flex items-end mb-4">
                     {
                         isFilterActive && <button
-                            className="btn bg-danger text-white w-full"
+                            className="btn bg-danger-500 text-white w-full"
                             onClick={() => {
                                 setFilterObj({
                                     checkpt: null,

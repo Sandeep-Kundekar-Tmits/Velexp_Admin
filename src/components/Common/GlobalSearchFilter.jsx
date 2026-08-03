@@ -17,7 +17,7 @@ const JobListGlobalFilter = ({ setGlobalFilter }) => {
     return (
         <React.Fragment>
             <Col xxl={2} lg={6}>
-                <select className="form-control select2 mb-3 mb-xxl-0" defaultValue="Status" onChange={(e) => handleSelectStatus(e.target)}>
+                <select className="form-control select2 mb-4 mb-xxl-0" defaultValue="Status" onChange={(e) => handleSelectStatus(e.target)}>
                     <option disabled>Status</option>
                     <option value="all">All</option>
                     <option value="Active">Active</option>
@@ -26,7 +26,7 @@ const JobListGlobalFilter = ({ setGlobalFilter }) => {
                 </select>
             </Col>
             <Col xxl={2} lg={4}>
-                <select className="form-control select2 mb-3 mb-xxl-0" defaultValue="Select Type" onChange={(e) => handleSelectStatus(e.target)}>
+                <select className="form-control select2 mb-4 mb-xxl-0" defaultValue="Select Type" onChange={(e) => handleSelectStatus(e.target)}>
                     <option disabled>Select Type</option>
                     <option value="all">All</option>
                     <option value="Full Time">Full Time</option>
@@ -36,7 +36,7 @@ const JobListGlobalFilter = ({ setGlobalFilter }) => {
             <Col xxl={2} lg={4}>
                 <div id="datepicker1">
                     {/* <FlatPickr
-                        className="form-control mb-3 mb-xxl-0"
+                        className="form-control mb-4 mb-xxl-0"
                         name="joiningDate"
                         placeholder="Select time"
                         options={{
@@ -48,7 +48,7 @@ const JobListGlobalFilter = ({ setGlobalFilter }) => {
                 </div>
             </Col>
             {/* <Col xxl={2} lg={4}>
-                <div className='mb-3 mb-xxl-0'>
+                <div className='mb-4 mb-xxl-0'>
                     <button type="button" className="btn btn-soft-secondary w-full">
                         <i className="mdi mdi-filter-outline align-middle"></i> Filter</button>
                 </div>

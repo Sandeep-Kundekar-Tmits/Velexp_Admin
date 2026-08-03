@@ -103,7 +103,7 @@ const DisputeList = () => {
                 subTitle={`Total: ${total}`}
             />
 
-            <Nav tabs className="mt-3 mb-2">
+            <Nav tabs className="mt-4 mb-2">
                 {STATUS_TABS.map(tab => (
                     <NavItem key={tab.value}>
                         <NavLink
@@ -118,7 +118,7 @@ const DisputeList = () => {
             </Nav>
 
             {loading ? (
-                <div className="d-flex justify-content-center mt-5">
+                <div className="flex justify-center mt-12">
                     <GridLoader color="#556ee6" />
                 </div>
             ) : (
@@ -132,13 +132,13 @@ const DisputeList = () => {
                         tableClass="table-bordered table-nowrap"
                     />
 
-                    <div className="d-flex flex-wrap justify-content-between align-items-center mt-3 px-3 py-2 bg-light rounded border">
-                        <div className="d-flex align-items-center gap-2 mb-2 mb-sm-0">
-                            <span className="text-muted small">
+                    <div className="flex flex-wrap justify-between items-center mt-4 px-4 py-2 bg-canvas rounded border">
+                        <div className="flex items-center gap-2 mb-2 mb-sm-0">
+                            <span className="text-ink-muted text-xs">
                                 Showing {total > 0 ? (page - 1) * pageSize + 1 : 0} to {Math.min(page * pageSize, total)} of {total} entries
                             </span>
-                            <div className="d-flex align-items-center gap-1 ms-3">
-                                <span className="text-muted small">Per page:</span>
+                            <div className="flex items-center gap-1 ml-4">
+                                <span className="text-ink-muted text-xs">Per page:</span>
                                 <select
                                     className="form-select form-select-sm"
                                     style={{ width: "80px", cursor: "pointer" }}
@@ -159,7 +159,7 @@ const DisputeList = () => {
                         </div>
 
                         {totalPages > 1 && (
-                            <div className="d-flex align-items-center gap-1">
+                            <div className="flex items-center gap-1">
                                 <Button
                                     size="sm"
                                     color="secondary"

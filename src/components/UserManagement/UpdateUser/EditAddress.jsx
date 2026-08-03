@@ -53,8 +53,8 @@ const EditAddress = ({ formData, onInputChange ,onSelectChange }) => {
     };
 
     return (
-        <Card className="mb-4">
-            <CardHeader className="d-flex justify-content-between">
+        <Card className="mb-6">
+            <CardHeader className="flex justify-between">
                 <p>Edit Address</p>
                 {/* <Button color="primary">Update Address</Button> */}
             </CardHeader>
@@ -72,7 +72,7 @@ const EditAddress = ({ formData, onInputChange ,onSelectChange }) => {
                                 onChange={handleAddressInputChange}
                                 invalid={!!errors?.address}
                             />
-                            {errors?.address && <FormFeedback className="d-block">{errors.address}</FormFeedback>}
+                            {errors?.address && <FormFeedback className="block">{errors.address}</FormFeedback>}
                         </FormGroup>
                     </Col>
 
@@ -174,7 +174,7 @@ const EditAddress = ({ formData, onInputChange ,onSelectChange }) => {
                                 onChange={handleAddressInputChange}
                                 invalid={!!errors?.landmark}
                             />
-                            {errors?.landmark && <FormFeedback className="d-block">{errors.landmark}</FormFeedback>}
+                            {errors?.landmark && <FormFeedback className="block">{errors.landmark}</FormFeedback>}
                         </FormGroup>
                     </Col>
                 </Row>

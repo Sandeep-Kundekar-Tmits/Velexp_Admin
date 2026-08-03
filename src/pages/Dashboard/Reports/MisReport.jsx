@@ -131,24 +131,24 @@ const MisReport = () => {
 
     return (
         <div className="page-content py-0 px-0">
-            <div className="position-sticky bg-white" style={{ top: 0, zIndex: 100 }}>
+            <div className="sticky bg-white" style={{ top: 0, zIndex: 100 }}>
                 <MainHeaderComp title="MIS Run" />
             </div>
 
-            <div className="container-fluid px-3 pt-3">
+            <div className="container-fluid px-4 pt-4">
 
                 {/* ── Upload Card ─────────────────────────────────────────── */}
-                <Card className="shadow-sm mb-3">
-                    <CardBody className="p-4">
-                        <div className="d-flex align-items-center gap-2 mb-3">
-                            <FileText size={18} className="text-primary" />
-                            <h6 className="mb-0 fw-semibold">Upload AWB Excel File</h6>
+                <Card className="shadow-sm mb-4">
+                    <CardBody className="p-6">
+                        <div className="flex items-center gap-2 mb-4">
+                            <FileText size={18} className="text-brand-500" />
+                            <h6 className="mb-0 font-semibold">Upload AWB Excel File</h6>
                         </div>
 
                         {/* Drop zone + generate row */}
-                        <div className="d-flex align-items-stretch gap-3 mb-2">
+                        <div className="flex items-stretch gap-4 mb-2">
                             <div
-                                className="flex-grow-1 d-flex align-items-center gap-2 rounded px-3 py-2"
+                                className="grow flex items-center gap-2 rounded px-4 py-2"
                                 style={{
                                     border: "2px dashed #ced4da",
                                     cursor: awbNumbers.length ? "default" : "pointer",
@@ -162,17 +162,17 @@ const MisReport = () => {
                                     ref={fileRef}
                                     type="file"
                                     accept=".xlsx,.xls,.csv"
-                                    className="d-none"
+                                    className="hidden"
                                     onChange={(e) => handleFileChange(e.target.files?.[0])}
                                 />
                                 {awbNumbers.length ? (
                                     <>
-                                        <CheckCircle size={16} className="text-success flex-shrink-0" />
-                                        <span className="small fw-semibold text-success text-truncate">{file?.name}</span>
-                                        <Badge color="success" className="ms-1 flex-shrink-0">{awbNumbers.length} AWBs</Badge>
+                                        <CheckCircle size={16} className="text-success-500 shrink-0" />
+                                        <span className="text-xs font-semibold text-success-500 truncate">{file?.name}</span>
+                                        <Badge color="success" className="ml-1 shrink-0">{awbNumbers.length} AWBs</Badge>
                                         <button
                                             type="button"
-                                            className="btn btn-sm btn-link text-danger ms-auto p-0"
+                                            className="btn btn-sm btn-link text-danger-500 ml-auto p-0"
                                             onClick={(e) => { e.stopPropagation(); handleReset(); }}
                                             title="Clear"
                                         >
@@ -181,8 +181,8 @@ const MisReport = () => {
                                     </>
                                 ) : (
                                     <>
-                                        <Upload size={16} className="text-muted flex-shrink-0" />
-                                        <span className="small text-muted">
+                                        <Upload size={16} className="text-ink-muted shrink-0" />
+                                        <span className="text-xs text-ink-muted">
                                             Click to select or drag &amp; drop &nbsp;<em>(.xlsx, .xls, .csv)</em>
                                         </span>
                                     </>
@@ -197,11 +197,11 @@ const MisReport = () => {
                             >
                                 {isGenerating ? (
                                     <>
-                                        <span className="spinner-border spinner-border-sm me-1" role="status" />
+                                        <span className="spinner-border spinner-border-sm mr-1" role="status" />
                                         Generating…
                                     </>
                                 ) : (
-                                    <><Download size={14} className="me-1" />Generate MIS Report</>
+                                    <><Download size={14} className="mr-1" />Generate MIS Report</>
                                 )}
                             </Button>
                         </div>
@@ -209,16 +209,16 @@ const MisReport = () => {
                         {/* Template link */}
                         <button
                             type="button"
-                            className="btn btn-link btn-sm p-0 text-primary"
+                            className="btn btn-link btn-sm p-0 text-brand-500"
                             onClick={downloadTemplate}
                         >
-                            <Download size={12} className="me-1" />Download Template
+                            <Download size={12} className="mr-1" />Download Template
                         </button>
 
                         {/* Error banner */}
                         {error && (
-                            <div className="alert alert-danger py-2 px-3 mt-2 mb-0 d-flex align-items-center gap-2 small">
-                                <AlertTriangle size={14} className="flex-shrink-0" />
+                            <div className="alert alert-danger py-2 px-4 mt-2 mb-0 flex items-center gap-2 text-xs">
+                                <AlertTriangle size={14} className="shrink-0" />
                                 {error}
                             </div>
                         )}
@@ -227,16 +227,16 @@ const MisReport = () => {
 
                 {/* ── Summary stats ───────────────────────────────────────── */}
                 {summary && (
-                    <div className="d-flex gap-3 mb-3">
+                    <div className="flex gap-4 mb-4">
                         {[
                             { label: "Total Requested",  value: summary.total_requested,  color: "primary"                                    },
                             { label: "Shipments Found",  value: summary.total_shipments,  color: "success"                                    },
                             { label: "Not Found",        value: summary.not_found_count,  color: summary.not_found_count > 0 ? "danger" : "secondary" },
                         ].map(({ label, value, color }) => (
                             <Card key={label} className={`flex-grow-1 border-${color} shadow-sm text-center`}>
-                                <CardBody className="py-2 px-3">
+                                <CardBody className="py-2 px-4">
                                     <div className={`h4 mb-0 text-${color}`}>{value}</div>
-                                    <div className="small text-muted">{label}</div>
+                                    <div className="text-xs text-ink-muted">{label}</div>
                                 </CardBody>
                             </Card>
                         ))}
@@ -245,19 +245,19 @@ const MisReport = () => {
 
                 {/* ── Not-found AWBs ──────────────────────────────────────── */}
                 {notFound.length > 0 && (
-                    <Card className="border-danger shadow-sm mb-3">
-                        <CardBody className="p-3">
-                            <div className="d-flex align-items-center gap-2 mb-2">
-                                <PackageSearch size={16} className="text-danger flex-shrink-0" />
-                                <span className="fw-semibold text-danger small">
+                    <Card className="border-danger shadow-sm mb-4">
+                        <CardBody className="p-4">
+                            <div className="flex items-center gap-2 mb-2">
+                                <PackageSearch size={16} className="text-danger-500 shrink-0" />
+                                <span className="font-semibold text-danger-500 text-xs">
                                     AWBs Not Found ({notFound.length})
                                 </span>
                             </div>
-                            <div className="d-flex flex-wrap gap-1">
+                            <div className="flex flex-wrap gap-1">
                                 {notFound.map((awb) => (
                                     <code
                                         key={awb}
-                                        className="badge small fw-normal"
+                                        className="badge text-xs font-normal"
                                         style={{ background: "#fde8e8", color: "#c0392b", fontFamily: "monospace" }}
                                     >
                                         {awb}
@@ -270,15 +270,15 @@ const MisReport = () => {
 
                 {/* ── Results Table ───────────────────────────────────────── */}
                 {reportData.length > 0 && (
-                    <Card className="shadow-sm mb-3">
+                    <Card className="shadow-sm mb-4">
                         <CardBody className="p-0">
-                            <div className="d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
-                                <div className="d-flex align-items-center gap-2">
-                                    <span className="fw-semibold">Shipment Report</span>
+                            <div className="flex items-center justify-between px-4 py-2 border-bottom">
+                                <div className="flex items-center gap-2">
+                                    <span className="font-semibold">Shipment Report</span>
                                     <Badge color="primary" pill>{reportData.length} records</Badge>
                                 </div>
                                 <Button color="success" size="sm" onClick={handleExport}>
-                                    <FileDown size={14} className="me-1" />Download Report
+                                    <FileDown size={14} className="mr-1" />Download Report
                                 </Button>
                             </div>
 
@@ -289,9 +289,9 @@ const MisReport = () => {
                                         style={{ position: "sticky", top: 0, zIndex: 1 }}
                                     >
                                         <tr>
-                                            <th className="small">#</th>
+                                            <th className="text-xs">#</th>
                                             {reportColumns.map((col) => (
-                                                <th key={col} className="small" style={{ whiteSpace: "nowrap" }}>
+                                                <th key={col} className="text-xs" style={{ whiteSpace: "nowrap" }}>
                                                     {fmtCol(col)}
                                                 </th>
                                             ))}
@@ -300,9 +300,9 @@ const MisReport = () => {
                                     <tbody>
                                         {reportData.map((row, idx) => (
                                             <tr key={idx}>
-                                                <td className="small">{idx + 1}</td>
+                                                <td className="text-xs">{idx + 1}</td>
                                                 {reportColumns.map((col) => (
-                                                    <td key={col} className="small" style={{ whiteSpace: "nowrap" }}>
+                                                    <td key={col} className="text-xs" style={{ whiteSpace: "nowrap" }}>
                                                         {row[col] ?? "—"}
                                                     </td>
                                                 ))}

@@ -385,7 +385,7 @@ const UpdateAsusModel = ({
             <Input
               type="switch"
               id="is_active"
-              className='ms-2'
+              className='ml-2'
               name="is_active"
               label="Active"
               checked={formData.is_active || false}
@@ -395,7 +395,7 @@ const UpdateAsusModel = ({
         </ModalBody>
         <ModalFooter>
           <Button color="secondary" onClick={toggle}>Cancel</Button>
-          <Button color="primary" type="submit" className='d-flex justify-content-center align-items-center'>{
+          <Button color="primary" type="submit" className='flex justify-center items-center'>{
             loading ? <Spinner size="sm">
               Loading...
             </Spinner> : "Save Changes"

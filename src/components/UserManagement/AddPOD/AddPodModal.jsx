@@ -57,9 +57,9 @@ const AddPodModal = ({ toggle, formData, onChange, onImageRemove, errors, onSubm
                   * Users must enter and verify an AWB number here first.
                   */}
                 <div>
-                    <FormGroup className="w-3/4 m-auto pb-4" >
+                    <FormGroup className="w-3/4 m-auto pb-6" >
                         <Label for="awbInput">Enter AWB No.</Label>
-                        <div className="d-flex align-items-start ">
+                        <div className="flex items-start ">
                             <Input
                                 type="text"
                                 name="awbno"
@@ -72,13 +72,13 @@ const AddPodModal = ({ toggle, formData, onChange, onImageRemove, errors, onSubm
                             {showUploadFile ? (
                                 <MdOutlineCancel
                                     onClick={() => { onClear(); setShowUploadFile(false); }}
-                                    className="ms-2 mt-2 text-danger"
+                                    className="ml-2 mt-2 text-danger-500"
                                     style={{ cursor: "pointer", fontSize: '1.5rem' }}
                                 />
                             ) : (
                                 <Button
                                     color="primary"
-                                    className="ms-2"
+                                    className="ml-2"
                                     onClick={VerifyAwdNumber}
                                     disabled={verificationLoading}
                                 >
@@ -97,7 +97,7 @@ const AddPodModal = ({ toggle, formData, onChange, onImageRemove, errors, onSubm
                   * This section appears only after the AWB number has been successfully verified.
                   */}
                 {showUploadFile && (
-                    <Card className="mb-3 shadow-none border-2 p-0">
+                    <Card className="mb-4 shadow-none border-2 p-0">
                         <CardBody>
                             {/* AWB Response */}
                             {showUploadFile && varificationApiData && <ResponseDisplay data={varificationApiData} />}
@@ -118,9 +118,9 @@ const AddPodModal = ({ toggle, formData, onChange, onImageRemove, errors, onSubm
                               * Shows a preview of the selected image file before submission.
                               */}
                             {formData?.pod_file && (
-                                <div className="position-relative border rounded mt-3" style={{ width: '100%', height: '200px', overflow: 'hidden' }}>
+                                <div className="relative border rounded mt-4" style={{ width: '100%', height: '200px', overflow: 'hidden' }}>
                                     <MdOutlineCancel
-                                        className="position-absolute text-danger end-0 top-0 m-2"
+                                        className="absolute text-danger-500 end-0 top-0 m-2"
                                         style={{ fontSize: '1.3rem', cursor: 'pointer' }}
                                         onClick={onImageRemove}
                                     />
@@ -132,7 +132,7 @@ const AddPodModal = ({ toggle, formData, onChange, onImageRemove, errors, onSubm
                                 </div>
                             )}
                             {/* Action Buttons */}
-                            <div className="d-flex justify-content-between mt-3 shadow-none">
+                            <div className="flex justify-between mt-4 shadow-none">
                                 {showUploadFile && (
                                     <Button color="success" onClick={onSubmit} disabled={loading}>
                                         {loading ? <Spinner size="sm" /> : "Add POD"}
@@ -162,13 +162,13 @@ const ResponseDisplay = ({ data }) => (
             <Row>
                 <Col md={6}>
                     <FormGroup>
-                        <Label className="fw-bold">Drop Name</Label>
+                        <Label className="font-bold">Drop Name</Label>
                         <p className="mb-0">{data.drop_name || '-'}</p>
                     </FormGroup>
                 </Col>
                 <Col md={6}>
                     <FormGroup>
-                        <Label className="fw-bold">Drop Pincode</Label>
+                        <Label className="font-bold">Drop Pincode</Label>
                         <p className="mb-0">{data.drop_pincode || '-'}</p>
                     </FormGroup>
                 </Col>
@@ -176,13 +176,13 @@ const ResponseDisplay = ({ data }) => (
             <Row>
                 <Col md={6}>
                     <FormGroup>
-                        <Label className="fw-bold">Pick Name</Label>
+                        <Label className="font-bold">Pick Name</Label>
                         <p className="mb-0">{data.pick_name || '-'}</p>
                     </FormGroup>
                 </Col>
                 <Col md={6}>
                     <FormGroup>
-                        <Label className="fw-bold">Pick Pincode</Label>
+                        <Label className="font-bold">Pick Pincode</Label>
                         <p className="mb-0">{data.pick_pincode || '-'}</p>
                     </FormGroup>
                 </Col>

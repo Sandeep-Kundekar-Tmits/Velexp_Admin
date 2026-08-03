@@ -120,18 +120,18 @@ const TrackAWB = () => {
                 }
             />
 
-            <div className="container-fluid px-3" style={{ height: "90vh", overflowY: "auto" }}>
+            <div className="container-fluid px-4" style={{ height: "90vh", overflowY: "auto" }}>
 
                 {/*  */}
-                <div className=" mt-3 border-bottom w-full d-flex pb-3 align-items-center justify-content-center">
+                <div className=" mt-4 border-bottom w-full flex pb-4 items-center justify-center">
 
-                    <div className="d-flex align-items-center" style={{ width: "300px" }} >
+                    <div className="flex items-center" style={{ width: "300px" }} >
                         <Input type="text" placeholder="Enter AWB Number" onChange={(e) => {
                             setAwbNumber(e.target.value)
                         }} />
                     </div>
                     <Button
-                        className="bg-primary  ms-2"
+                        className="bg-brand-500  ml-2"
                         onClick={OngetAwbDetails}
                         disabled={!awbNumber || awbDetailsLoading}
                     >
@@ -143,14 +143,14 @@ const TrackAWB = () => {
                 {
 
                     awbDetailsLoading ? (
-                        <div className="text-center py-5">
-                            <div className="spinner-border text-primary" role="status">
+                        <div className="text-center py-12">
+                            <div className="spinner-border text-brand-500" role="status">
                                 <span className="visually-hidden">Loading...</span>
                             </div>
                         </div>) :
                         shipmentDetails && shipementPices.length > 0 && (
                             <div>
-                                <div className="row g-0">
+                                <div className="row gap-0">
 
                                     <div className="col-12 col-lg-4">
                                         <Section title="Shipment Overview">
@@ -198,7 +198,7 @@ const TrackAWB = () => {
                                 </div>
 
                                 {/* Second Row */}
-                                <div className="row g-0">
+                                <div className="row gap-0">
 
                                     <div className="col-12 col-md-6">
                                         <Section title="Document & Invoice Info">
@@ -214,8 +214,8 @@ const TrackAWB = () => {
 
                                     <div className="col-12 col-md-6">
                                         <div className="border h-full">
-                                            <div className="bg-light px-3 py-2 border-bottom">
-                                                <h6 className="fw-semibold text-secondary mb-0">
+                                            <div className="bg-canvas px-4 py-2 border-bottom">
+                                                <h6 className="font-semibold text-ink-muted mb-0">
                                                     Shipment Pieces
                                                 </h6>
                                             </div>
@@ -255,37 +255,37 @@ const TrackAWB = () => {
 
                 {/* tracking */}
 
-                <div className="d-flex justify-content-between align-items-center ">
-                    <div className="mb-5 mt-3  m-auto" style={{ marginBottom: "120px" }}>
+                <div className="flex justify-between items-center ">
+                    <div className="mb-12 mt-4  m-auto" style={{ marginBottom: "120px" }}>
                         {trackingInfo[0]?.Child?.filter(
                             (item) => item.awbno === shipmentDetails.awbno
                         )?.map((item, index, filteredArray) => {
                             return (
-                                <div className="position-relative py-4" key={index}>
-                                    <div className="d-flex px-2">
+                                <div className="relative py-6" key={index}>
+                                    <div className="flex px-2">
 
                                         {/* Left Section (Status Code + Date) */}
                                         <div>
-                                            <div className="ps-3 d-flex flex-column align-items-center justify-content-center gap-2">
+                                            <div className="pl-4 flex flex-col items-center justify-center gap-2">
                                                 <div
-                                                    className="bg-primary text-white text-center fw-semibold rounded-pill py-1"
+                                                    className="bg-brand-500 text-white text-center font-semibold rounded-full py-1"
                                                     style={{ width: "48px", fontSize: "14px" }}
                                                 >
                                                     {item.Statuscode}
                                                 </div>
 
-                                                <p className="text-muted fw-semibold mb-0" style={{ fontSize: "14px", whiteSpace: "nowrap" }}>
+                                                <p className="text-ink-muted font-semibold mb-0" style={{ fontSize: "14px", whiteSpace: "nowrap" }}>
                                                     {item.Statusdate}
                                                 </p>
                                             </div>
                                         </div>
 
                                         {/* Timeline Dot & Line */}
-                                        <div className="d-flex flex-column align-items-center mx-4 position-relative">
+                                        <div className="flex flex-col items-center mx-6 relative">
 
                                             {/* Dot */}
                                             <div
-                                                className="bg-primary rounded-circle border border-4"
+                                                className="bg-brand-500 rounded-full border border-4"
                                                 style={{
                                                     width: "24px",
                                                     height: "24px",
@@ -297,7 +297,7 @@ const TrackAWB = () => {
                                             {/* Line (Except Last Item) */}
                                             {index < filteredArray.length - 1 && (
                                                 <div
-                                                    className="position-absolute"
+                                                    className="absolute"
                                                     style={{
                                                         top: "28px",
                                                         width: "2px",
@@ -309,16 +309,16 @@ const TrackAWB = () => {
                                         </div>
 
                                         {/* Right Section (Details) */}
-                                        <div className="ps-3">
-                                            <div className="text-secondary fw-medium" style={{ fontSize: "14px" }}>
+                                        <div className="pl-4">
+                                            <div className="text-ink-muted font-medium" style={{ fontSize: "14px" }}>
                                                 {item.Remarks?.toUpperCase()}
                                             </div>
 
-                                            <p className="text-muted fw-medium mb-1" style={{ fontSize: "15px" }}>
+                                            <p className="text-ink-muted font-medium mb-1" style={{ fontSize: "15px" }}>
                                                 {item.Location}
                                             </p>
 
-                                            <p className="text-muted fw-medium mb-0" style={{ fontSize: "13px" }}>
+                                            <p className="text-ink-muted font-medium mb-0" style={{ fontSize: "13px" }}>
                                                 Time : {item.Statustime}
                                             </p>
                                         </div>
@@ -339,7 +339,7 @@ const TrackAWB = () => {
             {/* Floating Detail View Button */}
             {shipmentDetails && Object.keys(shipmentDetails).length > 0 && (
                 <button
-                    className="btn btn-info btn-lg rounded-circle position-fixed"
+                    className="btn btn-info btn-lg rounded-full fixed"
                     style={{
                         bottom: "30px",
                         right: "30px",
@@ -362,15 +362,15 @@ export default TrackAWB
 const Section = ({ title, children }) => (
     <div className="border h-full">
         {/* Header */}
-        <div className="bg-light px-3 py-2 border-bottom">
-            <h6 className="fw-semibold text-secondary mb-0">
+        <div className="bg-canvas px-4 py-2 border-bottom">
+            <h6 className="font-semibold text-ink-muted mb-0">
                 {title}
             </h6>
         </div>
 
         {/* Content */}
-        <div className="p-3">
-            <div className="row row-cols-2 g-3">
+        <div className="p-4">
+            <div className="row row-cols-2 gap-4">
                 {children}
             </div>
         </div>
@@ -380,10 +380,10 @@ const Section = ({ title, children }) => (
 
 const Pair = ({ label, value }) => (
     <div className="col">
-        <div className="fw-semibold text-dark  text-break">
+        <div className="font-semibold text-ink  text-break">
             {value || "-"}
         </div>
-        <div className="text-muted ">
+        <div className="text-ink-muted ">
             {label}
         </div>
     </div>

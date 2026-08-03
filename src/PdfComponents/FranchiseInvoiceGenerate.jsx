@@ -54,19 +54,19 @@ const FranchiseInvoiceGenerate = React.forwardRef(({ invoiceData }, ref) => {
       <div className="invoice-container text-black" style={{ fontSize: "16px" }} ref={ref} >
         <div>
           {/* Header Section */}
-          <Row className="mb-4">
+          <Row className="mb-6">
             <Col>
               <img src={VellocityExpressIcon} style={{ width: "220px", height: "70px" }} alt="Vellocity Express" />
             </Col>
-            <Col className='d-flex flex-column justify-content-end align-items-end'>
-              <h6 className="mb-1 font-size-16 fw-bolder">TAX INVOICE</h6>
+            <Col className='flex flex-col justify-end items-end'>
+              <h6 className="mb-1 font-size-16 font-extrabold">TAX INVOICE</h6>
               <p className="mb-1"><strong>Inv. No:</strong> {invoiceData?.invoice_no || 'N/A'}</p>
               <p className=''><strong>Inv. Date:</strong> {formatDate(invoiceData?.invoice_date)}</p>
             </Col>
           </Row>
 
           {/* From/To Sections */}
-          <Row className="mb-4">
+          <Row className="mb-6">
             <Col md={6}>
               <div className="">
                 <h5>To,</h5>
@@ -85,7 +85,7 @@ const FranchiseInvoiceGenerate = React.forwardRef(({ invoiceData }, ref) => {
               </div>
             </Col>
             <Col md={6}>
-              <div className="d-flex flex-column justify-content-end align-items-end">
+              <div className="flex flex-col justify-end items-end">
                 <h5>From,</h5>
                 <p className="mb-1"><strong>{invoiceData?.from_name}</strong></p>
                 {invoiceData?.from_address && <p className="mb-1" style={{ textAlign: "end" }}>{invoiceData.from_address}</p>}
@@ -150,9 +150,9 @@ const FranchiseInvoiceGenerate = React.forwardRef(({ invoiceData }, ref) => {
 
 
               {/* ✅ Grand Total Row */}
-              <tr className="fw-bold">
+              <tr className="font-bold">
                 {/* Merge first two columns for label */}
-                <td colSpan={1} className="text-end" style={{ border: "solid black 1px" }}>
+                <td colSpan={1} className="text-right" style={{ border: "solid black 1px" }}>
                   Grand Total
                 </td>
 
@@ -175,7 +175,7 @@ const FranchiseInvoiceGenerate = React.forwardRef(({ invoiceData }, ref) => {
 
 
           {/* Amount in Words */}
-          <p className="ps-2 py-2" style={{ border: "solid black 1px", borderTop: 0 }}>
+          <p className="pl-2 py-2" style={{ border: "solid black 1px", borderTop: 0 }}>
             <strong>Amount in words:</strong>{" "}
             {(() => {
               const result = amountToWords(totals?.total || 0, 2);
@@ -194,19 +194,19 @@ const FranchiseInvoiceGenerate = React.forwardRef(({ invoiceData }, ref) => {
 
 
           {/* Footer Sections */}
-          <Row className='mt-3'>
-            <Col md={8} className='d-flex justify-content-start'>
-              <div className="text-center mb-4">
+          <Row className='mt-4'>
+            <Col md={8} className='flex justify-start'>
+              <div className="text-center mb-6">
                 <p className='mb-0'>Kindly acknowledge the receipt.</p>
-                <p className='mb-0 text-start'>Thanking You,</p>
+                <p className='mb-0 text-left'>Thanking You,</p>
                 <div>
                   <img src={Signature} style={{ width: "210px", height: "90px" }} alt="Signature" />
                 </div>
-                <p className="mb-1 mt-3 text-start"><strong>Authorised Signatory</strong></p>
+                <p className="mb-1 mt-4 text-left"><strong>Authorised Signatory</strong></p>
               </div>
             </Col>
             <Col md={4}>
-              <div className="p-3" style={{ border: "solid black 1px" }}>
+              <div className="p-4" style={{ border: "solid black 1px" }}>
                 <h5>Bank Detail for Payment</h5>
                 <p className="mb-1"><strong>Account Title:</strong> PNSO Technology Private Limited</p>
                 <p className="mb-1"><strong>Bank Name:</strong> HDFC Bank</p>
@@ -221,7 +221,7 @@ const FranchiseInvoiceGenerate = React.forwardRef(({ invoiceData }, ref) => {
           {/* Additional Information */}
           <Row>
             <Col md={8}>
-              <div className="pt-3 mb-4">
+              <div className="pt-4 mb-6">
                 {/* <p className="mb-1">{invoiceData?.created_by?.first_name} {invoiceData?.created_by?.last_name}</p> */}
                 <p className="mb-1"><strong>GST No:</strong> {invoiceData?.from_gst_no || 'N/A'}</p>
                 <p className="mb-1"><strong>Category:</strong> COURIER SERVICE</p>
@@ -242,14 +242,14 @@ const FranchiseInvoiceGenerate = React.forwardRef(({ invoiceData }, ref) => {
                 const qrCodeDataUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiUrl)}`;
 
                 return (
-                  <div className="mt-4 d-flex flex-column align-items-start border-top pt-4">
-                    <p className="fw-bold mb-1 text-primary" style={{ fontSize: "16px" }}>Scan for Payment</p>
+                  <div className="mt-6 flex flex-col items-start border-top pt-6">
+                    <p className="font-bold mb-1 text-brand-500" style={{ fontSize: "16px" }}>Scan for Payment</p>
                     <img
                       src={qrCodeDataUrl}
                       alt="QR Code"
                       style={{ width: "176px", height: "176px", objectFit: "contain" }}
                     />
-                    <p className="text-muted fw-bold text-uppercase mt-1" style={{ fontSize: "12px" }}>AWB: {awb}</p>
+                    <p className="text-ink-muted font-bold uppercase mt-1" style={{ fontSize: "12px" }}>AWB: {awb}</p>
                   </div>
                 );
               })()}

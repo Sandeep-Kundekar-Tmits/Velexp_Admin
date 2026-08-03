@@ -34,7 +34,7 @@ const Sidebar = (props) => {
           top: isMobile ? 0 : undefined,
         }}
       >
-        <div className="d-flex align-items-center justify-content-center mt-4" style={{ height: "40px" }}>
+        <div className="flex items-center justify-center mt-6" style={{ height: "40px" }}>
           {showLogo && (
             <Link to="/" style={{ width: "85%" }}>
               <img
@@ -62,7 +62,7 @@ const Sidebar = (props) => {
           </button>
         </div>
 
-        <div data-simplebar className="mt-3" style={{ height: "75vh" }}>
+        <div data-simplebar className="mt-4" style={{ height: "75vh" }}>
           <SidebarNav
             onLinkClick={() => { if (isMobile) onMobileClose?.(); }}
           />

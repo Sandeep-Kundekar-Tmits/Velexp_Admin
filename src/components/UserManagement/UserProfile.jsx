@@ -12,44 +12,44 @@ const UserProfile = ({ user, setProfileData, userId }) => {
     })
     let isAdmin = JSON.parse(localStorage.getItem("authUser"))?.user?.is_admin || false
     return (
-        <Card className="mb-4 shadow-sm border-0 rounded" style={{ overflow: 'hidden' }}>
-            <CardHeader className="bg-primary text-white py-3">
-                <CardTitle tag="h4" className="mb-0 d-flex align-items-center text-white">
-                    <i className="fas  fa-user-circle me-2 text-white"></i>
+        <Card className="mb-6 shadow-sm border-0 rounded" style={{ overflow: 'hidden' }}>
+            <CardHeader className="bg-brand-500 text-white py-4">
+                <CardTitle tag="h4" className="mb-0 flex items-center text-white">
+                    <i className="fas  fa-user-circle mr-2 text-white"></i>
                     User Profile
                 </CardTitle>
             </CardHeader>
             <CardBody className="p-0">
                 <ListGroup flush>
-                    <ListGroupItem className="d-flex justify-content-between align-items-center p-3">
-                        <span className="fw-bold text-muted">Username</span>
-                        <span className="text-dark">{user?.username || "--"}</span>
+                    <ListGroupItem className="flex justify-between items-center p-4">
+                        <span className="font-bold text-ink-muted">Username</span>
+                        <span className="text-ink">{user?.username || "--"}</span>
                     </ListGroupItem>
-                    <ListGroupItem className="d-flex justify-content-between align-items-center p-3">
-                        <span className="fw-bold text-muted">Email</span>
-                        <span className="text-dark">{user?.email || "--"}</span>
+                    <ListGroupItem className="flex justify-between items-center p-4">
+                        <span className="font-bold text-ink-muted">Email</span>
+                        <span className="text-ink">{user?.email || "--"}</span>
                     </ListGroupItem>
-                    <ListGroupItem className="d-flex justify-content-between align-items-center p-3">
-                        <span className="fw-bold text-muted">Phone</span>
-                        <span className="text-dark">{user?.phone || "--"}</span>
+                    <ListGroupItem className="flex justify-between items-center p-4">
+                        <span className="font-bold text-ink-muted">Phone</span>
+                        <span className="text-ink">{user?.phone || "--"}</span>
                     </ListGroupItem>
-                    <ListGroupItem className="d-flex justify-content-between align-items-center p-3">
-                        <span className="fw-bold text-muted">Account No</span>
-                        <span className="text-dark">{user?.accno || "--"}</span>
+                    <ListGroupItem className="flex justify-between items-center p-4">
+                        <span className="font-bold text-ink-muted">Account No</span>
+                        <span className="text-ink">{user?.accno || "--"}</span>
                     </ListGroupItem>
-                    <ListGroupItem className="d-flex justify-content-between align-items-center p-3">
-                        <span className="fw-bold text-muted">Secret Code</span>
-                        <span className="text-dark">{user?.domestic_secretcode || "--"}</span>
+                    <ListGroupItem className="flex justify-between items-center p-4">
+                        <span className="font-bold text-ink-muted">Secret Code</span>
+                        <span className="text-ink">{user?.domestic_secretcode || "--"}</span>
                     </ListGroupItem>
 
-                    <ListGroupItem className="d-flex justify-content-between align-items-center p-3 ">
-                        <span className="fw-bold font-size-16 text-muted">Is Active    <Badge color="success" pill>{user?.is_active ? "true"
+                    <ListGroupItem className="flex justify-between items-center p-4 ">
+                        <span className="font-bold font-size-16 text-ink-muted">Is Active    <Badge color="success" pill>{user?.is_active ? "true"
                             : "false"}</Badge>
                         </span>
 
                         {/* toggle button */}
                         {
-                            isAdmin && <div className="d-flex align-items-center gap-2">
+                            isAdmin && <div className="flex items-center gap-2">
                                 <div className="form-check form-switch">
                                     <input
                                         className="form-check-input"
@@ -73,72 +73,72 @@ const UserProfile = ({ user, setProfileData, userId }) => {
 
 
                     </ListGroupItem>
-                    <ListGroupItem className="d-flex justify-content-between align-items-center p-3">
-                        <span className="fw-bold text-muted">Customer Type</span>
+                    <ListGroupItem className="flex justify-between items-center p-4">
+                        <span className="font-bold text-ink-muted">Customer Type</span>
                         <Badge color="info">{user?.cust_type?.type_of_cust || "--"}</Badge>
                     </ListGroupItem>
-                    <ListGroupItem className="d-flex justify-content-between align-items-center p-3">
-                        <span className="fw-bold text-muted">Billing Type</span>
-                        <span className="text-dark">{user?.billing_type || "--"}</span>
+                    <ListGroupItem className="flex justify-between items-center p-4">
+                        <span className="font-bold text-ink-muted">Billing Type</span>
+                        <span className="text-ink">{user?.billing_type || "--"}</span>
                     </ListGroupItem>
-                    <ListGroupItem className="d-flex justify-content-between align-items-center p-3">
-                        <span className="fw-bold text-muted">KYC Approved</span>
+                    <ListGroupItem className="flex justify-between items-center p-4">
+                        <span className="font-bold text-ink-muted">KYC Approved</span>
                         {user?.kyc_approved ? (
                             <Badge color="success" pill>Yes</Badge>
                         ) : (
                             <Badge color="danger" pill>No</Badge>
                         )}
                     </ListGroupItem>
-                    <ListGroupItem className="d-flex justify-content-between align-items-center p-3">
-                        <span className="fw-bold text-muted">Industry</span>
-                        <span className="text-dark">{user?.account_created_info?.industry || "--"}</span>
+                    <ListGroupItem className="flex justify-between items-center p-4">
+                        <span className="font-bold text-ink-muted">Industry</span>
+                        <span className="text-ink">{user?.account_created_info?.industry || "--"}</span>
                     </ListGroupItem>
-                    <ListGroupItem className="d-flex justify-content-between align-items-center p-3">
-                        <span className="fw-bold text-muted">Soft Limit</span>
-                        <span className="text-dark">{user?.soft_limit || "--"}</span>
+                    <ListGroupItem className="flex justify-between items-center p-4">
+                        <span className="font-bold text-ink-muted">Soft Limit</span>
+                        <span className="text-ink">{user?.soft_limit || "--"}</span>
                     </ListGroupItem>
-                    <ListGroupItem className="d-flex justify-content-between align-items-center p-3">
-                        <span className="fw-bold text-muted">Customer Potential</span>
-                        <span className="text-dark">{user?.customer_potential || "--"}</span>
+                    <ListGroupItem className="flex justify-between items-center p-4">
+                        <span className="font-bold text-ink-muted">Customer Potential</span>
+                        <span className="text-ink">{user?.customer_potential || "--"}</span>
                     </ListGroupItem>
-                    <ListGroupItem className="d-flex justify-content-between align-items-center p-3">
-                        <span className="fw-bold text-muted">Expected Business</span>
-                        <span className="text-dark">{user?.expected_business || "--"}</span>
+                    <ListGroupItem className="flex justify-between items-center p-4">
+                        <span className="font-bold text-ink-muted">Expected Business</span>
+                        <span className="text-ink">{user?.expected_business || "--"}</span>
                     </ListGroupItem>
-                    <ListGroupItem className="d-flex justify-content-between align-items-center p-3">
-                        <span className="fw-bold text-muted">Sales Head</span>
-                        <span className="text-dark">{user?.sales_head || "--"}</span>
+                    <ListGroupItem className="flex justify-between items-center p-4">
+                        <span className="font-bold text-ink-muted">Sales Head</span>
+                        <span className="text-ink">{user?.sales_head || "--"}</span>
                     </ListGroupItem>
-                    <ListGroupItem className="d-flex justify-content-between align-items-center p-3">
-                        <span className="fw-bold text-muted">Employee Code</span>
-                        <span className="text-dark">{user?.emp_code || "--"}</span>
+                    <ListGroupItem className="flex justify-between items-center p-4">
+                        <span className="font-bold text-ink-muted">Employee Code</span>
+                        <span className="text-ink">{user?.emp_code || "--"}</span>
                     </ListGroupItem>
-                    <ListGroupItem className="d-flex justify-content-between align-items-start p-3">
-                        <span className="fw-bold text-muted">Finance Emails</span>
-                        <span className="text-dark text-end">
+                    <ListGroupItem className="flex justify-between items-start p-4">
+                        <span className="font-bold text-ink-muted">Finance Emails</span>
+                        <span className="text-ink text-right">
                             {Array.isArray(user?.finance_emails) 
                                 ? user.finance_emails.join(', ') 
                                 : user?.finance_emails || "--"}
                         </span>
                     </ListGroupItem>
-                    <ListGroupItem className="d-flex justify-content-between align-items-center p-3">
-                        <span className="fw-bold text-muted">Agreement Document</span>
+                    <ListGroupItem className="flex justify-between items-center p-4">
+                        <span className="font-bold text-ink-muted">Agreement Document</span>
                         {user?.customer_agreement_doc ? (
                             <a href={user.customer_agreement_doc} target="_blank" rel="noreferrer" className="btn btn-sm btn-outline-primary">
-                                <i className="fas fa-file-pdf me-1"></i> View Document
+                                <i className="fas fa-file-pdf mr-1"></i> View Document
                             </a>
                         ) : (
-                            <span className="text-dark">--</span>
+                            <span className="text-ink">--</span>
                         )}
                     </ListGroupItem>
                 </ListGroup>
             </CardBody>
-            {/* <CardFooter className="bg-light d-flex justify-content-end">
-            <Button color="primary" size="sm" className="me-2">
-                <i className="fas fa-edit me-1"></i> Edit
+            {/* <CardFooter className="bg-canvas flex justify-end">
+            <Button color="primary" size="sm" className="mr-2">
+                <i className="fas fa-edit mr-1"></i> Edit
             </Button>
             <Button color="secondary" size="sm">
-                <i className="fas fa-download me-1"></i> Export
+                <i className="fas fa-download mr-1"></i> Export
             </Button>
         </CardFooter> */}
 
@@ -170,7 +170,7 @@ const UserProfile = ({ user, setProfileData, userId }) => {
                 }}
             >
                 <h6>Are you sure you want to Change the Active Status?</h6>
-                {/* <p className="text-muted small">This action cannot be undone.</p> */}
+                {/* <p className="text-ink-muted text-xs">This action cannot be undone.</p> */}
             </SimpleModal>
         </Card>
     )

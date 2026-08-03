@@ -6,7 +6,7 @@ const ExcleDownloadBtn = ({ isDisabled = false, onDownloadExcle, ExcleLoading = 
         <Button
             disabled={isDisabled}
             onClick={onDownloadExcle}
-            className="d-flex align-items-center px-2 bg-transparent border-success text-success"
+            className="flex items-center px-2 bg-transparent border-success text-success-500"
             style={{
                 borderRadius: "10px",
                 fontWeight: "500",
@@ -16,7 +16,7 @@ const ExcleDownloadBtn = ({ isDisabled = false, onDownloadExcle, ExcleLoading = 
             }}
         >
             {
-                ExcleLoading ? <span className="me-2">Exporting...</span> : <span className="me-2">{label ? label : "Download Excel"}</span>
+                ExcleLoading ? <span className="mr-2">Exporting...</span> : <span className="mr-2">{label ? label : "Download Excel"}</span>
             }
             <FaFileExcel size={18} className="" />
         </Button>

@@ -24,7 +24,7 @@ const SCMultiValue = ({ index, getValue, ...props }) => {
     if (index < 2) return <components.MultiValue {...props} />;
     if (index === 2)
         return (
-            <span className="badge bg-primary ms-1 align-self-center">
+            <span className="badge bg-brand-500 ml-1 self-center">
                 +{total - 2}
             </span>
         );
@@ -35,7 +35,7 @@ const SCMultiValue = ({ index, getValue, ...props }) => {
 const StatusCountValue = ({ index, getValue }) => {
     if (index !== 0) return null;
     return (
-        <span className="badge bg-primary align-self-center">
+        <span className="badge bg-brand-500 self-center">
             {getValue().length} selected
         </span>
     );
@@ -191,7 +191,7 @@ const PendingReport = () => {
             enableColumnFilter: false,
             enableSorting: true,
             cell: (info) => (
-                <span className="badge bg-primary-subtle text-primary fw-semibold text-uppercase">
+                <span className="badge bg-brand-50 text-brand-500 font-semibold uppercase">
                     {info.getValue() ?? "—"}
                 </span>
             ),
@@ -228,19 +228,19 @@ const PendingReport = () => {
         <div className="page-content py-0 px-0">
 
             {/* ── Sticky title bar ── */}
-            <div className="position-sticky bg-white" style={{ top: 0, zIndex: 100 }}>
+            <div className="sticky bg-white" style={{ top: 0, zIndex: 100 }}>
                 <MainHeaderComp title="Pending Report" />
             </div>
 
             <div className="container-fluid px-2">
 
                 {/* ── Filter bar (mirrors Velocity-Ops filter layout) ── */}
-                <Row className="gx-2 align-items-end pt-2 border-bottom pb-2">
+                <Row className="gx-2 items-end pt-2 border-bottom pb-2">
 
 
                     <Col md={3}>
                         <FormGroup className="mb-2">
-                            <Label className="mb-1 small fw-semibold">Service Center</Label>
+                            <Label className="mb-1 text-xs font-semibold">Service Center</Label>
                             <Select
                                 isMulti
                                 placeholder={scLoading ? "Loading..." : "Select SC..."}
@@ -259,7 +259,7 @@ const PendingReport = () => {
 
                     <Col md={4}>
                         <FormGroup className="mb-2">
-                            <Label className="mb-1 small fw-semibold">Statuses</Label>
+                            <Label className="mb-1 text-xs font-semibold">Statuses</Label>
                             <Select
                                 isMulti
                                 placeholder="Select Statuses..."
@@ -276,7 +276,7 @@ const PendingReport = () => {
                         </FormGroup>
                     </Col>
 
-                    <Col md={2} className="mb-2 d-flex align-items-center gap-2" style={{ flexWrap: "nowrap" }}>
+                    <Col md={2} className="mb-2 flex items-center gap-2" style={{ flexWrap: "nowrap" }}>
                         <Button
                             color="primary"
                             onClick={() => fetchReport(1)}
@@ -287,7 +287,7 @@ const PendingReport = () => {
                         </Button>
                         {!loading && totalCount > 0 && (
                             <span
-                                className="badge bg-light text-muted border"
+                                className="badge bg-canvas text-ink-muted border"
                                 style={{ fontSize: 11, whiteSpace: "nowrap" }}
                             >
                                 {totalCount.toLocaleString()} records
@@ -301,11 +301,11 @@ const PendingReport = () => {
                 <div className="mt-1">
                     {loading ? (
                         <div
-                            className="d-flex flex-column justify-content-center align-items-center"
+                            className="flex flex-col justify-center items-center"
                             style={{ height: "40vh" }}
                         >
                             <GridLoader size={20} />
-                            <p className="mt-4 h5">Loading Pending Report...</p>
+                            <p className="mt-6 h5">Loading Pending Report...</p>
                         </div>
                     ) : (
                         <>
@@ -327,12 +327,12 @@ const PendingReport = () => {
 
                             {/* ── Server-side page navigation ── */}
                             {totalPages > 1 && (
-                                <div className="d-flex justify-content-between align-items-center px-1 py-2 border-top">
-                                    <span className="text-muted small">
+                                <div className="flex justify-between items-center px-1 py-2 border-top">
+                                    <span className="text-ink-muted text-xs">
                                         Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong>
                                         &nbsp;·&nbsp;{totalCount.toLocaleString()} total records
                                     </span>
-                                    <div className="d-flex gap-2">
+                                    <div className="flex gap-2">
                                         <Button
                                             size="sm"
                                             color="secondary"

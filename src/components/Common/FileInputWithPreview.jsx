@@ -30,7 +30,7 @@ const FileInputWithPreview = ({
     <FormGroup>
       {label && <Label>{label}</Label>}
       
-      <div className="d-flex align-items-center mb-2">
+      <div className="flex items-center mb-2">
         {fileName ? (
           <>
             <span className="mr-2">{fileName}</span>
@@ -44,7 +44,7 @@ const FileInputWithPreview = ({
             </Button>
           </>
         ) : (
-          <span className="text-muted">No file selected</span>
+          <span className="text-ink-muted">No file selected</span>
         )}
       </div>
       
@@ -57,7 +57,7 @@ const FileInputWithPreview = ({
       
       {existingFile && !selectedFile && (
         <div className="mt-2">
-          <small className="text-muted">Current file: {existingFile.name}</small>
+          <small className="text-ink-muted">Current file: {existingFile.name}</small>
         </div>
       )}
     </FormGroup>

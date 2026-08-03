@@ -64,19 +64,19 @@ const RtoBulkApprovalModal = ({
     return (
         <Modal isOpen={isOpen} toggle={toggle} size="lg" centered className="rto-bulk-approval-modal">
             <ModalBody className="p-0">
-                <Row className="g-0">
+                <Row className="gap-0">
                     {/* Left Column: Shipment List & Feedback */}
-                    <Col md={6} className="border-end d-flex flex-column" style={{ height: "480px" }}>
-                        <div className="border-bottom p-3">
-                            <h3 className="fw-bold mb-0">RTO Bulk Approval</h3>
+                    <Col md={6} className="border-end flex flex-col" style={{ height: "480px" }}>
+                        <div className="border-bottom p-4">
+                            <h3 className="font-bold mb-0">RTO Bulk Approval</h3>
                         </div>
 
-                        <div className="flex-grow-1 overflow-auto p-3">
-                            <div className="border rounded-3 bg-white mb-3" style={{ maxHeight: "180px", overflowY: "auto" }}>
+                        <div className="grow overflow-auto p-4">
+                            <div className="border rounded-3 bg-white mb-4" style={{ maxHeight: "180px", overflowY: "auto" }}>
                                 <Table hover className="mb-0 align-middle">
-                                    <thead className="bg-light sticky-top">
+                                    <thead className="bg-canvas sticky-top">
                                         <tr>
-                                            <th className="py-2 ps-3 text-center border-bottom">Shipment ID/AWB</th>
+                                            <th className="py-2 pl-4 text-center border-bottom">Shipment ID/AWB</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -86,7 +86,7 @@ const RtoBulkApprovalModal = ({
                                                 onClick={() => setActiveAwbIndex(index)}
                                                 style={{ cursor: "pointer", backgroundColor: activeAwbIndex === index ? "#e7f1ff" : "transparent" }}
                                             >
-                                                <td className="text-center py-2 text-muted fw-bold" style={{ fontSize: "14px" }}>
+                                                <td className="text-center py-2 text-ink-muted font-bold" style={{ fontSize: "14px" }}>
                                                     {shipment.awbno || shipment.id}
                                                 </td>
                                             </tr>
@@ -95,8 +95,8 @@ const RtoBulkApprovalModal = ({
                                 </Table>
                             </div>
 
-                            <FormGroup className="mb-3">
-                                <Label for="remark" className="text-muted fw-normal mb-1" style={{ fontSize: "14px" }}>
+                            <FormGroup className="mb-4">
+                                <Label for="remark" className="text-ink-muted font-normal mb-1" style={{ fontSize: "14px" }}>
                                     Remark
                                 </Label>
                                 <Input
@@ -115,25 +115,25 @@ const RtoBulkApprovalModal = ({
                                 <FormFeedback>Remark is compulsory</FormFeedback>
                             </FormGroup>
 
-                            <FormGroup check className="mb-2 d-flex align-items-center">
+                            <FormGroup check className="mb-2 flex items-center">
                                 <Input
                                     type="checkbox"
                                     id="markRts"
-                                    className="me-2"
+                                    className="mr-2"
                                     style={{ width: "20px", height: "20px", marginTop: "0", cursor: "pointer" }}
                                     checked={isRts}
                                     onChange={(e) => setIsRts(e.target.checked)}
                                 />
-                                <Label for="markRts" check className="fw-bold mb-0" style={{ fontSize: "16px", cursor: "pointer" }}>
+                                <Label for="markRts" check className="font-bold mb-0" style={{ fontSize: "16px", cursor: "pointer" }}>
                                     Mark RTS
                                 </Label>
                             </FormGroup>
                         </div>
 
-                        <div className="d-flex gap-3 px-3 py-3 border-top bg-light bg-opacity-10">
+                        <div className="flex gap-4 px-4 py-4 border-top bg-canvas bg-opacity-10">
                             <Button
                                 color="danger"
-                                className="flex-grow-1 py-2 fw-bold"
+                                className="grow py-2 font-bold"
                                 style={{ borderRadius: "8px" }}
                                 onClick={handleCancel}
                             >
@@ -141,7 +141,7 @@ const RtoBulkApprovalModal = ({
                             </Button>
                             <Button
                                 color="primary"
-                                className="flex-grow-1 py-2 fw-bold"
+                                className="grow py-2 font-bold"
                                 style={{ backgroundColor: "#0066b2", borderColor: "#0066b2", borderRadius: "8px" }}
                                 onClick={handleApprove}
                             >
@@ -151,40 +151,40 @@ const RtoBulkApprovalModal = ({
                     </Col>
 
                     {/* Right Column: Active Shipment History */}
-                    <Col md={6} className="p-4 bg-light bg-opacity-10">
-                        <div className="mb-3 text-center">
-                            <h5 className="fw-bold mb-0 text-uppercase letter-spacing-1">
+                    <Col md={6} className="p-6 bg-canvas bg-opacity-10">
+                        <div className="mb-4 text-center">
+                            <h5 className="font-bold mb-0 uppercase letter-spacing-1">
                                 {activeShipment ? (activeShipment.awbno || `ID: ${activeShipment.id}`) : "Select a Shipment"}
                             </h5>
                         </div>
 
                         <div className="table-responsive border rounded-3 bg-white" style={{ height: "410px", overflowY: "auto" }}>
                             <Table className="mb-0 align-middle">
-                                <thead className="bg-light">
+                                <thead className="bg-canvas">
                                     <tr>
-                                        <th className="border-bottom-0 py-2 ps-3" style={{ width: "40%" }}>Date</th>
+                                        <th className="border-bottom-0 py-2 pl-4" style={{ width: "40%" }}>Date</th>
                                         <th className="border-bottom-0 py-2">Remark</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {loading ? (
                                         <tr>
-                                            <td colSpan="2" className="text-center py-4 text-muted">Loading history...</td>
+                                            <td colSpan="2" className="text-center py-6 text-ink-muted">Loading history...</td>
                                         </tr>
                                     ) : historyItems.length > 0 ? (
                                         historyItems.map((item, index) => (
                                             <tr key={index}>
-                                                <td className="ps-3 py-2 text-muted" style={{ fontSize: "13px" }}>
+                                                <td className="pl-4 py-2 text-ink-muted" style={{ fontSize: "13px" }}>
                                                     {item.attempt_date ? moment(item.attempt_date).format("DD-MM-YYYY HH:mm") : "--"}
                                                 </td>
-                                                <td className="py-2 text-muted" style={{ fontSize: "13px" }}>{item.customer_service_remark || "--"}</td>
+                                                <td className="py-2 text-ink-muted" style={{ fontSize: "13px" }}>{item.customer_service_remark || "--"}</td>
                                             </tr>
                                         ))
                                     ) : (
                                         Array(7).fill(0).map((_, i) => (
                                             <tr key={i}>
-                                                <td className="py-3 ps-3 border-0">&nbsp;</td>
-                                                <td className="py-3 border-0">&nbsp;</td>
+                                                <td className="py-4 pl-4 border-0">&nbsp;</td>
+                                                <td className="py-4 border-0">&nbsp;</td>
                                             </tr>
                                         ))
                                     )}

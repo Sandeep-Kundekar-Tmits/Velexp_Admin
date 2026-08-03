@@ -23,7 +23,7 @@ import {
 const COLORS = ["primary", "secondary", "success", "danger", "warning", "info", "light", "dark"];
 
 const Section = ({ title, children }) => (
-  <Card className="mb-3">
+  <Card className="mb-4">
     <CardHeader>{title}</CardHeader>
     <CardBody>{children}</CardBody>
   </Card>
@@ -43,20 +43,20 @@ export default function UiGallery() {
   return (
     <div className="page-content">
       <Container fluid>
-        <h4 className="mb-3">UI primitives</h4>
+        <h4 className="mb-4">UI primitives</h4>
 
         <Section title="Buttons">
-          <div className="d-flex flex-wrap gap-2 mb-2">
+          <div className="flex flex-wrap gap-2 mb-2">
             {COLORS.map((c) => (
               <Button key={c} color={c}>{c}</Button>
             ))}
           </div>
-          <div className="d-flex flex-wrap gap-2 mb-2">
+          <div className="flex flex-wrap gap-2 mb-2">
             {COLORS.slice(0, 6).map((c) => (
               <Button key={c} color={c} outline>{c} outline</Button>
             ))}
           </div>
-          <div className="d-flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Button size="sm" color="primary">small</Button>
             <Button size="md" color="primary">medium</Button>
             <Button size="lg" color="primary">large</Button>
@@ -66,14 +66,14 @@ export default function UiGallery() {
 
         <Section title="Grid — Row / Col">
           <Row className="mb-2">
-            <Col md={4}><div className="bg-light border p-2">md=4</div></Col>
-            <Col md={4}><div className="bg-light border p-2">md=4</div></Col>
-            <Col md={4}><div className="bg-light border p-2">md=4</div></Col>
+            <Col md={4}><div className="bg-canvas border p-2">md=4</div></Col>
+            <Col md={4}><div className="bg-canvas border p-2">md=4</div></Col>
+            <Col md={4}><div className="bg-canvas border p-2">md=4</div></Col>
           </Row>
           <Row>
-            <Col md={6}><div className="bg-light border p-2">md=6</div></Col>
-            <Col md={3}><div className="bg-light border p-2">md=3</div></Col>
-            <Col md={3}><div className="bg-light border p-2">md=3</div></Col>
+            <Col md={6}><div className="bg-canvas border p-2">md=6</div></Col>
+            <Col md={3}><div className="bg-canvas border p-2">md=3</div></Col>
+            <Col md={3}><div className="bg-canvas border p-2">md=3</div></Col>
           </Row>
         </Section>
 
@@ -153,15 +153,15 @@ export default function UiGallery() {
         </Section>
 
         <Section title="Badges, alerts, progress, spinner">
-          <div className="d-flex flex-wrap gap-2 mb-3">
+          <div className="flex flex-wrap gap-2 mb-4">
             {COLORS.map((c) => <Badge key={c} color={c}>{c}</Badge>)}
             <Badge color="primary" pill>pill</Badge>
           </div>
           {["primary", "success", "danger", "warning", "info"].map((c) => (
             <Alert key={c} color={c}>Alert — {c}</Alert>
           ))}
-          <Progress value={62} className="mb-3" />
-          <div className="d-flex items-center gap-3">
+          <Progress value={62} className="mb-4" />
+          <div className="flex items-center gap-4">
             <Spinner size="sm" /><Spinner /><Spinner size="lg" />
           </div>
         </Section>
@@ -199,7 +199,7 @@ export default function UiGallery() {
         </Section>
 
         <Section title="Dropdown (open) & Offcanvas">
-          <div className="d-flex gap-3 items-start">
+          <div className="flex gap-4 items-start">
             <Dropdown isOpen={dropdownOpen} toggle={() => setDropdownOpen((v) => !v)}>
               <DropdownToggle caret className="btn btn-primary">Actions</DropdownToggle>
               <DropdownMenu>

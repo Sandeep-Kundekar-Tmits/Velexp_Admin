@@ -29,17 +29,17 @@ const ViewUser = () => {
     }, [data])
     if (loading) {
         return (
-            <div style={{ height: "100vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+            <div style={{ height: "100vh" }} className="container-fluid  flex flex-col justify-center items-center">
                 <GridLoader size={20} />
-                <p className="mt-5 h5">Loading...</p>
+                <p className="mt-12 h5">Loading...</p>
             </div>
         )
     }
     return (
         <div className="page-content">
             <div className="container-fluid">
-                <div className="d-flex justify-content-end">
-                    <Button className="btn btn-primary mb-4 d-flex gap-2" color="primary" onClick={() => {
+                <div className="flex justify-end">
+                    <Button className="btn btn-primary mb-6 flex gap-2" color="primary" onClick={() => {
                         navigate(`/edit-user/${id}`)
                     }}>
                         Edit User

@@ -48,88 +48,88 @@ const CODRejectModal = ({ isOpen, toggle, data, refreshData }) => {
 
     return (
         <Modal isOpen={isOpen} toggle={toggle} size="lg" centered className="rounded-4 overflow-hidden">
-            <div className="p-4 bg-white position-relative">
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                    <h3 className="fw-bold mb-0">COD Details</h3>
+            <div className="p-6 bg-white relative">
+                <div className="flex justify-between items-center mb-6">
+                    <h3 className="font-bold mb-0">COD Details</h3>
                     <button 
                         onClick={toggle} 
-                        className="btn btn-danger d-flex align-items-center justify-content-center p-2 rounded-3 shadow-sm"
+                        className="btn btn-danger flex items-center justify-center p-2 rounded-3 shadow-sm"
                         style={{ width: "38px", height: "38px" }}
                     >
                         <i className="bx bx-x fs-4"></i>
                     </button>
                 </div>
 
-                <Row className="mb-2 g-3 text-dark">
+                <Row className="mb-2 gap-4 text-ink">
                     <Col md={6}>
-                        <div className="d-flex flex-column">
-                            <span className="fw-bold">region</span>
-                            <span className="text-muted small">{data.region || "Region"}</span>
+                        <div className="flex flex-col">
+                            <span className="font-bold">region</span>
+                            <span className="text-ink-muted text-xs">{data.region || "Region"}</span>
                         </div>
                     </Col>
                     <Col md={6}>
-                        <div className="d-flex flex-column">
-                            <span className="fw-bold">service_centre</span>
-                            <span className="text-muted small">{data.service_centre || "Service Centre"}</span>
+                        <div className="flex flex-col">
+                            <span className="font-bold">service_centre</span>
+                            <span className="text-ink-muted text-xs">{data.service_centre || "Service Centre"}</span>
                         </div>
                     </Col>
                     <Col md={6}>
-                        <div className="d-flex flex-column">
-                            <span className="fw-bold">manifest_no</span>
-                            <span className="text-muted small">{data.manifest_no || data.manifests_covered || "Manifest no"}</span>
+                        <div className="flex flex-col">
+                            <span className="font-bold">manifest_no</span>
+                            <span className="text-ink-muted text-xs">{data.manifest_no || data.manifests_covered || "Manifest no"}</span>
                         </div>
                     </Col>
                     <Col md={6}>
-                        <div className="d-flex flex-column">
-                            <span className="fw-bold">utr_no</span>
-                            <span className="text-muted small">{data.utr_no || data.utr_number || "UTR No."}</span>
+                        <div className="flex flex-col">
+                            <span className="font-bold">utr_no</span>
+                            <span className="text-ink-muted text-xs">{data.utr_no || data.utr_number || "UTR No."}</span>
                         </div>
                     </Col>
                     <Col md={6}>
-                        <div className="d-flex flex-column">
-                            <span className="fw-bold">date</span>
-                            <span className="text-muted small">{data.date || (data.created_at ? new Date(data.created_at).toLocaleDateString() : "Date")}</span>
+                        <div className="flex flex-col">
+                            <span className="font-bold">date</span>
+                            <span className="text-ink-muted text-xs">{data.date || (data.created_at ? new Date(data.created_at).toLocaleDateString() : "Date")}</span>
                         </div>
                     </Col>
                     <Col md={6}>
-                        <div className="d-flex flex-column">
-                            <span className="fw-bold">manifest_amount</span>
-                            <span className="text-muted small">{data.manifest_amount || totalActual.toLocaleString() || "Manifest Amount"}</span>
+                        <div className="flex flex-col">
+                            <span className="font-bold">manifest_amount</span>
+                            <span className="text-ink-muted text-xs">{data.manifest_amount || totalActual.toLocaleString() || "Manifest Amount"}</span>
                         </div>
                     </Col>
                     <Col md={6}>
-                        <div className="d-flex flex-column">
-                            <span className="fw-bold">amount_received</span>
-                            <span className="text-muted small">{data.amount_received || "Amount Received"}</span>
+                        <div className="flex flex-col">
+                            <span className="font-bold">amount_received</span>
+                            <span className="text-ink-muted text-xs">{data.amount_received || "Amount Received"}</span>
                         </div>
                     </Col>
                     <Col md={12}>
-                        <div className="d-flex flex-column">
-                            <span className="fw-bold">remark</span>
-                            <span className="text-muted small">{data.remark || "Remark"}</span>
+                        <div className="flex flex-col">
+                            <span className="font-bold">remark</span>
+                            <span className="text-ink-muted text-xs">{data.remark || "Remark"}</span>
                         </div>
                     </Col>
                 </Row>
 
-                <hr className="my-3" />
+                <hr className="my-4" />
 
-                <div className="mb-3">
-                    <Label className="text-muted mb-1 small">Remark</Label>
+                <div className="mb-4">
+                    <Label className="text-ink-muted mb-1 text-xs">Remark</Label>
                     <Input
                         type="textarea"
                         placeholder="Write Remark...."
                         rows="3"
-                        className="bg-white border-secondary-subtle p-2 rounded-3 small"
+                        className="bg-white border-secondary-subtle p-2 rounded-3 text-xs"
                         style={{ resize: "none", borderColor: "#ced4da" }}
                         value={remark}
                         onChange={(e) => setRemark(e.target.value)}
                     />
                 </div>
 
-                <div className="d-flex justify-content-end mt-3">
+                <div className="flex justify-end mt-4">
                     <Button 
                         color="danger" 
-                        className="px-5 py-2 fw-bold rounded-3 shadow-sm" 
+                        className="px-12 py-2 font-bold rounded-3 shadow-sm" 
                         style={{ backgroundColor: "#ff3d3d", border: "none" }}
                         onClick={handleAdjustment}
                         disabled={loading}

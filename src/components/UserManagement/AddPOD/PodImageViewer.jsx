@@ -16,7 +16,7 @@ const PodImageViewer = ({ podValue, toggleModal }) => {
         <>
             <Modal isOpen={true} toggle={toggleModal} centered>
                 <ModalHeader toggle={toggleModal}>POD Document</ModalHeader>
-                <ModalBody className="text-center p-4">
+                <ModalBody className="text-center p-6">
                     <img
                         src={podValue}
                         alt="POD Document"

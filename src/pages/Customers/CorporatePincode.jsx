@@ -367,22 +367,22 @@ const CorporatePincode = ({ externalCustomer }) => {
                 <MainHeaderCom
                     title="Corporate Pincode"
                     extraFields={
-                        <div className="d-flex align-items-center">
-                            <h6 className="text-black fw-bold mb-0 me-2" style={{ fontSize: "14px" }}>Template</h6>
+                        <div className="flex items-center">
+                            <h6 className="text-black font-bold mb-0 mr-2" style={{ fontSize: "14px" }}>Template</h6>
                             {["Default", "Customer"]?.map((ele) => (
-                                <div className="ms-2" key={ele}>
+                                <div className="ml-2" key={ele}>
                                     <Button
                                         onClick={() => {
                                             setSelectedtemplate(ele);
                                             converToExcel(ele === "Customer" ? "customer" : "");
                                         }}
-                                        className="d-flex align-items-center justify-content-center p-2 m-auto bg-transparent border-success text-success"
+                                        className="flex items-center justify-center p-2 m-auto bg-transparent border-success text-success-500"
                                         style={{ borderRadius: "7px", width: "100px", fontWeight: "500", fontSize: "12px" }}
                                     >
                                         {(ConvertingEmptyExcelLoading && selectedTemplate === ele)
                                             ? <span>Exporting...</span>
                                             : <span>{ele}</span>}
-                                        <FaFileExcel size={14} className="ms-1" />
+                                        <FaFileExcel size={14} className="ml-1" />
                                     </Button>
                                 </div>
                             ))}
@@ -390,9 +390,9 @@ const CorporatePincode = ({ externalCustomer }) => {
                     }
                 />
             </div>
-            <div className="container-fluid mt-3 px-3">
+            <div className="container-fluid mt-4 px-4">
 
-                <Row className=" mt-3">
+                <Row className=" mt-4">
                     <Col md={4}>
                         <FormGroup className="mb-2">
                             <Label>Select Customer</Label>
@@ -409,7 +409,7 @@ const CorporatePincode = ({ externalCustomer }) => {
                     </Col>
                     <Col md={4} style={{ marginTop: "28px" }}>
                         <Button
-                            className="bg-primary"
+                            className="bg-brand-500"
                             style={{ width: "50%" }}
                             disabled={!username}
                             onClick={onViewCustomer}
@@ -437,7 +437,7 @@ const CorporatePincode = ({ externalCustomer }) => {
                         </FormGroup>
                     </Col>
                     <Col md={4}>
-                        <div className="d-flex align-items-center w-full" style={{ marginTop: "28px" }}>
+                        <div className="flex items-center w-full" style={{ marginTop: "28px" }}>
                             <Input type="file" style={{ width: "100%" }} onChange={UploadChange} />
                         </div>
                     </Col>
@@ -449,7 +449,7 @@ const CorporatePincode = ({ externalCustomer }) => {
                                 (!file) ||
                                 (selectedPincodeOption?.value !== "default" && !username)
                             }
-                            className="bg-primary text-white d-flex align-items-center justify-content-center"
+                            className="bg-brand-500 text-white flex items-center justify-center"
                             onClick={UploadPincode}
                         >
                             {uploadCorporatePincodeLoading ? "Uploading..." : "Upload"}
@@ -460,9 +460,9 @@ const CorporatePincode = ({ externalCustomer }) => {
 
                 <div className='mt-1'>
                     {(CorporatePincodeDataLoading || ViewCorporatePincodeloading)
-                        ? <div style={{ height: "40vh" }} className="container-fluid d-flex flex-column justify-content-center align-items-center">
+                        ? <div style={{ height: "40vh" }} className="container-fluid flex flex-col justify-center items-center">
                             <GridLoader size={20} />
-                            <p className="mt-5 h5">Loading Corporate Pincode ...</p>
+                            <p className="mt-12 h5">Loading Corporate Pincode ...</p>
                         </div>
                         : <TableContainer
                             isDownloadExcle={true}
@@ -498,7 +498,7 @@ const CorporatePincode = ({ externalCustomer }) => {
                         onSuccess={onDeletePincodeClick}
                     >
                         <div>
-                            <p className="fw-bold mb-2">
+                            <p className="font-bold mb-2">
                                 {username !== null
                                     ? `For customer "${username.label}", the following pincodes will be deleted:`
                                     : "The following default pincodes will be deleted:"}
@@ -514,11 +514,11 @@ const CorporatePincode = ({ externalCustomer }) => {
                                     padding: "8px"
                                 }}
                             >
-                                <div className="d-flex flex-wrap gap-2">
+                                <div className="flex flex-wrap gap-2">
                                     {visiblePincodes.map(item => (
                                         <span
                                             key={item.id}
-                                            className="badge bg-light text-dark border px-2 py-1"
+                                            className="badge bg-canvas text-ink border px-2 py-1"
                                             style={{ fontSize: "0.85rem" }}
                                         >
                                             {item.pincode}
@@ -543,7 +543,7 @@ const CorporatePincode = ({ externalCustomer }) => {
                             )}
 
 
-                            <p className="fw-semibold text-danger">
+                            <p className="font-semibold text-danger-500">
                                 Are you sure you want to delete pincodes
                                 {username ? ` for "${username.value}"` : ""}?
                             </p>

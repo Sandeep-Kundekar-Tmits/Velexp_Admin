@@ -167,18 +167,18 @@ const PopReconcilation = () => {
                 <MainHeaderComp
                     title="POP Reconciliation"
                     extraFields={
-                        <Button className="bg-primary" onClick={() => { setShowPopup(true) }}>Update POP Status</Button>
+                        <Button className="bg-brand-500" onClick={() => { setShowPopup(true) }}>Update POP Status</Button>
                     }
                 />
             </div>
-            <div className="container-fluid px-3 ">
+            <div className="container-fluid px-4 ">
 
 
                 {/* filter */}
-                <Row className="mt-3 align-items-end border-bottom pb-3">
+                <Row className="mt-4 items-end border-bottom pb-4">
                     <Col md={4}>
                         <FormGroup className="mb-0">
-                            <Label for="Customer" className="fw-bold">Select Service Center</Label>
+                            <Label for="Customer" className="font-bold">Select Service Center</Label>
                             <Select
                                 options={ServiceCenterOption}
                                 placeholder="Search"
@@ -191,7 +191,7 @@ const PopReconcilation = () => {
                     </Col>
                     <Col md={4}>
                         <FormGroup className="mb-0">
-                            <Label className="fw-bold">Start Date and End Date</Label>
+                            <Label className="font-bold">Start Date and End Date</Label>
                             <DateRangeInput
                                 value={selectedRange}
                                 onChange={handleDateChange}
@@ -214,9 +214,9 @@ const PopReconcilation = () => {
                 <div className="mt-2">
                     {
                         ReconcilationListLoading ?
-                            <div style={{ height: "40vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+                            <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
                                 <GridLoader size={20} />
-                                <p className="mt-5 h5">Loading ...</p>
+                                <p className="mt-12 h5">Loading ...</p>
                             </div> :
                             <TableContainer
                                 columns={columns}

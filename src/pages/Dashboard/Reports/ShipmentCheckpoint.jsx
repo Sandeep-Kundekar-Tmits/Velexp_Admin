@@ -165,10 +165,10 @@ const ShipmentCheckpoint = () => {
             </div>
             <div className="container-fluid">
                 <div>
-                    <Row className='gx-3 d-flex align-items-end pt-2'>
+                    <Row className='gx-3 flex items-end pt-2'>
                         <Col md={3}>
                             <FormGroup className="mb-2">
-                                <Label className="fw-bold text-muted mb-1">Select Date Range</Label>
+                                <Label className="font-bold text-ink-muted mb-1">Select Date Range</Label>
                                 <DateRangeInput
                                     value={selectedRange}
                                     onChange={handleChange}
@@ -178,7 +178,7 @@ const ShipmentCheckpoint = () => {
                         </Col>
                         <Col md={3}>
                             <FormGroup className="mb-2">
-                                <Label for="Region" className="fw-bold text-muted mb-1">Region</Label>
+                                <Label for="Region" className="font-bold text-ink-muted mb-1">Region</Label>
                                 <Select
                                     name="region"
                                     options={Regions}
@@ -192,7 +192,7 @@ const ShipmentCheckpoint = () => {
                         </Col>
                         <Col md={3}>
                             <FormGroup className="mb-2">
-                                <Label for="ServiceCenter" className="fw-bold text-muted mb-1">Service Center</Label>
+                                <Label for="ServiceCenter" className="font-bold text-ink-muted mb-1">Service Center</Label>
                                 <Select
                                     value={ShipmentCheckpointPayload?.service_center}
                                     name="service_center"
@@ -206,18 +206,18 @@ const ShipmentCheckpoint = () => {
                             </FormGroup>
                         </Col>
                         <Col md={2}>
-                            <Button color="primary" className="fw-bold mb-3" style={{ height: "38px", width: "100%" }} onClick={GetDataFunctionCall}>
+                            <Button color="primary" className="font-bold mb-4" style={{ height: "38px", width: "100%" }} onClick={GetDataFunctionCall}>
                                 Get Data
                             </Button>
                         </Col>
                     </Row>
                     {/*  */}
                     <div className=''>
-                        <div className='mt-3'>
+                        <div className='mt-4'>
                             {
-                                UploadShipmentCheckpointLoading ? <div style={{ height: "40vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+                                UploadShipmentCheckpointLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
                                     <GridLoader size={20} />
-                                    <p className="mt-5 h5">Loading Status Update Report ...</p>
+                                    <p className="mt-12 h5">Loading Status Update Report ...</p>
                                 </div>
                                     :
                                     <TableContainer

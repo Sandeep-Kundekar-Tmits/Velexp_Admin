@@ -79,7 +79,7 @@ const UserManagementList = () => {
             enableColumnFilter: false,
             enableSorting: false,
             cell: ({ row }) => (
-                <div className="d-flex gap-2">
+                <div className="flex gap-2">
                     <Button color="success" size="sm" onClick={() => handleView(row.original)}>
                         View
                     </Button>
@@ -116,9 +116,9 @@ const UserManagementList = () => {
 
     if (loading) {
         return (
-            <div style={{ height: "100vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+            <div style={{ height: "100vh" }} className="container-fluid  flex flex-col justify-center items-center">
                 <GridLoader size={20} />
-                <p className="mt-5 h5">Loading...</p>
+                <p className="mt-12 h5">Loading...</p>
             </div>
         )
     }
@@ -136,7 +136,7 @@ const UserManagementList = () => {
                 />
             </div>
             <div className="container-fluid px-2">
-                <div className="mt-3">
+                <div className="mt-4">
                     <TableContainer
                         columns={columns}
                         data={processedData}

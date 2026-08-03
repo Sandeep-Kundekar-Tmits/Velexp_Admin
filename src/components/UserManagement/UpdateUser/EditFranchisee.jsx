@@ -31,7 +31,7 @@ const EditFranchisee = ({ formData, handleChange }) => {
         const error = isAddressField ? addressErrors?.[name] : errorMessage
 
         return (
-            <FormGroup className="mb-3">
+            <FormGroup className="mb-4">
                 <Label for={name}>{label}</Label>
                 <Input
                     type={type}
@@ -62,7 +62,7 @@ const EditFranchisee = ({ formData, handleChange }) => {
     );
 
     return (
-        <Card className="mb-4">
+        <Card className="mb-6">
             <CardHeader>Edit Franchisee</CardHeader>
             <CardBody>
                 <div>
@@ -89,7 +89,7 @@ const EditFranchisee = ({ formData, handleChange }) => {
                             {renderInput('GST No. (Optional)', 'gst_no')}
                             {renderInput('PAN No. (Optional)', 'pan_no')}
                             {renderInput('TAN No. (Optional)', 'tan_no')}
-                            <FormGroup className="mb-3">
+                            <FormGroup className="mb-4">
                                 <Label for="billing_type">Billing Type (Optional)</Label>
                                 <Input
                                     type="select"

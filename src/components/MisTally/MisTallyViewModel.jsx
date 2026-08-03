@@ -176,19 +176,19 @@ const MisTallyViewModel = ({
     return (
         <Modal size="xl" isOpen={show} centered={true} className="auth-modal">
             <div className="modal-content border-0">
-                <ModalBody className="px-4 py-5 text-center">
+                <ModalBody className="px-6 py-12 text-center">
                     <button
                         type="button"
                         onClick={onCloseClick}
-                        className="btn-close position-absolute end-0 top-0 m-3"
+                        className="btn-close absolute end-0 top-0 m-4"
                         aria-label="Close"
                     ></button>
 
-                    <h4 className="mb-3 border-bottom">MIS Tally Of The "{data?.cost_service_center}" Cost Center</h4>
+                    <h4 className="mb-4 border-bottom">MIS Tally Of The "{data?.cost_service_center}" Cost Center</h4>
                     {
-                        MISGroupedDataLoading ? <div style={{ height: "50vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+                        MISGroupedDataLoading ? <div style={{ height: "50vh" }} className="container-fluid  flex flex-col justify-center items-center">
                             <GridLoader size={20} />
-                            <p className="mt-5 h5">Loading MIS Tally ...</p>
+                            <p className="mt-12 h5">Loading MIS Tally ...</p>
                         </div> : MisGroupedData.length >= 1 ? <TableContainer
                             columns={columns}
                             data={MisGroupedData || []}
@@ -204,7 +204,7 @@ const MisTallyViewModel = ({
                             //  if data not available for the given payload
                             <div className='m-auto ' style={{ width: "320px" }}>
                                 <div style={{ color: '#6c757d', marginBottom: '12px' }}>
-                                    <RiErrorWarningLine className='text-primary' style={{ width: "25px", height: "25px" }} />
+                                    <RiErrorWarningLine className='text-brand-500' style={{ width: "25px", height: "25px" }} />
                                 </div>
                                 <h4 style={{ margin: '0 0 8px', color: '#343a40' }}>No Data Found For</h4>
 
@@ -214,7 +214,7 @@ const MisTallyViewModel = ({
                             </div>
                     }
 
-                    <div className="d-flex justify-content-end mt-4">
+                    <div className="flex justify-end mt-6">
                         <button
                             type="button"
                             className="btn btn-light "

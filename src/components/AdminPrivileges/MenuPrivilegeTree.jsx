@@ -39,7 +39,7 @@ const MenuPrivilegeTree = ({ nodes, mode = "role", onChange, onRemoveNode, locke
 
         return (
             <div key={node.id} style={{ marginLeft: depth * 24 }} className="mb-2">
-                <div className="d-flex align-items-center gap-2 p-2 rounded bg-light">
+                <div className="flex items-center gap-2 p-2 rounded bg-canvas">
                     {hasChildren ? (
                         <span style={{ cursor: "pointer" }} onClick={() => toggleCollapse(node.id)}>
                             {collapsed ? <IoMdAdd /> : <IoMdRemove />}
@@ -57,13 +57,13 @@ const MenuPrivilegeTree = ({ nodes, mode = "role", onChange, onRemoveNode, locke
                         onChange={(e) => handleCheck(node.id, e.target.checked)}
                     />
 
-                    <span className="fw-semibold">{node.link_name}</span>
+                    <span className="font-semibold">{node.link_name}</span>
                     {node.link_url && node.link_url !== "#" && (
-                        <span className="text-muted small">{node.link_url}</span>
+                        <span className="text-ink-muted text-xs">{node.link_url}</span>
                     )}
 
                     {mode === "user" && (
-                        <span className="text-muted small ms-2">
+                        <span className="text-ink-muted text-xs ml-2">
                             Role default: {roleDefaultSummary(node.roleDefault)}
                         </span>
                     )}
@@ -71,7 +71,7 @@ const MenuPrivilegeTree = ({ nodes, mode = "role", onChange, onRemoveNode, locke
                     {onRemoveNode && node.checked && (
                         <button
                             type="button"
-                            className="btn btn-sm btn-outline-danger ms-auto"
+                            className="btn btn-sm btn-outline-danger ml-auto"
                             title="Remove"
                             onClick={() => onRemoveNode(node.id)}
                         >
@@ -88,7 +88,7 @@ const MenuPrivilegeTree = ({ nodes, mode = "role", onChange, onRemoveNode, locke
     };
 
     if (!nodes?.length) {
-        return <p className="text-muted">No menus available.</p>;
+        return <p className="text-ink-muted">No menus available.</p>;
     }
 
     return <div>{nodes.map((node) => renderNode(node, 0))}</div>;

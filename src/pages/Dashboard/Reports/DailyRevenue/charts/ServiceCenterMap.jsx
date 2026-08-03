@@ -101,32 +101,32 @@ const StateDetailModal = ({ stateName, points = [], onClose }) => {
     // Shared detail panel — rendered as overlay on desktop, below map on mobile
     const detailPanel = (
         <>
-            <div className="fw-bold mb-2" style={{ fontSize: 15 }}>{stateName}</div>
-            <div className="d-flex justify-content-between mb-1" style={{ fontSize: 12.5 }}>
-                <span className="text-muted">Gross</span><span className="fw-bold">{formatINR(totals.gross)}</span>
+            <div className="font-bold mb-2" style={{ fontSize: 15 }}>{stateName}</div>
+            <div className="flex justify-between mb-1" style={{ fontSize: 12.5 }}>
+                <span className="text-ink-muted">Gross</span><span className="font-bold">{formatINR(totals.gross)}</span>
             </div>
-            <div className="d-flex justify-content-between mb-1" style={{ fontSize: 12.5 }}>
-                <span className="text-muted">Net</span><span className="fw-semibold">{formatINR(totals.net)}</span>
+            <div className="flex justify-between mb-1" style={{ fontSize: 12.5 }}>
+                <span className="text-ink-muted">Net</span><span className="font-semibold">{formatINR(totals.net)}</span>
             </div>
-            <div className="d-flex justify-content-between mb-1" style={{ fontSize: 12.5 }}>
-                <span className="text-muted">Shipments</span><span className="fw-semibold">{formatInt(totals.shipments)}</span>
+            <div className="flex justify-between mb-1" style={{ fontSize: 12.5 }}>
+                <span className="text-ink-muted">Shipments</span><span className="font-semibold">{formatInt(totals.shipments)}</span>
             </div>
-            <div className="d-flex justify-content-between pt-1 mt-1 border-top" style={{ fontSize: 12.5 }}>
-                <span className="text-muted">Service Centers</span><span className="fw-semibold">{centers.length}</span>
+            <div className="flex justify-between pt-1 mt-1 border-top" style={{ fontSize: 12.5 }}>
+                <span className="text-ink-muted">Service Centers</span><span className="font-semibold">{centers.length}</span>
             </div>
             {centers.length > 0 && (
                 <div className="mt-2 pt-2 border-top" style={{ overflowY: "auto", minHeight: 0, paddingRight: 4 }}>
                     {centers.map((c, i) => (
                         <div
                             key={c.code}
-                            className="sc-row d-flex align-items-center justify-content-between py-1 border-bottom"
+                            className="sc-row flex items-center justify-between py-1 border-bottom"
                             style={{ fontSize: 12.5, animationDelay: `${i * 40}ms` }}
                         >
-                            <span className="d-flex align-items-center gap-2 text-truncate" style={{ minWidth: 0 }}>
+                            <span className="flex items-center gap-2 truncate" style={{ minWidth: 0 }}>
                                 <span style={{ width: 9, height: 9, borderRadius: 2, background: colorOf(c.gross), border: "1px solid rgba(0,0,0,0.12)", flex: "0 0 auto" }} />
-                                <span className="fw-semibold text-truncate" title={c.code}>{c.code}</span>
+                                <span className="font-semibold truncate" title={c.code}>{c.code}</span>
                             </span>
-                            <span className="fw-semibold ms-2" style={{ whiteSpace: "nowrap" }}>{formatINR(c.gross)}</span>
+                            <span className="font-semibold ml-2" style={{ whiteSpace: "nowrap" }}>{formatINR(c.gross)}</span>
                         </div>
                     ))}
                 </div>
@@ -138,7 +138,7 @@ const StateDetailModal = ({ stateName, points = [], onClose }) => {
         <Modal isOpen={!!stateName} toggle={onClose} fullscreen modalClassName="sc-zoom-modal">
             <ModalHeader toggle={onClose}>
                 {stateName}
-                <span className="text-muted fw-normal ms-2" style={{ fontSize: "13px" }}>
+                <span className="text-ink-muted font-normal ml-2" style={{ fontSize: "13px" }}>
                     {centers.length} service center{centers.length === 1 ? "" : "s"} · {formatINR(totals.gross)}
                 </span>
             </ModalHeader>
@@ -258,11 +258,11 @@ const StateDetailModal = ({ stateName, points = [], onClose }) => {
                             })()}
                         </ComposableMap>
                     ) : (
-                        <p className="text-muted p-4 mb-0">Map unavailable for this state.</p>
+                        <p className="text-ink-muted p-6 mb-0">Map unavailable for this state.</p>
                     )}
 
                     {centers.length === 0 && projection && (
-                        <div className="position-absolute top-50 start-50 translate-middle text-muted bg-white px-3 py-2 rounded shadow-sm">
+                        <div className="absolute top-50 start-50 translate-middle text-ink-muted bg-white px-4 py-2 rounded shadow-sm">
                             No geocoded service centers in {stateName}.
                         </div>
                     )}
@@ -370,20 +370,20 @@ const ServiceCenterMap = ({ rows = [] }) => {
     const totalGross = useMemo(() => stateList.reduce((s, x) => s + x.gross, 0), [stateList])
 
     return (
-        <Card className="shadow-sm border-0 mb-4 h-full">
+        <Card className="shadow-sm border-0 mb-6 h-full">
             <CardBody>
                 <div className="mb-2">
-                    <h6 className="fw-bold mb-1">Service Centers</h6>
-                    <p className="text-muted small mb-0">
+                    <h6 className="font-bold mb-1">Service Centers</h6>
+                    <p className="text-ink-muted text-xs mb-0">
                         States shaded by revenue · {points.length} hubs pinned · {isMobile ? "tap" : "click"} a state for its service centers
-                        {skipped > 0 && <span className="ms-1">· {skipped} without coordinates hidden</span>}
+                        {skipped > 0 && <span className="ml-1">· {skipped} without coordinates hidden</span>}
                     </p>
                 </div>
 
                 {points.length === 0 ? (
-                    <p className="text-muted mb-0 py-5">No geocoded service centers.</p>
+                    <p className="text-ink-muted mb-0 py-12">No geocoded service centers.</p>
                 ) : (
-                    <div className="d-flex flex-wrap gap-3 align-items-stretch">
+                    <div className="flex flex-wrap gap-4 items-stretch">
                     <div
                         style={{
                             flex: "1 1 420px",  // large enough to dominate; wraps to full width on mobile
@@ -554,12 +554,12 @@ const ServiceCenterMap = ({ rows = [] }) => {
                         style={{ flex: "0 0 240px", maxHeight: 560, overflowY: "auto" }}
                         className="border rounded-3 p-2 bg-white"
                     >
-                        <div className="d-flex justify-content-between align-items-center px-1 mb-2">
-                            <span className="fw-bold">Revenue by State</span>
-                            <span className="text-muted small">{formatINR(totalGross)}</span>
+                        <div className="flex justify-between items-center px-1 mb-2">
+                            <span className="font-bold">Revenue by State</span>
+                            <span className="text-ink-muted text-xs">{formatINR(totalGross)}</span>
                         </div>
                         {stateList.length === 0 ? (
-                            <p className="text-muted small px-1 mb-0">No state revenue.</p>
+                            <p className="text-ink-muted text-xs px-1 mb-0">No state revenue.</p>
                         ) : (
                             stateList.map((s) => (
                                 <div
@@ -568,15 +568,15 @@ const ServiceCenterMap = ({ rows = [] }) => {
                                     tabIndex={0}
                                     onClick={() => setSelectedState(s.name)}
                                     onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setSelectedState(s.name)}
-                                    className="d-flex align-items-center justify-content-between px-1 py-1 border-bottom state-row"
+                                    className="flex items-center justify-between px-1 py-1 border-bottom state-row"
                                     style={{ fontSize: "12.5px", cursor: "pointer" }}
                                     title={`View ${s.name} service centers`}
                                 >
-                                    <span className="d-flex align-items-center gap-2 text-truncate" style={{ minWidth: 0 }}>
+                                    <span className="flex items-center gap-2 truncate" style={{ minWidth: 0 }}>
                                         <span style={{ width: 11, height: 11, borderRadius: 3, background: colorOf(s.gross), border: "1px solid rgba(0,0,0,0.12)", flex: "0 0 auto" }} />
-                                        <span className="text-truncate">{s.name}</span>
+                                        <span className="truncate">{s.name}</span>
                                     </span>
-                                    <span className="fw-semibold ms-2" style={{ whiteSpace: "nowrap" }}>{formatINR(s.gross)}</span>
+                                    <span className="font-semibold ml-2" style={{ whiteSpace: "nowrap" }}>{formatINR(s.gross)}</span>
                                 </div>
                             ))
                         )}

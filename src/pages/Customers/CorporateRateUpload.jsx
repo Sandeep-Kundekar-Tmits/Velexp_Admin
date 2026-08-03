@@ -350,7 +350,7 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
     return (
         <div className="page-content py-0 px-0">
             {!hideHeader && <MainHeaderCom title="Rate Upload" />}
-            <div className="container-fluid px-3 mt-4">
+            <div className="container-fluid px-4 mt-6">
                 <Card className="shadow-sm">
                     <CardBody>
                         <Row>
@@ -384,36 +384,36 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
                                     />
                                 </FormGroup>
                             </Col>
-                            <Col md={hideHeader ? 6 : 4} className="d-flex flex-column gap-2 mb-3 mt-4 align-items-start">
+                            <Col md={hideHeader ? 6 : 4} className="flex flex-col gap-2 mb-4 mt-6 items-start">
                                 <Button
                                     color="primary"
                                     onClick={validateAndUpload}
                                     disabled={!file || parsingLoading || uploadingData || !selectedCustomer || excelData.length === 0}
-                                    className="w-full d-flex align-items-center justify-content-center"
+                                    className="w-full flex items-center justify-center"
                                     style={{ height: "38px" }}
                                 >
                                     {uploadingData ? (
-                                        <Spinner size="sm" className="me-2" />
+                                        <Spinner size="sm" className="mr-2" />
                                     ) : (
-                                        <FaUpload className="me-2" />
+                                        <FaUpload className="mr-2" />
                                     )}
                                     {uploadingData ? "Importing..." : "Start Import"}
                                 </Button>
                                 <Button
                                     color="success"
                                     onClick={handleDownloadTemplate}
-                                    className="w-full d-flex align-items-center justify-content-center"
+                                    className="w-full flex items-center justify-center"
                                     outline
                                     style={{ height: "38px" }}
                                 >
-                                    <FaDownload className="me-2" />
+                                    <FaDownload className="mr-2" />
                                     {downloadingTemplate ? "Generating..." : "Download Template"}
                                 </Button>
                             </Col>
                         </Row>
 
                         {excelData.length > 0 && (
-                            <Row className="mt-4">
+                            <Row className="mt-6">
                                 <Col md={12}>
                                     <div className="alert alert-info py-2">
                                         <strong>Ready to Import:</strong> {excelData.length} rows found in file.
@@ -424,16 +424,16 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
 
                         {selectedCustomer && (
                             <>
-                                <div className="d-flex justify-content-between align-items-center mb-3 mt-4">
+                                <div className="flex justify-between items-center mb-4 mt-6">
                                     <h5 className="mb-0">Existing Rates for {selectedCustomer.label}</h5>
-                                    <div className="d-flex gap-2">
+                                    <div className="flex gap-2">
                                         {selectedRateIds.length > 0 && (
                                             <Button
                                                 color="danger"
                                                 size="sm"
                                                 onClick={() => setIsBulkDeleteRateModalOpen(true)}
                                                 disabled={isBulkDeletingRates}
-                                                className="d-flex align-items-center gap-1"
+                                                className="flex items-center gap-1"
                                             >
                                                 {isBulkDeletingRates ? <Spinner size="sm" /> : <FaTrash />}
                                                 Delete Selected ({selectedRateIds.length})
@@ -451,9 +451,9 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
                                 <Card className="shadow-sm">
                                     <CardBody className="p-0">
                                         {ratesLoading ? (
-                                            <div className="text-center p-5">
+                                            <div className="text-center p-12">
                                                 <Spinner color="primary" />
-                                                <p className="mt-2 text-muted">Loading rates...</p>
+                                                <p className="mt-2 text-ink-muted">Loading rates...</p>
                                             </div>
                                         ) : (
                                             <TableContainer
@@ -529,7 +529,7 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
                                                         cell: (cell) => {
                                                             const rate = cell.row.original;
                                                             return (
-                                                                <div className="d-flex gap-2">
+                                                                <div className="flex gap-2">
                                                                     <Button
                                                                         color="primary"
                                                                         size="sm"
@@ -587,7 +587,7 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
                 cancelButtonName="Close"
             >
                 <div>
-                    <h4 className="text-danger mb-3">Validation Errors</h4>
+                    <h4 className="text-danger-500 mb-4">Validation Errors</h4>
                     <pre style={{ maxHeight: "300px", overflowY: "auto", whiteSpace: "pre-wrap" }}>
                         {modalError}
                     </pre>
@@ -601,13 +601,13 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
                 cancelButtonName="Close"
             >
                 {singleRateLoading ? (
-                    <div className="text-center py-4">
+                    <div className="text-center py-6">
                         <Spinner color="primary" />
                         <p className="mt-2">Loading details...</p>
                     </div>
                 ) : singleRateData?.result ? (
                     <div className="rate-details">
-                        <Row className="mb-3">
+                        <Row className="mb-4">
                             <Col md={6}>
                                 <strong>Product:</strong> {singleRateData.result.product_name}
                             </Col>
@@ -615,7 +615,7 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
                                 <strong>Billing Type:</strong> {singleRateData.result.billing_type}
                             </Col>
                         </Row>
-                        <Row className="mb-3">
+                        <Row className="mb-4">
                             <Col md={6}>
                                 <strong>Origin Zone:</strong> {singleRateData.result.origin_zone}
                             </Col>
@@ -623,7 +623,7 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
                                 <strong>Dest Zone:</strong> {singleRateData.result.dest_zone}
                             </Col>
                         </Row>
-                        <Row className="mb-3">
+                        <Row className="mb-4">
                             <Col md={6}>
                                 <strong>Zone Type:</strong> {singleRateData.result.zone_type}
                             </Col>
@@ -631,7 +631,7 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
                                 <strong>Base Weight:</strong> {singleRateData.result.base_weight} kg
                             </Col>
                         </Row>
-                        <Row className="mb-3">
+                        <Row className="mb-4">
                             <Col md={6}>
                                 <strong>Base Rate:</strong> ₹{singleRateData.result.base_rate}
                             </Col>
@@ -639,12 +639,12 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
                                 <strong>Min Rate:</strong> ₹{singleRateData.result.min_rate || 0}
                             </Col>
                         </Row>
-                        <Row className="mb-3">
+                        <Row className="mb-4">
                             <Col md={6}>
                                 <strong>Weight Range:</strong> {singleRateData.result.weight_min} - {singleRateData.result.weight_max || "∞"} kg
                             </Col>
                         </Row>
-                        <div className="border-top pt-3">
+                        <div className="border-top pt-4">
                             <Row>
                                 <Col md={6}>
                                     <strong>Inc. Unit:</strong> {singleRateData.result.incremental_unit} kg
@@ -656,7 +656,7 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
                         </div>
                     </div>
                 ) : (
-                    <div className="text-center py-4 text-danger">
+                    <div className="text-center py-6 text-danger-500">
                         Failed to load rate details.
                     </div>
                 )}
@@ -966,11 +966,11 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
                 onSuccess={handleBulkDeleteRates}
             >
                 <div>
-                    <p className="fw-bold text-danger mb-2">
-                        <i className="mdi mdi-alert-circle-outline me-1"></i>
+                    <p className="font-bold text-danger-500 mb-2">
+                        <i className="mdi mdi-alert-circle-outline mr-1"></i>
                         Are you sure you want to delete {selectedRateIds.length} selected rate(s)?
                     </p>
-                    <p className="text-muted small mb-0">This action cannot be undone.</p>
+                    <p className="text-ink-muted text-xs mb-0">This action cannot be undone.</p>
                 </div>
             </SimpleModal>
         </div>

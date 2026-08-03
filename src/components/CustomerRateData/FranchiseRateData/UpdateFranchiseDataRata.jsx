@@ -336,7 +336,7 @@ const UpdateFranchiseDataRata = ({
         </ModalBody>
         <ModalFooter>
           <Button color="secondary" onClick={toggle}>Cancel</Button>
-          <Button color="primary" type="submit" className='d-flex justify-content-center align-items-center'>
+          <Button color="primary" type="submit" className='flex justify-center items-center'>
             {loading ? <Spinner size="sm">Loading...</Spinner> : "Save Changes"}
           </Button>
         </ModalFooter>

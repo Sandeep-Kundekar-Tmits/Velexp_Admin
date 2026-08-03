@@ -92,8 +92,8 @@ const DailyRevenue = () => {
                     <MainHeaderComp
                         title="Daily Revenue"
                         extraFields={
-                            <div className="d-flex align-items-center gap-2 justify-content-end flex-wrap">
-                                <div className="d-flex align-items-center gap-2 flex-shrink-0">
+                            <div className="flex items-center gap-2 justify-end flex-wrap">
+                                <div className="flex items-center gap-2 shrink-0">
                                     <DatePicker
                                         selected={(() => { const [y, m, d] = date.split("-").map(Number); return new Date(y, m - 1, d) })()}
                                         onChange={(d) => d && setDate(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`)}
@@ -103,26 +103,26 @@ const DailyRevenue = () => {
                                         wrapperClassName="d-inline-block"
                                         style={{ width: 130 }}
                                     />
-                                    <Button color="primary" size="sm" onClick={refresh} disabled={loading} className="d-flex align-items-center gap-1 flex-shrink-0">
+                                    <Button color="primary" size="sm" onClick={refresh} disabled={loading} className="flex items-center gap-1 shrink-0">
                                         {loading ? <Spinner size="sm" /> : <MdRefresh size={18} />} Refresh
                                     </Button>
                                 </div>
-                                <div className="text-end">
-                                    <div className="text-muted small">
-                                        As of <span className="fw-semibold">{formatAsOf(data?.as_of)}</span>
+                                <div className="text-right">
+                                    <div className="text-ink-muted text-xs">
+                                        As of <span className="font-semibold">{formatAsOf(data?.as_of)}</span>
                                     </div>
-                                    <div className="text-muted" style={{ fontSize: "11px" }}>Auto-refreshing every 5 minutes</div>
+                                    <div className="text-ink-muted" style={{ fontSize: "11px" }}>Auto-refreshing every 5 minutes</div>
                                 </div>
                             </div>
                         }
                     />
                 </div>
 
-                <div className="container-fluid px-3 py-3">
+                <div className="container-fluid px-4 py-4">
                     {!data ? (
-                        <div style={{ height: "40vh" }} className="d-flex flex-column justify-content-center align-items-center">
+                        <div style={{ height: "40vh" }} className="flex flex-col justify-center items-center">
                             <GridLoader size={20} />
-                            <p className="mt-4 h6 text-muted">Loading revenue…</p>
+                            <p className="mt-6 h6 text-ink-muted">Loading revenue…</p>
                         </div>
                     ) : (
                         <>
@@ -188,26 +188,26 @@ const DailyRevenue = () => {
                             {breakdowns.map((b) => {
                                 const isOpen = !!openTables[b.title]
                                 return (
-                                    <Card key={b.title} className="shadow-sm border-0 mb-4">
+                                    <Card key={b.title} className="shadow-sm border-0 mb-6">
                                         <CardBody className="p-0">
                                             <div
                                                 role="button"
                                                 tabIndex={0}
                                                 onClick={() => toggleTable(b.title)}
                                                 onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && toggleTable(b.title)}
-                                                className="p-3 bg-light border-bottom d-flex justify-content-between align-items-center"
+                                                className="p-4 bg-canvas border-bottom flex justify-between items-center"
                                                 style={{ cursor: "pointer", userSelect: "none" }}
                                                 aria-expanded={isOpen}
                                             >
-                                                <h5 className="mb-0 fw-bold">
+                                                <h5 className="mb-0 font-bold">
                                                     {b.title}
-                                                    <span className="text-muted fw-normal ms-2" style={{ fontSize: "13px" }}>
+                                                    <span className="text-ink-muted font-normal ml-2" style={{ fontSize: "13px" }}>
                                                         ({b.data.length})
                                                     </span>
                                                 </h5>
                                                 <MdKeyboardArrowDown
                                                     size={24}
-                                                    className="text-muted"
+                                                    className="text-ink-muted"
                                                     style={{ transition: "transform 0.2s", transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}
                                                 />
                                             </div>

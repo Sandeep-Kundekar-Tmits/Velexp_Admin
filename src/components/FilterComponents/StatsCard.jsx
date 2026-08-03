@@ -13,25 +13,25 @@ export const StatsCard = ({ title, value, color, unit, breakdown, isGroup, isNot
           {!isNotation ? (
             <>
               <CardText tag={isGroup ? "h4" : "h2"} className={`mb-0 fw-bold text-${color}`}>
-                {value} {unit && <span className="fs-6 text-muted">{unit}</span>}
+                {value} {unit && <span className="fs-6 text-ink-muted">{unit}</span>}
               </CardText>
               <CardTitle
                 tag="h6"
-                className="text-muted text-uppercase mb-1 fs-7 fw-semibold letter-spacing-1"
+                className="text-ink-muted uppercase mb-1 fs-7 font-semibold letter-spacing-1"
               >
                 {title}
               </CardTitle>
             </>
           ) : <>
             <MdErrorOutline style={{ width: "20px", height: "20px" }} />
-            <CardTitle tag="h6" className="text-muted h-full text-uppercase mb-1 fs-7 fw-semibold letter-spacing-1">
+            <CardTitle tag="h6" className="text-ink-muted h-full uppercase mb-1 fs-7 font-semibold letter-spacing-1">
               {title}
             </CardTitle>
           </>}
 
           {isGroup &&
             breakdown?.map((item, idx) => (
-              <Col key={idx} md={12} className="position-relative">
+              <Col key={idx} md={12} className="relative">
                 <div
                   className={`d-flex justify-content-between my-1 align-items-center rounded p-0 bg-${item.color}`}
                   style={{
@@ -45,21 +45,21 @@ export const StatsCard = ({ title, value, color, unit, breakdown, isGroup, isNot
                   className={`d-flex justify-content-between my-1 align-items-center rounded p-2 bg-${item.color}-subtle`}
                   style={{ position: "relative", zIndex: 100 }}
                 >
-                  <div className="fw-bold text-white">{item.value}</div>
-                  <div className="text-muted small ms-1 fw-bold">({item.percent}%)</div>
+                  <div className="font-bold text-white">{item.value}</div>
+                  <div className="text-ink-muted text-xs ml-1 font-bold">({item.percent}%)</div>
                 </div>
               </Col>
             ))}
 
           {isNotation &&
             breakdown?.map((item, idx) => (
-              <Col key={idx} md={12} className="my-3">
-                <div className="d-flex align-items-center w-3/4 m-auto">
+              <Col key={idx} md={12} className="my-4">
+                <div className="flex items-center w-3/4 m-auto">
                   <div
                     className={`p-2 text-black shadow-lg border-2 border-secondary bg-${item.color}`}
                     style={{ width: "20px", height: "20px" }}
                   ></div>
-                  <span className="small ms-2">{item.label}</span>
+                  <span className="text-xs ml-2">{item.label}</span>
                 </div>
               </Col>
             ))}

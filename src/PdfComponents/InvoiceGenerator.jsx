@@ -32,7 +32,7 @@ const CheckInvoice = (invoice) => {
   }
 }
 const InvoiceGenerator = ({ invoiceData, downloadUrl }) => {
-  if (!invoiceData) return <div className="p-4 text-center">No invoice data available.</div>;
+  if (!invoiceData) return <div className="p-6 text-center">No invoice data available.</div>;
 
 
   const { toPDF, targetRef } = usePDF({
@@ -165,44 +165,44 @@ const InvoiceGenerator = ({ invoiceData, downloadUrl }) => {
               {isVisible('srno') && <td style={{ border: "solid black 1px" }}>{index + 1}.</td>}
               {isVisible('description') && <td style={{ border: "solid black 1px" }}>{item?.description}</td>}
               {isVisible('origin') && <td style={{ border: "solid black 1px" }}>{item?.origin}</td>}
-              {isVisible('shipments') && <td className='text-end text-black' style={{ border: "solid black 1px" }}>{item?.shipments || 0}</td>}
-              {isVisible('quantity') && <td className='text-end text-black' style={{ border: "solid black 1px" }}>{item?.quantity}</td>}
+              {isVisible('shipments') && <td className='text-right text-black' style={{ border: "solid black 1px" }}>{item?.shipments || 0}</td>}
+              {isVisible('quantity') && <td className='text-right text-black' style={{ border: "solid black 1px" }}>{item?.quantity}</td>}
               {/* {isVisible('rate') && <td>{item?.rate?.toFixed(2)}</td>} */}
 
               {type === "corporate"
-                ? isVisible('freight') && <td className='text-end text-black' style={{ border: "solid black 1px" }}>{(item?.freight ?? 0).toFixed(2)}</td>
-                : isVisible('total') && <td className='text-end text-black' style={{ border: "solid black 1px" }}>{(item?.freight ?? 0).toFixed(2)}</td>}
+                ? isVisible('freight') && <td className='text-right text-black' style={{ border: "solid black 1px" }}>{(item?.freight ?? 0).toFixed(2)}</td>
+                : isVisible('total') && <td className='text-right text-black' style={{ border: "solid black 1px" }}>{(item?.freight ?? 0).toFixed(2)}</td>}
 
-              {isVisible('cgst') && <td className='text-end text-black' style={{ border: "solid black 1px" }}>{item?.cgst?.toFixed(2)}</td>}
-              {isVisible('sgst') && <td className='text-end text-black' style={{ border: "solid black 1px" }}>{item?.sgst?.toFixed(2)}</td>}
-              {isVisible('igst') && <td className='text-end text-black' style={{ border: "solid black 1px" }}>{item?.igst?.toFixed(2)}</td>}
+              {isVisible('cgst') && <td className='text-right text-black' style={{ border: "solid black 1px" }}>{item?.cgst?.toFixed(2)}</td>}
+              {isVisible('sgst') && <td className='text-right text-black' style={{ border: "solid black 1px" }}>{item?.sgst?.toFixed(2)}</td>}
+              {isVisible('igst') && <td className='text-right text-black' style={{ border: "solid black 1px" }}>{item?.igst?.toFixed(2)}</td>}
 
-              <td className='text-end' style={{ border: "solid black 1px" }}>{item?.total?.toFixed(2)}</td>
+              <td className='text-right' style={{ border: "solid black 1px" }}>{item?.total?.toFixed(2)}</td>
             </tr>
           ))}
 
           {/* Grand Total Row */}
-          <tr className="fw-bold" >
+          <tr className="font-bold" >
             {/* Empty for Sr No. */}
             {isVisible('srno') && <td style={{ border: "solid black 1px" }}></td>}
 
             {/* Put label inside Description/Origin */}
-            {isVisible('description') && <td style={{ border: "solid black 1px" }} className="text-end">Grand Total</td>}
-            {isVisible('origin') && <td style={{ border: "solid black 1px" }} className="text-end ">Grand Total</td>}
+            {isVisible('description') && <td style={{ border: "solid black 1px" }} className="text-right">Grand Total</td>}
+            {isVisible('origin') && <td style={{ border: "solid black 1px" }} className="text-right ">Grand Total</td>}
 
-            {isVisible('shipments') && <td className='text-end' style={{ border: "solid black 1px" }}>{totals.shipments}</td>}
-            {isVisible('quantity') && <td className='text-end' style={{ border: "solid black 1px" }}>{totals.quantity}</td>}
+            {isVisible('shipments') && <td className='text-right' style={{ border: "solid black 1px" }}>{totals.shipments}</td>}
+            {isVisible('quantity') && <td className='text-right' style={{ border: "solid black 1px" }}>{totals.quantity}</td>}
             {/* {isVisible('rate') && <td>{totals?.rate?.toFixed(2)}</td>} */}
             {type === "corporate"
-              ? isVisible('freight') && <td className='text-end' style={{ border: "solid black 1px" }}>{(totals.freight ?? 0).toFixed(2)}</td>
-              : isVisible('total') && <td className='text-end'>{(totals.freight ?? 0).toFixed(2)}</td>}
+              ? isVisible('freight') && <td className='text-right' style={{ border: "solid black 1px" }}>{(totals.freight ?? 0).toFixed(2)}</td>
+              : isVisible('total') && <td className='text-right'>{(totals.freight ?? 0).toFixed(2)}</td>}
 
-            {isVisible('cgst') && <td className='text-end' style={{ border: "solid black 1px" }}>{totals.cgst?.toFixed(2)}</td>}
-            {isVisible('sgst') && <td className='text-end' style={{ border: "solid black 1px" }}>{totals.sgst?.toFixed(2)}</td>}
-            {isVisible('igst') && <td className='text-end' style={{ border: "solid black 1px" }}>{totals.igst?.toFixed(2)}</td>}
+            {isVisible('cgst') && <td className='text-right' style={{ border: "solid black 1px" }}>{totals.cgst?.toFixed(2)}</td>}
+            {isVisible('sgst') && <td className='text-right' style={{ border: "solid black 1px" }}>{totals.sgst?.toFixed(2)}</td>}
+            {isVisible('igst') && <td className='text-right' style={{ border: "solid black 1px" }}>{totals.igst?.toFixed(2)}</td>}
 
             {/* Always show final invoice amount */}
-            <td className='text-end' style={{ border: "solid black 1px" }}>{totals.total?.toFixed(2)}</td>
+            <td className='text-right' style={{ border: "solid black 1px" }}>{totals.total?.toFixed(2)}</td>
           </tr>
 
 
@@ -221,21 +221,21 @@ const InvoiceGenerator = ({ invoiceData, downloadUrl }) => {
     <Container className="my-2">
       <div className="invoice-container text-black" style={{ fontSize: "16px" }} ref={targetRef}>
         <div>
-          <Row className="mb-4">
+          <Row className="mb-6">
             {/* pdf icons */}
             <Col>
               <img src={VellocityExpressIcon} style={{ width: "220px", height: "auto" }} alt="" />
             </Col>
 
             {/* side part */}
-            <Col className='d-flex flex-column justify-content-end align-items-end'>
-              <h6 className=" mb-1 font-size-16 fw-bolder">TAX INVOICE</h6>
+            <Col className='flex flex-col justify-end items-end'>
+              <h6 className=" mb-1 font-size-16 font-extrabold">TAX INVOICE</h6>
               <p className="mb-1 "><strong>Inv. No:</strong> {invoiceData?.invoice_no || invoiceData?.invoice_number || 'N/A'}</p>
               <p className=''><strong>Inv. Date:</strong> {invoiceData?.invoice_date ? new Date(invoiceData.invoice_date).toLocaleDateString('en-GB') : 'N/A'}</p>
             </Col>
           </Row>
 
-          <Row className="mb-4">
+          <Row className="mb-6">
             <Col md={6}>
               <div className="">
                 <h5>To,</h5>
@@ -262,7 +262,7 @@ const InvoiceGenerator = ({ invoiceData, downloadUrl }) => {
               </div>
             </Col>
             <Col md={6}>
-              <div className="d-flex flex-column justify-content-end align-items-end">
+              <div className="flex flex-col justify-end items-end">
                 <h5>From,</h5>
                 <p className="mb-1"><strong>{invoiceData?.from_name}</strong></p>
                 {invoiceData?.from_address && <p className="mb-1" style={{ textAlign: "end" }}>{invoiceData.from_address}</p>}
@@ -294,8 +294,8 @@ const InvoiceGenerator = ({ invoiceData, downloadUrl }) => {
 
 
           {/* <p className="mb-1"><strong>Total Amount:</strong> {invoiceData.total_amount.toFixed(2)}</p> */}
-          {/* <p className='border ps-2 py-2'><strong>Amount in words:</strong> {invoiceData.amount_in_words}</p> */}
-          <p className=" ps-2 py-2" style={{ border: "solid black 1px", borderTop: 0 }}>
+          {/* <p className='border pl-2 py-2'><strong>Amount in words:</strong> {invoiceData.amount_in_words}</p> */}
+          <p className=" pl-2 py-2" style={{ border: "solid black 1px", borderTop: 0 }}>
             <strong>Amount in words:</strong>{" "}
             {(() => {
               const result = amountToWords(invoiceData?.total_amount || 0, 2);
@@ -314,22 +314,22 @@ const InvoiceGenerator = ({ invoiceData, downloadUrl }) => {
 
 
 
-          <Row className='mt-3'>
-            <Col md={8} className='d-flex justify-content-start'>
-              <div className="text-center mb-4">
+          <Row className='mt-4'>
+            <Col md={8} className='flex justify-start'>
+              <div className="text-center mb-6">
                 <p className='mb-0'>Kindly acknowledge the receipt.</p>
-                <p className='mb-0 text-start'>Thanking You,</p>
+                <p className='mb-0 text-left'>Thanking You,</p>
 
                 <div >
                   {/*  signiture section */}
                   <img src={Signature} style={{ width: "210px", height: "auto" }} alt="" />
                 </div>
 
-                <p className="mb-1 mt-3 text-start"><strong>Authorised Signatory</strong></p>
+                <p className="mb-1 mt-4 text-left"><strong>Authorised Signatory</strong></p>
               </div>
             </Col>
             <Col md={4}>
-              <div className="border p-3 ">
+              <div className="border p-4 ">
                 <h5>Bank Detail for Payment</h5>
                 <p className="mb-1"><strong>Account Title:</strong> PNSO Technology Private Limited</p>
                 <p className="mb-1"><strong>Bank Name:</strong> HDFC Bank</p>
@@ -342,7 +342,7 @@ const InvoiceGenerator = ({ invoiceData, downloadUrl }) => {
           </Row>
           <Row>
             <Col md={8}>
-              <div className=" pt-3 mb-4 ">
+              <div className=" pt-4 mb-6 ">
                 <p className="mb-1"><strong>GST No:</strong> {invoiceData?.from_gst_no}</p>
                 <p className="mb-1"><strong>Category:</strong> COURIER SERVICE</p>
                 <p className="mb-1"><strong>PAN No:</strong> {invoiceData?.from_pan_no || '(Not Provided)'}</p>
@@ -362,14 +362,14 @@ const InvoiceGenerator = ({ invoiceData, downloadUrl }) => {
                 const qrCodeDataUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiUrl)}`;
 
                 return (
-                  <div className="mt-4 d-flex flex-column align-items-start border-top pt-4">
-                    <p className="fw-bold mb-1 text-primary" style={{ fontSize: "16px" }}>Scan for Payment</p>
+                  <div className="mt-6 flex flex-col items-start border-top pt-6">
+                    <p className="font-bold mb-1 text-brand-500" style={{ fontSize: "16px" }}>Scan for Payment</p>
                     <img
                       src={qrCodeDataUrl}
                       alt="QR Code"
                       style={{ width: "176px", height: "176px", objectFit: "contain" }}
                     />
-                    <p className="text-muted fw-bold text-uppercase mt-1" style={{ fontSize: "12px" }}>INV: {awb}</p>
+                    <p className="text-ink-muted font-bold uppercase mt-1" style={{ fontSize: "12px" }}>INV: {awb}</p>
                   </div>
                 );
               })()}

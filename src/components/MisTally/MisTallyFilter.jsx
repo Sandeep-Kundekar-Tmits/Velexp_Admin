@@ -150,7 +150,7 @@ const MisTallyFilter = ({ FilterData, Removefilter, RecallInfo }) => {
                         styles={customStyles}
                     />
                 </Col>
-                <Col md={3} className="d-flex justify-content-center align-items-end gap-2">
+                <Col md={3} className="flex justify-center items-end gap-2">
 
 
                     <Button disabled={!selectedYear && !selectedMonth} style={{ width: "220px" }} color="primary" className="" onClick={OnFilterClick}>

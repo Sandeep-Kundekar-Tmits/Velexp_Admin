@@ -89,7 +89,7 @@ const UserOverridesPanel = ({ user, onClose, onRoleChanged }) => {
                 Manage Access — {user.username || `${user.first_name || ""} ${user.last_name || ""}`.trim()}
             </ModalHeader>
             <ModalBody>
-                <div className="d-flex align-items-end gap-2 mb-4">
+                <div className="flex items-end gap-2 mb-6">
                     <div style={{ minWidth: 240 }}>
                         <label className="form-label mb-1">Role</label>
                         <Input type="select" value={selectedRoleId} onChange={(e) => setSelectedRoleId(e.target.value)}>
@@ -101,13 +101,13 @@ const UserOverridesPanel = ({ user, onClose, onRoleChanged }) => {
                     <Button color="danger" outline onClick={handleRemoveRole} disabled={removingRole || !user.role_id}>Remove Role</Button>
                 </div>
 
-                <div className="d-flex justify-content-between align-items-center mb-2">
+                <div className="flex justify-between items-center mb-2">
                     <h6 className="mb-0">Per-menu Overrides</h6>
                     <Button size="sm" color="danger" outline onClick={handleClearOverrides} disabled={clearing}>Clear All Overrides</Button>
                 </div>
 
                 {overridesLoading ? (
-                    <div className="d-flex justify-content-center mt-5"><GridLoader color="#556ee6" /></div>
+                    <div className="flex justify-center mt-12"><GridLoader color="#556ee6" /></div>
                 ) : (
                     <MenuPrivilegeTree nodes={tree} mode="user" onChange={setTree} lockedIds={lockedMenuIds} />
                 )}

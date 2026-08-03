@@ -22,7 +22,7 @@ const MissingPodTable = ({ data, columns, title, bordered, striped, hover }) => 
 
   return (
     <div className="table-responsive">
-      {title && <h4 className="mb-3">{title}</h4>}
+      {title && <h4 className="mb-4">{title}</h4>}
       <Table bordered={bordered} striped={striped} hover={hover}>
         <thead>
           <tr>

@@ -57,25 +57,25 @@ const ForgetPasswordPage = (props) => {
   }
   return (
     <React.Fragment>
-      <div className="home-btn d-none d-sm-block">
-        <Link to="/" className="text-dark">
+      <div className="home-btn hidden sm:block">
+        <Link to="/" className="text-ink">
           <i className="bx bx-home h2" />
         </Link>
       </div>
-      <div className="account-pages my-5 pt-sm-5">
+      <div className="account-pages my-12 pt-sm-5">
         <Container>
-          <Row className="justify-content-center">
+          <Row className="justify-center">
             <Col md={8} lg={6} xl={5}>
               <Card className="overflow-hidden">
                 <div className="bg-primary-subtlebg-soft-primary">
                   <Row>
                     <Col xs={7}>
-                      <div className="text-primary p-4">
-                        <h5 className="text-primary">Forgot Password</h5>
+                      <div className="text-brand-500 p-6">
+                        <h5 className="text-brand-500">Forgot Password</h5>
                         <p>Enter your Username to reset your password.</p>
                       </div>
                     </Col>
-                    <Col className="col-5 align-self-end">
+                    <Col className="col-5 self-end">
                       <img src={profile} alt="" className="img-fluid" />
                     </Col>
                   </Row>
@@ -83,24 +83,24 @@ const ForgetPasswordPage = (props) => {
                 <CardBody className="pt-0">
                   <div className="auth-logo">
                     <Link to="/" className="auth-logo-light">
-                      <div className="avatar-md profile-user-wid mb-4">
-                        <span className="avatar-title rounded-circle bg-light">
+                      <div className="avatar-md profile-user-wid mb-6">
+                        <span className="avatar-title rounded-full bg-canvas">
                           <img
                             src={SingleLogo}
                             alt=""
-                            className="rounded-circle"
+                            className="rounded-full"
                             height="34"
                           />
                         </span>
                       </div>
                     </Link>
                     <Link to="/" className="auth-logo-dark">
-                      <div className="avatar-md profile-user-wid mb-4">
-                        <span className="avatar-title rounded-circle bg-light">
+                      <div className="avatar-md profile-user-wid mb-6">
+                        <span className="avatar-title rounded-full bg-canvas">
                           <img
                             src={SingleLogo}
                             alt=""
-                            className="rounded-circle"
+                            className="rounded-full"
                             height="34"
                           />
                         </span>
@@ -114,7 +114,7 @@ const ForgetPasswordPage = (props) => {
                     <div
                       className="form-horizontal"
                     >
-                      <div className="mb-3">
+                      <div className="mb-4">
                         <FormGroup>
                           <Label className="form-label">User Name</Label>
                           <Input
@@ -130,16 +130,16 @@ const ForgetPasswordPage = (props) => {
                         </FormGroup>
 
                       </div>
-                      <Row className="mb-3">
-                        <Col className="text-end">
+                      <Row className="mb-4">
+                        <Col className="text-right">
                           <button
-                            className="btn btn-primary w-md d-flex justify-content-center align-items-center"
+                            className="btn btn-primary w-md flex justify-center items-center"
                             type="button"
                             onClick={SubmitForm}
                             disabled={ResetpasswordLoading}
                           >
                             {
-                              ResetpasswordLoading ? <div className="d-flex gap-3 justify-content-center align-items-center">
+                              ResetpasswordLoading ? <div className="flex gap-4 justify-center items-center">
                                 <Spinner size="sm">
                                   Loading...
                                 </Spinner>
@@ -154,10 +154,10 @@ const ForgetPasswordPage = (props) => {
                   </div>
                 </CardBody>
               </Card>
-              <div className="mt-5 text-center">
+              <div className="mt-12 text-center">
                 <p>
                   Go back to{" "}
-                  <Link to="/login" className="font-weight-medium text-primary">
+                  <Link to="/login" className="font-weight-medium text-brand-500">
                     Login
                   </Link>{" "}
                 </p>

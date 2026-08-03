@@ -373,12 +373,12 @@ const CustomerPerformance = () => {
             </div>
             <div className="container-fluid px-2">
                 <div>
-                    <Row className='gx-3 d-flex align-items-center pt-2'>
+                    <Row className='gx-3 flex items-center pt-2'>
                         {/*  service centers list */}
                         <Col md={6}>
                             <FormGroup className="mb-2">
-                                <Label for="ServiceCenter" className="fw-bold text-muted mb-1">Select Service Center</Label>
-                                <div className="d-flex align-items-center">
+                                <Label for="ServiceCenter" className="font-bold text-ink-muted mb-1">Select Service Center</Label>
+                                <div className="flex items-center">
                                     <div style={{ width: "250px", minWidth: "200px" }}>
                                         <Select
                                             options={ServiceCenterOption}
@@ -405,8 +405,8 @@ const CustomerPerformance = () => {
                         {/* select region  */}
                         <Col md={6}>
                             <FormGroup className="mb-2">
-                                <Label for="Region" className="fw-bold text-muted mb-1">Select Region</Label>
-                                <div className="d-flex align-items-center">
+                                <Label for="Region" className="font-bold text-ink-muted mb-1">Select Region</Label>
+                                <div className="flex items-center">
                                     <div style={{ width: "250px", minWidth: "200px" }}>
                                         <Select
                                             options={AllRegions}
@@ -431,11 +431,11 @@ const CustomerPerformance = () => {
                             </FormGroup>
                         </Col>
                     </Row>
-                    <Row className='gx-3 d-flex align-items-end mt-2'>
+                    <Row className='gx-3 flex items-end mt-2'>
                         {/* select date range */}
                         <Col md={3}>
                             <FormGroup className="mb-2">
-                                <Label for="DateRange" className="fw-bold text-muted mb-1">Select Date Range</Label>
+                                <Label for="DateRange" className="font-bold text-ink-muted mb-1">Select Date Range</Label>
                                 <DateRangeInput
                                     value={selectedRange}
                                     onChange={handleChange}
@@ -446,7 +446,7 @@ const CustomerPerformance = () => {
                         {/* select customer */}
                         <Col md={3}>
                             <FormGroup className="mb-2">
-                                <Label for="Customer" className="fw-bold text-muted mb-1">Select Customer</Label>
+                                <Label for="Customer" className="font-bold text-ink-muted mb-1">Select Customer</Label>
                                 <Select options={UserListOptions}
                                     placeholder="Search Customer"
                                     value={username?.value ? username : null}
@@ -458,7 +458,7 @@ const CustomerPerformance = () => {
                         {/* mode */}
                         <Col md={3}>
                             <FormGroup className="mb-2">
-                                <Label for="Mode" className="fw-bold text-muted mb-1">Select Mode</Label>
+                                <Label for="Mode" className="font-bold text-ink-muted mb-1">Select Mode</Label>
                                 <Select
                                     options={[
                                         { label: "forward", value: "forward" },
@@ -474,7 +474,7 @@ const CustomerPerformance = () => {
                         {/* product */}
                         <Col md={3}>
                             <FormGroup className="mb-2">
-                                <Label for="Product" className="fw-bold text-muted mb-1">Select Product</Label>
+                                <Label for="Product" className="font-bold text-ink-muted mb-1">Select Product</Label>
                                 <Select
                                     options={ProductListOption}
                                     placeholder="Search Product"
@@ -485,9 +485,9 @@ const CustomerPerformance = () => {
                             </FormGroup>
                         </Col>
                     </Row>
-                    <Row className='gx-3 d-flex align-items-center mt-0'>
-                        <Col md={2} className='d-flex mb-3 align-content-center flex-wrap gap-2 mt-0'>
-                            <Button disabled={customerPerformanceLoading} onClick={OnCheckClick} color="primary" className='mt-1 fw-bold' style={{ height: "2.4rem", width: "100%" }}>
+                    <Row className='gx-3 flex items-center mt-0'>
+                        <Col md={2} className='flex mb-4 content-center flex-wrap gap-2 mt-0'>
+                            <Button disabled={customerPerformanceLoading} onClick={OnCheckClick} color="primary" className='mt-1 font-bold' style={{ height: "2.4rem", width: "100%" }}>
                                 Check
                             </Button>
                         </Col>
@@ -508,9 +508,9 @@ const CustomerPerformance = () => {
                     {/* <h2>Bookings</h2> */}
                     <div className='mt-1'>
                         {
-                            customerPerformanceLoading ? <div style={{ height: "40vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+                            customerPerformanceLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
                                 <GridLoader size={20} />
-                                <p className="mt-5 h5">Loading Customer Performance ...</p>
+                                <p className="mt-12 h5">Loading Customer Performance ...</p>
                             </div> :
                                 <TableContainer
                                     columns={columns}

@@ -32,7 +32,7 @@ const EditInvoice = () => {
                 enableColumnFilter: false,
                 enableSorting: false,
                 cell: ({ row }) => (
-                    <div className="d-flex gap-2">
+                    <div className="flex gap-2">
                         <button
                             className="btn btn-sm btn-outline-primary"
                             onClick={() => handleUpdate(row.original)}
@@ -299,11 +299,11 @@ const EditInvoice = () => {
             <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
                 <MainHeaderComp title="Edit Invoice" />
             </div>
-            <div className="container-fluid px-3">
-                <Row className="mt-3 align-items-end">
+            <div className="container-fluid px-4">
+                <Row className="mt-4 items-end">
                     <Col md={4} lg={3}>
                         <FormGroup className="mb-0">
-                            <Label className="form-label fw-bold">Select Customer</Label>
+                            <Label className="form-label font-bold">Select Customer</Label>
                             <SearchableDropdown
                                 onChange={setSelectedCustomer}
                                 locations={Customes}
@@ -314,7 +314,7 @@ const EditInvoice = () => {
                     </Col>
                     <Col md={4} lg={2}>
                         <FormGroup className="mb-0">
-                            <Label className="form-label fw-bold">Start Date</Label>
+                            <Label className="form-label font-bold">Start Date</Label>
                             <Input
                                 type="date"
                                 value={startDate}
@@ -326,7 +326,7 @@ const EditInvoice = () => {
                     </Col>
                     <Col md={4} lg={2}>
                         <FormGroup className="mb-0">
-                            <Label className="form-label fw-bold">End Date</Label>
+                            <Label className="form-label font-bold">End Date</Label>
                             <Input
                                 type="date"
                                 value={endDate}
@@ -351,12 +351,12 @@ const EditInvoice = () => {
 
                 <div className=" mt-2">
                     <h3>Details</h3>
-                    <div className='mt-3'>
+                    <div className='mt-4'>
                         {
                             TableDataLoading ?
-                                <div style={{ height: "75vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
+                                <div style={{ height: "75vh" }} className="container-fluid  flex flex-col justify-center items-center">
                                     <GridLoader size={20} />
-                                    <p className="mt-5 h5">Loading Edit Invoice Billing ...</p>
+                                    <p className="mt-12 h5">Loading Edit Invoice Billing ...</p>
                                 </div>
                                 :
                                 <>

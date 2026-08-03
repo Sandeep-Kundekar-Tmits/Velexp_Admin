@@ -242,19 +242,19 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
         {
             header: "Mandatory",
             accessorKey: "is_mandatory",
-            cell: (cell) => cell.getValue() ? <span className="badge bg-success">Yes</span> : <span className="badge bg-secondary">No</span>
+            cell: (cell) => cell.getValue() ? <span className="badge bg-success-500">Yes</span> : <span className="badge bg-secondary">No</span>
         },
         {
             header: "Default",
             accessorKey: "is_default_applied",
-            cell: (cell) => cell.getValue() ? <span className="badge bg-primary">Yes</span> : <span className="badge bg-secondary">No</span>
+            cell: (cell) => cell.getValue() ? <span className="badge bg-brand-500">Yes</span> : <span className="badge bg-secondary">No</span>
         },
         {
             header: "Actions",
             id: "actions",
             enableSorting: false,
             cell: (cell) => (
-                <div className="d-flex gap-2 justify-content-center">
+                <div className="flex gap-2 justify-center">
                     <Button color="info" size="sm" title="View Details" onClick={() => handleView(cell.row.original)}>
                         <MdVisibility size={16} />
                     </Button>
@@ -279,8 +279,8 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                         />
                     </div>
                 )}
-                <div className="container-fluid px-3 py-3">
-                    <div className="d-flex justify-content-between align-items-center mb-3">
+                <div className="container-fluid px-4 py-4">
+                    <div className="flex justify-between items-center mb-4">
                         <h5 className="mb-0">{isListView ? "VAS List" : (isEdit ? "Edit VAS" : "Add VAS")}</h5>
                         <Button 
                             color={isListView ? "primary" : "secondary"} 
@@ -301,10 +301,10 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                         <Card className="shadow-sm">
                             <CardBody className={selectedCustomerId ? "p-0" : "p-3"}>
                                 {!hideHeader && (
-                                    <div className="p-3 bg-light border-bottom">
+                                    <div className="p-4 bg-canvas border-bottom">
                                         <Row>
                                             <Col md={4}>
-                                                <Label className="fw-bold">Filter by Customer</Label>
+                                                <Label className="font-bold">Filter by Customer</Label>
                                                 <SearchableDropdown
                                                     onChange={(val) => {
                                                         const id = val?.id || ""
@@ -322,14 +322,14 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                                 )}
                                 
                                 {!selectedCustomerId ? (
-                                    <div className="text-center p-5">
-                                        <div className="mb-3">
-                                            <i className="mdi mdi-account-search-outline text-muted" style={{ fontSize: "3rem" }}></i>
+                                    <div className="text-center p-12">
+                                        <div className="mb-4">
+                                            <i className="mdi mdi-account-search-outline text-ink-muted" style={{ fontSize: "3rem" }}></i>
                                         </div>
-                                        <h5 className="text-muted">Please select a customer to view VAS configurations</h5>
+                                        <h5 className="text-ink-muted">Please select a customer to view VAS configurations</h5>
                                     </div>
                                 ) : configsLoading ? (
-                                    <div className="text-center p-5">
+                                    <div className="text-center p-12">
                                         <Spinner color="primary" />
                                         <p className="mt-2">Loading VAS configurations...</p>
                                     </div>
@@ -354,9 +354,9 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                             <CardBody>
                                 <Form onSubmit={handleSubmit}>
                                     <Row>
-                                        <Col md={6} className="mb-3">
+                                        <Col md={6} className="mb-4">
                                             <FormGroup>
-                                                <Label className="fw-bold">Customer</Label>
+                                                <Label className="font-bold">Customer</Label>
                                                 <SearchableDropdown
                                                     onChange={(val) => setFormData(prev => ({ ...prev, customer_id: val?.id || "" }))}
                                                     locations={customers}
@@ -364,12 +364,12 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                                                     className="w-full"
                                                     value={isEdit ? (customers.find(c => c.id === formData.customer_id)?.name || "N/A") : (formData.customer_id ? customers.find(c => c.id === formData.customer_id)?.name : "select")}
                                                 />
-                                                {errors.customer_id && <div className="text-danger small mt-1">{errors.customer_id}</div>}
+                                                {errors.customer_id && <div className="text-danger-500 text-xs mt-1">{errors.customer_id}</div>}
                                             </FormGroup>
                                         </Col>
-                                        <Col md={6} className="mb-3">
+                                        <Col md={6} className="mb-4">
                                             <FormGroup>
-                                                <Label className="fw-bold">Product</Label>
+                                                <Label className="font-bold">Product</Label>
                                                 <SearchableDropdown
                                                     onChange={(val) => setFormData(prev => ({ ...prev, product_id: val?.id || "" }))}
                                                     locations={products}
@@ -377,14 +377,14 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                                                     className="w-full"
                                                     value={isEdit ? (products.find(p => p.id === formData.product_id)?.name || "N/A") : (formData.product_id ? products.find(p => p.id === formData.product_id)?.name : "select")}
                                                 />
-                                                {errors.product_id && <div className="text-danger small mt-1">{errors.product_id}</div>}
+                                                {errors.product_id && <div className="text-danger-500 text-xs mt-1">{errors.product_id}</div>}
                                             </FormGroup>
                                         </Col>
                                     </Row>
                                     <Row>
-                                        <Col md={4} className="mb-3">
+                                        <Col md={4} className="mb-4">
                                             <FormGroup>
-                                                <Label className="fw-bold">Charge Name</Label>
+                                                <Label className="font-bold">Charge Name</Label>
                                                 <Input
                                                     type="select"
                                                     name="charge_name_dropdown"
@@ -421,9 +421,9 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                                                 <FormFeedback>{errors.charge_name}</FormFeedback>
                                             </FormGroup>
                                         </Col>
-                                        <Col md={4} className="mb-3">
+                                        <Col md={4} className="mb-4">
                                             <FormGroup>
-                                                <Label className="fw-bold">Charge Type</Label>
+                                                <Label className="font-bold">Charge Type</Label>
                                                 <Input
                                                     type="select"
                                                     name="charge_type"
@@ -436,9 +436,9 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                                                 </Input>
                                             </FormGroup>
                                         </Col>
-                                        <Col md={4} className="mb-3">
+                                        <Col md={4} className="mb-4">
                                             <FormGroup>
-                                                <Label className="fw-bold">Charge Category</Label>
+                                                <Label className="font-bold">Charge Category</Label>
                                                 <Input
                                                     type="select"
                                                     name="charge_category"
@@ -453,9 +453,9 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                                         </Col>
                                     </Row>
                                     <Row>
-                                        <Col md={6} className="mb-3">
+                                        <Col md={6} className="mb-4">
                                             <FormGroup>
-                                                <Label className="fw-bold">Value</Label>
+                                                <Label className="font-bold">Value</Label>
                                                 <Input
                                                     type="number"
                                                     name="value"
@@ -467,9 +467,9 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                                                 <FormFeedback>{errors.value}</FormFeedback>
                                             </FormGroup>
                                         </Col>
-                                        <Col md={6} className="mb-3">
+                                        <Col md={6} className="mb-4">
                                             <FormGroup>
-                                                <Label className="fw-bold">Minimum Value</Label>
+                                                <Label className="font-bold">Minimum Value</Label>
                                                 <Input
                                                     type="number"
                                                     name="min_value"
@@ -481,8 +481,8 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                                         </Col>
                                     </Row>
                                     <Row>
-                                        <Col md={6} className="mb-3">
-                                            <FormGroup check className="mt-4">
+                                        <Col md={6} className="mb-4">
+                                            <FormGroup check className="mt-6">
                                                 <Label check>
                                                     <Input 
                                                         type="checkbox" 
@@ -494,8 +494,8 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                                                 </Label>
                                             </FormGroup>
                                         </Col>
-                                        <Col md={6} className="mb-3">
-                                            <FormGroup check className="mt-4">
+                                        <Col md={6} className="mb-4">
+                                            <FormGroup check className="mt-6">
                                                 <Label check>
                                                     <Input 
                                                         type="checkbox" 
@@ -508,10 +508,10 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                                             </FormGroup>
                                         </Col>
                                     </Row>
-                                    <div className="d-flex justify-content-end mt-4">
-                                        <Button color="primary" type="submit" disabled={submitting} className="px-5" style={{ minWidth: "150px" }}>
+                                    <div className="flex justify-end mt-6">
+                                        <Button color="primary" type="submit" disabled={submitting} className="px-12" style={{ minWidth: "150px" }}>
                                             {submitting ? (
-                                                <><Spinner size="sm" className="me-2" /> Saving...</>
+                                                <><Spinner size="sm" className="mr-2" /> Saving...</>
                                             ) : (isEdit ? "Update VAS" : "Save VAS")}
                                         </Button>
                                     </div>
@@ -529,39 +529,39 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                         <Table bordered responsive>
                             <tbody>
                                 <tr>
-                                    <th className="bg-light w-1/4">Customer</th>
+                                    <th className="bg-canvas w-1/4">Customer</th>
                                     <td>{viewData.customer_name} ({viewData.customer_id})</td>
                                 </tr>
                                 <tr>
-                                    <th className="bg-light">Product</th>
+                                    <th className="bg-canvas">Product</th>
                                     <td>{viewData.product_name} ({viewData.product_id})</td>
                                 </tr>
                                 <tr>
-                                    <th className="bg-light">Charge Name</th>
+                                    <th className="bg-canvas">Charge Name</th>
                                     <td>{viewData.charge_name}</td>
                                 </tr>
                                 <tr>
-                                    <th className="bg-light">Charge Type</th>
+                                    <th className="bg-canvas">Charge Type</th>
                                     <td>{viewData.charge_type}</td>
                                 </tr>
                                 <tr>
-                                    <th className="bg-light">Charge Category</th>
+                                    <th className="bg-canvas">Charge Category</th>
                                     <td>{viewData.charge_category}</td>
                                 </tr>
                                 <tr>
-                                    <th className="bg-light">Value</th>
+                                    <th className="bg-canvas">Value</th>
                                     <td>{viewData.value}</td>
                                 </tr>
                                 <tr>
-                                    <th className="bg-light">Minimum Value</th>
+                                    <th className="bg-canvas">Minimum Value</th>
                                     <td>{viewData.min_value}</td>
                                 </tr>
                                 <tr>
-                                    <th className="bg-light">Mandatory</th>
+                                    <th className="bg-canvas">Mandatory</th>
                                     <td>{viewData.is_mandatory ? "Yes" : "No"}</td>
                                 </tr>
                                 <tr>
-                                    <th className="bg-light">Default Applied</th>
+                                    <th className="bg-canvas">Default Applied</th>
                                     <td>{viewData.is_default_applied ? "Yes" : "No"}</td>
                                 </tr>
                             </tbody>
@@ -580,11 +580,11 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
             </Modal>
 
             <Modal isOpen={isDeleteModalOpen} toggle={toggleDeleteModal} centered>
-                <ModalHeader toggle={toggleDeleteModal} className="text-danger">Confirm Delete</ModalHeader>
-                <ModalBody className="py-4 text-center">
-                    <i className="mdi mdi-alert-circle-outline text-danger" style={{ fontSize: "3rem" }}></i>
-                    <h5 className="mt-3">Are you sure you want to delete this VAS configuration?</h5>
-                    <p className="text-muted">This action cannot be undone.</p>
+                <ModalHeader toggle={toggleDeleteModal} className="text-danger-500">Confirm Delete</ModalHeader>
+                <ModalBody className="py-6 text-center">
+                    <i className="mdi mdi-alert-circle-outline text-danger-500" style={{ fontSize: "3rem" }}></i>
+                    <h5 className="mt-4">Are you sure you want to delete this VAS configuration?</h5>
+                    <p className="text-ink-muted">This action cannot be undone.</p>
                 </ModalBody>
                 <ModalFooter>
                     <Button color="secondary" onClick={toggleDeleteModal}>Cancel</Button>

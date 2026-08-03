@@ -355,25 +355,25 @@ const InternationRateData = () => {
                 <MainHeaderComp
                     title="International Rate Data"
                     extraFields={
-                        <div className="d-flex align-items-center">
-                            <h6 className="text-black fw-bold mb-0 me-2" style={{ fontSize: "14px" }}>Template</h6>
+                        <div className="flex items-center">
+                            <h6 className="text-black font-bold mb-0 mr-2" style={{ fontSize: "14px" }}>Template</h6>
                             <Button
                                 color="success"
                                 outline
                                 onClick={downloadTemplate}
-                                className="d-flex align-items-center justify-content-center p-2"
+                                className="flex items-center justify-center p-2"
                                 style={{ borderRadius: "7px", width: "180px", fontWeight: "500", fontSize: "12px", height: "35px" }}
                             >
                                 {isExportingTemplate ? "Generating..." : "Download"}
-                                <FaFileExcel size={14} className="ms-2" />
+                                <FaFileExcel size={14} className="ml-2" />
                             </Button>
                         </div>
                     }
                 />
             </div>
-            <div className="container-fluid px-3">
+            <div className="container-fluid px-4">
 
-                <Row className="mt-4">
+                <Row className="mt-6">
                     <Col md={4}>
                         <FormGroup>
                             <Label>Select Customer</Label>
@@ -393,33 +393,33 @@ const InternationRateData = () => {
                             />
                         </FormGroup>
                     </Col>
-                    <Col md={2} className="d-flex align-items-end mb-3">
-                        <Button color="primary" className="w-full d-flex align-items-center justify-content-center" onClick={handleView} disabled={!customer || isFetchingData || isFetchingCustomerData}>
-                            <FaEye className="me-2" /> View
+                    <Col md={2} className="flex items-end mb-4">
+                        <Button color="primary" className="w-full flex items-center justify-center" onClick={handleView} disabled={!customer || isFetchingData || isFetchingCustomerData}>
+                            <FaEye className="mr-2" /> View
                         </Button>
                     </Col>
                 </Row>
 
-                <Row className="mt-2 border-bottom pb-4">
+                <Row className="mt-2 border-bottom pb-6">
                     <Col md={4}>
                         <FormGroup>
                             <Label>Upload Rate Data</Label>
                             <Input type="file" onChange={handleFileChange} />
                         </FormGroup>
                     </Col>
-                    <Col md={2} className="d-flex align-items-end mb-3">
-                        <Button color="primary" className="w-full d-flex align-items-center justify-content-center" disabled={!customer || !file || uploadedData.length === 0 || jsonLoading || isUploadingData} onClick={handleUpload}>
+                    <Col md={2} className="flex items-end mb-4">
+                        <Button color="primary" className="w-full flex items-center justify-center" disabled={!customer || !file || uploadedData.length === 0 || jsonLoading || isUploadingData} onClick={handleUpload}>
                             {isUploadingData ? <Spinner size="sm" /> : "Upload"}
                         </Button>
                     </Col>
-                    {jsonLoading && <Col md={1} className="d-flex align-items-end mb-4"><Spinner size="sm" color="primary" /></Col>}
+                    {jsonLoading && <Col md={1} className="flex items-end mb-6"><Spinner size="sm" color="primary" /></Col>}
                 </Row>
 
                 <div className="mt-0">
                     {(isFetchingData || isFetchingCustomerData) ? (
-                        <div style={{ height: "40vh" }} className="container-fluid d-flex flex-column justify-content-center align-items-center">
+                        <div style={{ height: "40vh" }} className="container-fluid flex flex-col justify-center items-center">
                             <GridLoader size={20} />
-                            <p className="mt-5 h5">Loading International Rate Data ...</p>
+                            <p className="mt-12 h5">Loading International Rate Data ...</p>
                         </div>
                     ) : (
                         <TableContainer
@@ -445,9 +445,9 @@ const InternationRateData = () => {
                     cancelButtonName="Close"
                 >
                     <div className="text-center">
-                        <i className="ri-error-warning-line text-danger" style={{ fontSize: "3rem" }}></i>
-                        <h4 className="mt-2 text-danger">Invalid Template</h4>
-                        <p className="mt-3 text-muted" style={{ whiteSpace: "pre-line" }}>
+                        <i className="ri-error-warning-line text-danger-500" style={{ fontSize: "3rem" }}></i>
+                        <h4 className="mt-2 text-danger-500">Invalid Template</h4>
+                        <p className="mt-4 text-ink-muted" style={{ whiteSpace: "pre-line" }}>
                             {modalErrorMessage}
                         </p>
                     </div>

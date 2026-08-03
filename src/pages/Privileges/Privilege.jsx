@@ -369,17 +369,17 @@ const Privilege = () => {
         <div className="container mt-2 py-0 px-0">
             <MainHeaderComp title="Privileges"
                 extraFields={<button className="btn btn-danger" onClick={() => onButtonClick()}>{showAddPrivleges ? "LookUp" : "New Privileges"}</button>} />
-            {/* <div className="d-flex justify-content-between align-items-center mb-3">
+            {/* <div className="flex justify-between items-center mb-4">
                 <h4>Privileges</h4>
                 <button className="btn btn-danger">New Privileges</button>
             </div> */}
-            <div className="container-fluid px-3" style={{ height: "85vh", overflowY: "auto" }}>
+            <div className="container-fluid px-4" style={{ height: "85vh", overflowY: "auto" }}>
                 {
                     !showAddPrivleges ? <>
                         {
                             AllPrivilegesData.map((role) => (
                                 <div key={role.role_id} className="card mb-2 shadow-sm">
-                                    <div className="card-body border shadow-sm d-flex position-relative">
+                                    <div className="card-body border shadow-sm flex relative">
 
                                         {/* Role name */}
                                         <h6 className="mb-0" style={{ fontSize: "16px" }}>
@@ -390,7 +390,7 @@ const Privilege = () => {
 
                                             {/* Delete button */}
                                             <div
-                                                className="position-absolute"
+                                                className="absolute"
                                                 style={{ top: "10px", right: "10px" }}
                                             >
                                                 <button className="btn btn-outline-danger p-2" onClick={() => {
@@ -402,7 +402,7 @@ const Privilege = () => {
 
                                             {/* Menus */}
                                             {role.menus.map((menu) => (
-                                                <div key={menu.menu_id} className="mb-3">
+                                                <div key={menu.menu_id} className="mb-4">
 
                                                     {/* Parent menu */}
                                                     <h6 className="text-black" style={{ fontWeight: "normal" }}>
@@ -410,19 +410,19 @@ const Privilege = () => {
                                                     </h6>
 
                                                     {/* Children menus */}
-                                                    <div className="d-flex flex-wrap gap-2">
+                                                    <div className="flex flex-wrap gap-2">
                                                         {menu.children.length > 0 ? (
                                                             menu.children.map((child) => (
                                                                 <span
                                                                     key={child.menu_id}
-                                                                    className="badge rounded-pill text-black bg-success bg-opacity-10 border-success px-3 py-2"
+                                                                    className="badge rounded-full text-black bg-success-500 bg-opacity-10 border-success px-4 py-2"
                                                                     style={{ fontSize: "14px" }}
                                                                 >
                                                                     {child.menu_name}
                                                                 </span>
                                                             ))
                                                         ) : (
-                                                            <span className="badge rounded-pill text-muted border px-3 py-2">
+                                                            <span className="badge rounded-full text-ink-muted border px-4 py-2">
                                                                 No sub-menus
                                                             </span>
                                                         )}

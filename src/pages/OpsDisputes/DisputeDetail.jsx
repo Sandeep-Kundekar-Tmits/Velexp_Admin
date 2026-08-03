@@ -41,14 +41,14 @@ const DisputeDetail = () => {
     };
 
     if (loading) return (
-        <div className="d-flex justify-content-center mt-5">
+        <div className="flex justify-center mt-12">
             <GridLoader color="#556ee6" />
         </div>
     );
 
     if (!dispute) return (
         <div className="page-content">
-            <p className="text-muted">Dispute not found or you do not have access.</p>
+            <p className="text-ink-muted">Dispute not found or you do not have access.</p>
             <Button color="secondary" size="sm" onClick={() => navigate("/ops-disputes")}>
                 Back to Disputes
             </Button>
@@ -61,7 +61,7 @@ const DisputeDetail = () => {
                 title={`Dispute — ${dispute.awbno}`}
                 subTitle={`ID #${dispute.id}`}
                 extraFields={
-                    <div className="d-flex gap-2 align-items-center">
+                    <div className="flex gap-2 items-center">
                         <Badge color={STATUS_COLOR[dispute.dispute_status] || "secondary"} style={{ fontSize: "14px" }}>
                             {dispute.dispute_status}
                         </Badge>
@@ -77,20 +77,20 @@ const DisputeDetail = () => {
                 }
             />
 
-            <div className="row mt-3">
+            <div className="row mt-4">
                 {/* Dispute Info */}
-                <div className="col-md-6 mb-3">
+                <div className="col-md-6 mb-4">
                     <Card className="h-full">
                         <CardHeader><strong>Dispute Info</strong></CardHeader>
                         <CardBody>
                             <table className="table table-sm table-borderless mb-0">
                                 <tbody>
                                     <tr>
-                                        <td className="text-muted" style={{ width: "40%" }}>AWB</td>
+                                        <td className="text-ink-muted" style={{ width: "40%" }}>AWB</td>
                                         <td><strong>{dispute.awbno}</strong></td>
                                     </tr>
                                     <tr>
-                                        <td className="text-muted">Status</td>
+                                        <td className="text-ink-muted">Status</td>
                                         <td>
                                             <Badge color={STATUS_COLOR[dispute.dispute_status] || "secondary"}>
                                                 {dispute.dispute_status}
@@ -98,25 +98,25 @@ const DisputeDetail = () => {
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td className="text-muted">Marked By</td>
+                                        <td className="text-ink-muted">Marked By</td>
                                         <td>{dispute.marked_dis_by_name || "--"}</td>
                                     </tr>
                                     <tr>
-                                        <td className="text-muted">Marked At</td>
+                                        <td className="text-ink-muted">Marked At</td>
                                         <td>{dispute.marked_dis_at ? new Date(dispute.marked_dis_at).toLocaleString() : "--"}</td>
                                     </tr>
                                     {dispute.marked_spl_by_name && (
                                         <>
                                             <tr>
-                                                <td className="text-muted">Marked Lost By</td>
+                                                <td className="text-ink-muted">Marked Lost By</td>
                                                 <td>{dispute.marked_spl_by_name}</td>
                                             </tr>
                                             <tr>
-                                                <td className="text-muted">Marked Lost At</td>
+                                                <td className="text-ink-muted">Marked Lost At</td>
                                                 <td>{dispute.marked_spl_at ? new Date(dispute.marked_spl_at).toLocaleString() : "--"}</td>
                                             </tr>
                                             <tr>
-                                                <td className="text-muted">Lost Remark</td>
+                                                <td className="text-ink-muted">Lost Remark</td>
                                                 <td>{dispute.spl_remark || "--"}</td>
                                             </tr>
                                         </>
@@ -124,11 +124,11 @@ const DisputeDetail = () => {
                                     {dispute.closed_by_name && (
                                         <>
                                             <tr>
-                                                <td className="text-muted">Closed By</td>
+                                                <td className="text-ink-muted">Closed By</td>
                                                 <td>{dispute.closed_by_name}</td>
                                             </tr>
                                             <tr>
-                                                <td className="text-muted">Closed At</td>
+                                                <td className="text-ink-muted">Closed At</td>
                                                 <td>{dispute.closed_at ? new Date(dispute.closed_at).toLocaleString() : "--"}</td>
                                             </tr>
                                         </>
@@ -140,14 +140,14 @@ const DisputeDetail = () => {
                 </div>
 
                 {/* Tagged Service Centers */}
-                <div className="col-md-6 mb-3">
+                <div className="col-md-6 mb-4">
                     <Card className="h-full">
                         <CardHeader><strong>Tagged Service Centers</strong></CardHeader>
                         <CardBody>
                             {(dispute.service_centers || []).length === 0
-                                ? <p className="text-muted mb-0">No service centers tagged.</p>
+                                ? <p className="text-ink-muted mb-0">No service centers tagged.</p>
                                 : (dispute.service_centers || []).map(sc => (
-                                    <span key={sc.id} className="badge bg-info me-1 mb-1" style={{ fontSize: "13px" }}>
+                                    <span key={sc.id} className="badge bg-info mr-1 mb-1" style={{ fontSize: "13px" }}>
                                         {sc.service_center_code} — {sc.city}
                                     </span>
                                 ))
@@ -159,19 +159,19 @@ const DisputeDetail = () => {
 
             {/* History Entries */}
             {(dispute.history_entries || []).length > 0 && (
-                <Card className="mb-3">
+                <Card className="mb-4">
                     <CardHeader><strong>History Entries</strong></CardHeader>
                     <CardBody>
                         {dispute.history_entries.map(entry => (
-                            <div key={entry.id} className="border-bottom pb-2 mb-3">
-                                <div className="d-flex justify-content-between align-items-start">
+                            <div key={entry.id} className="border-bottom pb-2 mb-4">
+                                <div className="flex justify-between items-start">
                                     <div>
                                         <strong>{entry.entered_by_name}</strong>
                                         {entry.entered_by_code && (
-                                            <small className="text-muted ms-1">({entry.entered_by_code})</small>
+                                            <small className="text-ink-muted ml-1">({entry.entered_by_code})</small>
                                         )}
                                     </div>
-                                    <small className="text-muted">
+                                    <small className="text-ink-muted">
                                         {entry.entered_at ? new Date(entry.entered_at).toLocaleString() : "--"}
                                     </small>
                                 </div>
@@ -179,7 +179,7 @@ const DisputeDetail = () => {
                                 {(entry.service_centers || []).length > 0 && (
                                     <div>
                                         {entry.service_centers.map(sc => (
-                                            <span key={sc.id} className="badge bg-secondary me-1">
+                                            <span key={sc.id} className="badge bg-secondary mr-1">
                                                 {sc.service_center_code}
                                             </span>
                                         ))}
@@ -193,10 +193,10 @@ const DisputeDetail = () => {
 
             {/* Documents */}
             {(dispute.documents || []).length > 0 && (
-                <Card className="mb-3">
+                <Card className="mb-4">
                     <CardHeader><strong>Documents</strong></CardHeader>
                     <CardBody>
-                        <div className="d-flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-2">
                             {dispute.documents.map(doc => (
                                 <a
                                     key={doc.id}
@@ -205,10 +205,10 @@ const DisputeDetail = () => {
                                     rel="noreferrer"
                                     className="btn btn-outline-secondary btn-sm"
                                 >
-                                    <i className="bx bx-file me-1"></i>
+                                    <i className="bx bx-file mr-1"></i>
                                     {doc.remark || "Document"}
                                     {doc.uploaded_by_name && (
-                                        <small className="ms-1 text-muted">({doc.uploaded_by_name})</small>
+                                        <small className="ml-1 text-ink-muted">({doc.uploaded_by_name})</small>
                                     )}
                                 </a>
                             ))}
@@ -219,12 +219,12 @@ const DisputeDetail = () => {
 
             {/* AWB Tracking Timeline */}
             {tracking.length > 0 && (
-                <Card className="mb-3">
+                <Card className="mb-4">
                     <CardHeader><strong>AWB Tracking Timeline</strong></CardHeader>
                     <CardBody>
                         <div style={{ maxHeight: "420px", overflowY: "auto" }}>
                             {tracking.map((t, i) => (
-                                <div key={t.id} className="d-flex gap-3 mb-2">
+                                <div key={t.id} className="flex gap-4 mb-2">
                                     <div className="text-center" style={{ minWidth: "52px" }}>
                                         <span
                                             className={`badge rounded-pill ${
@@ -243,14 +243,14 @@ const DisputeDetail = () => {
                                             }} />
                                         )}
                                     </div>
-                                    <div className="flex-grow-1 pb-1">
-                                        <div className="d-flex justify-content-between align-items-start">
-                                            <span className="fw-medium">{t.remarks || "--"}</span>
-                                            <small className="text-muted ms-2 text-nowrap">
+                                    <div className="grow pb-1">
+                                        <div className="flex justify-between items-start">
+                                            <span className="font-medium">{t.remarks || "--"}</span>
+                                            <small className="text-ink-muted ml-2 whitespace-nowrap">
                                                 {t.status_date ? new Date(t.status_date).toLocaleString() : "--"}
                                             </small>
                                         </div>
-                                        <small className="text-muted">
+                                        <small className="text-ink-muted">
                                             {[t.employee_name, t.service_center, t.updated_via ? `via ${t.updated_via}` : null]
                                                 .filter(Boolean).join(" · ")}
                                         </small>
@@ -267,7 +267,7 @@ const DisputeDetail = () => {
                 <ModalHeader toggle={() => setCloseModal(false)}>Close Dispute</ModalHeader>
                 <ModalBody>
                     <p>Are you sure you want to close the dispute for AWB <strong>{dispute.awbno}</strong>?</p>
-                    <p className="text-muted mb-0">
+                    <p className="text-ink-muted mb-0">
                         Closing will <strong>unfreeze tracking</strong> on this AWB. No further dispute actions will be possible.
                     </p>
                 </ModalBody>

@@ -58,9 +58,9 @@ const DebouncedInput = ({
     }, [debounce, onChange, value]);
 
     return (
-        <div className="position-relative d-flex align-items-center w-full " style={{ borderLeft: "1px solid #B0ACAC", paddingLeft: "10px", height: "45px" }}>
+        <div className="relative flex items-center w-full " style={{ borderLeft: "1px solid #B0ACAC", paddingLeft: "10px", height: "45px" }}>
             <FaSearch
-                className="position-absolute ms-1 text-muted"
+                className="absolute ml-1 text-ink-muted"
                 style={{ zIndex: 1, fontSize: "14px" }}
             />
             <input
@@ -72,7 +72,7 @@ const DebouncedInput = ({
             />
             {value && (
                 <FaTimes
-                    className="position-absolute end-0 me-2 text-muted"
+                    className="absolute end-0 mr-2 text-ink-muted"
                     style={{ zIndex: 1, cursor: "pointer", fontSize: "14px" }}
                     onClick={() => {
                         setValue('');
@@ -182,11 +182,11 @@ const TableContainer = ({
     return (
         <div style={{ border: "solid #B0ACAC 1px" }}>
             <div className="rounded-1 mt-0">
-                <div className="d-flex flex-wrap mb-0 align-items-center  p-0 justify-content-between" style={{ height: "45px" }} >
+                <div className="flex flex-wrap mb-0 items-center  p-0 justify-between" style={{ height: "45px" }} >
                     {/* Left section (Page size + Excel download) */}
-                    <div className="d-flex  align-items-center w-3/4 mb-0 p-0">
+                    <div className="flex  items-center w-3/4 mb-0 p-0">
                         {isCustomPageSize && (
-                            <div className=" mb-0 d-flex align-items-center" style={{ minWidth: "90px", borderRight: "solid #B0ACAC 1px", height: "45px", marginLeft: "10px", marginRight: "10px" }}>
+                            <div className=" mb-0 flex items-center" style={{ minWidth: "90px", borderRight: "solid #B0ACAC 1px", height: "45px", marginLeft: "10px", marginRight: "10px" }}>
                                 <select
                                     className="form-select pageSize  border-0 "
 
@@ -212,11 +212,11 @@ const TableContainer = ({
                         }
 
                         {isDownloadExcle && (
-                            <div className="me-2 mb-0 my-0 d-flex align-items-center">
+                            <div className="mr-2 mb-0 my-0 flex items-center">
                                 <Button
                                     disabled={data.length < 1}
                                     onClick={onDownloadExcle}
-                                    className="d-flex align-items-center px-2 bg-success border-success text-white"
+                                    className="flex items-center px-2 bg-success-500 border-success text-white"
                                     style={{
                                         height: "35px",
                                         borderRadius: "4px",
@@ -225,9 +225,9 @@ const TableContainer = ({
                                     }}
                                 >
                                     {
-                                        ExcleLoading ? <span className="me-2">Exporting...</span> : <span className="me-2">Download Excel</span>
+                                        ExcleLoading ? <span className="mr-2">Exporting...</span> : <span className="mr-2">Download Excel</span>
                                     }
-                                    <FaFileExcel size={18} className="me-2" />
+                                    <FaFileExcel size={18} className="mr-2" />
                                 </Button>
                             </div>
                         )}
@@ -235,12 +235,12 @@ const TableContainer = ({
                             if (!item.show) return null;
 
                             return (
-                                <div key={index} className="me-2 mb-1 position-relative">
+                                <div key={index} className="mr-2 mb-1 relative">
                                     <Button
                                         id={`excel-btn-${index}`}
                                         disabled={item.disabled || item.loading || data.length < 1}
                                         onClick={item.onClick ?? (() => { })}
-                                        className="d-flex align-items-center px-2 bg-transparent border-success text-success"
+                                        className="flex items-center px-2 bg-transparent border-success text-success-500"
                                         style={{
                                             borderRadius: "10px",
                                             fontWeight: "500",
@@ -250,12 +250,12 @@ const TableContainer = ({
                                     >
                                         {item.loading ? (
                                             <>
-                                                <Spinner size="sm" className="me-2" />
+                                                <Spinner size="sm" className="mr-2" />
                                                 Exporting...
                                             </>
                                         ) : (
                                             <>
-                                                <span className="me-2">{item.label}</span>
+                                                <span className="mr-2">{item.label}</span>
                                                 <FaFileExcel size={18} />
                                             </>
                                         )}
@@ -274,12 +274,12 @@ const TableContainer = ({
                     </div>
 
                     {/* Right section (Search) */}
-                    <div className="w-1/4 d-flex justify-content-end align-items-center">
+                    <div className="w-1/4 flex justify-end items-center">
                         {
-                            ShowClearBtn && <Button onClick={OnClearClick} className="bg-danger border-0 mb-0 me-2" style={{ height: "34px", width: "100px" }}>Clear</Button>
+                            ShowClearBtn && <Button onClick={OnClearClick} className="bg-danger-500 border-0 mb-0 mr-2" style={{ height: "34px", width: "100px" }}>Clear</Button>
                         }
                         {rightExtraFiled && (
-                            <div className="me-1" style={{ borderRight: "1px solid #B0ACAC", paddingRight: "8px", height: "45px", display: "flex", alignItems: "center" }}>
+                            <div className="mr-1" style={{ borderRight: "1px solid #B0ACAC", paddingRight: "8px", height: "45px", display: "flex", alignItems: "center" }}>
                                 {rightExtraFiled}
                             </div>
                         )}
@@ -331,13 +331,13 @@ const TableContainer = ({
                                                 }}
                                                 onClick={header.column.getToggleSortingHandler()}
                                             >
-                                                <div className="d-flex align-items-center justify-content-center">
+                                                <div className="flex items-center justify-center">
                                                     {flexRender(
                                                         header.column.columnDef.header,
                                                         header.getContext()
                                                     )}
                                                     {header.column.getCanSort() && (
-                                                        <span className="ms-1" style={{ fontSize: "12px", color: "#888" }}>
+                                                        <span className="ml-1" style={{ fontSize: "12px", color: "#888" }}>
                                                             {{
                                                                 asc: <i className="mdi mdi-arrow-up"></i>,
                                                                 desc: <i className="mdi mdi-arrow-down"></i>,
@@ -393,7 +393,7 @@ const TableContainer = ({
                                     <tr >
                                         <td
                                             colSpan={table.getVisibleLeafColumns().length}
-                                            className="text-center fw-bold p-3 border-0"
+                                            className="text-center font-bold p-4 border-0"
                                             style={{ background: "#DBDBDB" }}
                                         >
                                             No Data
@@ -403,7 +403,7 @@ const TableContainer = ({
                         }
                         {hasFooter && (
                             <tfoot
-                                className="bg-light"
+                                className="bg-canvas"
                                 style={isStickyFooter ? { position: 'sticky', bottom: 0, zIndex: 2 } : {}}
                             >
                                 {table
@@ -415,7 +415,7 @@ const TableContainer = ({
                                                 <td
                                                     key={header.id}
                                                     colSpan={header.colSpan}
-                                                    className="fw-bold text-center"
+                                                    className="font-bold text-center"
                                                     style={{
                                                         border: 'solid #B0ACAC 1px',
                                                         backgroundColor: '#f8f9fa', // Ensure background color for sticky

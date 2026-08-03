@@ -9,9 +9,9 @@ const RoleNotDefinedScreen = () => {
     navigate("/login")
   }
   return (
-    <Container className="d-flex flex-column align-items-center justify-content-center" style={{ minHeight: '100vh' }}>
-      <div className="text-center p-4" style={{ maxWidth: '500px' }}>
-        <Alert color="danger" className="mb-4">
+    <Container className="flex flex-col items-center justify-center" style={{ minHeight: '100vh' }}>
+      <div className="text-center p-6" style={{ maxWidth: '500px' }}>
+        <Alert color="danger" className="mb-6">
           <h4 className="alert-heading">Role Not Defined</h4>
           <p>
             Your user role could not be determined. Please contact your system administrator for assistance.
@@ -25,7 +25,7 @@ const RoleNotDefinedScreen = () => {
         <Button
           color="primary"
           onClick={onLogout}
-          className="mt-3"
+          className="mt-4"
         >
           Log Out
         </Button>

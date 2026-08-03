@@ -97,7 +97,7 @@ const StatusUpdateAudit = () => {
                         accessorKey: "status",
                         id: "status",
                         cell: ({ row }) => <span className="">{row.original.status || 0}</span>,
-                        footer: () => <span className="fw-bolder">Total</span>
+                        footer: () => <span className="font-extrabold">Total</span>
                     }
                 ]
             },
@@ -109,7 +109,7 @@ const StatusUpdateAudit = () => {
                         header: "Count",
                         accessorKey: "mobile_count",
                         cell: ({ row }) => <span className="">{row.original.mobile_count || 0}</span>,
-                        footer: () => <span className="fw-bolder">{totals.mobile}</span>
+                        footer: () => <span className="font-extrabold">{totals.mobile}</span>
                     },
                     {
                         header: "%",
@@ -117,11 +117,11 @@ const StatusUpdateAudit = () => {
                         cell: ({ row }) => {
                             const val = row.original.mobile_count || 0;
                             const total = row.original.total_count || 1;
-                            return <span className="text-muted">{((val / total) * 100).toFixed(2)}%</span>;
+                            return <span className="text-ink-muted">{((val / total) * 100).toFixed(2)}%</span>;
                         },
                         footer: () => {
                             const percentage = totals.total > 0 ? ((totals.mobile / totals.total) * 100).toFixed(2) : "0.00";
-                            return <span className="fw-bolder">{percentage}%</span>;
+                            return <span className="font-extrabold">{percentage}%</span>;
                         }
                     }
                 ]
@@ -133,7 +133,7 @@ const StatusUpdateAudit = () => {
                         header: "Count",
                         accessorKey: "manual_count",
                         cell: ({ row }) => <span className="">{row.original.manual_count || 0}</span>,
-                        footer: () => <span className="fw-bolder">{totals.manual}</span>
+                        footer: () => <span className="font-extrabold">{totals.manual}</span>
                     },
                     {
                         header: "%",
@@ -141,11 +141,11 @@ const StatusUpdateAudit = () => {
                         cell: ({ row }) => {
                             const val = row.original.manual_count || 0;
                             const total = row.original.total_count || 1;
-                            return <span className="text-muted">{((val / total) * 100).toFixed(2)}%</span>;
+                            return <span className="text-ink-muted">{((val / total) * 100).toFixed(2)}%</span>;
                         },
                         footer: () => {
                             const percentage = totals.total > 0 ? ((totals.manual / totals.total) * 100).toFixed(2) : "0.00";
-                            return <span className="fw-bolder">{percentage}%</span>;
+                            return <span className="font-extrabold">{percentage}%</span>;
                         }
                     }
                 ]
@@ -158,7 +158,7 @@ const StatusUpdateAudit = () => {
                         header: () => null,
                         accessorKey: "total_count",
                         cell: ({ row }) => <span className="">{row.original.total_count || 0}</span>,
-                        footer: () => <span className="fw-bolder">{totals.total}</span>
+                        footer: () => <span className="font-extrabold">{totals.total}</span>
                     },
                 ]
             },
@@ -259,12 +259,12 @@ const StatusUpdateAudit = () => {
             </div>
 
 
-            <div className="mt-4 px-2">
-                <Row className="mb-2 align-items-end border-bottom">
+            <div className="mt-6 px-2">
+                <Row className="mb-2 items-end border-bottom">
                     <Col md={6}>
                         <FormGroup className="mb-0">
-                            <Label className="fw-bold text-muted  mb-1">Region</Label>
-                            <div className="d-flex align-items-center">
+                            <Label className="font-bold text-ink-muted  mb-1">Region</Label>
+                            <div className="flex items-center">
                                 <div style={{ width: "250px" }}>
                                     <Select
                                         options={regionOptions}
@@ -289,8 +289,8 @@ const StatusUpdateAudit = () => {
                     </Col>
                     <Col md={6}>
                         <FormGroup className="mb-0">
-                            <Label className="fw-bold text-muted mb-1">Service Center</Label>
-                            <div className="d-flex align-items-center">
+                            <Label className="font-bold text-ink-muted mb-1">Service Center</Label>
+                            <div className="flex items-center">
                                 <div style={{ width: "250px" }}>
                                     <Select
                                         options={serviceCenterOptions}
@@ -314,14 +314,14 @@ const StatusUpdateAudit = () => {
                         </FormGroup>
                     </Col>
                 </Row>
-                <Row className="mb-4 align-items-end">
+                <Row className="mb-6 items-end">
                     <Col md={3}>
                         <FormGroup className="mb-0">
-                            <Label className="fw-bold text-muted mb-1">Date Range</Label>
+                            <Label className="font-bold text-ink-muted mb-1">Date Range</Label>
                             <DateRangeInput value={selectedRange} onChange={setSelectedRange} isBorder={true} />
                         </FormGroup>
                     </Col>
-                    <Col md={3} className="mb-3">
+                    <Col md={3} className="mb-4">
                         <Button
                             color="primary"
                             className="w-full"
@@ -337,9 +337,9 @@ const StatusUpdateAudit = () => {
                 <div style={{ position: 'relative' }}>
                     {
                         auditLoading ? (
-                            <div style={{ height: "40vh" }} className="container-fluid d-flex flex-column justify-content-center align-items-center">
+                            <div style={{ height: "40vh" }} className="container-fluid flex flex-col justify-center items-center">
                                 <GridLoader size={20} />
-                                <p className="mt-5 h5">Loading Audit Data...</p>
+                                <p className="mt-12 h5">Loading Audit Data...</p>
                             </div>
                         ) : (
                             <TableContainer

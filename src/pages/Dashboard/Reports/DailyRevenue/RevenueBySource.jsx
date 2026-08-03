@@ -16,18 +16,18 @@ const RevenueBySource = ({ rows = [] }) => {
     const maxGross = rows.reduce((m, r) => Math.max(m, Number(r.gross) || 0), 0)
 
     return (
-        <Card className="shadow-sm border-0 h-full mb-4">
+        <Card className="shadow-sm border-0 h-full mb-6">
             <CardBody>
-                <h6 className="fw-bold mb-1">Revenue by Source</h6>
-                <p className="text-muted small mb-3">Where today&apos;s gross revenue is computed from</p>
+                <h6 className="font-bold mb-1">Revenue by Source</h6>
+                <p className="text-ink-muted text-xs mb-4">Where today&apos;s gross revenue is computed from</p>
 
                 {rows.map((r) => {
                     const color = SRC_COLORS[r.source] || "#556ee6"
                     return (
-                        <div key={r.source} className="mb-3">
-                            <div className="d-flex justify-content-between small mb-1">
-                                <span className="fw-semibold" style={{ color }}>{labelOf(r.source)}</span>
-                                <span className="text-muted">{formatINR(r.gross)} · {formatInt(r.shipments)} shp</span>
+                        <div key={r.source} className="mb-4">
+                            <div className="flex justify-between text-xs mb-1">
+                                <span className="font-semibold" style={{ color }}>{labelOf(r.source)}</span>
+                                <span className="text-ink-muted">{formatINR(r.gross)} · {formatInt(r.shipments)} shp</span>
                             </div>
                             <div style={{ background: "#f1f1f5", borderRadius: 4, height: 8 }}>
                                 <div style={{ width: `${barWidth(r.gross, maxGross)}%`, background: color, height: 8, borderRadius: 4, transition: "width .4s ease" }} />
