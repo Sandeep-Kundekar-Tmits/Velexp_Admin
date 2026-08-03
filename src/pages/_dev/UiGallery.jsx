@@ -1,4 +1,5 @@
 import { useState } from "react";
+import PropTypes from "prop-types";
 import {
   Alert, Badge, Button, Card, CardBody, CardFooter, CardHeader, CardText, CardTitle,
   Col, Container, Dropdown, DropdownItem, DropdownMenu, DropdownToggle,
@@ -27,6 +28,11 @@ const Section = ({ title, children }) => (
     <CardBody>{children}</CardBody>
   </Card>
 );
+
+Section.propTypes = {
+  title: PropTypes.node,
+  children: PropTypes.node,
+};
 
 export default function UiGallery() {
   const [modalOpen, setModalOpen] = useState(true);
