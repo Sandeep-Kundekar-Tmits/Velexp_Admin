@@ -11,6 +11,7 @@ import { TRIP_ODOMETER_FILTER } from "../../api";
 import SimpleModal from "../../components/SimpleModal";
 import { useExcelExport } from "../../hooks/useExcelExport";
 
+import { authFetch } from "@/lib/http";
 const EmployeeAttendence = () => {
     const [EmployeeDatas, setEmployeeDatas] = useState([])
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -67,7 +68,7 @@ const EmployeeAttendence = () => {
     const handleDownloadImage = async () => {
         if (!SelectedImgSrc) return;
         try {
-            const response = await fetch(SelectedImgSrc);
+            const response = await authFetch(SelectedImgSrc);
             if (!response.ok) throw new Error("Network response was not ok");
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);

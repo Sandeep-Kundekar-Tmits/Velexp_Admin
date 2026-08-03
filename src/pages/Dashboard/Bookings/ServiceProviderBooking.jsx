@@ -12,6 +12,7 @@ import ToasterProvider from "../../../helpers/ToasterProvider";
 import { useExcelExport } from "../../../hooks/useExcelExport";
 import { useNavigate } from "react-router-dom";
 import { customStyles } from "../../../helpers/CustomStyle";
+import { authFetch } from "@/lib/http";
 // Updated formatDateLocal to handle both Date objects and strings
 function formatDateLocal(d) {
     if (!d) return '';
@@ -110,7 +111,7 @@ const ServiceProviderBooking = () => {
                 call_from: "booking",
             };
 
-            const response = await fetch(GET_DELIVARY_B2C_LABEL_GENERATION, {
+            const response = await authFetch(GET_DELIVARY_B2C_LABEL_GENERATION, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

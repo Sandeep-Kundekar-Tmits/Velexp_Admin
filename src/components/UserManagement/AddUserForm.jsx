@@ -19,6 +19,7 @@ import { customStyles } from '../../helpers/CustomStyle';
 import locations from "../../data/locations.json"
 import Select from "react-select";
 import { VERIFY_GSTIN } from '../../api/index';
+import { authFetch } from "@/lib/http";
 const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeData }) => {
 
 
@@ -96,7 +97,7 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
         setGstVerifyData(null);
         setGstVerified(false);
         try {
-            const res = await fetch(`${VERIFY_GSTIN}?gstin=${encodeURIComponent(gstin)}`);
+            const res = await authFetch(`${VERIFY_GSTIN}?gstin=${encodeURIComponent(gstin)}`);
             const json = await res.json();
 
             // Case 1: GST already exists in the system

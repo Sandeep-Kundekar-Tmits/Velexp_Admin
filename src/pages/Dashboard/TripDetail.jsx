@@ -9,6 +9,7 @@ import { TRIP_ODOMETER_TRIPS, TRIP_ODOMETER_READINGS } from "../../api";
 import SimpleModal from "../../components/SimpleModal";
 import { Modal, ModalHeader, ModalBody, ModalFooter, Form } from "reactstrap";
 
+import { authFetch } from "@/lib/http";
 const TripDetail = () => {
     const [tripsData, setTripsData] = useState([]);
     const [dayTotalDistance, setDayTotalDistance] = useState(0);
@@ -68,7 +69,7 @@ const TripDetail = () => {
     const handleDownloadImage = async () => {
         if (!SelectedImgSrc) return;
         try {
-            const response = await fetch(SelectedImgSrc);
+            const response = await authFetch(SelectedImgSrc);
             if (!response.ok) throw new Error("Network response was not ok");
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);

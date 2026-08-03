@@ -3,6 +3,7 @@ import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import AirwayBillMiniTable from "./AirwayBillMiniTable";
 
+import { authFetch } from "@/lib/http";
 const AWBPage = ({ awbNo = "", onBack }) => {
   const [labels, setLabels] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -19,7 +20,7 @@ const AWBPage = ({ awbNo = "", onBack }) => {
       setLoading(true);
 
       try {
-        const response = await fetch(
+        const response = await authFetch(
           `https://velexp.com/label-api/get-labels-by-orderid/${orderId}/`
         );
         const result = await response.json();

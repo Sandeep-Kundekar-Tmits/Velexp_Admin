@@ -12,6 +12,7 @@ import { REVENUE_DAILY_REPORT } from "../../../api";
 import { formatAsOf, formatINRCompact, formatInt, longDate } from "./DailyRevenue/revenueFormat";
 import { AtRiskCustomersCard, RevenueBarChart, RevenueShareDonut, TopMoversChart } from "./RevenueDailyReportCharts";
 
+import { authFetch } from "@/lib/http";
 const AT_RISK_MIN_BASELINE = 500;
 
 // "2026-07-20" -> "7/20/2026" (matches how the source system displays the date columns)
@@ -236,7 +237,7 @@ const RevenueDailyReport = () => {
             const params = new URLSearchParams({ format: "json" });
             if (selectedDate) params.set("date", selectedDate);
 
-            const res = await fetch(`${REVENUE_DAILY_REPORT}?${params.toString()}`, {
+            const res = await authFetch(`${REVENUE_DAILY_REPORT}?${params.toString()}`, {
                 method: "GET",
                 credentials: "include",
                 headers: { Accept: "application/json" },
@@ -270,7 +271,7 @@ const RevenueDailyReport = () => {
             if (selectedDate) params.set("date", selectedDate);
             const qs = params.toString();
 
-            const res = await fetch(`${REVENUE_DAILY_REPORT}${qs ? `?${qs}` : ""}`, {
+            const res = await authFetch(`${REVENUE_DAILY_REPORT}${qs ? `?${qs}` : ""}`, {
                 method: "GET",
                 credentials: "include",
             });

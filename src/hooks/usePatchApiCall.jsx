@@ -1,5 +1,10 @@
-import { useState, useCallback } from 'react';
-import ToasterProvider from '../helpers/ToasterProvider';
+// PATCH API
+//
+// Thin adapter over src/lib/http. Public shape unchanged, including the
+// contract that a non-OK response returns undefined.
+import { useCallback, useState } from "react";
+import { rawRequest } from "@/lib/http";
+import ToasterProvider from "@/helpers/ToasterProvider";
 
 export const usePatchApiCall = (successMessage, toggle = null) => {
   const [data, setData] = useState(null);
@@ -7,56 +12,41 @@ export const usePatchApiCall = (successMessage, toggle = null) => {
   const [error, setError] = useState(null);
   const { SucceesToaster, ErrorToaster } = ToasterProvider();
 
-  const apifunc = useCallback(async (url, body, isFormData = false) => {
-    setLoading(true);
-    setError(null);
-    setData(null);
+  const apifunc = useCallback(
+    async (url, body, isFormData = false) => {
+      setLoading(true);
+      setError(null);
+      setData(null);
 
-    let options = {};
+      try {
+        // Kept for call-site compatibility; http detects FormData itself.
+        void isFormData;
 
-    if (isFormData) {
-      options = {
-        credentials: 'include',
-        body: body,
-      };
-    } else {
-      options = {
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      };
-    }
+        const { ok, data: result } = await rawRequest(url, { method: "PATCH", body });
 
-    try {
-      const response = await fetch(url, {
-        method: 'PATCH',  // Using PATCH method instead of PUT
-        ...options
-      });
-      const result = await response.json();
+        if (!ok) {
+          setError(result);
+          ErrorToaster("An error occurred");
+          return;
+        }
 
-      if (!response.ok) {
-        setError(result);
-        ErrorToaster("An error occurred");
-        return;
+        SucceesToaster(successMessage);
+        if (toggle) {
+          toggle();
+        }
+        setData(result);
+        return result;
+      } catch (err) {
+        setError(err.message || "An error occurred");
+        ErrorToaster(err.message || "An error occurred");
+        console.error(err);
+        return null;
+      } finally {
+        setLoading(false);
       }
-
-      SucceesToaster(successMessage);
-      if (toggle) {
-        toggle();
-      }
-      setData(result);
-      return result;
-    } catch (err) {
-      setError(err.message || 'An error occurred');
-      ErrorToaster(err.message || 'An error occurred');
-      console.error(err);
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, [successMessage, toggle, SucceesToaster, ErrorToaster]);
+    },
+    [successMessage, toggle, SucceesToaster, ErrorToaster]
+  );
 
   return { apifunc, data, loading, error };
 };

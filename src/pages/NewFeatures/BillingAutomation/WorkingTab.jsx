@@ -18,6 +18,7 @@ import {
 import { getBatchStatusColor } from "./statusBadge"
 import UploadPreviewModal from "./UploadPreviewModal"
 
+import { authFetch } from "@/lib/http";
 const WorkingTab = () => {
     const { SuccessToaster, ErrorToaster } = ToasterProvider()
     const { apifunc: fetchRuns, loading: runsLoading } = usePostApiCall()
@@ -86,7 +87,7 @@ const WorkingTab = () => {
         if (fmt === "zip") {
             setZipDownloading(true)
             try {
-                const res = await fetch(CORPORATE_BILLING_RUNS_BULK_DOWNLOAD, {
+                const res = await authFetch(CORPORATE_BILLING_RUNS_BULK_DOWNLOAD, {
                     method: "POST",
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },
@@ -109,7 +110,7 @@ const WorkingTab = () => {
         } else {
             setCombinedDownloading(true)
             try {
-                const res = await fetch(`${BILLING_BATCH_BASE}${batchDetail.id}/download/?fmt=combined`, {
+                const res = await authFetch(`${BILLING_BATCH_BASE}${batchDetail.id}/download/?fmt=combined`, {
                     method: "POST",
                     credentials: "include",
                     headers: { "Content-Type": "application/json" },

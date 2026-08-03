@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import MainHeaderComp from "../../../components/MainHeaderCom";
 import { MIS_RUN } from "../../../api";
 
+import { authFetch } from "@/lib/http";
 const MisReport = () => {
     useEffect(() => { document.title = "MIS Report"; }, []);
 
@@ -75,7 +76,7 @@ const MisReport = () => {
         if (!awbNumbers.length) { setError("No AWB numbers to process."); return; }
         setIsGenerating(true); setError("");
         try {
-            const res = await fetch(MIS_RUN, {
+            const res = await authFetch(MIS_RUN, {
                 method: "POST",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },

@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { REVENUE_LIVE } from "../../../../api"
 
+import { authFetch } from "@/lib/http";
 const REFRESH_MS = 5 * 60 * 1000 // 5 minutes
 
 const useLiveRevenue = (date) => {
@@ -14,7 +15,7 @@ const useLiveRevenue = (date) => {
         if (!date) return
         setLoading(true)
         try {
-            const res = await fetch(`${REVENUE_LIVE}?date=${date}`, {
+            const res = await authFetch(`${REVENUE_LIVE}?date=${date}`, {
                 method: "GET",
                 credentials: "include",
             })

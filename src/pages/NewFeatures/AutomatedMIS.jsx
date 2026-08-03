@@ -6,6 +6,7 @@ import MainHeaderComp from "../../components/MainHeaderCom"
 import ToasterProvider from "../../helpers/ToasterProvider"
 import { BILLED_SHIPMENTS_EXCEL } from "../../api"
 
+import { authFetch } from "@/lib/http";
 const AutomatedMIS = () => {
     const { SuccessToaster, ErrorToaster } = ToasterProvider()
 
@@ -26,7 +27,7 @@ const AutomatedMIS = () => {
 
         setDownloading(true)
         try {
-            const res = await fetch(BILLED_SHIPMENTS_EXCEL, {
+            const res = await authFetch(BILLED_SHIPMENTS_EXCEL, {
                 method: "POST",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },

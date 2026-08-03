@@ -16,6 +16,7 @@ import YMD_DateFormate from "../../helpers/YMD_DateFormate";
 import { toast } from "react-toastify";
 import { checkCustomerPermissions } from "../../helpers/checkCustomerPermissions";
 
+import { authFetch } from "@/lib/http";
 const RtoApproval = () => {
     const { isAdmin } = checkCustomerPermissions();
 
@@ -177,7 +178,7 @@ const RtoApproval = () => {
         if (!deleteRow?.awbno) return;
         setSarLoading(true);
         try {
-            const res = await fetch(RECORD_SAR_STATUS, {
+            const res = await authFetch(RECORD_SAR_STATUS, {
                 method: "POST",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },

@@ -10,6 +10,7 @@ import MainHeaderComp from "../../../components/MainHeaderCom";
 import {
     BANK_STATEMENT_UPLOAD, BANK_STATEMENT_BASE, PENDING_MANIFESTS,
 } from "../../../api";
+import { authFetch } from "@/lib/http";
 
 const TAB_UPLOAD = "upload";
 const TAB_MANIFESTS = "manifests";
@@ -327,7 +328,7 @@ const AutoReconciliation = () => {
     const fetchStmtList = useCallback(async () => {
         setListLoading(true);
         try {
-            const res = await fetch(BANK_STATEMENT_BASE, { credentials: "include" });
+            const res = await authFetch(BANK_STATEMENT_BASE, { credentials: "include" });
             const json = await res.json();
             if (!res.ok) throw new Error(json?.detail || `Error ${res.status}`);
             const results = Array.isArray(json) ? json : (json.results ?? []);
@@ -355,7 +356,7 @@ const AutoReconciliation = () => {
     const fetchDetail = useCallback(async (id) => {
         setDetailLoading(true);
         try {
-            const res = await fetch(`${BANK_STATEMENT_BASE}${id}/`, { credentials: "include" });
+            const res = await authFetch(`${BANK_STATEMENT_BASE}${id}/`, { credentials: "include" });
             const json = await res.json();
             if (!res.ok) throw new Error(json?.detail || `Error ${res.status}`);
             setStmtDetail(json);
@@ -372,7 +373,7 @@ const AutoReconciliation = () => {
             const url = status === "unmatched"
                 ? `${BANK_STATEMENT_BASE}${id}/entries/?status=unmatched`
                 : `${BANK_STATEMENT_BASE}${id}/entries/`;
-            const res = await fetch(url, { credentials: "include" });
+            const res = await authFetch(url, { credentials: "include" });
             const json = await res.json();
             if (!res.ok) throw new Error(json?.detail || `Error ${res.status}`);
             setEntries(Array.isArray(json) ? json : (json.entries ?? json.results ?? []));
@@ -403,7 +404,7 @@ const AutoReconciliation = () => {
         form.append("file", uploadFile);
         setUploading(true);
         try {
-            const res = await fetch(BANK_STATEMENT_UPLOAD, {
+            const res = await authFetch(BANK_STATEMENT_UPLOAD, {
                 method: "POST",
                 credentials: "include",
                 body: form,
@@ -436,7 +437,7 @@ const AutoReconciliation = () => {
     const fetchManifests = useCallback(async () => {
         setMfLoading(true);
         try {
-            const res = await fetch(PENDING_MANIFESTS, { credentials: "include" });
+            const res = await authFetch(PENDING_MANIFESTS, { credentials: "include" });
             const json = await res.json();
             if (!res.ok) throw new Error(json?.detail || `Error ${res.status}`);
             setMfData(json);

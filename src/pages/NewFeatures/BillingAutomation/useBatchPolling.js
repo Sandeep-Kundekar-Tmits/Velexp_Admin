@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { BILLING_BATCH_BASE } from "../../../api"
 import ToasterProvider from "../../../helpers/ToasterProvider"
 
+import { authFetch } from "@/lib/http";
 const POLL_INTERVAL_MS = 4000
 const TERMINAL = ["COMPLETED", "FAILED"]
 
@@ -29,7 +30,7 @@ const useBatchPolling = () => {
 
     const fetchBatch = useCallback(async (batchId) => {
         try {
-            const res = await fetch(`${BILLING_BATCH_BASE}${batchId}/`, {
+            const res = await authFetch(`${BILLING_BATCH_BASE}${batchId}/`, {
                 method: "GET",
                 credentials: "include",
             })
@@ -60,7 +61,7 @@ const useBatchPolling = () => {
         setIsTriggering(true)
         setBatch(null)
         try {
-            const res = await fetch(triggerUrl, {
+            const res = await authFetch(triggerUrl, {
                 method: "POST",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },

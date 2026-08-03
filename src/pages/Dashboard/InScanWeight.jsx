@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import "../../styles/InScanWeight.css"
+import { authFetch } from "@/lib/http";
 /* ------------------- ERROR POPUP COMPONENT ------------------- */
 
 const ErrorPopup = ({ message, onClose }) => {
@@ -298,7 +299,7 @@ const InScanWeight = () => {
     };
 
     try {
-      const response = await fetch(
+      const response = await authFetch(
         "https://velexp.com/InscanWeightAPI/InscanWeight/",
         {
           method: "POST",

@@ -15,6 +15,7 @@ import WorkingTab from "./WorkingTab"
 import InvoicesTab from "./InvoicesTab"
 import HistoryTab from "./HistoryTab"
 
+import { authFetch } from "@/lib/http";
 const TABS = [
     { id: "dashboard", label: "Automation Dashboard" },
     { id: "audit", label: "Audit" },
@@ -107,7 +108,7 @@ const BillingAutomation = () => {
     const fetchCustomers = useCallback(async () => {
         setLoadingCustomers(true)
         try {
-            const res = await fetch(BILLING_CONFIGURED_CUSTOMERS, { credentials: "include" })
+            const res = await authFetch(BILLING_CONFIGURED_CUSTOMERS, { credentials: "include" })
             const json = await res.json()
             if (!res.ok) throw new Error(json?.detail || `Error ${res.status}`)
             const custList = json.customers || []

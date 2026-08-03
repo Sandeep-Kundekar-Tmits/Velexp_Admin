@@ -15,6 +15,7 @@ import usePostApiCall from "../../../hooks/usePostApiCall";
 import { useGetApiCall } from "../../../hooks/useGetApiCall";
 import YMD_DateFormate from "../../../helpers/YMD_DateFormate";
 
+import { authFetch } from "@/lib/http";
 const SELECT_ALL_OPTION = { value: "__all__", label: "Select All" };
 
 // Shows first 2 selected chips then "+N more" badge — same as Velocity-Ops
@@ -114,7 +115,7 @@ const PendingReport = () => {
         setLoading(true);
         setReportData([]);
         try {
-            const res = await fetch(GET_OPS_PENDING_REPORT, {
+            const res = await authFetch(GET_OPS_PENDING_REPORT, {
                 method: "POST",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
@@ -146,7 +147,7 @@ const PendingReport = () => {
         setIsExporting(true);
         try {
             const fmt = YMD_DateFormate(selectedRange);
-            const res = await fetch(DOWNLOAD_OPS_PENDING_REPORT, {
+            const res = await authFetch(DOWNLOAD_OPS_PENDING_REPORT, {
                 method: "POST",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },

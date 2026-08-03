@@ -14,6 +14,7 @@ import {
 } from "lucide-react"
 import { BULK_RTA_UPLOAD, BULK_RTS_STATUS_UPDATE } from "../../api"
 
+import { authFetch } from "@/lib/http";
 // --- auth / identity from the stored session ---
 const getAuth = () => {
     const authUser = JSON.parse(localStorage.getItem("authUser") || "{}")
@@ -119,7 +120,7 @@ const BulkRtsMarkModal = ({ isOpen, toggle }) => {
                 fd.append("file", file)
                 fd.append("employee_id", employeeId ?? "")
                 fd.append("service_center", serviceCenter ?? "")
-                res = await fetch(BULK_RTA_UPLOAD, { method: "POST", credentials: "include", headers: { ...authHeaders }, body: fd })
+                res = await authFetch(BULK_RTA_UPLOAD, { method: "POST", credentials: "include", headers: { ...authHeaders }, body: fd })
             } else {
                 const list = awbText
                     .split(/[\n,]/)
@@ -129,7 +130,7 @@ const BulkRtsMarkModal = ({ isOpen, toggle }) => {
                 const payload = {
                     awbno_list: list.map((awbno) => ({ awbno, employee_id: employeeId, service_center: serviceCenter })),
                 }
-                res = await fetch(BULK_RTS_STATUS_UPDATE, {
+                res = await authFetch(BULK_RTS_STATUS_UPDATE, {
                     method: "POST",
                     credentials: "include",
                     headers: { "Content-Type": "application/json", ...authHeaders },

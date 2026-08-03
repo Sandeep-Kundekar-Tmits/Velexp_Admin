@@ -1,110 +1,28 @@
 import axios from "axios";
-import accessToken from "./jwt-token-access/accessToken";
-import { refreshAccessToken, isAuthExemptUrl } from "./tokenRefresh";
+import { installAxiosAuth } from "@/lib/axiosAuth";
 
-//pass new generated access token here
-const token = accessToken;
-
-//apply base url for axios
-const API_URL = "";
-
-const axiosApi = axios.create({
-  baseURL: API_URL,
-});
-
-axiosApi.defaults.headers.common["Authorization"] = token;
-
-// Function to retrieve the latest Bearer token from localStorage
-const getBearerToken = () => {
-  try {
-    const authUser = localStorage.getItem("authUser");
-    if (authUser) {
-      const parsedUser = JSON.parse(authUser);
-      if (parsedUser && parsedUser.access) {
-        return `Bearer ${parsedUser.access}`;
-      }
-    }
-  } catch (error) {
-    console.error("Error parsing authUser from localStorage", error);
-  }
-  return null;
-};
-
-// Request interceptor for custom axiosApi instance
-axiosApi.interceptors.request.use(
-  (config) => {
-    const token = getBearerToken();
-    if (token) {
-      config.headers["Authorization"] = token;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// Request interceptor for default axios instance to cover direct axios imports
-axios.interceptors.request.use(
-  (config) => {
-    const token = getBearerToken();
-    if (token) {
-      config.headers["Authorization"] = token;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// On a 401 (expired/invalid access token), transparently refresh it via the
-// stored refresh token and retry the original request once.
-function attachAuthRefreshInterceptor(instance) {
-  instance.interceptors.response.use(
-    (response) => response,
-    async (error) => {
-      const originalRequest = error.config;
-      const status = error.response?.status;
-
-      if (
-        status === 401 &&
-        originalRequest &&
-        !isAuthExemptUrl(originalRequest.url) &&
-        !originalRequest._retry
-      ) {
-        originalRequest._retry = true;
-        try {
-          await refreshAccessToken();
-          return instance(originalRequest);
-        } catch (refreshError) {
-          return Promise.reject(refreshError);
-        }
-      }
-      return Promise.reject(error);
-    }
-  );
-}
-
-attachAuthRefreshInterceptor(axiosApi);
-attachAuthRefreshInterceptor(axios);
+// Auth (Bearer injection + 401 refresh-and-retry) now comes from
+// src/lib/axiosAuth.js. This module previously attached those interceptors
+// itself — to both a private instance AND the global default — and seeded a
+// hardcoded demo JWT that expired in June 2020.
+//
+// axios.create() does NOT inherit the global instance's interceptors, so this
+// instance is wired explicitly. Only helpers/fakebackend_helper.jsx uses these
+// helpers; both files are removed in Phase 2 with the Redux auth sagas.
+const axiosApi = installAxiosAuth(axios.create({ baseURL: "" }));
 
 export async function get(url, config = {}) {
-  return await axiosApi
-    .get(url, { ...config })
-    .then((response) => response.data);
+  return await axiosApi.get(url, { ...config }).then((response) => response.data);
 }
 
 export async function post(url, data, config = {}) {
-  return axiosApi
-    .post(url, { ...data }, { ...config })
-    .then((response) => response.data);
+  return axiosApi.post(url, { ...data }, { ...config }).then((response) => response.data);
 }
 
 export async function put(url, data, config = {}) {
-  return axiosApi
-    .put(url, { ...data }, { ...config })
-    .then((response) => response.data);
+  return axiosApi.put(url, { ...data }, { ...config }).then((response) => response.data);
 }
 
 export async function del(url, config = {}) {
-  return await axiosApi
-    .delete(url, { ...config })
-    .then((response) => response.data);
+  return await axiosApi.delete(url, { ...config }).then((response) => response.data);
 }
