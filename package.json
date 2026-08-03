@@ -4,17 +4,20 @@
   "version": "4.3.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 5173",
+    "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "format": "prettier --write \"src/{app,lib,stores,services,features,config,hooks/queries}/**/*.{js,jsx,css}\"",
+    "format:check": "prettier --check \"src/{app,lib,stores,services,features,config,hooks/queries}/**/*.{js,jsx,css}\"",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@paprika/date-range-picker": "^4.0.2",
     "@paprika/l10n": "^2.1.2",
     "@tanstack/match-sorter-utils": "^8.19.4",
     "@tanstack/react-table": "^8.20.5",
-    "@vtaits/react-color-picker": "^1.0.2",
     "amount-to-words": "^6.0.3",
     "apexcharts": "^5.15.2",
     "axios": "^1.7.7",
@@ -34,7 +37,6 @@
     "lucide-react": "^0.542.0",
     "metismenujs": "^1.4.0",
     "moment": "^2.30.1",
-    "print-js": "^1.6.0",
     "prop-types": "^15.8.1",
     "react": "^18.3.1",
     "react-apexcharts": "^2.1.1",
@@ -60,11 +62,14 @@
     "sass": "1.77.6",
     "simplebar-react": "^3.2.6",
     "styled-components": "^6.1.13",
+    "topojson-client": "^3.1.0",
     "xlsx": "^0.18.5",
     "yup": "^1.4.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
+    "@testing-library/jest-dom": "^7.0.0",
+    "@testing-library/react": "^16.3.2",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
@@ -72,8 +77,10 @@
     "eslint-plugin-react": "^7.35.0",
     "eslint-plugin-react-hooks": "^5.1.0-rc.0",
     "eslint-plugin-react-refresh": "^0.4.9",
-    "get-shit-done": "^0.0.2",
     "globals": "^15.9.0",
-    "vite": "^5.4.1"
+    "jsdom": "^29.1.1",
+    "prettier": "^3.9.6",
+    "vite": "^5.4.1",
+    "vitest": "^4.1.10"
   }
 }

@@ -1,13 +1,10 @@
-// const BASE_URL = "http://192.168.1.151:8000"
-// const BASE_URL = "https://velexp.com"
-const BASE_URL = "http://velexp.com:8000"
-// const BASE_URL = "https://velexp.com"
-// const BASE_URL = "http://192.168.1.166:8000"
-// const BASE_URL = "http://103.108.57.51:8001"
+// Base URL and secret are now env-driven — see src/config/env.js.
+// To point at a different backend, set VITE_API_BASE_URL in .env.local
+// rather than editing (and accidentally committing) a hardcoded value here.
+import { BASE_URL, SECRET_KEY } from "@/config/env";
 
-// const BASE_URL = "http://192.168.1.152:8000"
-// use for incryption and decryption
-export const SECRET_KEY = "Velexp.admin"
+// Re-exported so the ~3 existing importers of SECRET_KEY keep working.
+export { SECRET_KEY }
 // login api
 export const LOGIN_API_URL = `${BASE_URL}/api_login/`
 // refresh access token via SimpleJWT default endpoint

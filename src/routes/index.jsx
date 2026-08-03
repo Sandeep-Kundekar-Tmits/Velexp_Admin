@@ -1,4 +1,4 @@
-import React, { lazy } from "react";
+import { lazy } from "react";
 import { Navigate } from "react-router-dom";
 import { checkMenuAccess } from "../helpers/checkMenuAccess";
 
@@ -47,7 +47,6 @@ const FranchisePincode = lazy(() => import("../pages/Customers/FranchisePincode"
 const CorporatePincode = lazy(() => import("../pages/Customers/CorporatePincode"));
 const CorporatePincodeUpload = lazy(() => import("../pages/Customers/CorporatePincodeUpload"));
 const CorporateRateUpload = lazy(() => import("../pages/Customers/CorporateRateUpload"));
-const AirwayBillMiniTable = lazy(() => import("../components/AWBPrint/AirwayBillMiniTable"));
 const AWBPrintPage = lazy(() => import("../components/AWBPrint/AWBPrintPage"));
 const InScanWeight = lazy(() => import("../pages/Dashboard/InScanWeight"));
 const CorporateBooking = lazy(() => import("../pages/Dashboard/Bookings/CorporateBooking"));
@@ -57,16 +56,13 @@ const CorporateRateData = lazy(() => import("../pages/Dashboard/RateData/Corpora
 const RetailRateData = lazy(() => import("../pages/Dashboard/RateData/RetailRateData"));
 const FranchiseRateData = lazy(() => import("../pages/Dashboard/RateData/FranchiseRateData"));
 const FirstMileOperation = lazy(() => import("../pages/Dashboard/Reports/FirstMileOperation"));
-const ODFOperationsPerformance = lazy(() => import("../pages/Dashboard/Reports/OFDperationsPerformance"));
 const OFDperationsPerformance = lazy(() => import("../pages/Dashboard/Reports/OFDperationsPerformance"));
 const EmployeeAttendence = lazy(() => import("../pages/Dashboard/EmployeeAttendence"));
 const TripDetail = lazy(() => import("../pages/Dashboard/TripDetail"));
 const AttemptWisePerformance = lazy(() => import("../pages/Dashboard/Reports/AttemptWisePerformance"));
-const CustomerLastMileOperation = lazy(() => import("../pages/Dashboard/Reports/customer_Performance/CustomerLastMileOperation"));
 const CustomerFirstMileOperation = lazy(() => import("../pages/Dashboard/Reports/customer_Performance/CustomerFirstMileOperation"));
 const CustomerOFDOperation = lazy(() => import("../pages/Dashboard/Reports/customer_Performance/CustomerOFDOperation"));
 const SalesBooking = lazy(() => import("../pages/Dashboard/Bookings/SalesBooking/SalesBooking"));
-const CustomerAttemptwisePerformance = lazy(() => import("../pages/Dashboard/Reports/customer_Performance/CustomerAttemptwisePerformance"));
 const AttemptWiseCustomerPickupReport = lazy(() => import("../pages/Dashboard/Reports/customer_Performance/AttemptWIseCustomerPickupReport"));
 const AttemptWiseOperationPickupReport = lazy(() => import("../pages/Dashboard/Reports/AttemptWiseOperationPickupReport"));
 const CustomerLastMileOperationClone = lazy(() => import("../pages/Dashboard/Reports/customer_Performance/CustomerLastMileOperationClone"));
@@ -142,7 +138,6 @@ const getAuthProtectedRoutes = () => {
     { path: "/pickup-performance", component: <PickupPerformance /> },
     { path: "/status-update", component: <ShipmentCheckpoint /> },
     { path: "/cd-update", component: <CDUpdate /> },
-    { path: "/pending-report", component: <PendingReport /> },
     { path: "/last-mile-operation", component: <LastMileOperations /> },
     { path: "/first-mile-operation", component: <FirstMileOperation /> },
     { path: "/ofd-operations-performance", component: <OFDperationsPerformance /> },
@@ -152,11 +147,9 @@ const getAuthProtectedRoutes = () => {
     { path: "/operation-attempt-wise-pickup-performance", component: <AttemptWiseOperationPickupReport /> },
     { path: "/productivity-report", component: <ProductivityReport /> },
     // customer performance
-    // { path: "/last-mile-customer-performance", component: <CustomerLastMileOperation /> },
     { path: "/last-mile-customer-performance", component: <CustomerLastMileOperationClone /> },
     { path: "/first-mile-customer-performance", component: <CustomerFirstMileOperation /> },
     { path: "/ofd-customer-operations-performance", component: <CustomerOFDOperation /> },
-    // { path: "/customer-attempt-wise-delivery-performance", component: <CustomerAttemptwisePerformance /> },
     { path: "/customer-attempt-wise-delivery-performance", component: <CustomerAttemptwisePerformanceClone /> },
     { path: "/customer-attempt-wise-pickup-performance", component: <AttemptWiseCustomerPickupReport /> },
     // User management routes

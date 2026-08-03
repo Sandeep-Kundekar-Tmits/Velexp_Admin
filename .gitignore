@@ -22,3 +22,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local env overrides (per-developer, never committed)
+.env.local
+.env.*.local
+
+# Build/analysis artifacts
+build_error.txt
+unused_report.json
