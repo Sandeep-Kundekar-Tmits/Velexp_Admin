@@ -1,6 +1,5 @@
 import PropTypes from 'prop-types';
 import React from "react";
-import { connect } from "react-redux";
 import { useLocation } from "react-router-dom";
 import { withTranslation } from "react-i18next";
 
@@ -98,9 +97,6 @@ Header.propTypes = {
   onMobileToggle: PropTypes.func,
 };
 
-const mapStatetoProps = state => {
-  const { layoutType, leftMenu, leftSideBarType } = state.Layout;
-  return { layoutType, leftMenu, leftSideBarType };
-};
-
-export default connect(mapStatetoProps, {})(withTranslation()(Header));
+// layoutType/leftMenu/leftSideBarType came from the Redux Layout slice and
+// were never read in the render. Redux is gone.
+export default withTranslation()(Header);

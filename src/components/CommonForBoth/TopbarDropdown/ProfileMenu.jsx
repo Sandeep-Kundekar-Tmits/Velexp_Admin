@@ -16,7 +16,6 @@ import { IoMdPerson } from "react-icons/io";
 import { RiLogoutBoxRLine } from "react-icons/ri";
 
 // Redux
-import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 import withRouter from "../../Common/withRouter";
 
@@ -133,11 +132,6 @@ ProfileMenu.propTypes = {
   t: PropTypes.any,
 };
 
-const mapStatetoProps = (state) => {
-  const { error, success } = state.Profile;
-  return { error, success };
-};
-
-export default withRouter(
-  connect(mapStatetoProps, {})(withTranslation()(ProfileMenu))
-);
+// Was connect()-ed to state.Profile for {error, success}, which the render
+// never used. Redux is gone.
+export default withRouter(withTranslation()(ProfileMenu));

@@ -3,34 +3,25 @@ import React, { useEffect, useState } from "react";
 import withRouter from "../Common/withRouter";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import {
-  changeSidebarTheme,
-  changeSidebarThemeImage,
-} from "/src/store/actions";
 
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 
-import { useSelector, useDispatch } from "react-redux";
-import { createSelector } from 'reselect';
+import { useUiStore } from "@/stores/uiStore";
 
 const MOBILE_BREAKPOINT = 992;
 
 const Layout = (props) => {
-  const dispatch = useDispatch();
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < MOBILE_BREAKPOINT);
 
-  const selectLayoutProperties = createSelector(
-    (state) => state.Layout,
-    (layout) => ({
-      leftSideBarThemeImage: layout.leftSideBarThemeImage,
-      leftSideBarType: layout.leftSideBarType,
-      leftSideBarTheme: layout.leftSideBarTheme,
-    }));
-
-  const { leftSideBarThemeImage, leftSideBarType, leftSideBarTheme } =
-    useSelector(selectLayoutProperties);
+  // These were read from the Redux Layout slice, which VerticalLayout then
+  // dispatched straight back unchanged. Nothing else ever wrote them, so the
+  // two effects that did that round trip have been dropped along with Redux.
+  const leftSideBarTheme = useUiStore((s) => s.leftSideBarTheme);
+  const leftSideBarType = useUiStore((s) => s.leftSideBarType);
+  const mobileSidebarOpen = useUiStore((s) => s.mobileSidebarOpen);
+  const openMobileSidebar = useUiStore((s) => s.openMobileSidebar);
+  const closeMobileSidebar = useUiStore((s) => s.closeMobileSidebar);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -44,25 +35,7 @@ const Layout = (props) => {
     };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  }, []);
-
-  useEffect(() => {
-    if (leftSideBarTheme) dispatch(changeSidebarTheme(leftSideBarTheme));
-  }, [leftSideBarTheme, dispatch]);
-
-  useEffect(() => {
-    if (leftSideBarThemeImage) dispatch(changeSidebarThemeImage(leftSideBarThemeImage));
-  }, [leftSideBarThemeImage, dispatch]);
-
-  const openMobileSidebar = () => {
-    document.body.classList.add("sidebar-enable");
-    setMobileSidebarOpen(true);
-  };
-
-  const closeMobileSidebar = () => {
-    document.body.classList.remove("sidebar-enable");
-    setMobileSidebarOpen(false);
-  };
+  }, [closeMobileSidebar]);
 
   return (
     <React.Fragment>

@@ -1,6 +1,5 @@
 import PropTypes from "prop-types";
 import React, { useState } from "react";
-import { connect } from "react-redux";
 import withRouter from "../Common/withRouter";
 
 import { withTranslation } from "react-i18next";
@@ -82,13 +81,6 @@ Sidebar.propTypes = {
   onMobileClose: PropTypes.func,
 };
 
-const mapStatetoProps = (state) => {
-  return {
-    layout: state.Layout,
-  };
-};
-
-export default connect(
-  mapStatetoProps,
-  {}
-)(withRouter(withTranslation()(Sidebar)));
+// Was connect()-ed purely to receive `layout: state.Layout`, which the
+// component never read. Redux is gone; layout constants live in uiStore.
+export default withRouter(withTranslation()(Sidebar));

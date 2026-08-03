@@ -6,7 +6,6 @@ import { checkMenuAccess } from "../helpers/checkMenuAccess";
 // Authentication
 const Login = lazy(() => import("../pages/Authentication/Login"));
 const Logout = lazy(() => import("../pages/Authentication/Logout"));
-const Register = lazy(() => import("../pages/Authentication/Register"));
 const ForgetPwd = lazy(() => import("../pages/Authentication/ForgetPassword"));
 const PasswordResetConfirm = lazy(() => import("../pages/Authentication/PasswordResetConfirm"));
 const RoleNotDefinedScreen = lazy(() => import("../pages/Authentication/RoleNotDefinedScreen"));
@@ -335,7 +334,6 @@ const publicRoutes = [
   { path: "/logout", component: <Logout /> },
   { path: "/login", component: <Login />, publicOnly: true },
   { path: "/forgot-password", component: <ForgetPwd />, publicOnly: true },
-  { path: "/register", component: <Register />, publicOnly: true },
   { path: "/password-reset-confirm/:uid/:token/", component: <PasswordResetConfirm /> }
 ];
 
