@@ -84,7 +84,7 @@ const Layout = (props) => {
           className="main-content bg-white overflow-hidden p-0"
           style={{ height: "100vh" }}
         >
-          <div className="overflow-auto h-100">
+          <div className="overflow-auto h-full">
             {props.children}
           </div>
         </div>

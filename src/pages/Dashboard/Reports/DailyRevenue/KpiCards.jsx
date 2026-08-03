@@ -20,7 +20,7 @@ const MiniStat = ({ label, value }) => (
 )
 
 const StatCard = ({ title, icon: Icon, accent, data, showGst }) => (
-    <Card className="border-0 shadow-sm h-100" style={{ borderTop: `3px solid ${accent}`, overflow: "hidden" }}>
+    <Card className="border-0 shadow-sm h-full" style={{ borderTop: `3px solid ${accent}`, overflow: "hidden" }}>
         <CardBody className="px-3 py-2">
             <div className="d-flex align-items-center justify-content-between mb-2">
                 <span

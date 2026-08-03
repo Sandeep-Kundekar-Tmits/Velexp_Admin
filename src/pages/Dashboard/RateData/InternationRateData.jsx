@@ -394,7 +394,7 @@ const InternationRateData = () => {
                         </FormGroup>
                     </Col>
                     <Col md={2} className="d-flex align-items-end mb-3">
-                        <Button color="primary" className="w-100 d-flex align-items-center justify-content-center" onClick={handleView} disabled={!customer || isFetchingData || isFetchingCustomerData}>
+                        <Button color="primary" className="w-full d-flex align-items-center justify-content-center" onClick={handleView} disabled={!customer || isFetchingData || isFetchingCustomerData}>
                             <FaEye className="me-2" /> View
                         </Button>
                     </Col>
@@ -408,7 +408,7 @@ const InternationRateData = () => {
                         </FormGroup>
                     </Col>
                     <Col md={2} className="d-flex align-items-end mb-3">
-                        <Button color="primary" className="w-100 d-flex align-items-center justify-content-center" disabled={!customer || !file || uploadedData.length === 0 || jsonLoading || isUploadingData} onClick={handleUpload}>
+                        <Button color="primary" className="w-full d-flex align-items-center justify-content-center" disabled={!customer || !file || uploadedData.length === 0 || jsonLoading || isUploadingData} onClick={handleUpload}>
                             {isUploadingData ? <Spinner size="sm" /> : "Upload"}
                         </Button>
                     </Col>
@@ -433,7 +433,7 @@ const InternationRateData = () => {
                             SearchPlaceholder="Search from table..."
                             pagination="pagination"
                             paginationWrapper="dataTables_paginate paging_simple_numbers"
-                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
                         />
                     )}
                 </div>

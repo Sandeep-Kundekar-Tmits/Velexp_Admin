@@ -5,7 +5,7 @@ import { POP_RECONCILATION_PAYMENT_CONFIRMATION } from "../../api";
 
 const Inputfiled = ({ title = "Title", name = "", value = "", onChange = null, placeholder, type = "text", errorMessage }) => {
     return (
-        <div className='w-100 mb-3'>
+        <div className='w-full mb-3'>
             <Label>{title}</Label>
             <div className="d-flex  rounded-3" style={{ border: "solid #D3D3D3 1px", }}>
                 <Input type={type} step="0.01" className="border-0" placeholder={placeholder} name={name} value={value} onChange={onChange} />

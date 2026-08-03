@@ -52,14 +52,14 @@ const MisAuthModel = ({
           <div className="d-flex justify-content-center gap-3 mt-4">
             <button
               type="button"
-              className="btn btn-light w-50"
+              className="btn btn-light w-1/2"
               onClick={onCloseClick}
             >
               Cancel
             </button>
             <button
               type="button"
-              className="btn btn-primary w-50 d-flex justify-content-center align-items-center"
+              className="btn btn-primary w-1/2 d-flex justify-content-center align-items-center"
               onClick={handleSubmit}
               disabled={loading}
             >

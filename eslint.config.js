@@ -35,4 +35,12 @@ export default [
       ],
     },
   },
+  {
+    // The UI primitives are thin wrappers that forward arbitrary props to a
+    // DOM element ({...rest}), mirroring the reactstrap API they replaced.
+    // Enumerating PropTypes for every pass-through prop adds noise, not
+    // safety, so the rule is scoped off here rather than app-wide.
+    files: ['src/components/ui/**/*.jsx'],
+    rules: { 'react/prop-types': 'off' },
+  },
 ]

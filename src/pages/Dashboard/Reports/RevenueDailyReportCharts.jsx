@@ -51,7 +51,7 @@ export const RevenueBarChart = ({ title, subtitle, data, height = 360, valueLabe
     };
 
     return (
-        <Card className="shadow-sm border-0 h-100">
+        <Card className="shadow-sm border-0 h-full">
             <CardBody>
                 <h6 className="fw-bold mb-1">{title}</h6>
                 {subtitle && <p className="text-muted small mb-3">{subtitle}</p>}
@@ -98,7 +98,7 @@ export const RevenueShareDonut = ({ title, data, topN = 6, height = 340 }) => {
     };
 
     return (
-        <Card className="shadow-sm border-0 h-100">
+        <Card className="shadow-sm border-0 h-full">
             <CardBody>
                 <h6 className="fw-bold mb-3">{title}</h6>
                 {series.length === 0
@@ -154,7 +154,7 @@ export const TopMoversChart = ({ data, height = 360 }) => {
     const series = [{ name: "MTD Revenue Variation", data: values }];
 
     return (
-        <Card className="shadow-sm border-0 h-100">
+        <Card className="shadow-sm border-0 h-full">
             <CardBody>
                 <h6 className="fw-bold mb-1">Top Movers — MTD Revenue Variation</h6>
                 <p className="text-muted small mb-3">Same top 10 customers by MTD revenue, shown as change vs same span last month</p>
@@ -169,7 +169,7 @@ export const TopMoversChart = ({ data, height = 360 }) => {
 // Ranked by biggest MTD % decline (not absolute revenue) so a small customer collapsing
 // isn't buried under bigger accounts that dipped by a smaller percentage.
 export const AtRiskCustomersCard = ({ data, minBaseline }) => (
-    <Card className="shadow-sm border-0 h-100">
+    <Card className="shadow-sm border-0 h-full">
         <CardBody>
             <h6 className="fw-bold mb-1 text-danger">At-Risk Customers</h6>
             <p className="text-muted small mb-3">

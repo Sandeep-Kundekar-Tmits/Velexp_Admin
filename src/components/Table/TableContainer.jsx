@@ -58,7 +58,7 @@ const DebouncedInput = ({
     }, [debounce, onChange, value]);
 
     return (
-        <div className="position-relative d-flex align-items-center w-100 " style={{ borderLeft: "1px solid #B0ACAC", paddingLeft: "10px", height: "45px" }}>
+        <div className="position-relative d-flex align-items-center w-full " style={{ borderLeft: "1px solid #B0ACAC", paddingLeft: "10px", height: "45px" }}>
             <FaSearch
                 className="position-absolute ms-1 text-muted"
                 style={{ zIndex: 1, fontSize: "14px" }}
@@ -184,7 +184,7 @@ const TableContainer = ({
             <div className="rounded-1 mt-0">
                 <div className="d-flex flex-wrap mb-0 align-items-center  p-0 justify-content-between" style={{ height: "45px" }} >
                     {/* Left section (Page size + Excel download) */}
-                    <div className="d-flex  align-items-center w-75 mb-0 p-0">
+                    <div className="d-flex  align-items-center w-3/4 mb-0 p-0">
                         {isCustomPageSize && (
                             <div className=" mb-0 d-flex align-items-center" style={{ minWidth: "90px", borderRight: "solid #B0ACAC 1px", height: "45px", marginLeft: "10px", marginRight: "10px" }}>
                                 <select
@@ -274,7 +274,7 @@ const TableContainer = ({
                     </div>
 
                     {/* Right section (Search) */}
-                    <div className="w-25 d-flex justify-content-end align-items-center">
+                    <div className="w-1/4 d-flex justify-content-end align-items-center">
                         {
                             ShowClearBtn && <Button onClick={OnClearClick} className="bg-danger border-0 mb-0 me-2" style={{ height: "34px", width: "100px" }}>Clear</Button>
                         }
@@ -283,7 +283,7 @@ const TableContainer = ({
                                 {rightExtraFiled}
                             </div>
                         )}
-                        <div className="mb-0 w-100" >
+                        <div className="mb-0 w-full" >
                             {isGlobalFilter && (
                                 <DebouncedInput
                                     value={globalFilter ?? ""}

@@ -123,11 +123,11 @@ const EditEDD = ({ isOpen, toggle, shipmentDetails, onSuccess }) => {
       <OffcanvasBody>
 
         <div className="" style={{ height: "75vh" }}>
-          <div className="mb-4 w-100 d-flex flex-column justify-content-center align-items-center">
+          <div className="mb-4 w-full d-flex flex-column justify-content-center align-items-center">
             <h6 className="fw-bold pb-2 mb-1 mt-3">
               Select New Estimated Delivery Date
             </h6>
-            <div className="row w-75 mt-3" >
+            <div className="row w-3/4 mt-3" >
               <FormGroup>
                 <Label>New EDD <span className="text-danger">*</span></Label>
                 <Input

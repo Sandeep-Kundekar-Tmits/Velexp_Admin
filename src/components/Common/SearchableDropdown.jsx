@@ -78,7 +78,7 @@ const SearchableDropdown = ({ onChange, className, locations = [], value = "sele
 
             {showInputDropdown && (
                 <div
-                    className="position-absolute w-100 bg-white border shadow-lg overflow-y-hidden start-0 p-2"
+                    className="position-absolute w-full bg-white border shadow-lg overflow-y-hidden start-0 p-2"
                     style={{ overflowX: "hidden", zIndex: 1000 }}
                 >
                     <div className="position-relative">
@@ -93,7 +93,7 @@ const SearchableDropdown = ({ onChange, className, locations = [], value = "sele
                         />
 
                         <div
-                            className="overflow-auto h-100"
+                            className="overflow-auto h-full"
                             style={{ maxHeight: '160px', marginTop: "30px", overflowX: "hidden" }}
                             role="listbox"
                         >

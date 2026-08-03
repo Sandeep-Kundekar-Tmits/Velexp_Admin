@@ -44,7 +44,7 @@ const AWBPrintPage = () => {
                     <Col md={2}>
                         <Button
                             color="primary"
-                            className="w-100"
+                            className="w-full"
                             style={{ height: "38px", marginBottom: "15px" }}
                             onClick={handlePrint}
                         >

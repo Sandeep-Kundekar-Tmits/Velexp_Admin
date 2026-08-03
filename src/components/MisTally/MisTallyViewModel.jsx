@@ -199,7 +199,7 @@ const MisTallyViewModel = ({
                             pagination="pagination"
                             buttonClass="btn-success"
                             paginationWrapper='dataTables_paginate paging_simple_numbers'
-                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
                         /> :
                             //  if data not available for the given payload
                             <div className='m-auto ' style={{ width: "320px" }}>

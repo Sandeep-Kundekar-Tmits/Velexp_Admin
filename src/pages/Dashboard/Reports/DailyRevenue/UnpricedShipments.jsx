@@ -8,7 +8,7 @@ const UnpricedShipments = ({ unpriced }) => {
     const customers = [...(unpriced.customers || [])].sort((a, b) => (b?.claimed_amount || 0) - (a?.claimed_amount || 0))
 
     return (
-        <Card className="shadow-sm border-0 h-100 mb-4">
+        <Card className="shadow-sm border-0 h-full mb-4">
             <CardBody className="d-flex flex-column">
                 <div className="d-flex align-items-center gap-2 mb-1">
                     <MdWarningAmber size={20} className="text-warning" />

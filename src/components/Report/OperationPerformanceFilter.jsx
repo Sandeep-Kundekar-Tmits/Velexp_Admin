@@ -320,7 +320,7 @@ const OperationPerformanceFilter = ({ AllEntries = {}, ApplyFilter, BookingList 
                 </Col>
 
                 <Col md={3} className="d-flex align-items-end mb-3">
-                    <button className="btn btn-primary w-100" onClick={() => {
+                    <button className="btn btn-primary w-full" onClick={() => {
                         setIsFilterActive(true)
                         let updatedCount = ApplyFilter(FilterObj)
                     }}>
@@ -331,7 +331,7 @@ const OperationPerformanceFilter = ({ AllEntries = {}, ApplyFilter, BookingList 
                 <Col md={3} className="d-flex align-items-end mb-3">
                     {
                         isFilterActive && <button
-                            className="btn bg-danger text-white w-100"
+                            className="btn bg-danger text-white w-full"
                             onClick={() => {
                                 setFilterObj({
                                     checkpt: null,

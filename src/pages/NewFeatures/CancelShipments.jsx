@@ -116,7 +116,7 @@ const CancelShipments = () => {
                                     </div>
                                     <label
                                         htmlFor="cancel-file-input"
-                                        className="rounded-3 d-flex flex-column align-items-center justify-content-center text-center w-100 mb-0"
+                                        className="rounded-3 d-flex flex-column align-items-center justify-content-center text-center w-full mb-0"
                                         style={{ border: "1.5px dashed #adb5bd", background: "#f8f9fa", cursor: "pointer", padding: "22px 12px" }}
                                         onDragOver={(e) => e.preventDefault()}
                                         onDrop={(e) => {

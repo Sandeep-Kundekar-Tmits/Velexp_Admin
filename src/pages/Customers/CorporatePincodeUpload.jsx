@@ -691,7 +691,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                                     color="primary"
                                     onClick={validateAndUpload}
                                     disabled={!file || parsingLoading || uploadingData || !selectedCustomer || excelData.length === 0}
-                                    className="w-100 d-flex align-items-center justify-content-center"
+                                    className="w-full d-flex align-items-center justify-content-center"
                                     style={{ height: "38px" }}
                                 >
                                     {uploadingData ? (
@@ -704,7 +704,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                                 <Button
                                     color="success"
                                     onClick={handleDownloadTemplate}
-                                    className="w-100 d-flex align-items-center justify-content-center"
+                                    className="w-full d-flex align-items-center justify-content-center"
                                     outline
                                     style={{ height: "38px" }}
                                 >
@@ -770,7 +770,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                                         SearchPlaceholder="Search pincodes..."
                                         pagination="pagination pagination-rounded justify-content-end mb-2"
                                         paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline mb-0"
+                                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline mb-0"
                                     />
                                 )}
                             </CardBody>
@@ -899,7 +899,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                             </FormGroup>
                         </Col>
                         <Col md={2}>
-                            <FormGroup className="h-100 d-flex align-items-center mb-0 mt-2">
+                            <FormGroup className="h-full d-flex align-items-center mb-0 mt-2">
                                 <Label className="d-flex align-items-center gap-2 cursor-pointer mb-0">
                                     <Input
                                         type="checkbox"
@@ -931,7 +931,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                                                         value={service.product ? service.product.name : "select"}
                                                         onChange={(val) => handleServiceChange(index, "product", val)}
                                                         placeholder="Select Product"
-                                                        className="w-100"
+                                                        className="w-full"
                                                     />
                                                 </div>
                                                 {newPincode.products.length > 1 && (

@@ -168,7 +168,7 @@ const MissingPod = ({ onClose }) => {
         <Offcanvas isOpen={true} toggle={onClose} direction="end" style={{ width: '650px' }}>
             <OffcanvasHeader toggle={onClose}>Find Missing Pod</OffcanvasHeader>
             <OffcanvasBody>
-                <div className="mb-4 w-75 mx-auto">
+                <div className="mb-4 w-3/4 mx-auto">
                     {/* select customer id */}
                     <FormGroup className="mb-3">
                         <Label className='pb-0 fw-bold'>Select Customer</Label>
@@ -198,13 +198,13 @@ const MissingPod = ({ onClose }) => {
                 </div>
 
                 {/* desplaying missing pods */}
-                <div className='d-flex justify-content-center align-items-center w-100'>
+                <div className='d-flex justify-content-center align-items-center w-full'>
                     {
                         MissingPodLoading ? <Spinner>
                             Loading...
                         </Spinner> : (
                             MissingPodData?.data ?
-                                <div className='w-100'>
+                                <div className='w-full'>
                                     <TableContainer
                                         columns={columns}
                                         data={MissingPodData?.data || []}
@@ -213,7 +213,7 @@ const MissingPod = ({ onClose }) => {
                                         SearchPlaceholder="Search From Table"
                                         pagination="pagination"
                                         paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
                                     />
                                 </div>
 

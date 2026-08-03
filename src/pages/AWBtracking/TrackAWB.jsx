@@ -123,7 +123,7 @@ const TrackAWB = () => {
             <div className="container-fluid px-3" style={{ height: "90vh", overflowY: "auto" }}>
 
                 {/*  */}
-                <div className=" mt-3 border-bottom w-100 d-flex pb-3 align-items-center justify-content-center">
+                <div className=" mt-3 border-bottom w-full d-flex pb-3 align-items-center justify-content-center">
 
                     <div className="d-flex align-items-center" style={{ width: "300px" }} >
                         <Input type="text" placeholder="Enter AWB Number" onChange={(e) => {
@@ -213,7 +213,7 @@ const TrackAWB = () => {
                                     </div>
 
                                     <div className="col-12 col-md-6">
-                                        <div className="border h-100">
+                                        <div className="border h-full">
                                             <div className="bg-light px-3 py-2 border-bottom">
                                                 <h6 className="fw-semibold text-secondary mb-0">
                                                     Shipment Pieces
@@ -360,7 +360,7 @@ const TrackAWB = () => {
 export default TrackAWB
 
 const Section = ({ title, children }) => (
-    <div className="border h-100">
+    <div className="border h-full">
         {/* Header */}
         <div className="bg-light px-3 py-2 border-bottom">
             <h6 className="fw-semibold text-secondary mb-0">

@@ -246,7 +246,7 @@ const EmployeeAttendence = () => {
                             <DateRangeInput
                                 onChange={handleDateChange}
                                 value={selectedRange}
-                                className="h-100"
+                                className="h-full"
                                 isBorder={true}
                             />
                         </FormGroup>
@@ -278,7 +278,7 @@ const EmployeeAttendence = () => {
                                         SearchPlaceholder="Search From Table"
                                         pagination="pagination"
                                         paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
                                     />
                                 }
                                 </>

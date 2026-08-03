@@ -355,7 +355,8 @@ thead.table-light th {
   cursor: pointer;
   text-decoration: none;
 }
-.pagination .page-item.active .page-link {
+.pagination .page-item.active .page-link,
+.pagination li.active > a {
   background: var(--color-brand-500);
   border-color: var(--color-brand-500);
   color: #fff;

@@ -24,7 +24,7 @@ export const StatsCard = ({ title, value, color, unit, breakdown, isGroup, isNot
             </>
           ) : <>
             <MdErrorOutline style={{ width: "20px", height: "20px" }} />
-            <CardTitle tag="h6" className="text-muted h-100 text-uppercase mb-1 fs-7 fw-semibold letter-spacing-1">
+            <CardTitle tag="h6" className="text-muted h-full text-uppercase mb-1 fs-7 fw-semibold letter-spacing-1">
               {title}
             </CardTitle>
           </>}
@@ -54,7 +54,7 @@ export const StatsCard = ({ title, value, color, unit, breakdown, isGroup, isNot
           {isNotation &&
             breakdown?.map((item, idx) => (
               <Col key={idx} md={12} className="my-3">
-                <div className="d-flex align-items-center w-75 m-auto">
+                <div className="d-flex align-items-center w-3/4 m-auto">
                   <div
                     className={`p-2 text-black shadow-lg border-2 border-secondary bg-${item.color}`}
                     style={{ width: "20px", height: "20px" }}

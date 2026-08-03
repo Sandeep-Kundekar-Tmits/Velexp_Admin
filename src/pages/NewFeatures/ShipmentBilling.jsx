@@ -195,7 +195,7 @@ const ShipmentBilling = () => {
                                         onChange={(val) => setSelectedCustomerId(val?.id || "")}
                                         locations={customers}
                                         placeholder={customersLoading ? "Loading..." : "Select Customer"}
-                                        className="w-100"
+                                        className="w-full"
                                         value={selectedCustomerId ? (customers.find(c => c.id === selectedCustomerId)?.name || "Select Customer") : "select"}
                                     />
                                 </Col>
@@ -262,7 +262,7 @@ const ShipmentBilling = () => {
                                     .last-child-border-0:last-child { border-right: 0 !important; }
                                 `}</style>
                                 <Col md={3}>
-                                    <Card className="text-center border-0 shadow-sm bg-primary text-white h-100">
+                                    <Card className="text-center border-0 shadow-sm bg-primary text-white h-full">
                                         <CardBody className="d-flex flex-column justify-content-center py-2">
                                             <h6 className="text-white-50 text-uppercase mb-1" style={{ fontSize: '0.65rem' }}>Total Missing</h6>
                                             <h4 className="mb-0 fw-bold">{report.total_missing}</h4>
@@ -270,7 +270,7 @@ const ShipmentBilling = () => {
                                     </Card>
                                 </Col>
                                 <Col md={3}>
-                                    <Card className="text-center border-0 shadow-sm bg-info text-white h-100">
+                                    <Card className="text-center border-0 shadow-sm bg-info text-white h-full">
                                         <CardBody className="d-flex flex-column justify-content-center py-2">
                                             <h6 className="text-white-50 text-uppercase mb-1" style={{ fontSize: '0.65rem' }}>Billing Type</h6>
                                             <h4 className="mb-0 fw-bold text-capitalize" style={{ fontSize: '1.2rem' }}>{report.billing_type}</h4>
@@ -278,9 +278,9 @@ const ShipmentBilling = () => {
                                     </Card>
                                 </Col>
                                 <Col md={6} style={{ minWidth: '400px' }}>
-                                    <Card className="border-0 shadow-sm h-100">
+                                    <Card className="border-0 shadow-sm h-full">
                                         <CardBody className="py-2 d-flex align-items-center overflow-auto">
-                                            <div className="d-flex justify-content-around text-center w-100 flex-nowrap">
+                                            <div className="d-flex justify-content-around text-center w-full flex-nowrap">
                                                 {report.reason_counts && Object.entries(report.reason_counts).map(([key, val]) => (
                                                     <div key={key} className="px-3 border-end last-child-border-0" style={{ minWidth: 'fit-content' }}>
                                                         <h6 className="text-muted small text-uppercase mb-1" style={{ fontSize: '0.65rem' }}>{key.replace(/_/g, ' ')}</h6>

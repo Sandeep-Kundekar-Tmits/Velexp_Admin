@@ -301,7 +301,7 @@ const CustomerProductConfig = ({ externalCustomerId = "", onCustomerChange = nul
                                                     }}
                                                     locations={customers}
                                                     placeholder={customersLoading ? "Loading..." : "Select Customer"}
-                                                    className="w-100"
+                                                    className="w-full"
                                                     value={selectedCustomerId ? (customers.find(c => c.id === selectedCustomerId)?.name || "Select Customer") : "select"}
                                                 />
                                             </Col>
@@ -333,7 +333,7 @@ const CustomerProductConfig = ({ externalCustomerId = "", onCustomerChange = nul
                                         SearchPlaceholder="Search configurations..."
                                         pagination="pagination pagination-rounded justify-content-end mb-2"
                                         paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline mb-0"
+                                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline mb-0"
                                     />
                                 )}
                             </CardBody>
@@ -350,7 +350,7 @@ const CustomerProductConfig = ({ externalCustomerId = "", onCustomerChange = nul
                                                     onChange={(val) => setFormData(prev => ({ ...prev, customer_id: val?.id || "" }))}
                                                     locations={customers}
                                                     placeholder={customersLoading ? "Loading..." : "Select Customer"}
-                                                    className="w-100"
+                                                    className="w-full"
                                                     value={isEdit ? (customers.find(c => c.id === formData.customer_id)?.name || "N/A") : "select"}
                                                 />
                                                 {errors.customer_id && <div className="text-danger small mt-1">{errors.customer_id}</div>}
@@ -363,7 +363,7 @@ const CustomerProductConfig = ({ externalCustomerId = "", onCustomerChange = nul
                                                     onChange={(val) => setFormData(prev => ({ ...prev, product_id: val?.id || "" }))}
                                                     locations={products}
                                                     placeholder={productsLoading ? "Loading..." : "Select Product"}
-                                                    className="w-100"
+                                                    className="w-full"
                                                     value={isEdit ? (products.find(p => p.id === formData.product_id)?.name || "N/A") : "select"}
                                                 />
                                                 {errors.product_id && <div className="text-danger small mt-1">{errors.product_id}</div>}
@@ -497,7 +497,7 @@ const CustomerProductConfig = ({ externalCustomerId = "", onCustomerChange = nul
                         <Table bordered responsive>
                             <tbody>
                                 <tr>
-                                    <th className="bg-light w-25">Customer</th>
+                                    <th className="bg-light w-1/4">Customer</th>
                                     <td>{viewData.customer_name} ({viewData.customer_id})</td>
                                 </tr>
                                 <tr>

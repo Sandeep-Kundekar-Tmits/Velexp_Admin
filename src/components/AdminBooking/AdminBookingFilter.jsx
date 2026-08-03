@@ -226,7 +226,7 @@ const AdminBookingFilter = ({ AllEntries = {}, ApplyFilter, BookingList, avarage
                             <CardBody className={`py-2 px-2 bg-${stat.color}-light position-relative`}>
                                 {/* Optional decorative accent */}
                                 <div
-                                    className="position-absolute top-0 left-0 h-100 w-3"
+                                    className="position-absolute top-0 left-0 h-full w-3"
                                     style={{ backgroundColor: `var(--bs-${stat.color})` }}
                                 ></div>
 
@@ -359,7 +359,7 @@ const AdminBookingFilter = ({ AllEntries = {}, ApplyFilter, BookingList, avarage
 
 
                     <Col md={3} className="d-flex align-items-end gap-2 mb-3">
-                        <button className="btn btn-primary w-50" onClick={() => {
+                        <button className="btn btn-primary w-1/2" onClick={() => {
                             setIsFilterActive(true)
                             let updatedCount = ApplyFilter(FilterObj)
                             let FilteredDashboard = ReturnFilterData(updatedCount)
@@ -405,7 +405,7 @@ const AdminBookingFilter = ({ AllEntries = {}, ApplyFilter, BookingList, avarage
                                     <CardBody className={`py-2 px-1 bg-${stat.color}-light position-relative`}>
                                         {/* Optional decorative accent */}
                                         <div
-                                            className="position-absolute top-0 left-0 h-100 w-3"
+                                            className="position-absolute top-0 left-0 h-full w-3"
                                             style={{ backgroundColor: `var(--bs-${stat.color})` }}
                                         ></div>
 

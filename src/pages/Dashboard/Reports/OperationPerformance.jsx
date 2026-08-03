@@ -758,7 +758,7 @@ const OperationPerformance = () => {
                 SearchPlaceholder="Search From Table"
                 pagination="pagination"
                 paginationWrapper='dataTables_paginate paging_simple_numbers'
-                tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
                 isCustomPageSize={true}
                 isDownloadExcle={true}
                 onDownloadExcle={DownloadPerformanceDetails}
@@ -777,7 +777,7 @@ const OperationPerformance = () => {
                 SearchPlaceholder="Search From Table"
                 pagination="pagination"
                 paginationWrapper='dataTables_paginate paging_simple_numbers'
-                tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
                 isCustomPageSize={true}
                 isDownloadExcle={true}
                 onDownloadExcle={async () => {
@@ -833,7 +833,7 @@ const OperationPerformance = () => {
                 SearchPlaceholder="Search From Table"
                 pagination="pagination"
                 paginationWrapper='dataTables_paginate paging_simple_numbers'
-                tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
                 isCustomPageSize={true}
                 isDownloadExcle={true}
                 onDownloadExcle={async () => {

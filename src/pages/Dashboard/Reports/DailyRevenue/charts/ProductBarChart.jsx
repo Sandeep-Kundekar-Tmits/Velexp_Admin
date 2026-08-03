@@ -76,7 +76,7 @@ const ProductBarChart = ({ rows = [], topN = 7 }) => {
     }
 
     return (
-        <Card className="shadow-sm border-0 mb-4 h-100">
+        <Card className="shadow-sm border-0 mb-4 h-full">
             <CardBody className="d-flex flex-column">
                 <h6 className="fw-bold mb-1">Revenue by Product</h6>
                 <p className="text-muted small mb-3">Top products by gross revenue</p>

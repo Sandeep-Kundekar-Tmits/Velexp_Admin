@@ -150,7 +150,7 @@ const StatTile = ({ title, icon: Icon, accent, value, delta, deltaValueText, com
     const TrendIcon = TREND_ICON[trend];
     const trendColor = TREND_COLOR[trend];
     return (
-        <Card className="border-0 shadow-sm h-100" style={{ borderTop: `3px solid ${accent}` }}>
+        <Card className="border-0 shadow-sm h-full" style={{ borderTop: `3px solid ${accent}` }}>
             <CardBody className="px-3 py-2">
                 <div className="d-flex align-items-center justify-content-between mb-2">
                     <span
@@ -386,7 +386,7 @@ const RevenueDailyReport = () => {
             SearchPlaceholder="Search from table..."
             pagination="pagination"
             paginationWrapper="dataTables_paginate paging_simple_numbers"
-            tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+            tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
             defaultPageSize={50}
         />
     );

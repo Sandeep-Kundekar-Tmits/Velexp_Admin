@@ -313,7 +313,7 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                                                     }}
                                                     locations={customers}
                                                     placeholder={customersLoading ? "Loading..." : "Select Customer"}
-                                                    className="w-100"
+                                                    className="w-full"
                                                     value={selectedCustomerId ? (customers.find(c => c.id === selectedCustomerId)?.name || "Select Customer") : "select"}
                                                 />
                                             </Col>
@@ -344,7 +344,7 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                                         SearchPlaceholder="Search VAS..."
                                         pagination="pagination pagination-rounded justify-content-end mb-2"
                                         paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline mb-0"
+                                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline mb-0"
                                     />
                                 )}
                             </CardBody>
@@ -361,7 +361,7 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                                                     onChange={(val) => setFormData(prev => ({ ...prev, customer_id: val?.id || "" }))}
                                                     locations={customers}
                                                     placeholder={customersLoading ? "Loading..." : "Select Customer"}
-                                                    className="w-100"
+                                                    className="w-full"
                                                     value={isEdit ? (customers.find(c => c.id === formData.customer_id)?.name || "N/A") : (formData.customer_id ? customers.find(c => c.id === formData.customer_id)?.name : "select")}
                                                 />
                                                 {errors.customer_id && <div className="text-danger small mt-1">{errors.customer_id}</div>}
@@ -374,7 +374,7 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                                                     onChange={(val) => setFormData(prev => ({ ...prev, product_id: val?.id || "" }))}
                                                     locations={products}
                                                     placeholder={productsLoading ? "Loading..." : "Select Product"}
-                                                    className="w-100"
+                                                    className="w-full"
                                                     value={isEdit ? (products.find(p => p.id === formData.product_id)?.name || "N/A") : (formData.product_id ? products.find(p => p.id === formData.product_id)?.name : "select")}
                                                 />
                                                 {errors.product_id && <div className="text-danger small mt-1">{errors.product_id}</div>}
@@ -529,7 +529,7 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                         <Table bordered responsive>
                             <tbody>
                                 <tr>
-                                    <th className="bg-light w-25">Customer</th>
+                                    <th className="bg-light w-1/4">Customer</th>
                                     <td>{viewData.customer_name} ({viewData.customer_id})</td>
                                 </tr>
                                 <tr>

@@ -49,7 +49,7 @@ const JobListGlobalFilter = ({ setGlobalFilter }) => {
             </Col>
             {/* <Col xxl={2} lg={4}>
                 <div className='mb-3 mb-xxl-0'>
-                    <button type="button" className="btn btn-soft-secondary w-100">
+                    <button type="button" className="btn btn-soft-secondary w-full">
                         <i className="mdi mdi-filter-outline align-middle"></i> Filter</button>
                 </div>
             </Col> */}

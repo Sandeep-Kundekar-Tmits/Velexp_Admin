@@ -181,7 +181,7 @@ const UpdateUser = () => {
 
     if (selectedUserLoading) {
         return (
-            <div className='position-fixed top-0 z-3 start-0 w-100 h-100 d-flex justify-content-center align-content-center'>
+            <div className='position-fixed top-0 z-3 start-0 w-full h-full d-flex justify-content-center align-content-center'>
                 <Spinner>Loading...</Spinner>
             </div>
         );

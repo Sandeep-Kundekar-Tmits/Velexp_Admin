@@ -87,8 +87,11 @@
   .shadow { box-shadow: 0 4px 10px rgb(0 0 0 / 0.08); }
 
   /* ---- sizing ---- */
-  .w-100 { width: 100%; }
-  .h-100 { height: 100%; }
+  /* w-100 / h-100 / w-50 ... are NOT defined here on purpose.
+     Tailwind's spacing scale already claims those names with a different
+     meaning (h-100 = 25rem = 400px, not 100%), and Tailwind's utilities layer
+     beats this one — so a compat rule here would silently lose. All 132
+     occurrences were rewritten to w-full / h-full / w-1/2 etc. instead. */
   .mw-100 { max-width: 100%; }
   .img-fluid { max-width: 100%; height: auto; }
 
@@ -190,12 +193,14 @@
  */
 @layer base {
   /* Pages fill the viewport rather than collapsing to content height, so
-     short screens don't leave the layout looking half-drawn. */
+     short screens don't leave the layout looking half-drawn.
+     Deliberately NOT display:flex — as a flex column inside the layout's
+     fixed-height scroll region, children inherit flex-shrink:1 and get
+     compressed, which clipped tall cards (e.g. InvoiceFlow's upload panel)
+     to the visible area with empty space beneath. */
   .page-content {
     padding: 0.5rem;
     min-height: 100%;
-    display: flex;
-    flex-direction: column;
   }
   .main-content { width: 100%; }
   .account-pages { padding-block: 2rem; }

@@ -315,10 +315,10 @@ const TripDetail = () => {
                                 </FormGroup>
                             </Col>
                             <Col md={4} className="d-flex align-items-end" style={{gap: '10px'}}>
-                                <Button onClick={onGetData} color="primary" className="w-100" style={{ height: "39px" }}>
+                                <Button onClick={onGetData} color="primary" className="w-full" style={{ height: "39px" }}>
                                     Get Trip Details
                                 </Button>
-                                <Button onClick={() => setIsUploadModalOpen(true)} color="success" className="w-100" style={{ height: "39px" }}>
+                                <Button onClick={() => setIsUploadModalOpen(true)} color="success" className="w-full" style={{ height: "39px" }}>
                                     + Add Reading
                                 </Button>
                             </Col>
@@ -355,7 +355,7 @@ const TripDetail = () => {
                             SearchPlaceholder="Search trips..."
                             pagination="pagination"
                             paginationWrapper='dataTables_paginate paging_simple_numbers'
-                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
                         />
                     )}
                 </div>

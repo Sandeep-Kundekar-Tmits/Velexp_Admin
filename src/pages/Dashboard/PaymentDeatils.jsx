@@ -496,7 +496,7 @@ const PaymentDeatils = () => {
                             SearchPlaceholder="Search From Table"
                             pagination="pagination"
                             paginationWrapper='dataTables_paginate paging_simple_numbers'
-                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
                         />
                     }
                 </div>
@@ -519,7 +519,7 @@ const PaymentDeatils = () => {
                             SearchPlaceholder="Search From Table"
                             pagination="pagination"
                             paginationWrapper='dataTables_paginate paging_simple_numbers'
-                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
                         />
                     }
                 </div>
@@ -542,7 +542,7 @@ const PaymentDeatils = () => {
                             SearchPlaceholder="Search From Table"
                             pagination="pagination"
                             paginationWrapper='dataTables_paginate paging_simple_numbers'
-                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
                         />
                     }
                 </div>
@@ -561,7 +561,7 @@ const PaymentDeatils = () => {
                             <FormGroup>
                                 <Label className="">Select Customer</Label>
                                 <SearchableDropdown
-                                    className="w-100"
+                                    className="w-full"
                                     onChange={handleLocationChange}
                                     locations={Customes}
                                 // value={SelectedCustomer}

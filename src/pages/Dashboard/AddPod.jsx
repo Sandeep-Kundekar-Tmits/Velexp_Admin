@@ -335,7 +335,7 @@ const AddPod = () => {
           <Col md={2}>
             <Button
               color="primary"
-              className="w-100"
+              className="w-full"
               onClick={RangeCheckPodDetails}
               style={{ height: "38px", marginBottom: "15px" }}
             >
@@ -362,7 +362,7 @@ const AddPod = () => {
                 SearchPlaceholder="Search From Table"
                 pagination="pagination"
                 paginationWrapper='dataTables_paginate paging_simple_numbers'
-                tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
 
               />
           }

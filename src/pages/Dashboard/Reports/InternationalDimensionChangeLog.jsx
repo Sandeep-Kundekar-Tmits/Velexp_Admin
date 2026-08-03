@@ -289,7 +289,7 @@ const InternationalDimensionChangeLog = () => {
                                     color="primary"
                                     onClick={handleFetchReport}
                                     disabled={loading}
-                                    className="w-100"
+                                    className="w-full"
                                 >
                                     {loading ? (
                                         <>

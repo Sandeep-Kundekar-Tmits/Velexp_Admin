@@ -135,7 +135,14 @@ export const PaginationItem = forwardRef(function PaginationItem(
   return (
     <li
       ref={ref}
-      className={cn(active && "font-semibold", disabled && "pointer-events-none opacity-50", className)}
+      // The literal "active" class is what styles the child link (see the
+      // `.pagination li.active > a` rule). Without it the current page looked
+      // identical to every other page number.
+      className={cn(
+        active && "active font-semibold",
+        disabled && "pointer-events-none opacity-50",
+        className
+      )}
       {...rest}
     >
       {children}

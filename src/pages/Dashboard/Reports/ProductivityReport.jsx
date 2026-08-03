@@ -225,7 +225,7 @@ const ProductivityReport = () => {
                     SearchPlaceholder="Search Region Report..."
                     pagination="pagination  justify-content-end mb-2"
                     paginationWrapper="dataTables_paginate paging_simple_numbers"
-                    tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                    tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
                 />
             )
         },
@@ -247,7 +247,7 @@ const ProductivityReport = () => {
                     SearchPlaceholder="Search SC Report..."
                     pagination="pagination justify-content-end mb-2"
                     paginationWrapper="dataTables_paginate paging_simple_numbers"
-                    tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                    tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
                 />
             )
         },
@@ -269,7 +269,7 @@ const ProductivityReport = () => {
                     SearchPlaceholder="Search Raw Data..."
                     pagination="pagination justify-content-end mb-2"
                     paginationWrapper="dataTables_paginate paging_simple_numbers"
-                    tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                    tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
                 />
             )
         }
@@ -356,7 +356,7 @@ const ProductivityReport = () => {
                                     onClick={handleApply}
                                     disabled={reportLoading}
                                     style={{ height: "35px" }}
-                                    className={(reportData.region_report.length > 0 || reportData.service_center_report.length > 0 || reportData.raw_data.length > 0) ? "w-50" : "w-100"}
+                                    className={(reportData.region_report.length > 0 || reportData.service_center_report.length > 0 || reportData.raw_data.length > 0) ? "w-1/2" : "w-full"}
                                 >
                                     {reportLoading ? "Applying..." : "Apply"}
                                 </Button>
@@ -364,7 +364,7 @@ const ProductivityReport = () => {
                                     <Button
                                         disabled={excelLoading}
                                         onClick={handleDownloadExcel}
-                                        className="d-flex align-items-center px-2 bg-success border-success text-white w-50"
+                                        className="d-flex align-items-center px-2 bg-success border-success text-white w-1/2"
                                         style={{
                                             height: "35px",
                                             borderRadius: "4px",

@@ -430,7 +430,7 @@ const RtoApproval = () => {
                     <Col md={2}>
                         <Button
                             color="primary"
-                            className="w-100"
+                            className="w-full"
                             style={{ height: "38px", marginBottom: "17px" }}
                             onClick={handleCheck}
                         >
@@ -441,7 +441,7 @@ const RtoApproval = () => {
                         <Button
                             color="primary"
                             outline
-                            className="w-100"
+                            className="w-full"
                             style={{ height: "38px", marginBottom: "17px" }}
                             onClick={() => setBulkRtsOpen(true)}
                         >
@@ -460,7 +460,7 @@ const RtoApproval = () => {
                         SearchPlaceholder="Search across all columns..."
                         pagination="pagination"
                         paginationWrapper='dataTables_paginate paging_simple_numbers'
-                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
                         rowSelection={rowSelection}
                         onRowSelectionChange={setRowSelection}
                     />
@@ -495,7 +495,7 @@ const RtoApproval = () => {
             {/* Bulk Action Footer */}
             {selectedRowCount > 0 && (
                 <div
-                    className="position-fixed bottom-0 start-0 w-100 d-flex justify-content-end align-items-center px-4 py-3 bg-white border-top shadow-lg"
+                    className="position-fixed bottom-0 start-0 w-full d-flex justify-content-end align-items-center px-4 py-3 bg-white border-top shadow-lg"
                     style={{ zIndex: 1000, gap: "15px" }}
                 >
                     <Button

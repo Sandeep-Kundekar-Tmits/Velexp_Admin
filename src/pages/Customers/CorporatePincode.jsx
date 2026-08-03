@@ -437,7 +437,7 @@ const CorporatePincode = ({ externalCustomer }) => {
                         </FormGroup>
                     </Col>
                     <Col md={4}>
-                        <div className="d-flex align-items-center w-100" style={{ marginTop: "28px" }}>
+                        <div className="d-flex align-items-center w-full" style={{ marginTop: "28px" }}>
                             <Input type="file" style={{ width: "100%" }} onChange={UploadChange} />
                         </div>
                     </Col>
@@ -482,7 +482,7 @@ const CorporatePincode = ({ externalCustomer }) => {
                             SearchPlaceholder="Search From Table"
                             pagination="pagination"
                             paginationWrapper='dataTables_paginate paging_simple_numbers'
-                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
                             isCustomPageSize={true}
                         />}
                 </div>

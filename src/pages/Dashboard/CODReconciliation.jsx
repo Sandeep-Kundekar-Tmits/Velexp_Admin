@@ -217,7 +217,7 @@ const CODReconciliation = () => {
                                 <div className="mb-3">
                                     <Button
                                         color="primary"
-                                        className="w-100"
+                                        className="w-full"
                                         onClick={fetchData}
                                         disabled={loading}
                                         style={{ height: "38px" }}
@@ -230,7 +230,7 @@ const CODReconciliation = () => {
                                 <div className="mb-3">
                                     <Button
                                         color="success"
-                                        className="w-100 d-flex align-items-center justify-content-center gap-1"
+                                        className="w-full d-flex align-items-center justify-content-center gap-1"
                                         onClick={exportToExcel}
                                         disabled={loading || reconciliationData.length === 0}
                                         style={{ height: "38px" }}

@@ -99,7 +99,7 @@ const HourlyBarChart = ({ rows = [] }) => {
     }
 
     return (
-        <Card className="shadow-sm border-0 mb-4 h-100">
+        <Card className="shadow-sm border-0 mb-4 h-full">
             <CardBody>
                 <div className="d-flex flex-wrap justify-content-between align-items-start mb-3 gap-2">
                     <div>

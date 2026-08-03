@@ -291,7 +291,7 @@ const InternationalMisReport = () => {
                                     color="primary"
                                     onClick={handleFetchReport}
                                     disabled={loading || !startDate || !endDate}
-                                    className="w-100"
+                                    className="w-full"
                                 >
                                     {loading ? (
                                         <>

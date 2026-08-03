@@ -349,7 +349,7 @@ const UpdateWeight = () => {
                                 <Col md={3}>
                                     <Button
                                         color="primary"
-                                        className="d-flex align-items-center gap-1 fw-bold w-100 justify-content-center"
+                                        className="d-flex align-items-center gap-1 fw-bold w-full justify-content-center"
                                         onClick={handleSingleSubmit}
                                         disabled={singleLoading}
                                     >
@@ -450,7 +450,7 @@ const UpdateWeight = () => {
                                 <Col md={3}>
                                     <Button
                                         color="primary"
-                                        className="d-flex align-items-center gap-1 fw-bold w-100 justify-content-center"
+                                        className="d-flex align-items-center gap-1 fw-bold w-full justify-content-center"
                                         onClick={handleBulkSubmit}
                                         disabled={bulkLoading || !validRows.length}
                                     >

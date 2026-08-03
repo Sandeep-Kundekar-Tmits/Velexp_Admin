@@ -398,7 +398,7 @@ const CustomerInvoice = () => {
                             </FormGroup>
                         </Col>
                         <Col md={2}>
-                            <Button color="primary" onClick={UploadInvoice} disabled={!showUploadBtn || !UploadedFile} className="w-100" style={{ height: "38px", marginBottom: "35px" }} >
+                            <Button color="primary" onClick={UploadInvoice} disabled={!showUploadBtn || !UploadedFile} className="w-full" style={{ height: "38px", marginBottom: "35px" }} >
                                 {
                                     UploadFranchiseInvoiceLoading ? <Spinner size="sm">
                                         Loading...
@@ -415,7 +415,7 @@ const CustomerInvoice = () => {
                                     onChange={handleLocationChange}
                                     locations={Customes}
                                     placeholder="Select Customer"
-                                    className="w-100"
+                                    className="w-full"
                                 />
                             </FormGroup>
                         </Col>
@@ -430,7 +430,7 @@ const CustomerInvoice = () => {
                             </FormGroup>
                         </Col>
                         <Col md={2}>
-                            <Button color="primary" className="w-100" style={{ height: "38px", marginBottom: "15px" }} onClick={CheckFranchiseDetails}>
+                            <Button color="primary" className="w-full" style={{ height: "38px", marginBottom: "15px" }} onClick={CheckFranchiseDetails}>
                                 Check
                             </Button>
                         </Col>
@@ -462,7 +462,7 @@ const CustomerInvoice = () => {
                                             SearchPlaceholder="Search From Table"
                                             pagination="pagination"
                                             paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
                                         />
                                 }
                                 </>

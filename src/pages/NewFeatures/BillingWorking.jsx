@@ -279,7 +279,7 @@ const BillingWorking = () => {
                                         onChange={(val) => setSelectedCustomer(val)}
                                         locations={customers}
                                         placeholder={customersLoading ? "Loading..." : "Search Customer"}
-                                        className="w-100"
+                                        className="w-full"
                                         value={selectedCustomer ? selectedCustomer.name : "select"}
                                     />
                                 </Col>
@@ -294,7 +294,7 @@ const BillingWorking = () => {
                                 <Col md={3} className="mb-3 d-flex align-items-end">
                                     <Button 
                                         color="primary" 
-                                        className="w-100 py-2 fw-bold" 
+                                        className="w-full py-2 fw-bold" 
                                         onClick={handleQueueRun} 
                                         disabled={queuing}
                                     >

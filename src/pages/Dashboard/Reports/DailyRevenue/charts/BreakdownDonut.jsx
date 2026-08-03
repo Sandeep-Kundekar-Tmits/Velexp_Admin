@@ -53,7 +53,7 @@ const BreakdownDonut = ({ title, rows = [], labelKey, topN = 7, legendPosition =
     }
 
     return (
-        <Card className="shadow-sm border-0 mb-4 h-100">
+        <Card className="shadow-sm border-0 mb-4 h-full">
             <CardBody>
                 <h6 className="fw-bold mb-3">{title}</h6>
                 {series.length === 0

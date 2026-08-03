@@ -108,7 +108,7 @@ const CorporateInvoiceGenerate = React.forwardRef(({ invoiceData }, ref) => {
             <thead style={{ border: "solid black 1px" }}>
               <tr>
                 <th style={{ border: "solid black 1px" }}>S.No.</th>
-                {/* <th className="w-25" style={{ border: "solid black 1px" }}>Description</th> */}
+                {/* <th className="w-1/4" style={{ border: "solid black 1px" }}>Description</th> */}
                 <th style={{ border: "solid black 1px" }}>Quantity</th>
                 <th style={{ border: "solid black 1px" }}>Total</th>
 

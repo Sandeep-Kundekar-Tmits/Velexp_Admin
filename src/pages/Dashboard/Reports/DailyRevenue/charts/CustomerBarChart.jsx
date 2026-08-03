@@ -79,7 +79,7 @@ const CustomerBarChart = ({ rows = [], topN }) => {
     }
 
     return (
-        <Card className="shadow-sm border-0 mb-4 h-100">
+        <Card className="shadow-sm border-0 mb-4 h-full">
             <CardBody>
                 <h6 className="fw-bold mb-1">Top Customers by Revenue</h6>
                 <p className="text-muted small mb-3">Gross &amp; Net revenue per customer (highest first)</p>

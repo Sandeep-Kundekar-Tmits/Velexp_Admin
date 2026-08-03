@@ -22,12 +22,12 @@ export const FilterBar = ({ filterObj, setFilterObj, checkpointOptions, onApply,
             </Col>
 
             <Col md={3} className="d-flex align-items-end mb-3">
-                <button className="btn btn-primary w-100" onClick={onApply}>Apply Filters</button>
+                <button className="btn btn-primary w-full" onClick={onApply}>Apply Filters</button>
             </Col>
 
             <Col md={3} className="d-flex align-items-end mb-3">
                 {isFilterActive && (
-                    <button className="btn bg-danger text-white w-100" onClick={onClear}>
+                    <button className="btn bg-danger text-white w-full" onClick={onClear}>
                         Clear Filters
                     </button>
                 )}

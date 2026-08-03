@@ -528,7 +528,7 @@ const AutoReconciliation = () => {
                                     <Button
                                         color="primary"
                                         size="sm"
-                                        className="w-100"
+                                        className="w-full"
                                         disabled={!uploadFile || uploading}
                                         onClick={handleUpload}
                                     >
@@ -618,14 +618,14 @@ const AutoReconciliation = () => {
                         <Col md={8}>
                             {!selectedId ? (
                                 <div
-                                    className="h-100 d-flex flex-column align-items-center justify-content-center text-muted"
+                                    className="h-full d-flex flex-column align-items-center justify-content-center text-muted"
                                     style={{ minHeight: 300 }}
                                 >
                                     <i className="bx bx-spreadsheet" style={{ fontSize: 48, opacity: 0.3 }} />
                                     <p className="mt-2 small">Select a statement from the left to view entries</p>
                                 </div>
                             ) : (
-                                <Card className="shadow-sm h-100">
+                                <Card className="shadow-sm h-full">
                                     <CardBody className="p-0 d-flex flex-column">
                                         {/* header */}
                                         <div className="px-3 py-2 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2">

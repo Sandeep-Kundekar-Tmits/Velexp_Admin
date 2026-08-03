@@ -200,21 +200,21 @@ const PickupPerformanceFilter = ({ AllEntries = {}, ApplyFilter, BookingList }) 
                     //         <CardBody className={`pt-2 pb-1 px-2 bg-${stat.color}-light position-relative`}>
                     //             {/* Decorative accent */}
                     //             <div
-                    //                 className="position-absolute top-0 left-0 h-100 w-2"
+                    //                 className="position-absolute top-0 left-0 h-full w-2"
                     //                 style={{ backgroundColor: `var(--bs-${stat.color})` }}
                     //             ></div>
 
                     //             <div className="" style={{ minHeight: "175px" }}>
-                    //                 <CardTitle tag="h6" className="text-muted h-100 text-uppercase mb-1 fs-7 fw-semibold letter-spacing-1">
+                    //                 <CardTitle tag="h6" className="text-muted h-full text-uppercase mb-1 fs-7 fw-semibold letter-spacing-1">
                     //                     {stat.title}
                     //                 </CardTitle>
 
                     //                 {!stat.isGroup ? (
                     //                     // Simple stat display
-                    //                     <div className="d-flex mt-4 align-items-baseline h-100 justify-content-center">
+                    //                     <div className="d-flex mt-4 align-items-baseline h-full justify-content-center">
                     //                         <CardText
                     //                             tag="h2"
-                    //                             className={`mb-0 h-100 fw-bold text-${stat.color}`}
+                    //                             className={`mb-0 h-full fw-bold text-${stat.color}`}
                     //                         >
                     //                             {stat.value} {stat.unit && <span className="fs-6 text-muted">{stat.unit}</span>}
                     //                         </CardText>
@@ -270,7 +270,7 @@ const PickupPerformanceFilter = ({ AllEntries = {}, ApplyFilter, BookingList }) 
                 </Col>
 
                 <Col md={3} className="d-flex align-items-end mb-3">
-                    <button className="btn btn-primary w-100" onClick={applyFilters}>
+                    <button className="btn btn-primary w-full" onClick={applyFilters}>
                         Apply Filters
                     </button>
                 </Col>
@@ -278,7 +278,7 @@ const PickupPerformanceFilter = ({ AllEntries = {}, ApplyFilter, BookingList }) 
                 <Col md={3} className="d-flex align-items-end mb-3">
                     {isFilterActive && (
                         <button
-                            className="btn bg-danger text-white w-100"
+                            className="btn bg-danger text-white w-full"
                             onClick={clearFilters}
                         >
                             Clear Filters

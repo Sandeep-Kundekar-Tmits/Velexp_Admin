@@ -324,7 +324,7 @@ const StatusUpdateAudit = () => {
                     <Col md={3} className="mb-3">
                         <Button
                             color="primary"
-                            className="w-100"
+                            className="w-full"
                             style={{ height: "38px", fontWeight: "600" }}
                             onClick={handleGetData}
                             disabled={auditLoading || !selectedRange?.startDate || !selectedRange?.endDate}
@@ -354,7 +354,7 @@ const StatusUpdateAudit = () => {
                                 SearchPlaceholder="Search From Table"
                                 pagination="pagination"
                                 paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                tableClass="table-bordered table-nowrap dt-responsive w-100 dataTable no-footer"
+                                tableClass="table-bordered table-nowrap dt-responsive w-full dataTable no-footer"
                                 isCustomPageSize={true}
                                 isStickyHeader={true}
                                 isStickyFooter={true}

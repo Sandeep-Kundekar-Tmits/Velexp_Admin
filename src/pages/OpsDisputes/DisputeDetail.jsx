@@ -80,7 +80,7 @@ const DisputeDetail = () => {
             <div className="row mt-3">
                 {/* Dispute Info */}
                 <div className="col-md-6 mb-3">
-                    <Card className="h-100">
+                    <Card className="h-full">
                         <CardHeader><strong>Dispute Info</strong></CardHeader>
                         <CardBody>
                             <table className="table table-sm table-borderless mb-0">
@@ -141,7 +141,7 @@ const DisputeDetail = () => {
 
                 {/* Tagged Service Centers */}
                 <div className="col-md-6 mb-3">
-                    <Card className="h-100">
+                    <Card className="h-full">
                         <CardHeader><strong>Tagged Service Centers</strong></CardHeader>
                         <CardBody>
                             {(dispute.service_centers || []).length === 0

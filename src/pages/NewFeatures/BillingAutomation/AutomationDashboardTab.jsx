@@ -64,7 +64,7 @@ const AutomationDashboardTab = ({ period, selectedCustomers = [], batchCtl }) =>
                     const running = isPolling && batch?.batch_type === a.key
                     return (
                         <Col md={4} key={a.key} className="mb-3">
-                            <Card className="shadow-sm border-0 h-100">
+                            <Card className="shadow-sm border-0 h-full">
                                 <CardBody className="d-flex flex-column">
                                     <div className="d-flex align-items-center gap-2 mb-2">
                                         <Icon size={26} className={`text-${a.color}`} />
@@ -73,7 +73,7 @@ const AutomationDashboardTab = ({ period, selectedCustomers = [], batchCtl }) =>
                                     <p className="text-muted flex-grow-1">{a.confirmMsg}</p>
                                     <Button
                                         color={a.color}
-                                        className="w-100 fw-bold py-2"
+                                        className="w-full fw-bold py-2"
                                         onClick={() => handleTrigger(a)}
                                         disabled={isTriggering || isPolling}
                                     >

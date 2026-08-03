@@ -448,7 +448,7 @@ const InvoiceFlow = () => {
                                             <Row>
                                                 {Object.entries(previewData.booking).map(([zone, data]) => (
                                                     <Col md={3} key={zone} className="mb-3">
-                                                        <Card className="border-0 shadow-sm h-100 bg-white">
+                                                        <Card className="border-0 shadow-sm h-full bg-white">
                                                             <CardBody className="p-3">
                                                                 <div className="d-flex justify-content-between align-items-center mb-2">
                                                                     <Badge color={zone === "UNMAPPED" || data.total_amount === 0 ? "danger" : "info"} className="px-2 py-1">
@@ -494,7 +494,7 @@ const InvoiceFlow = () => {
                                                 onChange={(val) => setSelectedCustomer(val)}
                                                 locations={customers}
                                                 placeholder={customersLoading ? "Loading..." : "All Customers"}
-                                                className="w-100"
+                                                className="w-full"
                                                 value={selectedCustomer ? selectedCustomer.name : "select"}
                                             />
                                         </Col>

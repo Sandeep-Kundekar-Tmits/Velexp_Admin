@@ -39,7 +39,7 @@ const RevenueAreaChart = ({ rows = [] }) => {
     }
 
     return (
-        <Card className="shadow-sm border-0 mb-4 h-100">
+        <Card className="shadow-sm border-0 mb-4 h-full">
             <CardBody className="d-flex flex-column">
                 <h6 className="fw-bold mb-1">Last 7 Days — Gross vs Net</h6>
                 <p className="text-muted small mb-3">Daily gross &amp; net revenue trend</p>

@@ -16,7 +16,7 @@ const RevenueBySource = ({ rows = [] }) => {
     const maxGross = rows.reduce((m, r) => Math.max(m, Number(r.gross) || 0), 0)
 
     return (
-        <Card className="shadow-sm border-0 h-100 mb-4">
+        <Card className="shadow-sm border-0 h-full mb-4">
             <CardBody>
                 <h6 className="fw-bold mb-1">Revenue by Source</h6>
                 <p className="text-muted small mb-3">Where today&apos;s gross revenue is computed from</p>

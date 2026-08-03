@@ -370,7 +370,7 @@ const ServiceCenterMap = ({ rows = [] }) => {
     const totalGross = useMemo(() => stateList.reduce((s, x) => s + x.gross, 0), [stateList])
 
     return (
-        <Card className="shadow-sm border-0 mb-4 h-100">
+        <Card className="shadow-sm border-0 mb-4 h-full">
             <CardBody>
                 <div className="mb-2">
                     <h6 className="fw-bold mb-1">Service Centers</h6>

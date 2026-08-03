@@ -312,7 +312,7 @@ const ManualInvoice = () => {
                                         <FormGroup>
                                             <Label for="company_address">Select Company Address:</Label>
                                             <SearchableDropdown
-                                                className="w-100"
+                                                className="w-full"
                                                 onChange={handleLocationChange}
                                                 locations={CompanyAddresses}
                                                 value={SelectedAddress?.name || "select"}
@@ -374,7 +374,7 @@ const ManualInvoice = () => {
                                 </Col>
 
                                 <Col md={12}>
-                                    <Button color="primary" className="mt-2 w-100" onClick={OnAddInfoTable}>Add</Button>
+                                    <Button color="primary" className="mt-2 w-full" onClick={OnAddInfoTable}>Add</Button>
                                 </Col>
                             </Row>
                         </Col>
@@ -444,7 +444,7 @@ const ManualInvoice = () => {
                                         <Button
                                             disabled={Infotable.length < 1}
                                             onClick={OnGenerateInvoiceClick}
-                                            className="bg-primary w-75 d-flex justify-content-center align-items-center"
+                                            className="bg-primary w-3/4 d-flex justify-content-center align-items-center"
                                         >
                                             {GenerateInvoiceLoading ? (
                                                 <Spinner>Loading...</Spinner>

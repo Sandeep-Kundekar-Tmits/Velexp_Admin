@@ -273,7 +273,7 @@ const ServiceProviderBooking = () => {
                             <DateRangeInput
                                 onChange={handleDateChange}
                                 value={selectedRange}
-                                className="h-100"
+                                className="h-full"
                                 isBorder={true}
                             />
                         </FormGroup>
@@ -295,7 +295,7 @@ const ServiceProviderBooking = () => {
                         </FormGroup>
                     </Col>
                     <Col md={2} className="d-flex align-items-end mb-3">
-                        <Button color="primary" className="w-100" style={{ height: "35px" }} onClick={OnGetBookings} >
+                        <Button color="primary" className="w-full" style={{ height: "35px" }} onClick={OnGetBookings} >
                             Get Data
                         </Button>
                     </Col>
@@ -322,7 +322,7 @@ const ServiceProviderBooking = () => {
                                         SearchPlaceholder="Search From Table"
                                         pagination="pagination"
                                         paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
                                     />
                                 }
                                 </>

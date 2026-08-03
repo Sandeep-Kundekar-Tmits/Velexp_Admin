@@ -143,8 +143,8 @@ const InvoiceGenerator = ({ invoiceData, downloadUrl }) => {
         <thead style={{ border: "solid black 1px" }}>
           <tr>
             {isVisible('srno') && <th className='text-center' style={{ border: "solid black 1px" }}>S.No.</th>}
-            {isVisible('description') && <th className='text-center w-25' style={{ border: "solid black 1px" }}>Description</th>}
-            {isVisible('origin') && <th className='text-center w-25' style={{ border: "solid black 1px" }}>Origin</th>}
+            {isVisible('description') && <th className='text-center w-1/4' style={{ border: "solid black 1px" }}>Description</th>}
+            {isVisible('origin') && <th className='text-center w-1/4' style={{ border: "solid black 1px" }}>Origin</th>}
             {isVisible('shipments') && <th className='text-center' style={{ border: "solid black 1px" }}> Shipments</th>}
             {isVisible('quantity') && <th className='text-center' style={{ border: "solid black 1px" }}>Quantity</th>}
             {/* {isVisible('rate') && <th>Rate</th>} */}

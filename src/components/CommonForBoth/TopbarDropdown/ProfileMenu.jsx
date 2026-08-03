@@ -102,7 +102,7 @@ const ProfileMenu = (props) => {
         className="sidebar-footer border-0"
       >
         <DropdownToggle
-          className="w-100 bg-transparent border-0 btn-outline-info" style={{ cursor: "pointer", outline: "none" }}
+          className="w-full bg-transparent border-0 btn-outline-info" style={{ cursor: "pointer", outline: "none" }}
         >
           <UserBadge userType={customerType} isAdmin={isAdmin} />
         </DropdownToggle>

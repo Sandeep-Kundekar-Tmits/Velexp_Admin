@@ -9,6 +9,8 @@ const Logout = lazy(() => import("../pages/Authentication/Logout"));
 const ForgetPwd = lazy(() => import("../pages/Authentication/ForgetPassword"));
 const PasswordResetConfirm = lazy(() => import("../pages/Authentication/PasswordResetConfirm"));
 const RoleNotDefinedScreen = lazy(() => import("../pages/Authentication/RoleNotDefinedScreen"));
+// Dev-only gallery of the Tailwind primitives; excluded from production builds.
+const UiGallery = lazy(() => import("../pages/_dev/UiGallery"));
 
 // Dashboard / Reports / Invoices / etc.
 const AddPod = lazy(() => import("../pages/Dashboard/AddPod"));
@@ -331,6 +333,7 @@ const getAuthProtectedRoutes = () => {
 // password-reset link arrives by email and clears the session itself.
 const publicRoutes = [
   { path: "/no_role", component: <RoleNotDefinedScreen /> },
+  ...(import.meta.env.DEV ? [{ path: "/__ui", component: <UiGallery /> }] : []),
   { path: "/logout", component: <Logout /> },
   { path: "/login", component: <Login />, publicOnly: true },
   { path: "/forgot-password", component: <ForgetPwd />, publicOnly: true },

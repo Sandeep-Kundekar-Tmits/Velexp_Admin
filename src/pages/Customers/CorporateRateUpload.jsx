@@ -389,7 +389,7 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
                                     color="primary"
                                     onClick={validateAndUpload}
                                     disabled={!file || parsingLoading || uploadingData || !selectedCustomer || excelData.length === 0}
-                                    className="w-100 d-flex align-items-center justify-content-center"
+                                    className="w-full d-flex align-items-center justify-content-center"
                                     style={{ height: "38px" }}
                                 >
                                     {uploadingData ? (
@@ -402,7 +402,7 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
                                 <Button
                                     color="success"
                                     onClick={handleDownloadTemplate}
-                                    className="w-100 d-flex align-items-center justify-content-center"
+                                    className="w-full d-flex align-items-center justify-content-center"
                                     outline
                                     style={{ height: "38px" }}
                                 >
@@ -571,7 +571,7 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
                                                 SearchPlaceholder="Search rates..."
                                                 pagination="pagination pagination-rounded justify-content-end mb-2"
                                                 paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                                tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline mb-0"
+                                                tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline mb-0"
                                             />
                                         )}
                                     </CardBody>
@@ -680,7 +680,7 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
                                     placeholder="Select Product"
                                     value={newRate.product_id ? newRate.product_id.name : "select"}
                                     onChange={(val) => setNewRate({ ...newRate, product_id: val })}
-                                    className="w-100"
+                                    className="w-full"
                                 />
                             </FormGroup>
                         </Col>

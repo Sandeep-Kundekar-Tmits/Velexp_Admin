@@ -495,7 +495,7 @@ const CorporateBilling = () => {
                             </FormGroup>
                         </Col>
                         <Col md={2}>
-                            <Button color="primary" disabled={!showUploadBtn || !UploadedFile} onClick={UploadInvoice} className="w-100" style={{ height: "38px", marginBottom: "35px" }} >
+                            <Button color="primary" disabled={!showUploadBtn || !UploadedFile} onClick={UploadInvoice} className="w-full" style={{ height: "38px", marginBottom: "35px" }} >
                                 {
                                     UploadcorporateInvoiceLoading ? <Spinner size="sm">
                                         Loading...
@@ -512,7 +512,7 @@ const CorporateBilling = () => {
                                     onChange={handleLocationChange}
                                     locations={Customes}
                                     placeholder={GetuserLoading ? "loading..." : "Select Customer"}
-                                    className="w-100"
+                                    className="w-full"
                                 />
                             </FormGroup>
                         </Col>
@@ -527,7 +527,7 @@ const CorporateBilling = () => {
                             </FormGroup>
                         </Col>
                         <Col md={2}>
-                            <Button color="primary" onClick={CheckCustomerBillings} className="w-100" style={{ height: "38px", marginBottom: "15px" }} >
+                            <Button color="primary" onClick={CheckCustomerBillings} className="w-full" style={{ height: "38px", marginBottom: "15px" }} >
                                 {
                                     CorporateBillingLoading ? "Checking.." : "Check"
                                 }
@@ -557,7 +557,7 @@ const CorporateBilling = () => {
                                         SearchPlaceholder="Search From Table"
                                         pagination="pagination"
                                         paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
                                     />
                                 }
                                 </>

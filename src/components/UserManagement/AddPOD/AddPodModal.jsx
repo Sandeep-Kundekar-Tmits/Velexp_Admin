@@ -57,7 +57,7 @@ const AddPodModal = ({ toggle, formData, onChange, onImageRemove, errors, onSubm
                   * Users must enter and verify an AWB number here first.
                   */}
                 <div>
-                    <FormGroup className="w-75 m-auto pb-4" >
+                    <FormGroup className="w-3/4 m-auto pb-4" >
                         <Label for="awbInput">Enter AWB No.</Label>
                         <div className="d-flex align-items-start ">
                             <Input

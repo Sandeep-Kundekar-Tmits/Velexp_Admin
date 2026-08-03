@@ -7,7 +7,7 @@ import "react-date-range/dist/theme/default.css";
 const DateRangeInput = ({
   value,
   onChange,
-  className = "",
+  className="",
   isBorder = false,
   isBorderRight = false,
   height = "38px",
