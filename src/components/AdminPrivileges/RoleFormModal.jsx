@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Modal, ModalHeader, ModalBody, ModalFooter, Button, FormGroup, Label, Input, FormFeedback, Spinner } from "reactstrap";
+import { Modal, ModalHeader, ModalBody, ModalFooter, Button, FormGroup, Label, Input, FormFeedback, Spinner } from "@/components/ui";
 
 const emptyForm = { name: "", description: "", is_active: true };
 

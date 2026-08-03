@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Nav, NavItem, TabContent, TabPane } from "reactstrap";
+import { Nav, NavItem, TabContent, TabPane } from "@/components/ui";
 import { NavLink } from "react-router-dom";
 
 /**

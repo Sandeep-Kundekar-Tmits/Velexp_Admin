@@ -7,7 +7,7 @@ import {
   Nav,
   NavItem,
   NavLink,
-} from "reactstrap";
+} from "@/components/ui";
 
 const CollapsibleSideBar = ({ children, toggle }) => {
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Button, Col, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Row } from "reactstrap";
+import { Button, Col, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Row } from "@/components/ui";
 import Select from "react-select";
 import MainHeaderComp from "../../components/MainHeaderCom";
 import TableContainer from "../../components/Table/TableContainer";

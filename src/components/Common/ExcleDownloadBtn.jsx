@@ -1,5 +1,5 @@
 import { FaFileExcel } from "react-icons/fa"
-import { Button } from "reactstrap"
+import { Button } from "@/components/ui"
 
 const ExcleDownloadBtn = ({ isDisabled = false, onDownloadExcle, ExcleLoading = false, label }) => {
     return (

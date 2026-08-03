@@ -8,7 +8,7 @@ import {
   CardBody,
   Badge,
   Progress
-} from 'reactstrap';
+} from "@/components/ui";
 
 const CustomerServiceEmployeeFilter = ({ data = [] }) => {
     const getBadgeColor = (metricType, type, value) => {

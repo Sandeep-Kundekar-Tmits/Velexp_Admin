@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import Select from "react-select";
-import { Button, Col, FormGroup, Input, Label, Row, Spinner, Card, CardBody } from "reactstrap";
+import { Button, Col, FormGroup, Input, Label, Row, Spinner, Card, CardBody } from "@/components/ui";
 import { FaFileExcel, FaUpload, FaDownload, FaPlus, FaTrash, FaEye, FaEdit } from "react-icons/fa";
 import MainHeaderCom from "../../components/MainHeaderCom";
 import SearchableDropdown from "../../components/Common/SearchableDropdown";

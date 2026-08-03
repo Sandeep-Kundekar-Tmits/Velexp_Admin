@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, CardBody } from "reactstrap";
+import { Card, CardBody } from "@/components/ui";
 
 const StatsCard = ({ value, label }) => {
   return (

@@ -1,6 +1,6 @@
 // Tab 1 — the three one-click triggers + live progress panel.
 import { useState } from "react"
-import { Button, Card, CardBody, Col, Row, Spinner, Modal, ModalHeader, ModalBody, ModalFooter, Badge } from "reactstrap"
+import { Button, Card, CardBody, Col, Row, Spinner, Modal, ModalHeader, ModalBody, ModalFooter, Badge } from "@/components/ui"
 import { MdSync, MdDescription, MdReceiptLong } from "react-icons/md"
 import {
     BILLING_BATCH_SYNC_AUDIT,

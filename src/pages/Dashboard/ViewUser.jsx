@@ -1,4 +1,4 @@
-import { Button, Container } from "reactstrap"
+import { Button, Container } from "@/components/ui"
 import UserProfile from "../../components/UserManagement/UserProfile"
 import KYCInfo from "../../components/UserManagement/KYCInfo"
 import FranchiseProfile from "../../components/UserManagement/FranchiseProfile"

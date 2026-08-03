@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react"
-import { Badge, Button, Card, CardBody, Col, Container, Row, Spinner } from "reactstrap"
+import { Badge, Button, Card, CardBody, Col, Container, Row, Spinner } from "@/components/ui"
 import MainHeaderComp from "../../components/MainHeaderCom"
 import DateRangeInput from "../../components/Common/DateRangeInput"
 import TableContainer from "../../components/Table/TableContainer"

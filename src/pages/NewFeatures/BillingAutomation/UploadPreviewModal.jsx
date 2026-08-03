@@ -1,6 +1,6 @@
 // Upload a (possibly edited) working file -> preview rows/totals -> generate invoice.
 import { useMemo, useState } from "react"
-import { Badge, Button, Modal, ModalBody, ModalFooter, ModalHeader, Input, Label, Spinner } from "reactstrap"
+import { Badge, Button, Modal, ModalBody, ModalFooter, ModalHeader, Input, Label, Spinner } from "@/components/ui"
 import TableContainer from "../../../components/Table/TableContainer"
 import usePostFileApicall from "../../../hooks/usePostFileApicall"
 import ToasterProvider from "../../../helpers/ToasterProvider"

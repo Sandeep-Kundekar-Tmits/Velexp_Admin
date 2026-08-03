@@ -13,7 +13,7 @@ import {
     Form,
     FormGroup,
     Spinner,
-} from "reactstrap";
+} from "@/components/ui";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import withRouter from "../../components/Common/withRouter";
 import SingleLogo from "../../assets/images/vellocity-express-single-logo.png"

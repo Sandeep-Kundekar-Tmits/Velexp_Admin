@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Select, { components } from "react-select";
-import { Button, Col, FormGroup, Label, Row } from "reactstrap";
+import { Button, Col, FormGroup, Label, Row } from "@/components/ui";
 import { GridLoader } from "react-spinners";
 import TableContainer from "../../../components/Table/TableContainer";
 import MainHeaderComp from "../../../components/MainHeaderCom";

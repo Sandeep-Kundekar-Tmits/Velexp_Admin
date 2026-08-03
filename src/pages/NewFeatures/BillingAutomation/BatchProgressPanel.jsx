@@ -2,7 +2,7 @@
 // batch status badge, reason-count chips and the per-customer progress[] table.
 // The "context" column adapts to the batch_type.
 import { useMemo } from "react"
-import { Badge, Button, Card, CardBody, Progress, Spinner } from "reactstrap"
+import { Badge, Button, Card, CardBody, Progress, Spinner } from "@/components/ui"
 import { MdFileDownload, MdStop } from "react-icons/md"
 import TableContainer from "../../../components/Table/TableContainer"
 import { CORPORATE_BILLING_RUNS } from "../../../api"

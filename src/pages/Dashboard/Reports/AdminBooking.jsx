@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
-import { Pagination, PaginationItem, PaginationLink, Container, Row, Col, FormGroup, Spinner } from 'reactstrap';
+import { Pagination, PaginationItem, PaginationLink, Container, Row, Col, FormGroup, Spinner } from "@/components/ui";
 
-import { Button, FormFeedback, Input, Label, Table } from "reactstrap";
+import { Button, FormFeedback, Input, Label, Table } from "@/components/ui";
 import DateRangePicker from "@paprika/date-range-picker";
 import { useState } from "react";
 import TableContainer from '../../../components/Table/TableContainer';

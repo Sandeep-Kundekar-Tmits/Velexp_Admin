@@ -13,7 +13,7 @@ import {
   Row,
   Col,
   Spinner
-} from 'reactstrap';
+} from "@/components/ui";
 import Select from 'react-select'
 import { useGetApiCall } from '../../../hooks/useGetApiCall';
 import { GET_RATE_DATE_PRODUCT, GET_RATE_DATE_ZONE } from '../../../api';

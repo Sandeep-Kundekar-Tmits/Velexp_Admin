@@ -4,7 +4,7 @@ import {
     Upload, FileText, Download, CheckCircle, AlertTriangle,
     X, FileDown, PackageSearch,
 } from "lucide-react";
-import { Badge, Button, Card, CardBody } from "reactstrap";
+import { Badge, Button, Card, CardBody } from "@/components/ui";
 import { toast } from "react-toastify";
 import MainHeaderComp from "../../../components/MainHeaderCom";
 import { MIS_RUN } from "../../../api";

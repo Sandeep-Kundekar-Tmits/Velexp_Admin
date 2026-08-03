@@ -6,7 +6,7 @@ import {
     Modal, ModalHeader, ModalBody, ModalFooter,
     Nav, NavItem, NavLink, TabContent, TabPane,
     Button, Spinner, Collapse,
-} from "reactstrap"
+} from "@/components/ui"
 import classnames from "classnames"
 import {
     Upload, FileText, Download, CheckCircle, XCircle, Clock,

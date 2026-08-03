@@ -5,7 +5,7 @@ import {
     NavItem,
     TabContent,
     TabPane,
-} from "reactstrap";
+} from "@/components/ui";
 import AsusDataRate from "../../components/CustomerRateData/AsusDataRate/AsusDataRate";
 import CorporateDataRate from "../../components/CustomerRateData/CorporateDataRate/CorporateDataRate";
 import FranchiseRateData from "../../components/CustomerRateData/FranchiseRateData/FranchiseRateData";

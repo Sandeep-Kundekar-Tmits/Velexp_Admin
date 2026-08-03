@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Button, Card, CardBody, Col, FormGroup, FormText, Input, Label, Row, Spinner } from "reactstrap"
+import { Button, Card, CardBody, Col, FormGroup, FormText, Input, Label, Row, Spinner } from "@/components/ui"
 import TableContainer from "../Table/TableContainer";
 import usePostApiCall from "../../hooks/usePostApiCall";
 import useExcelParser from "../../hooks/useExcelParser";

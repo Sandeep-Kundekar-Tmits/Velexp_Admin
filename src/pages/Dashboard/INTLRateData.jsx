@@ -1,6 +1,6 @@
 import React from "react";
 import { useState } from "react"
-import { Input, Label, Nav, NavItem, NavLink, TabContent, TabPane } from "reactstrap"
+import { Input, Label, Nav, NavItem, NavLink, TabContent, TabPane } from "@/components/ui"
 import INTCustomerRateDataComp from "../../components/INTRateData/INTCustomerRateData/INTCustomerRateDataComp";
 import INTDefaultRateData from "../../components/INTRateData/INTDefaultRateData/INTDeafultRateData";
 // const INTCustomerRateDataComp = React.lazy(() => import("../../components/INTRateData/INTCustomerRateData/INTCustomerRateDataComp"))

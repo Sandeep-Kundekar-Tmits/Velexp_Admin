@@ -1,0 +1,259 @@
+/*
+ * Bootstrap compatibility layer.
+ *
+ * The app carries ~6,244 Bootstrap utility classes written directly into
+ * className strings across 195 files. Deleting Bootstrap's 44k-line stylesheet
+ * without this would visually break nearly every screen in one commit.
+ *
+ * So instead of a big-bang rewrite of all 6,244, this defines the utilities
+ * actually in use in terms of the Dense Ops tokens. Bootstrap and reactstrap
+ * are removed as dependencies, the theme becomes ours, and individual classes
+ * get translated to Tailwind opportunistically as each screen is migrated.
+ *
+ * This file should SHRINK over time. When a rule's usage count reaches zero,
+ * delete it. Nothing new should be written against these classes.
+ *
+ * Layered so real Tailwind utilities always win over the compat shims.
+ */
+@layer base {
+  /* ---- display / flex ---- */
+  .d-flex { display: flex; }
+  .d-inline-flex { display: inline-flex; }
+  .d-none { display: none; }
+  .d-block { display: block; }
+  .d-inline-block { display: inline-block; }
+  .d-grid { display: grid; }
+  .flex-column { flex-direction: column; }
+  .flex-row { flex-direction: row; }
+  .flex-wrap { flex-wrap: wrap; }
+  .flex-nowrap { flex-wrap: nowrap; }
+  .flex-grow-1 { flex-grow: 1; }
+  .flex-shrink-0 { flex-shrink: 0; }
+  .align-items-center { align-items: center; }
+  .align-items-start { align-items: flex-start; }
+  .align-items-end { align-items: flex-end; }
+  .align-self-center { align-self: center; }
+  .justify-content-center { justify-content: center; }
+  .justify-content-between { justify-content: space-between; }
+  .justify-content-end { justify-content: flex-end; }
+  .justify-content-start { justify-content: flex-start; }
+  .justify-content-around { justify-content: space-around; }
+
+  /* ---- typography ---- */
+  .fw-bold { font-weight: 700; }
+  .fw-semibold { font-weight: 600; }
+  .fw-medium { font-weight: 500; }
+  .fw-normal { font-weight: 400; }
+  .small { font-size: 0.75rem; }
+  .text-muted { color: var(--color-ink-muted); }
+  .text-primary { color: var(--color-brand-500); }
+  .text-danger { color: var(--color-danger-500); }
+  .text-success { color: var(--color-success-500); }
+  .text-warning { color: var(--color-warning-500); }
+  .text-info { color: var(--color-accent-500); }
+  .text-dark { color: var(--color-ink); }
+  .text-white { color: #fff; }
+  .text-secondary { color: var(--color-ink-muted); }
+  .text-center { text-align: center; }
+  .text-start { text-align: left; }
+  .text-end { text-align: right; }
+  .text-nowrap { white-space: nowrap; }
+  .text-capitalize { text-transform: capitalize; }
+  .text-uppercase { text-transform: uppercase; }
+  .text-decoration-none { text-decoration: none; }
+  .h5 { font-size: 1rem; font-weight: 600; }
+  .h4 { font-size: 1.125rem; font-weight: 600; }
+  .h6 { font-size: 0.875rem; font-weight: 600; }
+
+  /* ---- backgrounds & borders ---- */
+  .bg-white { background-color: #fff; }
+  .bg-light { background-color: var(--color-canvas); }
+  .bg-primary { background-color: var(--color-brand-500); }
+  .bg-success { background-color: var(--color-success-500); }
+  .bg-danger { background-color: var(--color-danger-500); }
+  .bg-warning { background-color: var(--color-warning-500); }
+  .bg-transparent { background-color: transparent; }
+  .bg-primary-subtle { background-color: var(--color-brand-50); }
+  .border { border: 1px solid var(--color-line); }
+  .border-0 { border: 0 !important; }
+  .border-top { border-top: 1px solid var(--color-line); }
+  .border-bottom { border-bottom: 1px solid var(--color-line); }
+  .border-start { border-left: 1px solid var(--color-line); }
+  .border-end { border-right: 1px solid var(--color-line); }
+  .rounded { border-radius: var(--radius-DEFAULT); }
+  .rounded-circle { border-radius: 9999px; }
+  .rounded-pill { border-radius: 9999px; }
+  .shadow-sm { box-shadow: 0 1px 2px rgb(0 0 0 / 0.06); }
+  .shadow { box-shadow: 0 4px 10px rgb(0 0 0 / 0.08); }
+
+  /* ---- sizing ---- */
+  .w-100 { width: 100%; }
+  .h-100 { height: 100%; }
+  .mw-100 { max-width: 100%; }
+  .img-fluid { max-width: 100%; height: auto; }
+
+  /* ---- spacing (Bootstrap's 0-5 scale) ---- */
+  .m-0 { margin: 0; } .p-0 { padding: 0; }
+  .mb-0 { margin-bottom: 0; }   .mb-1 { margin-bottom: .25rem; }
+  .mb-2 { margin-bottom: .5rem; } .mb-3 { margin-bottom: 1rem; }
+  .mb-4 { margin-bottom: 1.5rem; } .mb-5 { margin-bottom: 3rem; }
+  .mt-0 { margin-top: 0; }      .mt-1 { margin-top: .25rem; }
+  .mt-2 { margin-top: .5rem; }  .mt-3 { margin-top: 1rem; }
+  .mt-4 { margin-top: 1.5rem; } .mt-5 { margin-top: 3rem; }
+  .ms-1 { margin-left: .25rem; } .ms-2 { margin-left: .5rem; } .ms-3 { margin-left: 1rem; }
+  .me-1 { margin-right: .25rem; } .me-2 { margin-right: .5rem; } .me-3 { margin-right: 1rem; }
+  .mx-auto { margin-left: auto; margin-right: auto; }
+  .my-2 { margin-block: .5rem; } .my-3 { margin-block: 1rem; } .my-5 { margin-block: 3rem; }
+  .p-1 { padding: .25rem; } .p-2 { padding: .5rem; } .p-3 { padding: 1rem; } .p-4 { padding: 1.5rem; }
+  .px-2 { padding-inline: .5rem; } .px-3 { padding-inline: 1rem; }
+  .py-1 { padding-block: .25rem; } .py-2 { padding-block: .5rem; } .py-3 { padding-block: 1rem; }
+  .pt-0 { padding-top: 0; } .pt-2 { padding-top: .5rem; } .pt-3 { padding-top: 1rem; }
+  .g-3 { gap: 1rem; } .gap-1 { gap: .25rem; } .gap-2 { gap: .5rem; } .gap-3 { gap: 1rem; }
+
+  /* ---- containers ---- */
+  .container-fluid { width: 100%; padding-inline: 0.75rem; margin-inline: auto; }
+  .container { width: 100%; max-width: 1280px; padding-inline: 0.75rem; margin-inline: auto; }
+
+  /* ---- buttons (raw <button className="btn btn-primary">) ---- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .375rem;
+    height: 2.25rem; padding-inline: .75rem; border-radius: var(--radius-DEFAULT);
+    font-weight: 500; cursor: pointer; border: 1px solid transparent;
+    transition: background-color .15s, color .15s;
+  }
+  .btn:disabled { opacity: .6; pointer-events: none; }
+  .btn-sm { height: 1.75rem; padding-inline: .5rem; font-size: .75rem; }
+  .btn-lg { height: 2.75rem; padding-inline: 1.25rem; }
+  .btn-block { width: 100%; }
+  .btn-primary { background: var(--color-brand-500); color: #fff; }
+  .btn-primary:hover { background: var(--color-brand-600); }
+  .btn-secondary { background: #475569; color: #fff; }
+  .btn-success { background: var(--color-success-500); color: #fff; }
+  .btn-danger { background: var(--color-danger-500); color: #fff; }
+  .btn-warning { background: var(--color-warning-500); color: var(--color-ink); }
+  .btn-light { background: #f1f5f9; color: var(--color-ink); }
+  .btn-link { background: transparent; color: var(--color-brand-500); text-decoration: underline; }
+  .btn-outline-primary { border-color: var(--color-brand-500); color: var(--color-brand-500); background: transparent; }
+  .btn-outline-secondary { border-color: #94a3b8; color: #334155; background: transparent; }
+  .btn-outline-danger { border-color: var(--color-danger-500); color: var(--color-danger-500); background: transparent; }
+
+  /* ---- forms ---- */
+  .form-control, .form-select {
+    width: 100%; height: 2.25rem; padding-inline: .625rem;
+    border: 1px solid var(--color-line); border-radius: var(--radius-DEFAULT);
+    background: #fff; color: var(--color-ink);
+  }
+  .form-control:focus, .form-select:focus {
+    outline: none; border-color: var(--color-brand-500);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-brand-500) 25%, transparent);
+  }
+  .form-control-sm { height: 1.75rem; font-size: .75rem; }
+  .form-label { display: block; margin-bottom: .25rem; font-weight: 500; }
+  .form-check-input { accent-color: var(--color-brand-500); }
+  .is-invalid { border-color: var(--color-danger-500); }
+  .invalid-feedback { color: var(--color-danger-500); font-size: .75rem; }
+
+  /* ---- tables ---- */
+  .table { width: 100%; border-collapse: collapse; }
+  .table th, .table td { padding: .375rem .5rem; height: 34px; }
+  .table thead th { background: #f8fafc; font-weight: 600; }
+  .table-bordered th, .table-bordered td { border: 1px solid var(--color-line); }
+  .table-sm th, .table-sm td { height: 28px; font-size: .75rem; }
+  .table-hover tbody tr:hover { background: var(--color-brand-50); }
+  .table-light { background: #f8fafc; }
+  .table-responsive { width: 100%; overflow-x: auto; }
+  .table-nowrap th, .table-nowrap td { white-space: nowrap; }
+
+  /* ---- badges ---- */
+  .badge {
+    display: inline-flex; align-items: center; padding: .125rem .375rem;
+    border-radius: var(--radius-DEFAULT); font-size: .6875rem; font-weight: 500;
+  }
+
+  /* ---- misc ---- */
+  .position-relative { position: relative; }
+  .position-absolute { position: absolute; }
+  .sticky-top { position: sticky; top: 0; z-index: 1020; }
+  .overflow-auto { overflow: auto; }
+  .overflow-hidden { overflow: hidden; }
+  .cursor-pointer { cursor: pointer; }
+  .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+}
+
+/*
+ * Skote theme classes.
+ *
+ * theme.scss provided more than Bootstrap — it also defined the template's own
+ * component classes. Removing it dropped these too, which is why the login
+ * avatar rendered unconstrained. Only the 25 classes actually referenced
+ * (141 uses) are reproduced here; the other ~44k lines stay deleted.
+ */
+@layer base {
+  .page-content { padding: 0.5rem; }
+  .main-content { width: 100%; }
+  .account-pages { padding-block: 2rem; }
+
+  /* avatars — sized wrappers; without these an <img> fills its container */
+  .avatar-xs { height: 2rem; width: 2rem; }
+  .avatar-sm { height: 3rem; width: 3rem; }
+  .avatar-md { height: 4rem; width: 4rem; }
+  .avatar-lg { height: 6rem; width: 6rem; }
+  .avatar-title {
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; height: 100%; color: #fff;
+    background-color: var(--color-brand-500);
+  }
+  .profile-user-wid { margin-top: -1.5rem; }
+
+  .auth-logo .auth-logo-dark { display: block; }
+  .auth-logo .auth-logo-light { display: none; }
+
+  .font-size-10 { font-size: 10px; }
+  .font-size-11 { font-size: 11px; }
+  .font-size-12 { font-size: 12px; }
+  .font-size-13 { font-size: 13px; }
+  .font-size-14 { font-size: 14px; }
+  .font-size-15 { font-size: 15px; }
+  .font-size-16 { font-size: 16px; }
+  .font-size-18 { font-size: 18px; }
+  .font-size-20 { font-size: 20px; }
+  .font-size-24 { font-size: 24px; }
+
+  .text-truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .header-item { display: inline-flex; align-items: center; height: 100%; }
+
+  .bg-soft-light { background-color: #f8fafc; }
+  .bg-soft-success { background-color: #dcfce7; }
+  .bg-soft-primary { background-color: var(--color-brand-50); }
+  .bg-soft-danger { background-color: #ffedd5; }
+  .bg-soft-warning { background-color: #fef3c7; }
+
+  .dataTables_info { font-size: 0.75rem; color: var(--color-ink-muted); }
+}
+
+/* Bootstrap's responsive column classes, used widely in raw className strings. */
+@layer base {
+  .row { display: flex; flex-wrap: wrap; margin-inline: -0.5rem; }
+  .row > * { padding-inline: 0.5rem; }
+  .col { flex: 1 0 0%; }
+  .col-auto { flex: 0 0 auto; width: auto; }
+  .col-1 { width: 8.3333%; } .col-2 { width: 16.6667%; } .col-3 { width: 25%; }
+  .col-4 { width: 33.3333%; } .col-5 { width: 41.6667%; } .col-6 { width: 50%; }
+  .col-7 { width: 58.3333%; } .col-8 { width: 66.6667%; } .col-9 { width: 75%; }
+  .col-10 { width: 83.3333%; } .col-11 { width: 91.6667%; } .col-12 { width: 100%; }
+
+  @media (min-width: 768px) {
+    .col-md-1 { width: 8.3333%; } .col-md-2 { width: 16.6667%; } .col-md-3 { width: 25%; }
+    .col-md-4 { width: 33.3333%; } .col-md-5 { width: 41.6667%; } .col-md-6 { width: 50%; }
+    .col-md-7 { width: 58.3333%; } .col-md-8 { width: 66.6667%; } .col-md-9 { width: 75%; }
+    .col-md-10 { width: 83.3333%; } .col-md-11 { width: 91.6667%; } .col-md-12 { width: 100%; }
+  }
+  @media (min-width: 992px) {
+    .col-lg-2 { width: 16.6667%; } .col-lg-3 { width: 25%; } .col-lg-4 { width: 33.3333%; }
+    .col-lg-6 { width: 50%; } .col-lg-8 { width: 66.6667%; } .col-lg-12 { width: 100%; }
+  }
+  @media (min-width: 1200px) {
+    .col-xl-3 { width: 25%; } .col-xl-4 { width: 33.3333%; }
+    .col-xl-5 { width: 41.6667%; } .col-xl-6 { width: 50%; }
+  }
+}

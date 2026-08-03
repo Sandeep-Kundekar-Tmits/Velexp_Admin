@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from "react";
-import { Row, Table, Button, Col, Spinner, Tooltip } from "reactstrap";
+import { Row, Table, Button, Col, Spinner, Tooltip } from "@/components/ui";
 import { Link } from "react-router-dom";
 
 import {

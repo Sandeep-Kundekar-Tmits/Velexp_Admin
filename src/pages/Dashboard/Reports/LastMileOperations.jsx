@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Row, Col, FormGroup } from 'reactstrap';
-import { Button, Label } from "reactstrap";
+import { Row, Col, FormGroup } from "@/components/ui";
+import { Button, Label } from "@/components/ui";
 import DateRangeInput from '../../../components/Common/DateRangeInput';
 import TableContainer from '../../../components/Table/TableContainer';
 import Select from 'react-select'

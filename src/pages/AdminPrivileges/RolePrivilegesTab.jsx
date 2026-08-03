@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Button } from "reactstrap";
+import { Button } from "@/components/ui";
 import { RiDeleteBinLine } from "react-icons/ri";
 import { GridLoader } from "react-spinners";
 import DeleteModal from "../../components/Common/DeleteModal";

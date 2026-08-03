@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Button, Col, FormGroup, Label, Row } from "reactstrap";
+import { Button, Col, FormGroup, Label, Row } from "@/components/ui";
 import Select from 'react-select'
 import { useGetApiCall } from "../../../hooks/useGetApiCall";
 import { customStyles } from "../../../helpers/CustomStyle";

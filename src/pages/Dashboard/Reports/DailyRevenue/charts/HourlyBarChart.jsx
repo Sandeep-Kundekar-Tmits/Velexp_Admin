@@ -1,7 +1,7 @@
 // Animated column chart of Gross & Net by hour of day.
 import { useMemo } from "react"
 import ReactApexChart from "react-apexcharts"
-import { Card, CardBody } from "reactstrap"
+import { Card, CardBody } from "@/components/ui"
 import { formatINR, formatINRCompact } from "../revenueFormat"
 
 const GROSS = "#556ee6"

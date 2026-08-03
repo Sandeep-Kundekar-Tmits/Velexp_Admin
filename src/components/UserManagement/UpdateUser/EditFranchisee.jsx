@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, Col, FormFeedback, FormGroup, Input, Label, Row } from "reactstrap";
+import { Card, CardBody, CardHeader, Col, FormFeedback, FormGroup, Input, Label, Row } from "@/components/ui";
 import { useState } from "react";
 
 const EditFranchisee = ({ formData, handleChange }) => {

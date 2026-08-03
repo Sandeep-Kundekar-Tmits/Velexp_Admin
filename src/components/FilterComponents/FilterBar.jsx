@@ -1,5 +1,5 @@
 import React from "react";
-import { Row, Col, FormGroup, Label } from "reactstrap";
+import { Row, Col, FormGroup, Label } from "@/components/ui";
 import Select from "react-select";
 
 export const FilterBar = ({ filterObj, setFilterObj, checkpointOptions, onApply, onClear, isFilterActive, customStyles }) => {

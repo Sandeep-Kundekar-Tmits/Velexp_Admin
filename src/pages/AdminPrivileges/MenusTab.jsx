@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Button } from "reactstrap";
+import { Button } from "@/components/ui";
 import { RiDeleteBinLine, RiEditLine, RiAddLine, RiArrowUpLine, RiArrowDownLine } from "react-icons/ri";
 import { IoMdAdd, IoMdRemove } from "react-icons/io";
 import { GridLoader } from "react-spinners";

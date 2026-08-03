@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react"
 import {
     Button, Card, CardBody, Col, Container, Form, FormGroup, Input, Label, Row, Spinner, Badge,
     Nav, NavItem, NavLink, TabContent, TabPane, Table, Modal, ModalHeader, ModalBody, ModalFooter
-} from "reactstrap"
+} from "@/components/ui"
 import classnames from "classnames"
 import MainHeaderComp from "../../components/MainHeaderCom"
 import SearchableDropdown from "../../components/Common/SearchableDropdown"

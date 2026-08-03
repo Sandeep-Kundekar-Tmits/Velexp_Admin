@@ -17,7 +17,8 @@ import NonAuthLayout from "./components/NonAuthLayout";
 import Loader from "./Loaders/Loader";
 
 // Import scss
-import "./assets/scss/theme.scss";
+// Skote/Bootstrap SCSS removed — replaced by styles/app.css (Tailwind + compat shim)
+import "./styles/app.css";
 
 
 

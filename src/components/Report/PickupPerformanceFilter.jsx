@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Row, Col, Card, CardBody, FormGroup, Label, CardText, CardTitle, Badge } from "reactstrap";
+import { Row, Col, Card, CardBody, FormGroup, Label, CardText, CardTitle, Badge } from "@/components/ui";
 import Select from "react-select";
 import { customStyles } from "../../helpers/CustomStyle";
 import { StatsCard } from "../FilterComponents/StatsCard";

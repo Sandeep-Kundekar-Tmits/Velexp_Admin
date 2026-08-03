@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import SearchableDropdown from "../../../components/Common/SearchableDropdown"
-import { Button, Col, FormGroup, FormText, Input, Label, Row, Spinner } from "reactstrap";
+import { Button, Col, FormGroup, FormText, Input, Label, Row, Spinner } from "@/components/ui";
 import DateRangeInput from "../../../components/Common/DateRangeInput";
 import TableContainer from "../../../components/Table/TableContainer";
 import MainHeaderComp from "../../../components/MainHeaderCom";

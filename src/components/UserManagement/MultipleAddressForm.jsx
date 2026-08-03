@@ -9,7 +9,7 @@ import {
   Row,
   Col,
   FormFeedback,
-} from 'reactstrap';
+} from "@/components/ui";
 import locations from "../../data/locations.json"
 import Select from "react-select";
 import { customStyles } from '../../helpers/CustomStyle';

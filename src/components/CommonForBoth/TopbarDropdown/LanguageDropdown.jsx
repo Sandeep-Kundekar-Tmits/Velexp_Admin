@@ -4,7 +4,7 @@ import {
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
-} from "reactstrap";
+} from "@/components/ui";
 import { get, map } from "lodash";
 import { withTranslation } from "react-i18next";
 

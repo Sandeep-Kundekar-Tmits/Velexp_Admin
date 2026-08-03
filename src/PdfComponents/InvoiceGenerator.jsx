@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Container, Row, Col, Table, Button } from 'reactstrap';
+import { Container, Row, Col, Table, Button } from "@/components/ui";
 import VellocityExpressIcon from "../assets/images/vellocity-express-logo.png"
 import Signature from "../assets/images/PDFsignature.png"
 import { usePDF } from 'react-to-pdf';

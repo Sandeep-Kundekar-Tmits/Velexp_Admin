@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Nav, NavItem, NavLink, TabContent, TabPane } from "reactstrap";
+import { Nav, NavItem, NavLink, TabContent, TabPane } from "@/components/ui";
 
 const TabComponentProvider = ({ tabs, defaultActive = 1 }) => {
   const [activeTab, setActiveTab] = useState(defaultActive);

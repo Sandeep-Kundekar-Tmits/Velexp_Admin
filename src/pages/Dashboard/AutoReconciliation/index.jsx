@@ -3,7 +3,7 @@ import * as XLSX from "xlsx";
 import {
     Badge, Button, Card, CardBody, Col, Row,
     Nav, NavItem, NavLink, Spinner,
-} from "reactstrap";
+} from "@/components/ui";
 import { toast } from "react-toastify";
 import { Upload, FileText, CheckCircle, RefreshCw } from "lucide-react";
 import MainHeaderComp from "../../../components/MainHeaderCom";

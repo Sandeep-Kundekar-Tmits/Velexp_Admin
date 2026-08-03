@@ -1,4 +1,4 @@
-import { Button, Col, FormFeedback, FormGroup, Input, Label, Row, Spinner, Table } from "reactstrap"
+import { Button, Col, FormFeedback, FormGroup, Input, Label, Row, Spinner, Table } from "@/components/ui"
 import { useEffect, useMemo, useState } from "react";
 import { MdDelete } from "react-icons/md";
 import { CiEdit } from "react-icons/ci";

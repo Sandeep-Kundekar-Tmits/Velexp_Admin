@@ -19,7 +19,7 @@ import {
     Spinner,
     ListGroup,
     ListGroupItem
-} from 'reactstrap';
+} from "@/components/ui";
 import EditUserInfo from '../../components/UserManagement/UpdateUser/EditUserInfo';
 import EditAddress from '../../components/UserManagement/UpdateUser/EditAddress';
 import EditFranchisee from '../../components/UserManagement/UpdateUser/EditFranchisee';

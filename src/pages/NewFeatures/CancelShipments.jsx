@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from "react"
-import { Badge, Button, Card, CardBody, Col, Input, Label, Row, Spinner } from "reactstrap"
+import { Badge, Button, Card, CardBody, Col, Input, Label, Row, Spinner } from "@/components/ui"
 import * as XLSX from "xlsx"
 import axios from "axios"
 import MainHeaderComp from "../../components/MainHeaderCom"

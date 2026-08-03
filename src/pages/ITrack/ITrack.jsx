@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from "react";
-import { Button, Col, Row, Input, FormGroup, Label, Card, CardBody } from "reactstrap";
+import { Button, Col, Row, Input, FormGroup, Label, Card, CardBody } from "@/components/ui";
 import MainHeaderCom from "../../components/MainHeaderCom";
 import TableContainer from "../../components/Table/TableContainer";
 import { useGetApiCall } from "../../hooks/useGetApiCall";

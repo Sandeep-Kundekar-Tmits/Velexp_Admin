@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, Col, FormGroup, Label, Row } from "reactstrap"
+import { Button, Card, CardBody, Col, FormGroup, Label, Row } from "@/components/ui"
 import Select from 'react-select'
 import { customStyles } from "../../../helpers/CustomStyle"
 import { FaCloudDownloadAlt } from "react-icons/fa";

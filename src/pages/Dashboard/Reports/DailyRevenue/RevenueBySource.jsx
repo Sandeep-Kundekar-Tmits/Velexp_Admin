@@ -1,6 +1,6 @@
 // Revenue by source — how today's gross is composed across data sources
 // (computed / billing / stored / unpriced).
-import { Card, CardBody } from "reactstrap"
+import { Card, CardBody } from "@/components/ui"
 import { barWidth, formatINR, formatInt } from "./revenueFormat"
 
 const SRC_COLORS = {

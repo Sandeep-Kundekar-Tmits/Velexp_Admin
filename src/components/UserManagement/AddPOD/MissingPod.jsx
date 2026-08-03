@@ -2,7 +2,7 @@ import DateRangeInput from '../../../components/Common/DateRangeInput';
 import "react-datepicker/dist/react-datepicker.css";
 import Select from 'react-select'
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Card, CardHeader, CardBody, Col, FormGroup, Label, Row, Spinner, Alert, Offcanvas, OffcanvasHeader, OffcanvasBody } from 'reactstrap';
+import { Button, Card, CardHeader, CardBody, Col, FormGroup, Label, Row, Spinner, Alert, Offcanvas, OffcanvasHeader, OffcanvasBody } from "@/components/ui";
 import { customStyles } from '../../../helpers/CustomStyle';
 import { useGetApiCall } from '../../../hooks/useGetApiCall';
 import { GET_MISSING_POD, POST_USER_API } from '../../../api';

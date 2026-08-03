@@ -5,7 +5,7 @@ import {
   DropdownToggle,
   DropdownMenu,
   DropdownItem,
-} from "reactstrap";
+} from "@/components/ui";
 import { MdOutlineManageAccounts } from "react-icons/md";
 import { TbLockPassword } from "react-icons/tb";
 

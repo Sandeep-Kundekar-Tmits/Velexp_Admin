@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react"
-import { Button, Card, CardBody, Col, Container, Form, FormGroup, Input, Label, Row, Spinner, Badge } from "reactstrap"
+import { Button, Card, CardBody, Col, Container, Form, FormGroup, Input, Label, Row, Spinner, Badge } from "@/components/ui"
 import MainHeaderComp from "../../components/MainHeaderCom"
 import SearchableDropdown from "../../components/Common/SearchableDropdown"
 import DateRangePicker from "../../components/Common/DateRangePicker"

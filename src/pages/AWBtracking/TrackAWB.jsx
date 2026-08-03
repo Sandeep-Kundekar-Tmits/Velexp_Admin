@@ -1,4 +1,4 @@
-import { Button, Col, FormGroup, Input, Label, Row } from "reactstrap"
+import { Button, Col, FormGroup, Input, Label, Row } from "@/components/ui"
 import MainHeaderComp from "../../components/MainHeaderCom"
 import { useState } from "react"
 import usePostApiCall from "../../hooks/usePostApiCall"

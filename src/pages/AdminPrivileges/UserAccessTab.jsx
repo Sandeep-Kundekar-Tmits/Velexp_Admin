@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Button, Input } from "reactstrap";
+import { Button, Input } from "@/components/ui";
 import { GridLoader } from "react-spinners";
 import TableContainer from "../../components/Table/TableContainer";
 import UserOverridesPanel from "../../components/AdminPrivileges/UserOverridesPanel";

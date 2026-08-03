@@ -1,4 +1,4 @@
-import { Badge, Button, Col, FormGroup, Input, Label, Row, Spinner } from "reactstrap";
+import { Badge, Button, Col, FormGroup, Input, Label, Row, Spinner } from "@/components/ui";
 import { FaFileExcel } from "react-icons/fa";
 import useExcelParser from "../../../hooks/useExcelParser";
 import { useExcelExport } from "../../../hooks/useExcelExport";

@@ -1,5 +1,5 @@
 import React from "react";
-import { UncontrolledPopover, PopoverBody } from "reactstrap";
+import { UncontrolledPopover, PopoverBody } from "@/components/ui";
 import PropTypes from "prop-types";
 
 /**

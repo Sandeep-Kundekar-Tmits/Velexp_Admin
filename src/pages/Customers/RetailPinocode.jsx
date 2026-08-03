@@ -1,4 +1,4 @@
-import { Button, Input, Spinner } from "reactstrap"
+import { Button, Input, Spinner } from "@/components/ui"
 import TableContainer from "../../components/Table/TableContainer"
 import { FaFileExcel } from "react-icons/fa"
 import useExcelParser from "../../hooks/useExcelParser"

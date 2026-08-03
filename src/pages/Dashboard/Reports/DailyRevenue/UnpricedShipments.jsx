@@ -1,5 +1,5 @@
 // Unpriced shipments — shipments awaiting pricing (potential/claimed revenue not yet billed).
-import { Card, CardBody } from "reactstrap"
+import { Card, CardBody } from "@/components/ui"
 import { MdWarningAmber } from "react-icons/md"
 import { formatINR, formatInt } from "./revenueFormat"
 

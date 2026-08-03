@@ -1,6 +1,6 @@
 // Animated area/line chart for the last-7-days Gross vs Net trend.
 import ReactApexChart from "react-apexcharts"
-import { Card, CardBody } from "reactstrap"
+import { Card, CardBody } from "@/components/ui"
 import { formatINR, formatINRCompact, shortDate } from "../revenueFormat"
 
 const RevenueAreaChart = ({ rows = [] }) => {

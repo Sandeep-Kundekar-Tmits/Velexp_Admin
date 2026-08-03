@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types'
 import React from "react"
-import { Modal, ModalBody, Spinner } from "reactstrap"
+import { Modal, ModalBody, Spinner } from "@/components/ui"
 
 const DeleteModal = ({ show, onDeleteClick, onCloseClick, loading = false }) => {
   return (

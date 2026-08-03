@@ -1,5 +1,5 @@
 import React from 'react';
-import { Badge, Button, Card, CardBody, CardFooter, CardHeader, CardTitle, ListGroup, ListGroupItem } from 'reactstrap';
+import { Badge, Button, Card, CardBody, CardFooter, CardHeader, CardTitle, ListGroup, ListGroupItem } from "@/components/ui";
 
 const FranchiseProfile = ({ profile }) => (
 <Card className="mb-4 shadow-sm border-0" style={{ borderRadius: '15px' }}>

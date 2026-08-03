@@ -1,9 +1,10 @@
 import { fileURLToPath, URL } from "node:url";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   resolve: {
     // Mirrors the "paths" mapping in jsconfig.json so the editor and the
     // bundler agree. Additive: existing relative imports keep working.

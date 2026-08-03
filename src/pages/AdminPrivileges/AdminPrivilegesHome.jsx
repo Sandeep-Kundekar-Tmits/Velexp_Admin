@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Nav, NavItem, NavLink, TabContent, TabPane } from "reactstrap";
+import { Nav, NavItem, NavLink, TabContent, TabPane } from "@/components/ui";
 import MainHeaderComp from "../../components/MainHeaderCom";
 import RolesTab from "./RolesTab";
 import MenusTab from "./MenusTab";

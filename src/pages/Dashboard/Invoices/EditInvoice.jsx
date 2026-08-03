@@ -1,4 +1,4 @@
-import { Button, Col, FormGroup, Label, Row, Input } from "reactstrap"
+import { Button, Col, FormGroup, Label, Row, Input } from "@/components/ui"
 import SearchableDropdown from "../../../components/Common/SearchableDropdown"
 import { useEffect, useMemo, useState } from "react"
 import { useGetApiCall } from "../../../hooks/useGetApiCall"

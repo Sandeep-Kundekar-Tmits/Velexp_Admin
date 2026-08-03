@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import { useGetApiCall } from "../../../hooks/useGetApiCall"
 import { SERVICE_CENTER, UPLOAD_CD_UPDATE_REPORT } from "../../../api"
-import { Button, Card, Col, FormGroup, Label, Row } from "reactstrap"
+import { Button, Card, Col, FormGroup, Label, Row } from "@/components/ui"
 import Select from 'react-select'
 import { customStyles } from "../../../helpers/CustomStyle"
 import TableContainer from "../../../components/Table/TableContainer"

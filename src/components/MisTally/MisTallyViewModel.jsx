@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { useEffect, useMemo, useState } from "react";
-import { Input, Modal, ModalBody, Spinner } from "reactstrap";
+import { Input, Modal, ModalBody, Spinner } from "@/components/ui";
 import TableContainer from '../Table/TableContainer';
 import { GridLoader } from 'react-spinners';
 import { GET_MIS_TALLY_FILTER_BY_TITLE, GET_MIS_TALLY_FILTER_DATA } from '../../api';

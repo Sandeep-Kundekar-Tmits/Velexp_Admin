@@ -1,6 +1,6 @@
 import DateRangePicker from "@paprika/date-range-picker"
-import { Row, Col, FormGroup, Spinner } from 'reactstrap';
-import { Button, FormFeedback, Input, Label, Table } from "reactstrap";
+import { Row, Col, FormGroup, Spinner } from "@/components/ui";
+import { Button, FormFeedback, Input, Label, Table } from "@/components/ui";
 import Select from 'react-select'
 import { customStyles } from '../../../helpers/CustomStyle';
 import { useEffect, useMemo, useState } from "react";

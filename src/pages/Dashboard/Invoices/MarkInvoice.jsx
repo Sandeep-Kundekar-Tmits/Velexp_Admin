@@ -1,4 +1,4 @@
-import { Button, FormFeedback, FormGroup, Input, Label, Table } from "reactstrap"
+import { Button, FormFeedback, FormGroup, Input, Label, Table } from "@/components/ui"
 import TableContainer from "../../../components/Table/TableContainer"
 import { useRef, useState } from "react"
 import usePostApiCall from "../../../hooks/usePostApiCall"

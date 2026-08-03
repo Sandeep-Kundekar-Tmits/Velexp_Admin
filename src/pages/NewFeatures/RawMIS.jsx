@@ -1,6 +1,6 @@
 // Raw MIS — pick a month + year and download the backend-generated full shipment report Excel.
 import React, { useState } from "react"
-import { Button, Card, CardBody, Col, Input, Label, Row } from "reactstrap"
+import { Button, Card, CardBody, Col, Input, Label, Row } from "@/components/ui"
 import { MdFileDownload } from "react-icons/md"
 import MainHeaderComp from "../../components/MainHeaderCom"
 import ToasterProvider from "../../helpers/ToasterProvider"

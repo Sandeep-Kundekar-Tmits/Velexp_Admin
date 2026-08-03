@@ -13,7 +13,7 @@ import {
     CardBody,
     CardHeader,
     Spinner,
-} from "reactstrap";
+} from "@/components/ui";
 import { User, MapPin, Package, Calendar, Truck } from "lucide-react";
 import usePostApiCall from "../../../../hooks/usePostApiCall";
 import { CORPORATE_BOOKING, GET_CITY_PINCODE, GET_FILTERED_PRODUCT_LIST, GET_USER_API, PRODUCT_LIST } from "../../../../api";

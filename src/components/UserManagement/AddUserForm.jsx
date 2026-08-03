@@ -14,7 +14,7 @@ import {
     ModalHeader,
     ModalBody,
     ModalFooter
-} from 'reactstrap';
+} from "@/components/ui";
 import { customStyles } from '../../helpers/CustomStyle';
 import locations from "../../data/locations.json"
 import Select from "react-select";

@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import React, { useEffect } from "react";
-import { Row } from "reactstrap";
+import { Row } from "@/components/ui";
 
 const Paginations = ({ perPageData, data, currentPage, setCurrentPage, isShowingPageLength, paginationDiv, paginationClass }) => {
 

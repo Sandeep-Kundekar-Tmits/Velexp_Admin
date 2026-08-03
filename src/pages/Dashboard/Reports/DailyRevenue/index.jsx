@@ -1,6 +1,6 @@
 // Daily Revenue — live, auto-refreshing dashboard for GET /reports/revenue_live/?date=YYYY-MM-DD
 import React, { useMemo } from "react"
-import { Button, Card, CardBody, Col, Collapse, Row, Spinner } from "reactstrap"
+import { Button, Card, CardBody, Col, Collapse, Row, Spinner } from "@/components/ui"
 import { MdRefresh, MdKeyboardArrowDown } from "react-icons/md"
 import { GridLoader } from "react-spinners"
 import { useState } from "react"

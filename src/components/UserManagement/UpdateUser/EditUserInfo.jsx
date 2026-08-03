@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardHeader, Col, FormFeedback, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, Row } from "reactstrap"
+import { Button, Card, CardBody, CardHeader, Col, FormFeedback, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, Row } from "@/components/ui"
 import { MdOutlineCancel } from "react-icons/md";
 import { useEffect, useState } from "react";
 const EditUserInfo = ({ formData, handleChange, setUpdatedData, setIsUpdated, onImageCancel }) => {

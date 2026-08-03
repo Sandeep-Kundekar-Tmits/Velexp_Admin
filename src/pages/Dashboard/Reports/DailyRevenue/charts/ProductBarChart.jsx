@@ -1,6 +1,6 @@
 // Animated horizontal bar chart of Gross revenue by product (product on Y, amount on X).
 import ReactApexChart from "react-apexcharts"
-import { Card, CardBody } from "reactstrap"
+import { Card, CardBody } from "@/components/ui"
 import { useState, useEffect } from "react"
 import { formatINR, formatINRCompact } from "../revenueFormat"
 

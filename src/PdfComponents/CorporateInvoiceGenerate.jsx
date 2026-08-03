@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Table, Button } from 'reactstrap';
+import { Container, Row, Col, Table, Button } from "@/components/ui";
 import { usePDF } from 'react-to-pdf';
 import { numberToWords, amountToWords } from "amount-to-words";
 

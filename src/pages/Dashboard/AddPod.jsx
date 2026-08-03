@@ -9,7 +9,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import PropTypes from 'prop-types';
 //import components
 import Breadcrumbs from '../../components/Common/Breadcrumb';
-import { Button, Col, FormFeedback, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Row, Spinner, Table } from "reactstrap";
+import { Button, Col, FormFeedback, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Row, Spinner, Table } from "@/components/ui";
 import DateRangeInput from "../../components/Common/DateRangeInput";
 import TableContainer from "../../components/Table/TableContainer";
 import AddPodModal from "../../components/UserManagement/AddPOD/AddPodModal";

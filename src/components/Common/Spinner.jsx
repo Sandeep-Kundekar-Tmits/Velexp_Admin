@@ -1,5 +1,5 @@
 import React, { useEffect } from "react"
-import { Spinner } from "reactstrap";
+import { Spinner } from "@/components/ui";
 
 const Spinners = ({ setLoading }) => {
     return (

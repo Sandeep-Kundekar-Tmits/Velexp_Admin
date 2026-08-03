@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Container, Alert, Button } from 'reactstrap';
+import { Container, Alert, Button } from "@/components/ui";
 
 const RoleNotDefinedScreen = () => {
   const navigate = useNavigate()

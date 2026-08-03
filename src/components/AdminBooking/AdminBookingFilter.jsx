@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Row, Col, Card, CardBody, FormGroup, Label, CardText, CardTitle } from "reactstrap";
+import { Row, Col, Card, CardBody, FormGroup, Label, CardText, CardTitle } from "@/components/ui";
 import Select from "react-select";
 import { customStyles } from "../../helpers/CustomStyle";
 import { useGetApiCall } from "../../hooks/useGetApiCall";

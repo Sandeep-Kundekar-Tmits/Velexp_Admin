@@ -12,7 +12,7 @@ import {
     Card,
     CardBody,
     Spinner
-} from "reactstrap";
+} from "@/components/ui";
 import classnames from "classnames";
 import MainHeaderComp from "../../components/MainHeaderCom";
 import { useMultiExcelExport } from "../../hooks/useMultiExcelExport";

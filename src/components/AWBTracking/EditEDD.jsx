@@ -8,7 +8,7 @@ import {
   FormFeedback,
   FormGroup,
   Label
-} from "reactstrap";
+} from "@/components/ui";
 import { UPDATE_BOOKING_EDD } from "../../api";
 import usePostApiCall from "../../hooks/usePostApiCall";
 import ToasterProvider from "../../helpers/ToasterProvider";

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import TableContainer from "../../components/Table/TableContainer";
 import { IoMdCloudDownload } from "react-icons/io";
-import { Button, Col, FormGroup, Label, Row } from "reactstrap";
+import { Button, Col, FormGroup, Label, Row } from "@/components/ui";
 import SearchableDropdown from "../../components/Common/SearchableDropdown";
 import DateRangeInput from "../../components/Common/DateRangeInput";
 import { GET_PAYMENT_DEATILS, GET_USER_API, GET_WALLET_TRASACTION_DETAILS } from "../../api";

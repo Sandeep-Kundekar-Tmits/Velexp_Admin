@@ -1,4 +1,4 @@
-import { Button, Col, FormGroup, Input, Label, Row, Card, CardBody, CardTitle, Badge } from "reactstrap";
+import { Button, Col, FormGroup, Input, Label, Row, Card, CardBody, CardTitle, Badge } from "@/components/ui";
 import MainHeaderComp from "../../components/MainHeaderCom";
 import { GridLoader } from "react-spinners";
 import { useEffect, useMemo, useState } from "react";
@@ -7,7 +7,7 @@ import { useGetApiCall } from "../../hooks/useGetApiCall";
 import usePostApiCall from "../../hooks/usePostApiCall";
 import { TRIP_ODOMETER_TRIPS, TRIP_ODOMETER_READINGS } from "../../api";
 import SimpleModal from "../../components/SimpleModal";
-import { Modal, ModalHeader, ModalBody, ModalFooter, Form } from "reactstrap";
+import { Modal, ModalHeader, ModalBody, ModalFooter, Form } from "@/components/ui";
 
 import { authFetch } from "@/lib/http";
 const TripDetail = () => {

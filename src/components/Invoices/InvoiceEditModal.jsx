@@ -14,7 +14,7 @@ import {
     Col,
     Alert,
     Spinner,
-} from 'reactstrap';
+} from "@/components/ui";
 import { DELETE_PDF_ENVOICE_ITEM } from '../../api';
 import { useDeleteApiCall } from '../../hooks/useDeleteApiCall';
 import ToasterProvider from '../../helpers/ToasterProvider';

@@ -4,7 +4,7 @@ import { useMemo, useState, useEffect } from "react"
 import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps"
 import { feature } from "topojson-client"
 import { geoContains, geoMercator } from "d3-geo"
-import { Card, CardBody, Modal, ModalBody, ModalHeader } from "reactstrap"
+import { Card, CardBody, Modal, ModalBody, ModalHeader } from "@/components/ui"
 import { formatINR, formatINRCompact, formatInt } from "../revenueFormat"
 import indiaTopo from "./india.topo.json"
 

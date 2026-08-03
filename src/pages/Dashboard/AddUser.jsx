@@ -4,7 +4,7 @@ import AddFranchiseeForm from "../../components/UserManagement/AddFranchiseeForm
 import AddUserForm from "../../components/UserManagement/AddUserForm"
 import MultipleAddressForm from "../../components/UserManagement/MultipleAddressForm"
 import usePostFileApicall from "../../hooks/usePostFileApicall"
-import { Alert, Button, Modal, ModalBody, ModalFooter, ModalHeader } from "reactstrap"
+import { Alert, Button, Modal, ModalBody, ModalFooter, ModalHeader } from "@/components/ui"
 import { POST_USER_API } from "../../api"
 import { GridLoader } from "react-spinners"
 import { useNavigate } from "react-router-dom"

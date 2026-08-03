@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { useState } from "react";
-import { Input, Modal, ModalBody, Spinner } from "reactstrap";
+import { Input, Modal, ModalBody, Spinner } from "@/components/ui";
 
 const MisAuthModel = ({ 
   show, 

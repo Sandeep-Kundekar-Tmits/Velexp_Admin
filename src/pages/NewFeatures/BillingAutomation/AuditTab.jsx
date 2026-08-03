@@ -1,6 +1,6 @@
 // Tab 2 — Audit: latest batch issues + audit-report history + per-customer check.
 import { useEffect, useMemo, useState } from "react"
-import { Badge, Button, Card, CardBody, Spinner } from "reactstrap"
+import { Badge, Button, Card, CardBody, Spinner } from "@/components/ui"
 import { MdFileDownload, MdRefresh } from "react-icons/md"
 import TableContainer from "../../../components/Table/TableContainer"
 import { useGetApiCall } from "../../../hooks/useGetApiCall"

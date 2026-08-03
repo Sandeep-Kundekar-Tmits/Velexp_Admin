@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Input, Label, Modal, ModalBody } from "reactstrap";
+import { Button, Input, Label, Modal, ModalBody } from "@/components/ui";
 import usePostApiCall from "../../hooks/usePostApiCall";
 import { POP_RECONCILATION_PAYMENT_CONFIRMATION } from "../../api";
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Card, CardBody, CardHeader, Col, FormGroup, Input, Label, Row, FormFeedback } from "reactstrap"
+import { Button, Card, CardBody, CardHeader, Col, FormGroup, Input, Label, Row, FormFeedback } from "@/components/ui"
 import { Country, State, City } from "country-state-city";
 import Select from "react-select";
 import { customStyles } from "../../../helpers/CustomStyle";

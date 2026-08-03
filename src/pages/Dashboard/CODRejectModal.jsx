@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Row, Col, Input, Label } from "reactstrap"
+import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Row, Col, Input, Label } from "@/components/ui"
 import ToasterProvider from "../../helpers/ToasterProvider"
 import axios from "axios"
 import { COD_RECONCILIATION, COD_RECONCILIATION_APPROVE } from "../../api"

@@ -1,4 +1,4 @@
-import { Button, Col, FormGroup, FormText, Input, Label, Row, Spinner } from "reactstrap"
+import { Button, Col, FormGroup, FormText, Input, Label, Row, Spinner } from "@/components/ui"
 import SearchableDropdown from "../../../components/Common/SearchableDropdown"
 import { useGetApiCall } from "../../../hooks/useGetApiCall"
 import { CORPORATE_BILLING_BULK_UPDATE, CORPORATE_BILLING_INVOICE, CORPORATE_CUSTOMERS_LIST, GET_USER_API } from "../../../api"

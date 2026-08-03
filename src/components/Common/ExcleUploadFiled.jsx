@@ -1,4 +1,4 @@
-import { Button, FormGroup, FormText, Input, Label, Spinner } from "reactstrap"
+import { Button, FormGroup, FormText, Input, Label, Spinner } from "@/components/ui"
 
 const ExcleUploadFiled = ({ inputRef=null,loading = false, OnInputChange, Title = "Upload", isBtnDisabled = false, onUpload, isUploading = false }) => {
     return (

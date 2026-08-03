@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   Row, Col, Form, FormGroup, Label, Input, Button, FormText
-} from 'reactstrap';
+} from "@/components/ui";
 import Validation from '../../helpers/Validation';
 import { State, City } from 'country-state-city';
 import Select from 'react-select'

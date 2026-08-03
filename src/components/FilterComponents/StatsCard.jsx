@@ -1,6 +1,6 @@
 import React from "react";
 import { MdErrorOutline } from "react-icons/md";
-import { Card, CardBody, CardText, CardTitle, Col } from "reactstrap";
+import { Card, CardBody, CardText, CardTitle, Col } from "@/components/ui";
 
 export const StatsCard = ({ title, value, color, unit, breakdown, isGroup, isNotation }) => {
   return (

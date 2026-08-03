@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react"
 import {
     Badge, Button, Card, CardBody, Input, Label,
     Modal, ModalBody, ModalFooter, ModalHeader, Spinner,
-} from "reactstrap"
+} from "@/components/ui"
 import { MdRefresh, MdUpload } from "react-icons/md"
 import { FaFileArchive, FaLayerGroup } from "react-icons/fa"
 import TableContainer from "../../../components/Table/TableContainer"

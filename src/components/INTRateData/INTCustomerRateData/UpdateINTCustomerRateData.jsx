@@ -12,7 +12,7 @@ import {
     Row,
     Col,
     Spinner
-} from 'reactstrap';
+} from "@/components/ui";
 import Select from 'react-select'
 import { useGetApiCall } from '../../../hooks/useGetApiCall';
 import { INT_GET_COUNTRY_CODE } from '../../../api';

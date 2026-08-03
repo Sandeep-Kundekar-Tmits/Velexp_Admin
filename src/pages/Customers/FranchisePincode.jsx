@@ -1,5 +1,5 @@
 import { FaFileExcel } from "react-icons/fa"
-import { Button, Col, FormGroup, Input, Label, Row, Spinner } from "reactstrap"
+import { Button, Col, FormGroup, Input, Label, Row, Spinner } from "@/components/ui"
 import Select from "react-select";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { customStyles } from "../../helpers/CustomStyle";

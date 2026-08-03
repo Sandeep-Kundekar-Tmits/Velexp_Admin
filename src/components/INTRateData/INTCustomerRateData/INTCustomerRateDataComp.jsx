@@ -1,6 +1,6 @@
 import { memo, useEffect, useMemo, useState } from "react"
 import TableContainer from "../../Table/TableContainer"
-import { Button, FormGroup, FormText, Input, Label, Spinner } from "reactstrap"
+import { Button, FormGroup, FormText, Input, Label, Spinner } from "@/components/ui"
 import { checkCustomerPermissions } from "../../../helpers/checkCustomerPermissions"
 import { IoMdCloudDownload } from "react-icons/io"
 import useExcelParser from "../../../hooks/useExcelParser"

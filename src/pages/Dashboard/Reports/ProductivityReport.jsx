@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { GridLoader } from "react-spinners";
-import { Button, Col, Container, FormGroup, Label, Row } from "reactstrap";
+import { Button, Col, Container, FormGroup, Label, Row } from "@/components/ui";
 import Select from "react-select";
 import MainHeaderComp from "../../../components/MainHeaderCom";
 import TabsProvider from "../../../components/TabsProvider";

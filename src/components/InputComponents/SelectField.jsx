@@ -1,7 +1,7 @@
 import React from "react";
 import Select from "react-select";
 import AsyncSelect from "react-select/async";
-import { Form } from "react-bootstrap";
+import { FormGroup, Label, FormText } from "@/components/ui";
 
 const SelectField = ({
   label,
@@ -36,11 +36,11 @@ const SelectField = ({
   };
 
   return (
-    <Form.Group className="mb-2" style={{ width }}>
+    <FormGroup className="mb-2" style={{ width }}>
       {label && (
-        <Form.Label className="fw-bold">
+        <Label className="fw-bold">
           {renderLabel(label)}
-        </Form.Label>
+        </Label>
       )}
 
       <SelectComponent
@@ -84,11 +84,11 @@ const SelectField = ({
       />
 
       {error && (
-        <Form.Text className="text-danger small">
+        <FormText className="text-danger small">
           {error}
-        </Form.Text>
+        </FormText>
       )}
-    </Form.Group>
+    </FormGroup>
   );
 };
 

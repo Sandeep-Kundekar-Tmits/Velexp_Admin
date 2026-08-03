@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react"
 import {
     Button, Card, CardBody, Col, FormGroup, Label, Row, Spinner, Badge
-} from "reactstrap"
+} from "@/components/ui"
 import Select from "react-select"
 import MainHeaderComp from "../../components/MainHeaderCom"
 import TableContainer from "../../components/Table/TableContainer"

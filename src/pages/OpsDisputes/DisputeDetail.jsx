@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
     Button, Card, CardBody, CardHeader, Badge,
     Modal, ModalHeader, ModalBody, ModalFooter
-} from "reactstrap";
+} from "@/components/ui";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
 import usePostApiCall from "../../hooks/usePostApiCall";
 import { OPS_DISPUTES_BASE } from "../../api";

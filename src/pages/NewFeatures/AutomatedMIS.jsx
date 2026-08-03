@@ -1,6 +1,6 @@
 // Automated MIS — pick a date range and download the backend-generated billed-shipments Excel.
 import React, { useState } from "react"
-import { Button, Card, CardBody, Col, Input, Label, Row, Spinner } from "reactstrap"
+import { Button, Card, CardBody, Col, Input, Label, Row, Spinner } from "@/components/ui"
 import { MdFileDownload } from "react-icons/md"
 import MainHeaderComp from "../../components/MainHeaderCom"
 import ToasterProvider from "../../helpers/ToasterProvider"

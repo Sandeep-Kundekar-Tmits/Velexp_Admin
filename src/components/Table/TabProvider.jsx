@@ -11,7 +11,7 @@ import {
     CardTitle,
     CardText,
     Button
-} from 'reactstrap';
+} from "@/components/ui";
 import classnames from 'classnames';
 
 const TabProvider = ({ tabs,toggle,activeTab}) => {

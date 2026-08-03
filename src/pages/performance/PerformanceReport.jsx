@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState, Fragment } from 'react';
-import { Row, Col, Button, Input, Label, FormGroup, Offcanvas, OffcanvasHeader, OffcanvasBody, Table as ReactstrapTable } from 'reactstrap';
+import { Row, Col, Button, Input, Label, FormGroup, Offcanvas, OffcanvasHeader, OffcanvasBody, Table as ReactstrapTable } from "@/components/ui";
 import Select from 'react-select';
 import { X, CircleX } from 'lucide-react';
 import TableContainer from '../../components/Table/TableContainer';

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Badge, Button, Card, CardBody, CardFooter, CardHeader, CardTitle } from 'reactstrap';
+import { Badge, Button, Card, CardBody, CardFooter, CardHeader, CardTitle } from "@/components/ui";
 
 const KYCInfo = ({ kyc_document }) => (
     <Card className="mb-4 shadow-sm" style={{ borderRadius: '12px' }}>

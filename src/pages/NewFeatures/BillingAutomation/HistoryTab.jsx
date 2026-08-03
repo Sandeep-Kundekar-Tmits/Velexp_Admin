@@ -1,6 +1,6 @@
 // Tab 4 — History: recent batches. Click a row to re-open its progress panel.
 import { useEffect, useMemo, useState } from "react"
-import { Badge, Button, Card, CardBody, Spinner } from "reactstrap"
+import { Badge, Button, Card, CardBody, Spinner } from "@/components/ui"
 import { MdRefresh, MdVisibility } from "react-icons/md"
 import TableContainer from "../../../components/Table/TableContainer"
 import usePostApiCall from "../../../hooks/usePostApiCall"

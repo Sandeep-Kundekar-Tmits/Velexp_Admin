@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Modal, ModalHeader, ModalBody, ModalFooter, Button, FormGroup, Label, Input, FormFeedback, Spinner, Row, Col } from "reactstrap";
+import { Modal, ModalHeader, ModalBody, ModalFooter, Button, FormGroup, Label, Input, FormFeedback, Spinner, Row, Col } from "@/components/ui";
 
 const emptyForm = { link_name: "", link_url: "", parent: "", exc_ord: 1, is_active: true, show_panel: "side", faicon: "" };
 

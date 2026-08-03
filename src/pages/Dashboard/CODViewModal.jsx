@@ -1,5 +1,5 @@
 import React from "react"
-import { Modal, Button, Table, Badge } from "reactstrap"
+import { Modal, Button, Table, Badge } from "@/components/ui"
 
 const CODViewModal = ({ isOpen, toggle, data }) => {
     if (!data) return null

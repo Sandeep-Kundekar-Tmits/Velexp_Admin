@@ -1,74 +1,47 @@
-import { useEffect, useRef } from "react";
-import { Modal } from "bootstrap";
+import { Modal, ModalBody, ModalFooter, Button } from "@/components/ui";
 
+/**
+ * Same props as before, but backed by the Tailwind Modal instead of driving
+ * the raw Bootstrap 5 JS API through a ref.
+ *
+ * The old version instantiated `new Modal(el)` imperatively and re-registered
+ * a "hidden.bs.modal" listener on every isOpen change without ever removing
+ * it, so listeners accumulated for the life of the component. Declarative
+ * rendering removes that class of bug outright.
+ *
+ * backdrop:"static" / keyboard:false previously meant the dialog could not be
+ * dismissed by clicking away or pressing Escape, so `toggle` is intentionally
+ * not passed to Modal here — closing stays via the Cancel button.
+ */
 const SimpleModal = ({
   isOpen,
   setIsOpen,
   children,
   cancelButtonName = "Cancel",
   successButtonName = null,
-  size = null, // e.g. 'lg', 'xl', 'sm'
+  size = null, // 'sm' | 'lg' | 'xl'
   onCancel,
   onSuccess,
 }) => {
-  const modalRef = useRef(null);
-  const bsModal = useRef(null);
-
-  useEffect(() => {
-    bsModal.current = new Modal(modalRef.current, {
-      backdrop: "static",
-      keyboard: false,
-    });
-  }, []);
-
-  useEffect(() => {
-    if (isOpen) {
-      bsModal.current.show();
-    } else {
-      bsModal.current.hide();
-    }
-
-    // Listen for close from UI click
-    modalRef.current.addEventListener("hidden.bs.modal", () => {
-      setIsOpen(false);
-    });
-
-  }, [isOpen]);
-
   const handleCancel = () => {
     onCancel?.();
     setIsOpen(false);
   };
 
-  const handleSuccess = () => {
-    onSuccess?.();
-  };
-
   return (
-    <div className="modal fade" ref={modalRef} tabIndex="-1">
-      <div className={`modal-dialog ${size ? `modal-${size}` : ""}`}>
-        <div className="modal-content p-2 rounded-3 shadow">
-
-          <div className="modal-body">
-            {children}
-          </div>
-
-          <div className="modal-footer border-0">
-            <button type="button" className="btn btn-secondary" onClick={handleCancel}>
-              {cancelButtonName}
-            </button>
-
-            {
-              successButtonName &&
-              <button type="button" className="btn btn-primary" onClick={handleSuccess}>
-                {successButtonName}
-              </button>
-            }
-          </div>
-
-        </div>
-      </div>
-    </div>
+    <Modal isOpen={isOpen} size={size || "md"} centered>
+      <ModalBody>{children}</ModalBody>
+      <ModalFooter className="border-0">
+        <Button color="secondary" onClick={handleCancel}>
+          {cancelButtonName}
+        </Button>
+        {successButtonName && (
+          <Button color="primary" onClick={() => onSuccess?.()}>
+            {successButtonName}
+          </Button>
+        )}
+      </ModalFooter>
+    </Modal>
   );
 };
 

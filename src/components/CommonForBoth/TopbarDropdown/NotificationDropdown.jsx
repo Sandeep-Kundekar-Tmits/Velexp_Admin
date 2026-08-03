@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import PropTypes from 'prop-types'
 import { Link } from "react-router-dom"
-import { Dropdown, DropdownToggle, DropdownMenu, Row, Col } from "reactstrap"
+import { Dropdown, DropdownToggle, DropdownMenu, Row, Col } from "@/components/ui"
 import SimpleBar from "simplebar-react"
 
 //Import images

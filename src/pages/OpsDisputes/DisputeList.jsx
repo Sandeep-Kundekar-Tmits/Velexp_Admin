@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Button, Nav, NavItem, NavLink } from "reactstrap";
+import { Button, Nav, NavItem, NavLink } from "@/components/ui";
 import { useNavigate } from "react-router-dom";
 import TableContainer from "../../components/Table/TableContainer";
 import { useGetApiCall } from "../../hooks/useGetApiCall";

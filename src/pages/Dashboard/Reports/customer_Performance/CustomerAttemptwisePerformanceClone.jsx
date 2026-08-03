@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Row, Col, FormGroup, Spinner } from 'reactstrap';
-import { Button, FormFeedback, Input, Label, Table } from "reactstrap";
+import { Row, Col, FormGroup, Spinner } from "@/components/ui";
+import { Button, FormFeedback, Input, Label, Table } from "@/components/ui";
 import DateRangeInput from "../../../../components/Common/DateRangeInput";
 import TableContainer from '../../../../components/Table/TableContainer';
 import Select from 'react-select'

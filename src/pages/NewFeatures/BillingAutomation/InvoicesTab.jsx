@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react"
 import {
     Button, Card, CardBody, Col, Container, FormGroup, Input, Label,
     Modal, ModalBody, ModalFooter, ModalHeader, Row, Spinner, Table,
-} from "reactstrap"
+} from "@/components/ui"
 import { MdDelete, MdEdit, MdRefresh, MdRemoveRedEye, MdSave } from "react-icons/md"
 import axios from "axios"
 import TableContainer from "../../../components/Table/TableContainer"

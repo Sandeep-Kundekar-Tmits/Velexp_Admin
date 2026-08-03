@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table } from 'reactstrap';
+import { Table } from "@/components/ui";
 import PropTypes from 'prop-types';
 
 const MissingPodTable = ({ data, columns, title, bordered, striped, hover }) => {

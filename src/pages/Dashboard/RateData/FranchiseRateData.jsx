@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 
 import Select from "react-select";
-import { Button, Col, FormGroup, Input, Label, Row, Spinner } from "reactstrap";
+import { Button, Col, FormGroup, Input, Label, Row, Spinner } from "@/components/ui";
 import { GridLoader } from "react-spinners";
 
 import { useGetApiCall } from "../../../hooks/useGetApiCall";

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Row, Col, Button, FormGroup, Label } from "reactstrap";
+import { Row, Col, Button, FormGroup, Label } from "@/components/ui";
 import Select from "react-select";
 import { GridLoader } from "react-spinners";
 import MainHeaderComp from "../../../components/MainHeaderCom";

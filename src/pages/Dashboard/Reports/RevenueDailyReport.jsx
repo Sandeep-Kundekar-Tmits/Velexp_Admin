@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Button, Card, CardBody, Col, FormGroup, Input, Label, Nav, NavItem, NavLink, Row, TabContent, TabPane } from "reactstrap";
+import { Button, Card, CardBody, Col, FormGroup, Input, Label, Nav, NavItem, NavLink, Row, TabContent, TabPane } from "@/components/ui";
 import {
     MdAccessTime, MdCalendarMonth, MdCurrencyRupee, MdDateRange,
     MdHistory, MdLocalShipping, MdToday, MdTrendingDown, MdTrendingFlat, MdTrendingUp,

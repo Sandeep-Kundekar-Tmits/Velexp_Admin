@@ -1,4 +1,4 @@
-import { Button, Spinner } from "reactstrap"
+import { Button, Spinner } from "@/components/ui"
 import MainHeaderComp from "../../components/MainHeaderCom"
 import { useState, useEffect } from "react"
 import usePostApiCall from "../../hooks/usePostApiCall"

@@ -1,6 +1,6 @@
 // Animated donut chart for a breakdown share (top N by gross + "Others").
 import ReactApexChart from "react-apexcharts"
-import { Card, CardBody } from "reactstrap"
+import { Card, CardBody } from "@/components/ui"
 import { formatINR } from "../revenueFormat"
 
 const PALETTE = ["#556ee6", "#34c38f", "#f1b44c", "#f46a6a", "#50a5f1", "#74788d", "#9b5de5", "#00bbf9"]

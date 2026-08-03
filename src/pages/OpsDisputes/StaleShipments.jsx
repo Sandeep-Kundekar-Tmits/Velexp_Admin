@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
     Button, Modal, ModalHeader, ModalBody, ModalFooter, FormGroup, Label
-} from "reactstrap";
+} from "@/components/ui";
 import Select from "react-select";
 import TableContainer from "../../components/Table/TableContainer";
 import { useGetApiCall } from "../../hooks/useGetApiCall";

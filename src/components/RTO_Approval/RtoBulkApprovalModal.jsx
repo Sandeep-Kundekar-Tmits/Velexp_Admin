@@ -9,7 +9,7 @@ import {
     FormGroup,
     Table,
     FormFeedback
-} from "reactstrap";
+} from "@/components/ui";
 import PropTypes from "prop-types";
 import { useEffect, useMemo, useState } from "react";
 import usePostApiCall from "../../hooks/usePostApiCall";

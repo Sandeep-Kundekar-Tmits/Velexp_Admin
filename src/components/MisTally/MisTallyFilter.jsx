@@ -1,4 +1,4 @@
-import { Button, Col, Label, Row } from "reactstrap";
+import { Button, Col, Label, Row } from "@/components/ui";
 import Select from 'react-select';
 import { useEffect, useState } from 'react';
 import { customStyles } from "../../helpers/CustomStyle";

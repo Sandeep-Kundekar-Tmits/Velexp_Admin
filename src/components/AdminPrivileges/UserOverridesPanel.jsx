@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input } from "reactstrap";
+import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input } from "@/components/ui";
 import { GridLoader } from "react-spinners";
 import MenuPrivilegeTree from "./MenuPrivilegeTree";
 import { useGetApiCall } from "../../hooks/useGetApiCall";

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Badge, Button, Card, CardBody, CardFooter, CardHeader, CardTitle, ListGroup, ListGroupItem } from 'reactstrap';
+import { Badge, Button, Card, CardBody, CardFooter, CardHeader, CardTitle, ListGroup, ListGroupItem } from "@/components/ui";
 import SimpleModal from '../SimpleModal';
 import usePostApiCall from '../../hooks/usePostApiCall';
 import { UPDATE_ACTIVE_STATUS } from '../../api';

@@ -9,7 +9,7 @@ import {
     Col,
     Collapse,
     FormFeedback,
-} from 'reactstrap';
+} from "@/components/ui";
 import locations from "../../data/locations.json"
 import { Country, State, City } from "country-state-city";
 import { customStyles } from '../../helpers/CustomStyle';

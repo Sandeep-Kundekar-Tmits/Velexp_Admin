@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Row, Col, FormGroup, Label, Input, FormFeedback, Spinner } from 'reactstrap';
+import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Row, Col, FormGroup, Label, Input, FormFeedback, Spinner } from "@/components/ui";
 import Select from 'react-select';
 import { customStyles } from '../../helpers/CustomStyle';
 import { useGetApiCall } from '../../hooks/useGetApiCall';

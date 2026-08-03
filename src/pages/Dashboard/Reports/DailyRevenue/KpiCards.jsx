@@ -1,5 +1,5 @@
 // Today / Yesterday / MTD summary cards for the Daily Revenue dashboard.
-import { Card, CardBody, Col, Row } from "reactstrap"
+import { Card, CardBody, Col, Row } from "@/components/ui"
 import { MdToday, MdHistory, MdCalendarMonth, MdLocalShipping } from "react-icons/md"
 import { formatINR, formatInt } from "./revenueFormat"
 

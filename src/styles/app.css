@@ -1,0 +1,75 @@
+@import "tailwindcss";
+/* Shrinking shim for the ~6,244 Bootstrap utility classes still in the JSX.
+   Delete rules from it as screens are migrated to real Tailwind classes. */
+@import "./bootstrap-compat.css";
+
+/*
+ * Velexp "Dense Ops" design tokens.
+ *
+ * Palette is taken from the Velocity logo (src/assets/images/
+ * vellocity-express-logo.svg), not invented: the previous primary #556ee6 was
+ * the stock Skote indigo and sat at only 4.4:1 against white.
+ *
+ * Typography is the highest-impact change: Poppins is a geometric display
+ * face with no tabular figures, which is why 20-column reports read as
+ * cramped and why numbers never line up down a column.
+ */
+@theme {
+  /* --- brand --- */
+  --color-brand-50: #eef0f9;
+  --color-brand-100: #d6dbf0;
+  --color-brand-300: #8f96cc;
+  --color-brand-500: #414593; /* primary — 8.4:1 on white (AAA) */
+  --color-brand-600: #383c80;
+  --color-brand-700: #2e386a; /* sidebar/header — 11.1:1 (AAA) */
+  --color-brand-900: #1e2447;
+
+  /* accent — links, info, chart series. 2.9:1, so NEVER white text on it */
+  --color-accent-500: #00a0e3;
+
+  /* status. orange is reserved for meaning, never decoration */
+  --color-warning-500: #f59d0e;
+  --color-danger-500: #e85222;
+  --color-cta-500: #ef7b1b;
+  --color-success-500: #16a34a;
+
+  /* --- neutrals (slate) --- */
+  --color-surface: #ffffff;
+  --color-canvas: #f8fafc;
+  --color-line: #e2e8f0;
+  --color-ink: #0f172a;
+  --color-ink-muted: #64748b;
+
+  /* --- type & density --- */
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --text-base: 0.8125rem; /* 13px */
+  --radius-DEFAULT: 0.375rem; /* 6px */
+  --spacing-row: 2.125rem; /* 34px table row */
+}
+
+@layer base {
+  html {
+    font-size: 16px;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    /* Aligns digits down a column — the single biggest readability win for
+       reports with 15-25 numeric columns. */
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Tables inherit tabular figures and compact rhythm by default. */
+  table {
+    font-variant-numeric: tabular-nums;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: 2px;
+  }
+}

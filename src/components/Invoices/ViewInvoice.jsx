@@ -1,4 +1,4 @@
-import { Modal, ModalBody, ModalHeader } from "reactstrap"
+import { Modal, ModalBody, ModalHeader } from "@/components/ui"
 import InvoiceGenerator from "../../PdfComponents/InvoiceGenerator"
 
 const ViewInvoice = ({ isOpen, toggle, invoiceData, downloadUrl }) => {

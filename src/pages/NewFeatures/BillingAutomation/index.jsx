@@ -1,7 +1,7 @@
 // Billing Automation — one page, 4 tabs (Dashboard, Audit, Working & Invoices, History).
 // A shared period picker feeds the three one-click batch triggers.
 import React, { useState, useEffect, useCallback, useRef } from "react"
-import { Card, CardBody, Col, Label, Nav, NavItem, NavLink, Row, TabContent, TabPane, Spinner } from "reactstrap"
+import { Card, CardBody, Col, Label, Nav, NavItem, NavLink, Row, TabContent, TabPane, Spinner } from "@/components/ui"
 import classnames from "classnames"
 import Select from "react-select"
 import { toast } from "react-toastify"

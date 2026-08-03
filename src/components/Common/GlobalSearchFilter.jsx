@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Col } from 'reactstrap';
+import { Col } from "@/components/ui";
 
 // import "flatpickr/dist/themes/material_blue.css";
 // import FlatPickr from "react-flatpickr";

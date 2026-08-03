@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react"
-import { Button, Input } from "reactstrap"
+import { Button, Input } from "@/components/ui"
 import MainHeaderComp from "../../../components/MainHeaderCom"
 import TableContainer from "../../../components/Table/TableContainer"
 import { useGetApiCall } from "../../../hooks/useGetApiCall"

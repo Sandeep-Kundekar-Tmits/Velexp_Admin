@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
-import { Button, Col, FormGroup, Input, Label, Row, Spinner } from "reactstrap";
+import { Button, Col, FormGroup, Input, Label, Row, Spinner } from "@/components/ui";
 import Select from "react-select";
 import { FaFileExcel, FaEye } from "react-icons/fa";
 import { customStyles } from "../../../helpers/CustomStyle";

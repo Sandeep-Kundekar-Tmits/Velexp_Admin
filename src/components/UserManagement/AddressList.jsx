@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardBody, CardHeader, CardTitle, ListGroup, ListGroupItem } from 'reactstrap';
+import { Card, CardBody, CardHeader, CardTitle, ListGroup, ListGroupItem } from "@/components/ui";
 
 const AddressList = ({ addresses }) => (
     <Card className="mb-4 shadow-sm" style={{ borderRadius: '12px' }}>

@@ -14,7 +14,7 @@ import {
   Input,
   FormFeedback,
   Label,
-} from "reactstrap";
+} from "@/components/ui";
 // import images
 import CompanyLogo from "../../assets/images/vellocity-express-logo.png";
 import { useState } from "react";

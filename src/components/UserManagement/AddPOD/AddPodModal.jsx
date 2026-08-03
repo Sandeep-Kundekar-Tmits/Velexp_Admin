@@ -1,5 +1,5 @@
-import { Button, FormFeedback, FormGroup, Input, Label, Offcanvas, OffcanvasBody, OffcanvasHeader, Spinner } from "reactstrap";
-import { Card, CardBody, Row, Col } from 'reactstrap';
+import { Button, FormFeedback, FormGroup, Input, Label, Offcanvas, OffcanvasBody, OffcanvasHeader, Spinner } from "@/components/ui";
+import { Card, CardBody, Row, Col } from "@/components/ui";
 import { useState } from "react";
 import { MdOutlineCancel } from "react-icons/md";
 import usePostApiCall from "../../../hooks/usePostApiCall";

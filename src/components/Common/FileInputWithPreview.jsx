@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FormGroup, Label, Input, Button } from 'reactstrap';
+import { FormGroup, Label, Input, Button } from "@/components/ui";
 
 const FileInputWithPreview = ({ 
   label, 
