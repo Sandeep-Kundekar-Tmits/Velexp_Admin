@@ -1,3 +1,9 @@
+/**
+ * AddPod Component
+ * This component provides a dashboard for managing and reporting Proof of Delivery (POD) details.
+ * It allows users to view a list of PODs, add new ones (via file upload), check for missing PODs,
+ * and export data to Excel.
+ */
 // src/components/filter.
 import React, { useEffect, useMemo, useState } from "react";
 import PropTypes from 'prop-types';
@@ -21,7 +27,13 @@ import { GridLoader } from "react-spinners";
 
 const AddPod = () => {
 
+  // State to hold the source/URL of the selected POD image for viewing
   const [SelectedSrc, setSelectedSrc] = useState(null)
+
+  /**
+   * Column configuration for the TableContainer component.
+   * Defines headers, data keys, and custom rendering for various POD fields.
+   */
   const columns = useMemo(
     () => [
       {
@@ -95,26 +107,32 @@ const AddPod = () => {
   );
 
 
-  // selected data range
+  // State for date range filtering
   const [selectedRange, setSelectedRange] = useState({
     startDate: "",
     endDate: "",
   });
 
-  // handle change range
+  /**
+   * Updates the selected date range state.
+   * @param {Object} range - { startDate, endDate }
+   */
   const handleChange = (range) => {
     setSelectedRange(range);
   };
 
-  // pod info
+  // State to store form data for adding a new POD
   const [PodInfo, setPodInfo] = useState({
     awbno: "",
     pod_file: null
   })
 
-  // title for the select component
+  // State to control which modal/component is currently active/visible
   const [selectedTitle, setSelectedTitle] = useState("")
-  // toggle component
+
+  /**
+   * Resets the modal state and clears the current POD info form.
+   */
   const toggle = () => {
     setSelectedTitle("")
     setPodInfo({
@@ -123,12 +141,16 @@ const AddPod = () => {
     })
   }
 
-  //  api call functions
+  // Custom hook to handle API calls for adding a POD (with success notification)
   const { apifunc: AddPodFunc, loading: AddPodLoading } = usePostApiCall(toggle, "POD Added Successfully")
 
-
+  // State for form validation errors
   const [Errors, setErrors] = useState({})
-  //  submitForm
+
+  /**
+   * Validates and submits the POD addition form.
+   * Appends AWB number and file to FormData and sends a POST request.
+   */
   const SubmitPod = async () => {
     const errors = {}
     if (!PodInfo.awbno) errors.awbno = "awb no is required"
@@ -158,7 +180,10 @@ const AddPod = () => {
     }
   }
 
-  // input change
+  /**
+   * Handles input changes for the Add POD form.
+   * Manages both text (AWB number) and file (POD image) inputs.
+   */
   const onPodChange = (e) => {
     const { value, type, files } = e.target
     if (type === "file") {
@@ -175,6 +200,10 @@ const AddPod = () => {
     }
   }
 
+  /**
+   * List of sub-components that can be rendered conditionally (Modals/Views).
+   * Maps a unique title to a React component.
+   */
   const components = [
     {
       title: "add_pod",
@@ -210,6 +239,11 @@ const AddPod = () => {
     }
   ]
 
+  /**
+   * Helper function to return the component corresponding to the selectedTitle.
+   * @param {string} title - The title of the component to render.
+   * @returns {JSX.Element} - The matching component or an empty fragment.
+   */
   const ReturnComponent = (title) => {
     let component = components.find(ele => ele.title === title)
     if (!component) {
@@ -218,24 +252,27 @@ const AddPod = () => {
     return component.comp
   }
 
-  //  calling the get Pod Data
+  // State for storing fetched POD data
   const [PodDetails, setPodDetails] = useState([])
-  // defining the api for the get all pod details
+
+  // API call function for fetching all POD data
   const { apifunc: GetAllPodData, data: POD_Data, loading: PodDataLoading } = usePostApiCall()
 
+  // Initial data fetch on component mount
   useEffect(() => {
-    //  calling the all pod details
     let payload = formatDateForPayload(selectedRange)
     GetAllPodData(GET_ALL_POD_DETAILS, payload)
   }, [])
 
+  // Sync PodDetails state with API response data
   useEffect(() => {
     setPodDetails(POD_Data?.results)
   }, [POD_Data])
 
 
-  // check click function
-
+  /**
+   * Validates selected range and fetches POD data based on the user-selected date range.
+   */
   const RangeCheckPodDetails = () => {
     if (selectedRange.startDate === "" || selectedRange.endDate === "") {
       alert("Please select both start and end dates")
@@ -245,6 +282,9 @@ const AddPod = () => {
     GetAllPodData(GET_ALL_POD_DETAILS, payload)
   }
 
+  /**
+   * Transforms the current POD details and triggers an Excel file download.
+   */
   const DownloadPod = () => {
     // Transform your data if needed
     const exportData = PodDetails.map(item => ({
@@ -257,7 +297,7 @@ const AddPod = () => {
     downloadExcel(exportData, 'pod_Detils.xlsx');
   }
 
-  //meta title
+  // Set the browser tab title
   document.title = "Add POD";
   return (
     <div className="page-content py-0 px-0">

@@ -18,7 +18,9 @@ const FirstMileOperation = () => {
     useEffect(() => {
         document.title = "Operation Performance Report";
     }, []);
+    // final status count state
     const [FinalStatusCount, setFinalStatusCount] = useState({})
+    // payment mode options
     const [paymentModeOptions] = useState([
         {
             value: "ALL",
@@ -33,23 +35,27 @@ const FirstMileOperation = () => {
             label: "PAID"
         }
     ])
+    // payment mode state
     const [PaymentMode, setPaymentMode] = useState({
         value: "ALL",
         label: "ALL"
     },)
 
-
+    // date range state
     const [selectedRange, setSelectedRange] = useState({
         startDate: "",
         endDate: "",
     });
 
+    // date range change handler
     const handleChange = (range) => {
         setSelectedRange(range);
     };
 
+    // selected payload state
     const [SelectedPayload, setSelectedPayload] = useState(null)
 
+    // first mile data state
     const [FirstMiles, setFirstMiles] = useState([])
     // to store all entries
     const [AllRegions, setAllRegions] = useState([])
@@ -67,10 +73,12 @@ const FirstMileOperation = () => {
     // onCheck button click
     const [BookingData, setBookingData] = useState([])
 
+    // base column config
     const baseColumnConfig = {
         enableColumnFilter: false,
         enableSorting: true,
     };
+    // useMemo for the totals of the first mile operations
     const firstMileTotals = useMemo(() => {
         const totals = FirstMiles.reduce(
             (acc, row) => {
@@ -139,16 +147,19 @@ const FirstMileOperation = () => {
         };
     }, [FirstMiles]);
 
+    // value cell
     const valueCell = key => ({ row }) => (
         <strong>{row.original[key] ?? 0}</strong>
     );
 
+    // percent cell
     const percentCell = key => ({ row }) => (
         <span style={{ fontSize: '12px', color: '#555' }}>
             {row.original[key] ?? 0}%
         </span>
     );
 
+    // first mile columns
     const LastMilecolumns = useMemo(() => [
 
         /* ================= DATE ================= */
@@ -364,6 +375,7 @@ const FirstMileOperation = () => {
     }, [ServiceCenters]);
 
 
+    // onCheck button click
     const OnCheckClick = async () => {
         try {
             // Format dates
@@ -400,7 +412,7 @@ const FirstMileOperation = () => {
         }
     };
 
-
+    // use effect for the service center option dropdown    
     useEffect(() => {
         if (!SelectedRegion || SelectedRegion.length === 0) {
             setServiceCenterOption(AllServiceCenterOption);
@@ -527,8 +539,8 @@ const FirstMileOperation = () => {
                 </div>
 
                 <div className=''>
-
                     <div className='mt-0'>
+                        {/* loading state */}
                         {
                             bookingLoading ? <div style={{ height: "40vh" }} className="container-fluid  d-flex flex-column justify-content-center align-items-center">
                                 <GridLoader size={20} />
@@ -536,6 +548,7 @@ const FirstMileOperation = () => {
                             </div>
                                 :
                                 <>
+                                    {/* table for the first mile operation */}
                                     <TableContainer
                                         columns={LastMilecolumns}
                                         data={FirstMiles || []}
@@ -558,6 +571,7 @@ const FirstMileOperation = () => {
                                                     same_day_spd: ele?.same_day,
                                                 }
                                             })
+                                            // calling the download excel function
                                             await downloadExcel(secondeMileReportUpdate, "Pickup_Strike_Rate", {
                                                 sheetName: "Operation_Performance",
                                                 headers: newHeaders,
