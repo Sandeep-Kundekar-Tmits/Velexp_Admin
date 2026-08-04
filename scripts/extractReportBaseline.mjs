@@ -40,6 +40,7 @@ const OUT = path.join(root, "tests/baseline/reports.json");
  */
 const MIGRATED = new Set([
   "src/pages/Dashboard/Reports/CODReport.jsx",
+  "src/pages/Dashboard/Reports/PickupPeformance.jsx",
 ]);
 
 const DIRS = [
