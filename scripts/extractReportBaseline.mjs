@@ -27,6 +27,21 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const OUT = path.join(root, "tests/baseline/reports.json");
 
+/**
+ * Screens already moved to the config-driven engine.
+ *
+ * The baseline is a FROZEN pre-migration record — it must not be regenerated as
+ * screens migrate, because each config's test compares against its entry. Once
+ * a screen is migrated its source no longer contains the payload/export
+ * literals, so --check would report drift forever; listing it here excludes it
+ * from the guard while leaving its recorded entry intact.
+ *
+ * Add a screen here in the same commit that migrates it.
+ */
+const MIGRATED = new Set([
+  "src/pages/Dashboard/Reports/CODReport.jsx",
+]);
+
 const DIRS = [
   "src/pages/Dashboard/Reports",
   "src/pages/Dashboard/Reports/customer_Performance",
@@ -131,12 +146,25 @@ const records = files
 const json = JSON.stringify(records, null, 2) + "\n";
 
 if (process.argv.includes("--check")) {
-  const prev = fs.existsSync(OUT) ? fs.readFileSync(OUT, "utf8") : "";
-  if (prev !== json) {
-    console.error("Report baseline CHANGED. If this is an intentional migration, review the diff and re-run without --check.");
+  const prev = JSON.parse(fs.existsSync(OUT) ? fs.readFileSync(OUT, "utf8") : "[]");
+  const cmp = (list) => JSON.stringify(list.filter((r) => !MIGRATED.has(r.file)));
+  if (cmp(prev) !== cmp(records)) {
+    console.error(
+      "Report baseline CHANGED for a screen that has NOT been migrated.\n" +
+        "Either an unmigrated screen's payload/export was edited, or a migrated\n" +
+        "screen is missing from the MIGRATED list in this script."
+    );
     process.exit(1);
   }
-  console.log("report baseline unchanged");
+  const done = prev.filter((r) => MIGRATED.has(r.file)).length;
+  console.log(`report baseline unchanged (${done} screen(s) migrated and excluded)`);
+} else if (fs.existsSync(OUT) && !process.argv.includes("--force")) {
+  console.error(
+    "Baseline already exists and is a FROZEN pre-migration record.\n" +
+      "Regenerating it would erase the reference each config test compares\n" +
+      "against. Pass --force only if you genuinely mean to re-baseline."
+  );
+  process.exit(1);
 } else {
   fs.mkdirSync(path.dirname(OUT), { recursive: true });
   fs.writeFileSync(OUT, json);
