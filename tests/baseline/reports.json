@@ -1,0 +1,1715 @@
+[
+  {
+    "file": "src/pages/Dashboard/Reports/AdminBooking.jsx",
+    "payloads": [
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "customer_name",
+            "expr": "!username.value ? { value: \"All\", label: \"All\" } : username.value"
+          },
+          {
+            "key": "start_date",
+            "expr": "updatedDate.from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "updatedDate.to_date"
+          },
+          {
+            "key": "service_center",
+            "expr": "SelectedServiceCenters.map((ele) => ele?.value)"
+          },
+          {
+            "key": "product",
+            "expr": "SelectedProduct?.value"
+          },
+          {
+            "key": "mode",
+            "expr": "SelectedMode?.value"
+          }
+        ]
+      }
+    ],
+    "exports": [],
+    "endpoints": [
+      "GET_ADMIN_BOOKING_DETAILS"
+    ]
+  },
+  {
+    "file": "src/pages/Dashboard/Reports/AttemptWiseOperationPickupReport.jsx",
+    "payloads": [
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "customer_name",
+            "expr": "username.value ? username.value : \"All\""
+          },
+          {
+            "key": "start_date",
+            "expr": "updatedDate.from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "updatedDate.to_date"
+          },
+          {
+            "key": "service_center",
+            "expr": "SelectedServiceCenters.map((ele) => ele?.value) || []"
+          },
+          {
+            "key": "product",
+            "expr": "SelectedProduct?.value || \"\""
+          },
+          {
+            "key": "payment_mode",
+            "expr": "PaymentMode?.value || \"\""
+          },
+          {
+            "key": "region",
+            "expr": "SelectedRegion?.map(ele => ele?.value) || []"
+          }
+        ]
+      },
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "customer_name",
+            "expr": "username.value ? username.value : \"All\""
+          },
+          {
+            "key": "start_date",
+            "expr": "updatedDate.from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "updatedDate.to_date"
+          },
+          {
+            "key": "service_center",
+            "expr": "SelectedServiceCenters.map((ele) => ele?.value) || []"
+          },
+          {
+            "key": "product",
+            "expr": "SelectedProduct?.value || \"\""
+          },
+          {
+            "key": "mode",
+            "expr": "SelectedMode?.value || \"\""
+          },
+          {
+            "key": "region",
+            "expr": "SelectedRegion?.map(ele => ele?.value) || []"
+          }
+        ]
+      }
+    ],
+    "exports": [
+      {
+        "fileName": "OperationPerformance",
+        "headers": [
+          "AWB No",
+          "AWB Date",
+          "Order No",
+          "Reference No",
+          "Customer Name",
+          "Consignee Name",
+          "Consignee City",
+          "Consignee State",
+          "Billing Pincode",
+          "Origin SC",
+          "Service Center",
+          "Vendor Name",
+          "Vendor Pincode",
+          "Quantity",
+          "Weight",
+          "Shipment Value",
+          "Total Amount",
+          "Payment Mode",
+          "RTO AWB No",
+          "Destination",
+          "Freight Charges",
+          "Invoice No",
+          "Checkpoint",
+          "TAT (Days)",
+          "Delivery Attempts"
+        ],
+        "fields": [
+          "item.awbno",
+          "item.awbdate",
+          "item.orderno",
+          "item.ref2",
+          "item.customer_name",
+          "item.consignee_name",
+          "item.consignee_city",
+          "item.consignee_state",
+          "item.billing_pincode",
+          "item.orgsc",
+          "item.service_center",
+          "item.vendor_name",
+          "item.vendor_pincode",
+          "item.quantity",
+          "item.weight",
+          "item.shipment_value",
+          "item.total_amount",
+          "item.paymentmode",
+          "item.rtoawbno",
+          "item.destination",
+          "item.tot_freight",
+          "item.invno",
+          "item.CHKPNT",
+          "item.tat_days",
+          "item.attempts"
+        ]
+      }
+    ],
+    "endpoints": [
+      "GET_ATTEMPT_WISE_DELIVARY_REPORT"
+    ]
+  },
+  {
+    "file": "src/pages/Dashboard/Reports/AttemptWisePerformance.jsx",
+    "payloads": [
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "customer_name",
+            "expr": "username.value ? username.value : \"All\""
+          },
+          {
+            "key": "start_date",
+            "expr": "updatedDate.from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "updatedDate.to_date"
+          },
+          {
+            "key": "service_center",
+            "expr": "SelectedServiceCenters.map((ele) => ele?.value) || []"
+          },
+          {
+            "key": "product",
+            "expr": "SelectedProduct?.value || \"\""
+          },
+          {
+            "key": "payment_mode",
+            "expr": "PaymentMode?.value || \"\""
+          },
+          {
+            "key": "region",
+            "expr": "SelectedRegion?.map(ele => ele?.value) || []"
+          }
+        ]
+      }
+    ],
+    "exports": [],
+    "endpoints": [
+      "GET_ATTEMPT_WISE_DELIVARY_REPORT"
+    ]
+  },
+  {
+    "file": "src/pages/Dashboard/Reports/CDUpdate.jsx",
+    "payloads": [
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "start_date",
+            "expr": "YMD_DateFormate(selectedRange)?.from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "YMD_DateFormate(selectedRange)?.to_date"
+          },
+          {
+            "key": "service_center",
+            "expr": "CdUpdatePayload?.service_center?.value || \"All\""
+          },
+          {
+            "key": "region",
+            "expr": "CdUpdatePayload?.region?.value || \"All\""
+          }
+        ]
+      },
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "start_date",
+            "expr": "YMD_DateFormate(selectedRange)?.from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "YMD_DateFormate(selectedRange)?.to_date"
+          },
+          {
+            "key": "service_center",
+            "expr": "CdUpdatePayload?.service_center?.value || \"All\""
+          },
+          {
+            "key": "region",
+            "expr": "CdUpdatePayload?.region?.value || \"All\""
+          }
+        ]
+      }
+    ],
+    "exports": [
+      {
+        "fileName": "cd_update_report",
+        "headers": [
+          "AWB No",
+          "Service Center",
+          "Region"
+        ],
+        "fields": [
+          "item.awbno",
+          "item.service_center",
+          "item.region"
+        ]
+      }
+    ],
+    "endpoints": [
+      "UPLOAD_CD_UPDATE_REPORT"
+    ]
+  },
+  {
+    "file": "src/pages/Dashboard/Reports/CODReport.jsx",
+    "payloads": [
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "start_date",
+            "expr": "formattedRange?.start"
+          },
+          {
+            "key": "end_date",
+            "expr": "formattedRange?.end"
+          },
+          {
+            "key": "customer_name",
+            "expr": "SelectedInfo?.customer ? SelectedInfo?.customer : \"All\""
+          }
+        ]
+      },
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "start_date",
+            "expr": "formattedRange?.start"
+          },
+          {
+            "key": "end_date",
+            "expr": "formattedRange?.end"
+          },
+          {
+            "key": "customer_name",
+            "expr": "SelectedInfo?.customer ? SelectedInfo?.customer : \"All\""
+          }
+        ]
+      }
+    ],
+    "exports": [
+      {
+        "fileName": "COD_Details",
+        "headers": [
+          "AWB No",
+          "Pickup Pincode",
+          "Drop Pincode",
+          "Weight (Kg)",
+          "Shipment Value",
+          "Payment Mode",
+          "Customer Name",
+          "Origin SC",
+          "Consignee City",
+          "Consignee State",
+          "Date",
+          "COD Amount"
+        ],
+        "fields": [
+          "item.awbno",
+          "item.pick_pincode",
+          "item.drop_pincode",
+          "item.weight ?? 0",
+          "item.shipment_value ?? 0",
+          "item.paymentmode",
+          "item.customer_name",
+          "item.orgsc",
+          "item.consignee_city",
+          "item.consignee_state",
+          "(() => { if (!item.date) return \"N/A\"; // Handle dd-mm-yyyy format safely const [day, month, year] = item.date.split(\"-\"); return new Date(`${year}-${month}-${day}`).toLocaleDateString(\"en-IN\", { day: \"2-digit\", month: \"short\", year: \"numeric\", }); })()",
+          "item.cod_amount ?? 0"
+        ]
+      }
+    ],
+    "endpoints": [
+      "COD_UPLOAD_REPORTS"
+    ]
+  },
+  {
+    "file": "src/pages/Dashboard/Reports/customer_Performance/AttemptWiseCustomerPickupReport.jsx",
+    "payloads": [
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "customer_name",
+            "expr": "username.value ? username.value : \"All\""
+          },
+          {
+            "key": "start_date",
+            "expr": "updatedDate.from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "updatedDate.to_date"
+          },
+          {
+            "key": "service_center",
+            "expr": "SelectedServiceCenters.map((ele) => ele?.value) || []"
+          },
+          {
+            "key": "product",
+            "expr": "SelectedProduct?.value || \"\""
+          },
+          {
+            "key": "payment_mode",
+            "expr": "PaymentMode?.value || \"\""
+          },
+          {
+            "key": "region",
+            "expr": "SelectedRegion?.map(ele => ele?.value) || []"
+          }
+        ]
+      },
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "customer_name",
+            "expr": "username.value ? username.value : \"All\""
+          },
+          {
+            "key": "start_date",
+            "expr": "updatedDate.from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "updatedDate.to_date"
+          },
+          {
+            "key": "service_center",
+            "expr": "SelectedServiceCenters.map((ele) => ele?.value) || []"
+          },
+          {
+            "key": "product",
+            "expr": "SelectedProduct?.value || \"\""
+          },
+          {
+            "key": "mode",
+            "expr": "SelectedMode?.value || \"\""
+          },
+          {
+            "key": "region",
+            "expr": "SelectedRegion?.map(ele => ele?.value) || []"
+          }
+        ]
+      }
+    ],
+    "exports": [
+      {
+        "fileName": "OperationPerformance",
+        "headers": [
+          "AWB No",
+          "AWB Date",
+          "Order No",
+          "Reference No",
+          "Customer Name",
+          "Consignee Name",
+          "Consignee City",
+          "Consignee State",
+          "Billing Pincode",
+          "Origin SC",
+          "Service Center",
+          "Vendor Name",
+          "Vendor Pincode",
+          "Quantity",
+          "Weight",
+          "Shipment Value",
+          "Total Amount",
+          "Payment Mode",
+          "RTO AWB No",
+          "Destination",
+          "Freight Charges",
+          "Invoice No",
+          "Checkpoint",
+          "TAT (Days)",
+          "Delivery Attempts"
+        ],
+        "fields": [
+          "item.awbno",
+          "item.awbdate",
+          "item.orderno",
+          "item.ref2",
+          "item.customer_name",
+          "item.consignee_name",
+          "item.consignee_city",
+          "item.consignee_state",
+          "item.billing_pincode",
+          "item.orgsc",
+          "item.service_center",
+          "item.vendor_name",
+          "item.vendor_pincode",
+          "item.quantity",
+          "item.weight",
+          "item.shipment_value",
+          "item.total_amount",
+          "item.paymentmode",
+          "item.rtoawbno",
+          "item.destination",
+          "item.tot_freight",
+          "item.invno",
+          "item.CHKPNT",
+          "item.tat_days",
+          "item.attempts"
+        ]
+      }
+    ],
+    "endpoints": [
+      "CUSTOMER_GET_ATTEMPT_WISE_DELIVARY_REPORT"
+    ]
+  },
+  {
+    "file": "src/pages/Dashboard/Reports/customer_Performance/CustomerAttemptwisePerformanceClone.jsx",
+    "payloads": [
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "customer_name",
+            "expr": "username.value ? username.value : \"All\""
+          },
+          {
+            "key": "start_date",
+            "expr": "updatedDate.from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "updatedDate.to_date"
+          },
+          {
+            "key": "service_center",
+            "expr": "SelectedServiceCenters.map((ele) => ele?.value) || []"
+          },
+          {
+            "key": "product",
+            "expr": "SelectedProduct?.value || \"\""
+          },
+          {
+            "key": "payment_mode",
+            "expr": "PaymentMode?.value || \"\""
+          },
+          {
+            "key": "region",
+            "expr": "SelectedRegion?.map(ele => ele?.value) || []"
+          }
+        ]
+      }
+    ],
+    "exports": [],
+    "endpoints": [
+      "CUSTOMER_GET_ATTEMPT_WISE_DELIVARY_REPORT_CLONE"
+    ]
+  },
+  {
+    "file": "src/pages/Dashboard/Reports/customer_Performance/CustomerFirstMileOperation.jsx",
+    "payloads": [
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "customer_name",
+            "expr": "username.value ? username.value : \"All\""
+          },
+          {
+            "key": "start_date",
+            "expr": "updatedDate.from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "updatedDate.to_date"
+          },
+          {
+            "key": "service_center",
+            "expr": "SelectedServiceCenters.map((ele) => ele?.value) || []"
+          },
+          {
+            "key": "product",
+            "expr": "SelectedProduct?.value || \"\""
+          },
+          {
+            "key": "payment_mode",
+            "expr": "PaymentMode?.value || \"\""
+          },
+          {
+            "key": "region",
+            "expr": "SelectedRegion?.map(ele => ele?.value) || []"
+          }
+        ]
+      }
+    ],
+    "exports": [],
+    "endpoints": [
+      "GET_CUSTOMER_PERFORMANCE_FPDR"
+    ]
+  },
+  {
+    "file": "src/pages/Dashboard/Reports/customer_Performance/CustomerLastMileOperationClone.jsx",
+    "payloads": [
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "customer_name",
+            "expr": "username.value ? username.value : \"All\""
+          },
+          {
+            "key": "start_date",
+            "expr": "updatedDate.from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "updatedDate.to_date"
+          },
+          {
+            "key": "service_center",
+            "expr": "SelectedServiceCenters.map((ele) => ele?.value) || []"
+          },
+          {
+            "key": "product",
+            "expr": "SelectedProduct?.value || \"\""
+          },
+          {
+            "key": "payment_mode",
+            "expr": "PaymentMode?.value || \"\""
+          },
+          {
+            "key": "region",
+            "expr": "SelectedRegion?.map(ele => ele?.value) || []"
+          }
+        ]
+      }
+    ],
+    "exports": [],
+    "endpoints": [
+      "GET_CUSTOMER_PERFORMANCE_FDSR_CLONE"
+    ]
+  },
+  {
+    "file": "src/pages/Dashboard/Reports/customer_Performance/CustomerOFDOperation.jsx",
+    "payloads": [
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "customer_name",
+            "expr": "username.value ? username.value : \"All\""
+          },
+          {
+            "key": "start_date",
+            "expr": "updatedDate.from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "updatedDate.to_date"
+          },
+          {
+            "key": "service_center",
+            "expr": "SelectedServiceCenters.map((ele) => ele?.value) || []"
+          },
+          {
+            "key": "region",
+            "expr": "SelectedRegion?.map(ele => ele?.value) || []"
+          },
+          {
+            "key": "payment_mode",
+            "expr": "PaymentMode?.value || \"\""
+          }
+        ]
+      }
+    ],
+    "exports": [],
+    "endpoints": [
+      "GET_CUSTOMER_PERFORMANCE_FASR"
+    ]
+  },
+  {
+    "file": "src/pages/Dashboard/Reports/CustomerPerformance.jsx",
+    "payloads": [
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "customer_name",
+            "expr": "!username.value ? \"All\" : username.value"
+          },
+          {
+            "key": "start_date",
+            "expr": "updatedDate.from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "updatedDate.to_date"
+          },
+          {
+            "key": "service_center",
+            "expr": "SelectedServiceCenters.map((ele) => ele?.value)"
+          },
+          {
+            "key": "product",
+            "expr": "SelectedProduct?.value || \"\""
+          },
+          {
+            "key": "mode",
+            "expr": "SelectedMode?.value || \"\""
+          },
+          {
+            "key": "region",
+            "expr": "SelectedRegion?.map(ele => ele?.value) || []"
+          }
+        ]
+      },
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "customer_name",
+            "expr": "!username.value ? \"All\" : username.value"
+          },
+          {
+            "key": "start_date",
+            "expr": "updatedDate.from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "updatedDate.to_date"
+          },
+          {
+            "key": "service_center",
+            "expr": "SelectedServiceCenters.map((ele) => ele?.value)"
+          },
+          {
+            "key": "product",
+            "expr": "SelectedProduct?.value || \"\""
+          },
+          {
+            "key": "mode",
+            "expr": "SelectedMode?.value"
+          },
+          {
+            "key": "region",
+            "expr": "SelectedRegion?.map(ele => ele?.value)"
+          }
+        ]
+      }
+    ],
+    "exports": [
+      {
+        "fileName": "Customer_performance",
+        "headers": [
+          "AWB No",
+          "Customer Name",
+          "AWB Date",
+          "Order No",
+          "Reference 2",
+          "Consignee Name",
+          "Consignee City",
+          "Consignee State",
+          "Billing Pincode",
+          "Vendor Name",
+          "Vendor Pincode",
+          "Origin SC",
+          "Destination",
+          "Service Center",
+          "Quantity",
+          "Weight",
+          "Shipment Value",
+          "TATA Days",
+          "Total Amount",
+          "Payment Mode",
+          "RTO AWB No",
+          "Total Freight",
+          "Invoice No",
+          "Checkpoint"
+        ],
+        "fields": [
+          "item.awbno",
+          "item.customer_name",
+          "item.awbdate",
+          "item.orderno",
+          "item.ref2",
+          "item.consignee_name",
+          "item.consignee_city",
+          "item.consignee_state",
+          "item.billing_pincode",
+          "item.vendor_name",
+          "item.vendor_pincode",
+          "item.orgsc",
+          "item.destination",
+          "item.service_center",
+          "item.quantity",
+          "item.weight",
+          "item.shipment_value",
+          "item?.tat_days",
+          "item.total_amount",
+          "item.paymentmode",
+          "item.rtoawbno",
+          "item.tot_freight",
+          "item.invno",
+          "item.CHKPNT"
+        ]
+      }
+    ],
+    "endpoints": [
+      "GET_CUSTOMER_PERFORMANCE"
+    ]
+  },
+  {
+    "file": "src/pages/Dashboard/Reports/CustomerService.jsx",
+    "payloads": [
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "customer_name",
+            "expr": "username.value ? username.value : { value: \"All\", label: \"All\" }"
+          },
+          {
+            "key": "start_date",
+            "expr": "updatedDate.from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "updatedDate.to_date"
+          },
+          {
+            "key": "service_center",
+            "expr": "SelectedServiceCenters.map((ele) => ele?.value)"
+          }
+        ]
+      }
+    ],
+    "exports": [],
+    "endpoints": [
+      "GET_CUSTOMER_SERVICE"
+    ]
+  },
+  {
+    "file": "src/pages/Dashboard/Reports/CustomerServiceEmployee.jsx",
+    "payloads": [
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "customer_name",
+            "expr": "username.value ? username.value : { value: \"All\", label: \"All\" }"
+          },
+          {
+            "key": "start_date",
+            "expr": "updatedDate.from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "updatedDate.to_date"
+          },
+          {
+            "key": "service_center",
+            "expr": "SelectedServiceCenters.map((ele) => ele?.value)"
+          }
+        ]
+      }
+    ],
+    "exports": [],
+    "endpoints": [
+      "GET_CUSTOMER_SERVICE_EMPLOYEE"
+    ]
+  },
+  {
+    "file": "src/pages/Dashboard/Reports/FirstMileOperation.jsx",
+    "payloads": [
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "customer_name",
+            "expr": "\"All\""
+          },
+          {
+            "key": "start_date",
+            "expr": "updatedDate.from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "updatedDate.to_date"
+          },
+          {
+            "key": "service_center",
+            "expr": "SelectedServiceCenters.map((ele) => ele?.value) || []"
+          },
+          {
+            "key": "payment_mode",
+            "expr": "PaymentMode?.value || \"\""
+          },
+          {
+            "key": "region",
+            "expr": "SelectedRegion?.map(ele => ele?.value) || []"
+          }
+        ]
+      }
+    ],
+    "exports": [],
+    "endpoints": [
+      "PUD_OPERATION_PERFORMANCE"
+    ]
+  },
+  {
+    "file": "src/pages/Dashboard/Reports/InternationalDimensionChangeLog.jsx",
+    "payloads": [],
+    "exports": [
+      {
+        "fileName": "International_Dimension_Change_Log",
+        "headers": [
+          "AWB No",
+          "Booking ID",
+          "Old Actual Weight (kg)",
+          "New Actual Weight (kg)",
+          "Old Length (cm)",
+          "New Length (cm)",
+          "Old Width (cm)",
+          "New Width (cm)",
+          "Old Height (cm)",
+          "New Height (cm)",
+          "Source",
+          "Changed At"
+        ],
+        "fields": [
+          "item.awbno",
+          "item.booking_id",
+          "fmtNum(item.old_actual_weight)",
+          "fmtNum(item.new_actual_weight)",
+          "fmtNum(item.old_vol_weightL)",
+          "fmtNum(item.new_vol_weightL)",
+          "fmtNum(item.old_vol_weightW)",
+          "fmtNum(item.new_vol_weightW)",
+          "fmtNum(item.old_vol_weightH)",
+          "fmtNum(item.new_vol_weightH)",
+          "formatSourceLabel(item.source)",
+          "formatDateTime(item.created_at)"
+        ]
+      }
+    ],
+    "endpoints": []
+  },
+  {
+    "file": "src/pages/Dashboard/Reports/LastMileOperations.jsx",
+    "payloads": [
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "customer_name",
+            "expr": "\"All\""
+          },
+          {
+            "key": "start_date",
+            "expr": "updatedDate.from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "updatedDate.to_date"
+          },
+          {
+            "key": "service_center",
+            "expr": "SelectedServiceCenters.map((ele) => ele?.value) || []"
+          },
+          {
+            "key": "product",
+            "expr": "\"\""
+          },
+          {
+            "key": "payment_mode",
+            "expr": "PaymentMode?.value || \"\""
+          },
+          {
+            "key": "region",
+            "expr": "SelectedRegion?.map(ele => ele?.value) || []"
+          }
+        ]
+      }
+    ],
+    "exports": [],
+    "endpoints": [
+      "SPD_OPERATION_PERFORMANCE"
+    ]
+  },
+  {
+    "file": "src/pages/Dashboard/Reports/OFDperationsPerformance.jsx",
+    "payloads": [
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "customer_name",
+            "expr": "username.value ? username.value : \"All\""
+          },
+          {
+            "key": "start_date",
+            "expr": "updatedDate.from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "updatedDate.to_date"
+          },
+          {
+            "key": "service_center",
+            "expr": "SelectedServiceCenters.map((ele) => ele?.value) || []"
+          },
+          {
+            "key": "region",
+            "expr": "SelectedRegion?.map(ele => ele?.value) || []"
+          },
+          {
+            "key": "payment_mode",
+            "expr": "PaymentMode?.value || \"\""
+          }
+        ]
+      }
+    ],
+    "exports": [],
+    "endpoints": [
+      "OFD_OPERATIONS_PERFORMANCE"
+    ]
+  },
+  {
+    "file": "src/pages/Dashboard/Reports/OperationPerformance.jsx",
+    "payloads": [
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "customer_name",
+            "expr": "username.value ? username.value : \"All\""
+          },
+          {
+            "key": "start_date",
+            "expr": "updatedDate.from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "updatedDate.to_date"
+          },
+          {
+            "key": "service_center",
+            "expr": "SelectedServiceCenters.map((ele) => ele?.value) || []"
+          },
+          {
+            "key": "product",
+            "expr": "SelectedProduct?.value || \"\""
+          },
+          {
+            "key": "mode",
+            "expr": "SelectedMode?.value || \"\""
+          },
+          {
+            "key": "region",
+            "expr": "SelectedRegion?.map(ele => ele?.value) || []"
+          }
+        ]
+      },
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "customer_name",
+            "expr": "username.value ? username.value : \"All\""
+          },
+          {
+            "key": "start_date",
+            "expr": "updatedDate.from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "updatedDate.to_date"
+          },
+          {
+            "key": "service_center",
+            "expr": "SelectedServiceCenters.map((ele) => ele?.value) || []"
+          },
+          {
+            "key": "product",
+            "expr": "SelectedProduct?.value || \"\""
+          },
+          {
+            "key": "mode",
+            "expr": "SelectedMode?.value || \"\""
+          },
+          {
+            "key": "region",
+            "expr": "SelectedRegion?.map(ele => ele?.value) || []"
+          }
+        ]
+      }
+    ],
+    "exports": [
+      {
+        "fileName": "OperationPerformance",
+        "headers": [
+          "AWB No",
+          "AWB Date",
+          "Order No",
+          "Reference No",
+          "Customer Name",
+          "Consignee Name",
+          "Consignee City",
+          "Consignee State",
+          "Billing Pincode",
+          "Origin SC",
+          "Service Center",
+          "Vendor Name",
+          "Vendor Pincode",
+          "Quantity",
+          "Weight",
+          "Shipment Value",
+          "Total Amount",
+          "Payment Mode",
+          "RTO AWB No",
+          "Destination",
+          "Freight Charges",
+          "Invoice No",
+          "Checkpoint",
+          "TAT (Days)",
+          "Delivery Attempts"
+        ],
+        "fields": [
+          "item.awbno",
+          "item.awbdate",
+          "item.orderno",
+          "item.ref2",
+          "item.customer_name",
+          "item.consignee_name",
+          "item.consignee_city",
+          "item.consignee_state",
+          "item.billing_pincode",
+          "item.orgsc",
+          "item.service_center",
+          "item.vendor_name",
+          "item.vendor_pincode",
+          "item.quantity",
+          "item.weight",
+          "item.shipment_value",
+          "item.total_amount",
+          "item.paymentmode",
+          "item.rtoawbno",
+          "item.destination",
+          "item.tot_freight",
+          "item.invno",
+          "item.CHKPNT",
+          "item.tat_days",
+          "item.attempts"
+        ]
+      }
+    ],
+    "endpoints": [
+      "GET_OPERATION_PERFORMANCE"
+    ]
+  },
+  {
+    "file": "src/pages/Dashboard/Reports/PendingReport.jsx",
+    "payloads": [
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "user_id",
+            "expr": "authUser?.user?.id"
+          },
+          {
+            "key": "service_center",
+            "expr": "selectedSCs.map((s) => s.value)"
+          },
+          {
+            "key": "start_date",
+            "expr": "fmt.from_date || undefined"
+          },
+          {
+            "key": "end_date",
+            "expr": "fmt.to_date || undefined"
+          }
+        ]
+      }
+    ],
+    "exports": [],
+    "endpoints": [
+      "GET_ALL_STATUSES",
+      "GET_OPS_PENDING_REPORT",
+      "DOWNLOAD_OPS_PENDING_REPORT"
+    ]
+  },
+  {
+    "file": "src/pages/Dashboard/Reports/PickupPeformance.jsx",
+    "payloads": [
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "customer_name",
+            "expr": "username.value ? username.value : \"All\""
+          },
+          {
+            "key": "start_date",
+            "expr": "updatedDate.from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "updatedDate.to_date"
+          },
+          {
+            "key": "service_center",
+            "expr": "SelectedServiceCenters.map((ele) => ele?.value) || []"
+          },
+          {
+            "key": "product",
+            "expr": "SelectedProduct?.value || \"\""
+          },
+          {
+            "key": "mode",
+            "expr": "SelectedMode?.value || \"\""
+          },
+          {
+            "key": "region",
+            "expr": "SelectedRegion?.map(ele => ele?.value) || []"
+          }
+        ]
+      },
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "customer_name",
+            "expr": "username.value ? username.value : \"All\""
+          },
+          {
+            "key": "start_date",
+            "expr": "updatedDate.from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "updatedDate.to_date"
+          },
+          {
+            "key": "service_center",
+            "expr": "SelectedServiceCenters.map((ele) => ele?.value) || []"
+          },
+          {
+            "key": "product",
+            "expr": "SelectedProduct?.value || \"\""
+          },
+          {
+            "key": "mode",
+            "expr": "SelectedMode?.value || \"\""
+          },
+          {
+            "key": "region",
+            "expr": "SelectedRegion?.map(ele => ele?.value) || []"
+          }
+        ]
+      }
+    ],
+    "exports": [
+      {
+        "fileName": "PickUpPerformance",
+        "headers": [
+          "AWB No",
+          "AWB Date",
+          "Order No",
+          "Reference No",
+          "Customer Name",
+          "Consignee Name",
+          "Consignee City",
+          "Consignee State",
+          "Billing Pincode",
+          "Origin SC",
+          "Service Center",
+          "Vendor Name",
+          "Vendor Pincode",
+          "Quantity",
+          "Weight",
+          "Shipment Value",
+          "Total Amount",
+          "Payment Mode",
+          "RTO AWB No",
+          "Destination",
+          "Freight Charges",
+          "Invoice No",
+          "Checkpoint",
+          "TAT (Days)",
+          "Delivery Attempts"
+        ],
+        "fields": [
+          "item?.awbno",
+          "item?.awbdate",
+          "item?.orderno",
+          "item?.ref2",
+          "item?.customer_name",
+          "item?.consignee_name",
+          "item?.consignee_city",
+          "item?.consignee_state",
+          "item?.billing_pincode",
+          "item?.orgsc",
+          "item?.service_center",
+          "item?.vendor_name",
+          "item?.vendor_pincode",
+          "item?.quantity",
+          "item?.weight",
+          "item?.shipment_value",
+          "item?.total_amount",
+          "item?.paymentmode",
+          "item?.rtoawbno",
+          "item?.destination",
+          "item?.tot_freight",
+          "item?.invno",
+          "item?.CHKPNT",
+          "item?.tat_days",
+          "item?.attempts"
+        ]
+      }
+    ],
+    "endpoints": [
+      "GET_PICKUP_PERFORMANCE"
+    ]
+  },
+  {
+    "file": "src/pages/Dashboard/Reports/ProductivityReport.jsx",
+    "payloads": [
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "start_date",
+            "expr": "filters.start_date ? format(new Date(filters.start_date), 'yyyy-MM-dd') : \"\""
+          },
+          {
+            "key": "end_date",
+            "expr": "filters.end_date ? format(new Date(filters.end_date), 'yyyy-MM-dd') : \"\""
+          },
+          {
+            "key": "region",
+            "expr": "filters.region.map(r => r.value)"
+          },
+          {
+            "key": "service_center",
+            "expr": "filters.service_center.map(sc => sc.value)"
+          }
+        ]
+      }
+    ],
+    "exports": [],
+    "endpoints": [
+      "PRODUCTIVITY_REPORT"
+    ]
+  },
+  {
+    "file": "src/pages/Dashboard/Reports/RevenueReport.jsx",
+    "payloads": [
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "start_date",
+            "expr": "formattedRange?.start"
+          },
+          {
+            "key": "end_date",
+            "expr": "formattedRange?.end"
+          },
+          {
+            "key": "customer_name",
+            "expr": "SelectedInfo?.customer ? SelectedInfo?.customer : \"All\""
+          },
+          {
+            "key": "product_name",
+            "expr": "SelectedInfo?.product"
+          },
+          {
+            "key": "service_center_name",
+            "expr": "SelectedInfo?.serviceCenter"
+          },
+          {
+            "key": "region",
+            "expr": "SelectedInfo?.region"
+          },
+          {
+            "key": "mode",
+            "expr": "SelectedInfo?.mode"
+          }
+        ]
+      },
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "start_date",
+            "expr": "formattedRange?.start"
+          },
+          {
+            "key": "end_date",
+            "expr": "formattedRange?.end"
+          },
+          {
+            "key": "customer_name",
+            "expr": "SelectedInfo?.customer ? SelectedInfo?.customer : \"All\""
+          },
+          {
+            "key": "product_name",
+            "expr": "SelectedInfo?.product"
+          },
+          {
+            "key": "service_center_name",
+            "expr": "SelectedInfo?.serviceCenter"
+          },
+          {
+            "key": "region",
+            "expr": "SelectedInfo?.region"
+          },
+          {
+            "key": "mode",
+            "expr": "SelectedInfo?.mode"
+          }
+        ]
+      }
+    ],
+    "exports": [
+      {
+        "fileName": "Revenue_Report",
+        "headers": [
+          "AWB No",
+          "Customer Name",
+          "Pickup Pincode",
+          "Drop Pincode",
+          "Weight",
+          "Quantity",
+          "Destination_SC",
+          "Shipment Value",
+          "Payment Mode",
+          "Origin SC",
+          "Consignee City",
+          "Consignee State",
+          "Length",
+          "Breadth",
+          "Height",
+          "Volumetric Weight",
+          "ODA Amount",
+          "Product Type",
+          "Customer Type",
+          "Zone",
+          "Total Amount"
+        ],
+        "fields": [
+          "item.awbno",
+          "item.customer_name",
+          "item.pick_pincode",
+          "item.drop_pincode",
+          "item.weight",
+          "item?.quantity",
+          "item?.destination_sc",
+          "item.shipment_value",
+          "item.paymentmode",
+          "item.orgsc",
+          "item.consignee_city",
+          "item.consignee_state",
+          "item.length",
+          "item.breadth",
+          "item.height",
+          "item.volwt",
+          "item.oda_amount",
+          "item.product_type",
+          "item.customer_type",
+          "item.zone",
+          "item.total_amount"
+        ]
+      }
+    ],
+    "endpoints": [
+      "UPLOAD_GET_REVENUE_API"
+    ]
+  },
+  {
+    "file": "src/pages/Dashboard/Reports/ShipmentCheckpoint.jsx",
+    "payloads": [
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "start_date",
+            "expr": "YMD_DateFormate(selectedRange)?.from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "YMD_DateFormate(selectedRange)?.to_date"
+          },
+          {
+            "key": "service_center",
+            "expr": "ShipmentCheckpointPayload?.service_center?.value || \"All\""
+          },
+          {
+            "key": "region",
+            "expr": "ShipmentCheckpointPayload?.region?.value || \"All\""
+          }
+        ]
+      },
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "start_date",
+            "expr": "YMD_DateFormate(selectedRange)?.from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "YMD_DateFormate(selectedRange)?.to_date"
+          },
+          {
+            "key": "service_center",
+            "expr": "ShipmentCheckpointPayload?.service_center?.value || \"All\""
+          },
+          {
+            "key": "region",
+            "expr": "ShipmentCheckpointPayload?.region?.value || \"All\""
+          }
+        ]
+      }
+    ],
+    "exports": [
+      {
+        "fileName": "Shipment_Checkpoint",
+        "headers": [
+          "Status",
+          "Mob Count",
+          "Manual Count",
+          "Total"
+        ],
+        "fields": [
+          "item.status",
+          "item.total_mobile_updates",
+          "item.total_manual_updates",
+          "item?.total_updates ?? 0"
+        ]
+      }
+    ],
+    "endpoints": [
+      "UPLOAD_SHIPMENT_CHECKPOINTS"
+    ]
+  },
+  {
+    "file": "src/pages/Dashboard/Reports/StatusUpdateAudit.jsx",
+    "payloads": [
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "start_date",
+            "expr": "from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "to_date"
+          },
+          {
+            "key": "regions",
+            "expr": "selectedRegion && selectedRegion.length > 0 ? selectedRegion.map(r => r.value) : []"
+          },
+          {
+            "key": "service_centers",
+            "expr": "selectedServiceCenter && selectedServiceCenter.length > 0 ? selectedServiceCenter.map(sc => sc.value) : []"
+          }
+        ]
+      },
+      {
+        "name": "filterPayload",
+        "pairs": [
+          {
+            "key": "Start Date",
+            "expr": "from_date || \"--\""
+          },
+          {
+            "key": "End Date",
+            "expr": "to_date || \"--\""
+          },
+          {
+            "key": "Regions",
+            "expr": "selectedRegion.length > 0 ? selectedRegion.map(r => r.label).join(\", \") : \"All\""
+          },
+          {
+            "key": "Service Centers",
+            "expr": "selectedServiceCenter.length > 0 ? selectedServiceCenter.map(sc => sc.label).join(\", \") : \"All\""
+          }
+        ]
+      }
+    ],
+    "exports": [],
+    "endpoints": [
+      "STATUS_UPDATE"
+    ]
+  },
+  {
+    "file": "src/pages/NewFeatures/CorporateBilling.jsx",
+    "payloads": [
+      {
+        "name": "requiredPayload",
+        "pairs": [
+          {
+            "key": "customer_name",
+            "expr": "CustomerName.title.split(\" - \")[1].trim()"
+          },
+          {
+            "key": "customer_id",
+            "expr": "CustomerId?.title.replace(\"customer_id -\", \"\").trim()"
+          },
+          {
+            "key": "created_by_id",
+            "expr": "createdById"
+          },
+          {
+            "key": "start_date",
+            "expr": "startDateObj"
+          },
+          {
+            "key": "end_date",
+            "expr": "endDateObj"
+          },
+          {
+            "key": "state",
+            "expr": "state?.title.replace(\"state -\", \"\").trim()"
+          },
+          {
+            "key": "generated_on",
+            "expr": "new Date().toISOString().split(\"T\")[0]"
+          },
+          {
+            "key": "total_amount",
+            "expr": "parseInt(TotalAmount?.title?.replace(\"total_amount -\", \"\").trim())"
+          },
+          {
+            "key": "bills",
+            "expr": "JsonData?.data.map((ele) => { return { \"date\": ele?.date || new Date(), // fallback to current date \"to_pincode\": ele?.to_pincode || \"\", \"from_pincode\": ele?.from_pincode || \"\", \"awbno\": ele?.awbno || \"\", \"weight\": ele?.weight || 0, \"base_rate\": ele?.base_rate || 0, \"freight_amount\": ele?.freight_amount || 0, \"fsc\": ele?.fsc ?? 0, \"cod\": ele?.cod ?? 0, \"fov\": ele?.fov ?? 0, \"total_before_gst\": ele?.total_before_gst ?? 0, \"gst_amount\": ele?.gst_amount ?? 0, \"total\": ele?.total ?? 0, \"Consignee\": ele?.Consignee || \"\", \"zone\": ele?.zone || \"\", \"Invoice No\": ele?.[\"Invoice No\"] || \"\", \"product\": ele?.product || \"\", \"orgsc\": ele?.orgsc || \"\", \"rto\": ele?.rto ?? 0, \"appointment_charges\": ele?.appointment_charges ?? 0, \"pickup\": ele?.pickup ?? 0, \"deliver\": ele?.deliver ?? 0, \"oda\": ele?.oda ?? 0, \"status\": ele?.status || \"\" }; })"
+          }
+        ]
+      },
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "customer_name",
+            "expr": "SelectedCustomer?.value"
+          },
+          {
+            "key": "customer_id",
+            "expr": "SelectedCustomer?.id"
+          },
+          {
+            "key": "start_date",
+            "expr": "formatedDate?.from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "formatedDate.to_date"
+          },
+          {
+            "key": "state",
+            "expr": "\"\""
+          },
+          {
+            "key": "total_amount",
+            "expr": "AllCoporateData?.total"
+          }
+        ]
+      },
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "customer_id",
+            "expr": "SelectedCustomer?.id"
+          },
+          {
+            "key": "customer_name",
+            "expr": "SelectedCustomer?.name?.split(\" - \")[0]"
+          },
+          {
+            "key": "start_date",
+            "expr": "formatedDate?.from_date"
+          },
+          {
+            "key": "end_date",
+            "expr": "formatedDate.to_date"
+          }
+        ]
+      }
+    ],
+    "exports": [],
+    "endpoints": [
+      "CORPORATE_BILLING_BULK_UPDATE",
+      "CORPORATE_BILLING_INVOICE"
+    ]
+  },
+  {
+    "file": "src/pages/NewFeatures/UpdateWeight.jsx",
+    "payloads": [
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "awb",
+            "expr": "awb.trim()"
+          },
+          {
+            "key": "weight",
+            "expr": "weightNum"
+          },
+          {
+            "key": "remarks",
+            "expr": "singleRemarks.trim()"
+          },
+          {
+            "key": "edited_by",
+            "expr": "editedBy"
+          }
+        ]
+      },
+      {
+        "name": "payload",
+        "pairs": [
+          {
+            "key": "edited_by",
+            "expr": "editedBy"
+          },
+          {
+            "key": "remarks",
+            "expr": "bulkRemarks.trim()"
+          }
+        ]
+      }
+    ],
+    "exports": [],
+    "endpoints": [
+      "CORPORATE_BOOKING_UPDATE_WEIGHT",
+      "CORPORATE_BOOKING_UPDATE_WEIGHT_BULK"
+    ]
+  }
+]
