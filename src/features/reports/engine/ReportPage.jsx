@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import PropTypes from "prop-types";
-import { GridLoader } from "react-spinners";
+import { LoaderMark } from "@/Loaders/Loader";
 import MainHeaderComp from "@/components/MainHeaderCom";
 import TableContainer from "@/components/Table/TableContainer";
 import { useExcelExport } from "@/hooks/useExcelExport";
@@ -99,7 +99,7 @@ export default function ReportPage({ config }) {
               style={{ height: "40vh" }}
               className="container-fluid flex flex-col justify-center items-center"
             >
-              <GridLoader size={20} />
+              <LoaderMark />
               <p className="mt-12 h5">{config.loadingText ?? `Loading ${config.title} ...`}</p>
             </div>
           ) : (

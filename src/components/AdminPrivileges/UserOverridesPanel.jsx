@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input } from "@/components/ui";
-import { GridLoader } from "react-spinners";
+import { LoaderMark } from "@/Loaders/Loader";
 import MenuPrivilegeTree from "./MenuPrivilegeTree";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
 import usePostApiCall from "../../hooks/usePostApiCall";
@@ -107,7 +107,7 @@ const UserOverridesPanel = ({ user, onClose, onRoleChanged }) => {
                 </div>
 
                 {overridesLoading ? (
-                    <div className="flex justify-center mt-12"><GridLoader color="#556ee6" /></div>
+                    <div className="flex justify-center mt-12"><LoaderMark /></div>
                 ) : (
                     <MenuPrivilegeTree nodes={tree} mode="user" onChange={setTree} lockedIds={lockedMenuIds} />
                 )}

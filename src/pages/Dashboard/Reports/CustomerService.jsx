@@ -9,7 +9,7 @@ import { useGetApiCall } from '../../../hooks/useGetApiCall';
 import { GET_ADMIN_BOOKING_DETAILS, GET_CUSTOMER_SERVICE, GET_USER_API, SERVICE_CENTER } from '../../../api';
 import usePostApiCall from '../../../hooks/usePostApiCall';
 import formatDateForPayload from '../../../helpers/DateHelper';
-import { GridLoader } from 'react-spinners';
+import { LoaderMark } from "@/Loaders/Loader";
 import { IoMdCloudDownload } from "react-icons/io";
 import CustomerServiceFilter from '../../../components/CustomerService/CustomerServiceFilter';
 const CustomerService = () => {
@@ -353,7 +353,7 @@ const CustomerService = () => {
                     <div className='mt-4'>
                         {
                             bookingLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <GridLoader size={20} />
+                                <LoaderMark />
                                 <p className="mt-12 h5">Loading Customer Services ...</p>
                             </div>
                                 :

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react"
 import { customStyles } from "../../../helpers/CustomStyle"
 import Select from "react-select";
 import { Button, Col, FormGroup, Input, Label, Row, Spinner } from "@/components/ui";
-import { GridLoader } from "react-spinners";
+import { LoaderMark } from "@/Loaders/Loader";
 import MainHeaderComp from "../../../components/MainHeaderCom";
 import usePostApiCall from "../../../hooks/usePostApiCall";
 import { useGetApiCall } from "../../../hooks/useGetApiCall";
@@ -472,7 +472,7 @@ const CorporateRateData = () => {
                 <div className="mainpage mt-1">
                     {(AllCorporateRateDataLoading || CorporateRateInfoLoading)
                         ? <div style={{ height: "40vh" }} className="container-fluid flex flex-col justify-center items-center">
-                            <GridLoader size={20} />
+                            <LoaderMark />
                             <p className="mt-12 h5">Loading Corporate Rate Data ...</p>
                         </div>
                         : <TableContainer

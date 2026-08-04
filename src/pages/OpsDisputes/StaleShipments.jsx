@@ -7,7 +7,7 @@ import TableContainer from "../../components/Table/TableContainer";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
 import usePostApiCall from "../../hooks/usePostApiCall";
 import { OPS_DISPUTES_STALE, OPS_DISPUTES_MARK_DIS, SERVICE_CENTER_LIST } from "../../api";
-import { GridLoader } from "react-spinners";
+import { LoaderMark } from "@/Loaders/Loader";
 import MainHeaderComp from "../../components/MainHeaderCom";
 import { customStyles } from "../../helpers/CustomStyle";
 
@@ -136,7 +136,7 @@ const StaleShipments = () => {
 
     if (loading) return (
         <div className="flex justify-center mt-12">
-            <GridLoader color="#556ee6" />
+            <LoaderMark />
         </div>
     );
 

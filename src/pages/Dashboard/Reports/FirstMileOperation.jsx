@@ -9,7 +9,7 @@ import { useGetApiCall } from '../../../hooks/useGetApiCall';
 import { GET_ALL_REGION, GET_USER_API, PRODUCT_LIST, PUD_OPERATION_PERFORMANCE, SERVICE_CENTER } from '../../../api';
 import usePostApiCall from '../../../hooks/usePostApiCall';
 import formatDateForPayload from '../../../helpers/DateHelper';
-import { GridLoader } from 'react-spinners';
+import { LoaderMark } from "@/Loaders/Loader";
 import { useNewOperationPickupStrikeRate } from '../../../hooks/useNewOperationPickupStrikeRate';
 import { StatsCard } from '../../../components/FilterComponents/StatsCard';
 import SelectedItemsDisplay from '../../../components/Common/SelectedItemsDisplay';
@@ -543,7 +543,7 @@ const FirstMileOperation = () => {
                         {/* loading state */}
                         {
                             bookingLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <GridLoader size={20} />
+                                <LoaderMark />
                                 <p className="mt-12 h5">Loading Operation Performance ...</p>
                             </div>
                                 :

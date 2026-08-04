@@ -13,7 +13,7 @@ import formatDateForPayload from '../../../helpers/DateHelper';
 import usePostApiCall from '../../../hooks/usePostApiCall';
 
 import AdminBookingFilter from '../../../components/AdminBooking/AdminBookingFilter';
-import { GridLoader } from 'react-spinners';
+import { LoaderMark } from "@/Loaders/Loader";
 import { downloadExcel } from '../../../helpers/downloadExcel';
 const AdminBooking = () => {
     const [isExporting, setIsExporting] = useState(false);
@@ -550,7 +550,7 @@ const AdminBooking = () => {
                     <div className='mt-1'>
                         {
                             bookingLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <GridLoader size={20} />
+                                <LoaderMark />
                                 <p className="mt-12 h5">Loading Admin Booking ...</p>
                             </div> :
                                 <TableContainer

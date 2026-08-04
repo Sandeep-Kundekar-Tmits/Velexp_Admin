@@ -5,7 +5,7 @@ import TableContainer from "../../../components/Table/TableContainer"
 import { useGetApiCall } from "../../../hooks/useGetApiCall"
 import { INTERNATIONAL_SHIPMENTS_REPORT } from "../../../api"
 import ToasterProvider from "../../../helpers/ToasterProvider"
-import { GridLoader } from "react-spinners"
+import { LoaderMark } from "@/Loaders/Loader";
 import axios from 'axios'
 import DateRangePicker from "../../../components/Common/DateRangePicker"
 
@@ -310,7 +310,7 @@ const InternationalMisReport = () => {
                 {/* Table Section */}
                 {loading ? (
                     <div className="flex justify-center py-12">
-                        <GridLoader color="#556ee6" />
+                        <LoaderMark />
                     </div>
                 ) : (
                     <>

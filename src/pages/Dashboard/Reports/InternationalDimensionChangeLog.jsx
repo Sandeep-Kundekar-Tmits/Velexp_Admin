@@ -6,7 +6,7 @@ import { useGetApiCall } from "../../../hooks/useGetApiCall"
 import { useExcelExport } from "../../../hooks/useExcelExport"
 import { INTERNATIONAL_DIMENSION_CHANGE_LOG } from "../../../api"
 import ToasterProvider from "../../../helpers/ToasterProvider"
-import { GridLoader } from "react-spinners"
+import { LoaderMark } from "@/Loaders/Loader";
 import DateRangePicker from "../../../components/Common/DateRangePicker"
 
 const toYMD = (date) => {
@@ -308,7 +308,7 @@ const InternationalDimensionChangeLog = () => {
                 {/* Table Section */}
                 {loading ? (
                     <div className="flex justify-center py-12">
-                        <GridLoader color="#556ee6" />
+                        <LoaderMark />
                     </div>
                 ) : (
                     <TableContainer

@@ -8,7 +8,7 @@ import usePostApiCall from "../../hooks/usePostApiCall"
 import ToasterProvider from "../../helpers/ToasterProvider"
 import { COD_RECONCILIATION, COD_RECONCILIATION_APPROVE } from "../../api"
 import YMD_DateFormate from "../../helpers/YMD_DateFormate"
-import { GridLoader } from "react-spinners"
+import { LoaderMark } from "@/Loaders/Loader";
 import axios from "axios"
 import CODRejectModal from "./CODRejectModal"
 import { MdVisibility } from "react-icons/md"
@@ -247,7 +247,7 @@ const CODReconciliation = () => {
                     <CardBody className="p-0">
                         {loading ? (
                             <div style={{ height: "40vh" }} className="flex flex-col justify-center items-center">
-                                <GridLoader size={20} color="#5b73e8" />
+                                <LoaderMark />
                                 <p className="mt-4 text-ink-muted">Fetching reconciliation data...</p>
                             </div>
                         ) : (

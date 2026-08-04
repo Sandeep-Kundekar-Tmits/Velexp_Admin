@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useGetApiCall } from "../../../hooks/useGetApiCall"
 import { DELETE_RATE_DATA_ASUS, GET_RATE_DATA_ASUS, UPDATE_RATE_DATA_ASUS, UPLOAD_BULK_RATE_DATA_ASUS } from "../../../api"
 import TableContainer from "../../Table/TableContainer"
-import { GridLoader } from "react-spinners"
+import { LoaderMark } from "@/Loaders/Loader";
 import { Button, Col, Row, Label, Input, Spinner, FormGroup, FormText } from "@/components/ui"
 import { IoMdCloudDownload } from "react-icons/io"
 import { checkCustomerPermissions } from "../../../helpers/checkCustomerPermissions"
@@ -482,7 +482,7 @@ const AsusDataRate = () => {
                 <div className='mt-4'>
                     {
                         RateDataLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                            <GridLoader size={20} />
+                            <LoaderMark />
                             <p className="mt-12 h5">Loading Asus Data Rate ...</p>
                         </div>
                             :

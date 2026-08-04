@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Input } from "@/components/ui";
-import { GridLoader } from "react-spinners";
+import { LoaderMark } from "@/Loaders/Loader";
 import TableContainer from "../../components/Table/TableContainer";
 import UserOverridesPanel from "../../components/AdminPrivileges/UserOverridesPanel";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
@@ -72,7 +72,7 @@ const UserAccessTab = () => {
             </div>
 
             {loading ? (
-                <div className="flex justify-center mt-12"><GridLoader color="#556ee6" /></div>
+                <div className="flex justify-center mt-12"><LoaderMark /></div>
             ) : (
                 <>
                     <TableContainer

@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useGetApiCall } from "../../hooks/useGetApiCall"
 import { ADD_NEW_WAREHOUSE, GET_WAREHOUSE_LIST, SERVICE_CENTER } from "../../api"
 import TableContainer from "../../components/Table/TableContainer"
-import { GridLoader } from 'react-spinners';
+import { LoaderMark } from "@/Loaders/Loader";
 import AddWareHouseModel from "../../components/WareHouse/AddWareHouseModel"
 import usePostApiCall from "../../hooks/usePostApiCall"
 import MainHeaderComp from "../../components/MainHeaderCom"
@@ -119,7 +119,7 @@ const DelhiveryWarehouse = () => {
                 <div className='mt-1'>
                     {
                         warehouseloading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                            <GridLoader size={20} />
+                            <LoaderMark />
                             <p className="mt-12 h5">Loading Warehouses Services ...</p>
                         </div>
                             :

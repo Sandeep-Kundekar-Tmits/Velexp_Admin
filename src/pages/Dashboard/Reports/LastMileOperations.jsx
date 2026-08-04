@@ -9,7 +9,7 @@ import { useGetApiCall } from '../../../hooks/useGetApiCall';
 import { GET_ALL_REGION, SERVICE_CENTER, SPD_OPERATION_PERFORMANCE } from '../../../api';
 import usePostApiCall from '../../../hooks/usePostApiCall';
 import formatDateForPayload from '../../../helpers/DateHelper';
-import { GridLoader } from 'react-spinners';
+import { LoaderMark } from "@/Loaders/Loader";
 import { useNewOperationDelivaryStrikeRate } from '../../../hooks/useNewOperationDelivaryStrikeRate';
 import StatsCard from '../../../components/StatsCard';
 import SelectedItemsDisplay from '../../../components/Common/SelectedItemsDisplay';
@@ -836,7 +836,7 @@ const LastMileOperations = () => {
                     <div className='mt-0'>
                         {
                             bookingLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <GridLoader size={20} />
+                                <LoaderMark />
                                 <p className="mt-12 h5">Loading Operation Performance ...</p>
                             </div>
                                 :

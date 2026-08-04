@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react"
 import Select from "react-select";
 import { Button, Col, FormGroup, Input, Label, Row, Spinner } from "@/components/ui";
-import { GridLoader } from "react-spinners";
+import { LoaderMark } from "@/Loaders/Loader";
 import MainHeaderComp from "../../../components/MainHeaderCom";
 import { useGetApiCall } from "../../../hooks/useGetApiCall";
 import { GET_ALL_RETAIL_RATE_DATA, UPLOAD_REATIL_RATE_DATA } from "../../../api";
@@ -312,7 +312,7 @@ const RetailRateData = () => {
                 <div className="mainpage mt-4">
                     {AllRateDataLoading
                         ? <div style={{ height: "40vh" }} className="container-fluid flex flex-col justify-center items-center">
-                            <GridLoader size={20} />
+                            <LoaderMark />
                             <p className="mt-12 h5">Loading Retail Rate Data ...</p>
                         </div>
                         : <TableContainer

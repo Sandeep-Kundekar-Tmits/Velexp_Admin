@@ -6,7 +6,7 @@ import MultipleAddressForm from "../../components/UserManagement/MultipleAddress
 import usePostFileApicall from "../../hooks/usePostFileApicall"
 import { Alert, Button, Modal, ModalBody, ModalFooter, ModalHeader } from "@/components/ui"
 import { POST_USER_API } from "../../api"
-import { GridLoader } from "react-spinners"
+import { LoaderMark } from "@/Loaders/Loader";
 import { useNavigate } from "react-router-dom"
 import usePostApiCall from "../../hooks/usePostApiCall"
 import ToasterProvider from "../../helpers/ToasterProvider"
@@ -378,7 +378,7 @@ const AddUser = () => {
             <TabProvider tabs={tabs} toggle={toggle} activeTab={activeTab} />
             <Modal isOpen={FormDataLoading} >
                 <ModalBody className="flex justify-center flex-col items-center">
-                    <GridLoader size={20} />
+                    <LoaderMark />
                     <p className="mt-12 h5">Loading...</p>
                 </ModalBody>
             </Modal>

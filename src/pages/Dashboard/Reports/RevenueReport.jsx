@@ -7,7 +7,7 @@ import { useGetApiCall } from "../../../hooks/useGetApiCall";
 import { GET_USER_API, SERVICE_CENTER, UPLOAD_GET_REVENUE_API } from "../../../api";
 import TableContainer from "../../../components/Table/TableContainer";
 import usePostApiCall from "../../../hooks/usePostApiCall";
-import { GridLoader } from "react-spinners";
+import { LoaderMark } from "@/Loaders/Loader";
 import { downloadExcel } from "../../../helpers/downloadExcel";
 import { useExcelExport } from "../../../hooks/useExcelExport";
 import MainHeaderComp from "../../../components/MainHeaderCom";
@@ -413,7 +413,7 @@ const RevenueReport = () => {
                     <div className='mt-1'>
                         {
                             RevenueDataLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <GridLoader size={20} />
+                                <LoaderMark />
                                 <p className="mt-12 h5">Loading ...</p>
                             </div>
                                 :

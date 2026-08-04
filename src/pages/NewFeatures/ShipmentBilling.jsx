@@ -10,8 +10,7 @@ import TableContainer from "../../components/Table/TableContainer"
 import axios from "axios"
 import ToasterProvider from "../../helpers/ToasterProvider"
 import { MdFileDownload } from "react-icons/md"
-import { GridLoader } from "react-spinners"
-
+import { LoaderMark } from "@/Loaders/Loader";
 const ShipmentBilling = () => {
     const { apifunc: fetchCustomers, data: customerData, loading: customersLoading } = useGetApiCall()
     const { apifunc: triggerSync, loading: syncing } = usePostApiCall(null, "Sync successfully")
@@ -302,7 +301,7 @@ const ShipmentBilling = () => {
                                     </div>
                                     {auditing ? (
                                         <div className="flex flex-col items-center justify-center" style={{ height: "550px" }}>
-                                            <GridLoader color="#36d7b7" size={15} />
+                                            <LoaderMark />
                                             <p className="mt-4 text-ink-muted font-bold">Fetching Audit Data...</p>
                                         </div>
                                     ) : (

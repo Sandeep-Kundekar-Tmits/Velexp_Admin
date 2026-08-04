@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui";
 import { RiDeleteBinLine } from "react-icons/ri";
-import { GridLoader } from "react-spinners";
+import { LoaderMark } from "@/Loaders/Loader";
 import DeleteModal from "../../components/Common/DeleteModal";
 import MenuPrivilegeTree from "../../components/AdminPrivileges/MenuPrivilegeTree";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
@@ -74,7 +74,7 @@ const RolePrivilegesTab = () => {
                 </div>
 
                 {treeLoading ? (
-                    <div className="flex justify-center mt-12"><GridLoader color="#556ee6" /></div>
+                    <div className="flex justify-center mt-12"><LoaderMark /></div>
                 ) : (
                     <MenuPrivilegeTree nodes={tree} mode="role" onChange={setTree} />
                 )}
@@ -96,7 +96,7 @@ const RolePrivilegesTab = () => {
             </div>
 
             {overviewLoading ? (
-                <div className="flex justify-center mt-12"><GridLoader color="#556ee6" /></div>
+                <div className="flex justify-center mt-12"><LoaderMark /></div>
             ) : overview.length ? (
                 overview.map((role) => (
                     <div key={role.role_id} className="card mb-2 shadow-sm">

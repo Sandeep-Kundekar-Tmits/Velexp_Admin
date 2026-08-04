@@ -9,7 +9,7 @@ import { useGetApiCall } from "../../../hooks/useGetApiCall";
 import usePostApiCall from "../../../hooks/usePostApiCall";
 import { DELETE_INTERNATIONAL_PINCODES, GET_INTERNATIONAL_PINCODES, UPLOAD_INTERNATIONAL_PINCODES } from "../../../api";
 import { useEffect, useMemo, useState } from "react";
-import { GridLoader } from "react-spinners";
+import { LoaderMark } from "@/Loaders/Loader";
 import Select from "react-select";
 import { customStyles } from "../../../helpers/CustomStyle";
 import MainHeaderComp from "../../../components/MainHeaderCom";
@@ -322,7 +322,7 @@ const InternationPincode = () => {
                 <div className="mt-6">
                     {isFetchingPincodes ? (
                         <div style={{ height: "40vh" }} className="container-fluid flex flex-col justify-center items-center">
-                            <GridLoader size={20} />
+                            <LoaderMark />
                             <p className="mt-12 h5">Loading International Pincodes ...</p>
                         </div>
                     ) : (

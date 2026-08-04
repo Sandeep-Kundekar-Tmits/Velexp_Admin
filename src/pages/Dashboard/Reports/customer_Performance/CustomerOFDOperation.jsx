@@ -5,7 +5,7 @@ import DateRangePicker from "@paprika/date-range-picker";
 
 import Select from 'react-select'
 // import { GET_ADMIN_BOOKING_DETAILS, GET_CUSTOMER_SERVICE, GET_OPERATION_PERFORMANCE, GET_USER_API, PRODUCT_LIST, SERVICE_CENTER, SPD_OPERATION_PERFORMANCE,GET_ALL_REGION }  from '../../../../api';
-import { GridLoader } from 'react-spinners';
+import { LoaderMark } from "@/Loaders/Loader";
 import { IoMdCloudDownload } from "react-icons/io";
 import TableContainer from '../../../../components/Table/TableContainer';
 import { customStyles } from '../../../../helpers/CustomStyle';
@@ -524,7 +524,7 @@ const CustomerOFDOperation = () => {
                     <div className='mt-1'>
                         {
                             OFDOperationsLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <GridLoader size={20} />
+                                <LoaderMark />
                                 <p className="mt-12 h5">Loading FASR Performance ...</p>
                             </div>
                                 :

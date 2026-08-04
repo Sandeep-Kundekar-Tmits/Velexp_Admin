@@ -9,7 +9,7 @@ import TableContainer from "../../components/Table/TableContainer";
 import UpdatedReconcilation from "../../components/POP_Reconcilation/UpdatedReconcilation";
 import usePostApiCall from "../../hooks/usePostApiCall";
 import YMD_DateFormate from "../../helpers/YMD_DateFormate";
-import { GridLoader } from "react-spinners";
+import { LoaderMark } from "@/Loaders/Loader";
 import { useExcelExport } from "../../hooks/useExcelExport";
 import MainHeaderComp from "../../components/MainHeaderCom";
 // Use local date methods instead of toISOString()
@@ -215,7 +215,7 @@ const PopReconcilation = () => {
                     {
                         ReconcilationListLoading ?
                             <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <GridLoader size={20} />
+                                <LoaderMark />
                                 <p className="mt-12 h5">Loading ...</p>
                             </div> :
                             <TableContainer

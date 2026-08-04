@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui";
 import { RiDeleteBinLine, RiEditLine, RiAddLine, RiArrowUpLine, RiArrowDownLine } from "react-icons/ri";
 import { IoMdAdd, IoMdRemove } from "react-icons/io";
-import { GridLoader } from "react-spinners";
+import { LoaderMark } from "@/Loaders/Loader";
 import DeleteModal from "../../components/Common/DeleteModal";
 import MenuFormModal from "../../components/AdminPrivileges/MenuFormModal";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
@@ -134,7 +134,7 @@ const MenusTab = () => {
             </div>
 
             {loading ? (
-                <div className="flex justify-center mt-12"><GridLoader color="#556ee6" /></div>
+                <div className="flex justify-center mt-12"><LoaderMark /></div>
             ) : tree.length ? (
                 <div>{tree.map((node, i) => renderNode(node, 0, tree, i))}</div>
             ) : (

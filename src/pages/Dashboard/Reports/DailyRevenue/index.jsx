@@ -2,7 +2,7 @@
 import React, { useMemo } from "react"
 import { Button, Card, CardBody, Col, Collapse, Row, Spinner } from "@/components/ui"
 import { MdRefresh, MdKeyboardArrowDown } from "react-icons/md"
-import { GridLoader } from "react-spinners"
+import { LoaderMark } from "@/Loaders/Loader";
 import { useState } from "react"
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
@@ -121,7 +121,7 @@ const DailyRevenue = () => {
                 <div className="container-fluid px-4 py-4">
                     {!data ? (
                         <div style={{ height: "40vh" }} className="flex flex-col justify-center items-center">
-                            <GridLoader size={20} />
+                            <LoaderMark />
                             <p className="mt-6 h6 text-ink-muted">Loading revenue…</p>
                         </div>
                     ) : (

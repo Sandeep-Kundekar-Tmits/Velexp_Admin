@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useGetApiCall } from "../../../hooks/useGetApiCall"
 import { DELETE_CORPORATE_DATA_RATE, GET_COPORATE_RATE_DATA, UPDATE_CORPORATE_DATA_RATE, UPLOAD_BULK_CORPORATE_DATA_RATE } from "../../../api"
 import TableContainer from "../../Table/TableContainer"
-import { GridLoader } from "react-spinners"
+import { LoaderMark } from "@/Loaders/Loader";
 import { Button, Col, FormGroup, FormText, Input, Label, Row, Spinner } from "@/components/ui"
 import { IoMdCloudDownload } from "react-icons/io"
 import { checkCustomerPermissions } from "../../../helpers/checkCustomerPermissions"
@@ -517,7 +517,7 @@ const CorporateDataRate = () => {
                 <div className='mt-4'>
                     {
                         CorporateRateDataLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                            <GridLoader size={20} />
+                            <LoaderMark />
                             <p className="mt-12 h5">Loading Corporate Data Rate ...</p>
                         </div>
                             :

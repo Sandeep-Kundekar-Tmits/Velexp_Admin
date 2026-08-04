@@ -9,7 +9,7 @@ import { GET_ALL_REGION, GET_USER_API, OFD_OPERATIONS_PERFORMANCE, SERVICE_CENTE
 import { useGetApiCall } from "../../../hooks/useGetApiCall";
 import usePostApiCall from "../../../hooks/usePostApiCall";
 import formatDateForPayload from "../../../helpers/DateHelper";
-import { GridLoader } from "react-spinners";
+import { LoaderMark } from "@/Loaders/Loader";
 import { useExcelExport } from "../../../hooks/useExcelExport";
 import { useFirstMileExcel } from "../../../hooks/useFirstMileExcel";
 import { useOFDExcel } from "../../../hooks/useOFDExcel";
@@ -517,7 +517,7 @@ const OFDperationsPerformance = () => {
                     <div className='mt-1'>
                         {
                             OFDOperationsLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <GridLoader size={20} />
+                                <LoaderMark />
                                 <p className="mt-12 h5">Loading OFD Operation Performance ...</p>
                             </div>
                                 :

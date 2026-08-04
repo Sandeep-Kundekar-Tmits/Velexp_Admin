@@ -8,7 +8,7 @@ import { GET_PAYMENT_DEATILS, GET_USER_API, GET_WALLET_TRASACTION_DETAILS } from
 import { useGetApiCall } from "../../hooks/useGetApiCall";
 import usePostApiCall from "../../hooks/usePostApiCall";
 import formatDateForPayload from "../../helpers/DateHelper";
-import { GridLoader } from 'react-spinners';
+import { LoaderMark } from "@/Loaders/Loader";
 import TabComponentProvider from "../../components/TabComponentProvider";
 import { useExcelExport } from "../../hooks/useExcelExport";
 import ToasterProvider from "../../helpers/ToasterProvider";
@@ -594,7 +594,7 @@ const PaymentDeatils = () => {
                 {
                     PaymentDeatilsLoading ?
                         <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                            <GridLoader size={20} />
+                            <LoaderMark />
                             <p className="mt-12 h5">Loading ...</p>
                         </div> : <TabComponentProvider tabs={tabConfig} defaultActive={1} />
                 }

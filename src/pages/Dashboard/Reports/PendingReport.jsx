@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Select, { components } from "react-select";
 import { Button, Col, FormGroup, Label, Row } from "@/components/ui";
-import { GridLoader } from "react-spinners";
+import { LoaderMark } from "@/Loaders/Loader";
 import TableContainer from "../../../components/Table/TableContainer";
 import MainHeaderComp from "../../../components/MainHeaderCom";
 import {
@@ -304,7 +304,7 @@ const PendingReport = () => {
                             className="flex flex-col justify-center items-center"
                             style={{ height: "40vh" }}
                         >
-                            <GridLoader size={20} />
+                            <LoaderMark />
                             <p className="mt-6 h5">Loading Pending Report...</p>
                         </div>
                     ) : (

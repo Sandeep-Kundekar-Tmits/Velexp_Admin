@@ -10,7 +10,7 @@ import TableContainer from "../../../components/Table/TableContainer";
 import { GET_INTERNATIONAL_RATE_DATA, GET_INTERNATIONAL_RATE_DATA_CUSTOMER, POST_USER_API, UPLOAD_INTERNATIONAL_RATE_DATA_CUSTOMER } from "../../../api";
 import usePostApiCall from "../../../hooks/usePostApiCall";
 import { useGetApiCall } from "../../../hooks/useGetApiCall";
-import { GridLoader } from "react-spinners";
+import { LoaderMark } from "@/Loaders/Loader";
 import SimpleModal from "../../../components/SimpleModal";
 import MainHeaderComp from "../../../components/MainHeaderCom";
 
@@ -418,7 +418,7 @@ const InternationRateData = () => {
                 <div className="mt-0">
                     {(isFetchingData || isFetchingCustomerData) ? (
                         <div style={{ height: "40vh" }} className="container-fluid flex flex-col justify-center items-center">
-                            <GridLoader size={20} />
+                            <LoaderMark />
                             <p className="mt-12 h5">Loading International Rate Data ...</p>
                         </div>
                     ) : (

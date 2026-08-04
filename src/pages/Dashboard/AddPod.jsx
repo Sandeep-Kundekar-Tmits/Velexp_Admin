@@ -23,8 +23,7 @@ import useExcelParser from "../../hooks/useExcelParser";
 import { downloadExcel } from "../../helpers/downloadExcel";
 import CollapsibleSideBar from "../../components/CollapsibleSideBar";
 import MainHeaderComp from "../../components/MainHeaderCom";
-import { GridLoader } from "react-spinners";
-
+import { LoaderMark } from "@/Loaders/Loader";
 const AddPod = () => {
 
   // State to hold the source/URL of the selected POD image for viewing
@@ -348,7 +347,7 @@ const AddPod = () => {
           {
             PodDataLoading ?
               <div style={{ height: "75vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                <GridLoader size={20} />
+                <LoaderMark />
                 <p className="mt-12 h5">Loading POD Details ...</p>
               </div> :
               <TableContainer

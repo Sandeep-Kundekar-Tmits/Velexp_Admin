@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useGetApiCall } from "../../../hooks/useGetApiCall"
 import { DELETE_RETAIL_RATE_DATA, GET_RETAIL_RATE_DATA, UPDATE_RETAIL_RATE_DATA, UPLOAD_RETAIL_RATE_DATA } from "../../../api"
 import TableContainer from "../../Table/TableContainer"
-import { GridLoader } from "react-spinners"
+import { LoaderMark } from "@/Loaders/Loader";
 import { Button, Col, FormGroup, FormText, Input, Label, Row, Spinner } from "@/components/ui"
 import { IoMdCloudDownload } from "react-icons/io"
 import { checkCustomerPermissions } from "../../../helpers/checkCustomerPermissions"
@@ -443,7 +443,7 @@ const RetailDataRate = () => {
         <div className='mt-4'>
           {
             RetailRateDataLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-              <GridLoader size={20} />
+              <LoaderMark />
               <p className="mt-12 h5">Loading Corporate Data Rate ...</p>
             </div>
               :

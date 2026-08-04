@@ -1,6 +1,6 @@
 import { Button, Col, FormGroup, Input, Label, Row, Card, CardBody, CardTitle, Badge } from "@/components/ui";
 import MainHeaderComp from "../../components/MainHeaderCom";
-import { GridLoader } from "react-spinners";
+import { LoaderMark } from "@/Loaders/Loader";
 import { useEffect, useMemo, useState } from "react";
 import TableContainer from "../../components/Table/TableContainer";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
@@ -342,7 +342,7 @@ const TripDetail = () => {
                 <div className='mt-2'>
                     {tripsLoading ? (
                         <div style={{ height: "50vh" }} className="flex flex-col justify-center items-center">
-                            <GridLoader size={20} color="#556ee6" />
+                            <LoaderMark />
                             <p className="mt-4 h5 text-ink-muted">Loading Trip Details...</p>
                         </div>
                     ) : (

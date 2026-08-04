@@ -9,7 +9,7 @@ import usePostApiCall from "../../../hooks/usePostApiCall"
 import { useGetApiCall } from "../../../hooks/useGetApiCall"
 import { FaTrash } from "react-icons/fa";
 import { FaEdit } from "react-icons/fa";
-import { GridLoader } from "react-spinners"
+import { LoaderMark } from "@/Loaders/Loader";
 import { downloadExcel } from "../../../helpers/downloadExcel"
 import DeleteModal from "../../Common/DeleteModal"
 import { useDeleteApiCall } from "../../../hooks/useDeleteApiCall"
@@ -396,7 +396,7 @@ const INTCustomerRateDataComp = () => {
                 <div className='mt-1'>
                     {
                         IntCustomerDataLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                            <GridLoader size={20} />
+                            <LoaderMark />
                             <p className="mt-12 h5">Loading INT Customer Data Rate ...</p>
                         </div>
                             :

@@ -5,7 +5,7 @@ import Select from "react-select";
 import DateRangeInput from "../../../components/Common/DateRangeInput";
 import TableContainer from "../../../components/Table/TableContainer";
 import MainHeaderComp from "../../../components/MainHeaderCom";
-import { GridLoader } from "react-spinners";
+import { LoaderMark } from "@/Loaders/Loader";
 import usePostApiCall from "../../../hooks/usePostApiCall";
 import { GET_ALL_SERVICE_PROVIDER_BOOKING, GET_DELIVARY_B2C_LABEL_GENERATION } from "../../../api";
 import ToasterProvider from "../../../helpers/ToasterProvider";
@@ -305,7 +305,7 @@ const ServiceProviderBooking = () => {
                     <div className='mt-2'>
                         {
                             ServiceProviderBookingloading ? <div style={{ height: "75vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <GridLoader size={20} />
+                                <LoaderMark />
                                 <p className="mt-12 h5">Loading Bookings ...</p>
                             </div>
                                 :

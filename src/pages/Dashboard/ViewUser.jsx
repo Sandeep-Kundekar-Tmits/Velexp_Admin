@@ -7,7 +7,7 @@ import AddressList from "../../components/UserManagement/AddressList"
 import { useEffect, useState } from "react"
 import { useGetApiCall } from "../../hooks/useGetApiCall"
 import { GET_USER_API } from "../../api"
-import { GridLoader } from "react-spinners"
+import { LoaderMark } from "@/Loaders/Loader";
 import { FaUserEdit } from "react-icons/fa";
 
 
@@ -30,7 +30,7 @@ const ViewUser = () => {
     if (loading) {
         return (
             <div style={{ height: "100vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                <GridLoader size={20} />
+                <LoaderMark />
                 <p className="mt-12 h5">Loading...</p>
             </div>
         )

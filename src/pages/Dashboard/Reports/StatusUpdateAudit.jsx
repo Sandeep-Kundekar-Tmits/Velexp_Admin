@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Row, Col, Button, FormGroup, Label } from "@/components/ui";
 import Select from "react-select";
-import { GridLoader } from "react-spinners";
+import { LoaderMark } from "@/Loaders/Loader";
 import MainHeaderComp from "../../../components/MainHeaderCom";
 import DateRangeInput from "../../../components/Common/DateRangeInput";
 import TableContainer from "../../../components/Table/TableContainer";
@@ -338,7 +338,7 @@ const StatusUpdateAudit = () => {
                     {
                         auditLoading ? (
                             <div style={{ height: "40vh" }} className="container-fluid flex flex-col justify-center items-center">
-                                <GridLoader size={20} />
+                                <LoaderMark />
                                 <p className="mt-12 h5">Loading Audit Data...</p>
                             </div>
                         ) : (

@@ -2,8 +2,7 @@ import { useEffect, useMemo, useState } from "react"
 
 import Select from "react-select";
 import { Button, Col, FormGroup, Input, Label, Row, Spinner } from "@/components/ui";
-import { GridLoader } from "react-spinners";
-
+import { LoaderMark } from "@/Loaders/Loader";
 import { useGetApiCall } from "../../../hooks/useGetApiCall";
 import { GET_ALL_FRNCHISE_RATE_DATA, UPLOAD_FRANCHISE_RATE_DATA_UPLOAD } from "../../../api";
 import MainHeaderComp from "../../../components/MainHeaderCom";
@@ -312,7 +311,7 @@ const FranchiseRateData = () => {
                 <div className="mainpage mt-4">
                     {AllFranchiseRateDataLoading
                         ? <div style={{ height: "40vh" }} className="container-fluid flex flex-col justify-center items-center">
-                            <GridLoader size={20} />
+                            <LoaderMark />
                             <p className="mt-12 h5">Loading Franchise Rate Data ...</p>
                         </div>
                         : <TableContainer

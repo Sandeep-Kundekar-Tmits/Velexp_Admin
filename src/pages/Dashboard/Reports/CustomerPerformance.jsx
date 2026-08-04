@@ -12,7 +12,7 @@ import formatDateForPayload from '../../../helpers/DateHelper';
 import usePostApiCall from '../../../hooks/usePostApiCall';
 
 import AdminBookingFilter from '../../../components/AdminBooking/AdminBookingFilter';
-import { GridLoader } from 'react-spinners';
+import { LoaderMark } from "@/Loaders/Loader";
 import { downloadExcel } from '../../../helpers/downloadExcel';
 import { useExcelExport } from '../../../hooks/useExcelExport';
 import MainHeaderCom from '../../../components/MainHeaderCom';
@@ -509,7 +509,7 @@ const CustomerPerformance = () => {
                     <div className='mt-1'>
                         {
                             customerPerformanceLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <GridLoader size={20} />
+                                <LoaderMark />
                                 <p className="mt-12 h5">Loading Customer Performance ...</p>
                             </div> :
                                 <TableContainer

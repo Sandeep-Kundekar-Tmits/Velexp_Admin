@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
-import { GridLoader } from "react-spinners";
+import { LoaderMark } from "@/Loaders/Loader";
 import { Button, Col, Container, FormGroup, Label, Row } from "@/components/ui";
 import Select from "react-select";
 import MainHeaderComp from "../../../components/MainHeaderCom";
@@ -212,7 +212,7 @@ const ProductivityReport = () => {
             label: "Region Report",
             component: reportLoading ? (
                 <div style={{ height: "40vh" }} className="container-fluid flex flex-col justify-center items-center">
-                    <GridLoader size={20} />
+                    <LoaderMark />
                     <p className="mt-12 h5">Loading Region Report ...</p>
                 </div>
             ) : (
@@ -234,7 +234,7 @@ const ProductivityReport = () => {
             label: "Service Center Report",
             component: reportLoading ? (
                 <div style={{ height: "40vh" }} className="container-fluid flex flex-col justify-center items-center">
-                    <GridLoader size={20} />
+                    <LoaderMark />
                     <p className="mt-12 h5">Loading SC Report ...</p>
                 </div>
             ) : (
@@ -256,7 +256,7 @@ const ProductivityReport = () => {
             label: "Raw Data",
             component: reportLoading ? (
                 <div style={{ height: "40vh" }} className="container-fluid flex flex-col justify-center items-center">
-                    <GridLoader size={20} />
+                    <LoaderMark />
                     <p className="mt-12 h5">Loading Raw Data ...</p>
                 </div>
             ) : (

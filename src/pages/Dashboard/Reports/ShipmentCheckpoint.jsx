@@ -5,7 +5,7 @@ import { useGetApiCall } from "../../../hooks/useGetApiCall";
 import { customStyles } from "../../../helpers/CustomStyle";
 import { SERVICE_CENTER, UPLOAD_SHIPMENT_CHECKPOINTS } from "../../../api";
 import TableContainer from "../../../components/Table/TableContainer";
-import { GridLoader } from "react-spinners";
+import { LoaderMark } from "@/Loaders/Loader";
 import usePostApiCall from "../../../hooks/usePostApiCall";
 import ToasterProvider from "../../../helpers/ToasterProvider";
 import { useExcelExport } from "../../../hooks/useExcelExport";
@@ -216,7 +216,7 @@ const ShipmentCheckpoint = () => {
                         <div className='mt-4'>
                             {
                                 UploadShipmentCheckpointLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                    <GridLoader size={20} />
+                                    <LoaderMark />
                                     <p className="mt-12 h5">Loading Status Update Report ...</p>
                                 </div>
                                     :

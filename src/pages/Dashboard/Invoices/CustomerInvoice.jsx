@@ -9,7 +9,7 @@ import { useGetApiCall } from "../../../hooks/useGetApiCall";
 import { GET_FRANCHISE_INVOICE, GET_USER_API, UPLOAD_FRANCHISE_INVOICE } from "../../../api";
 import usePostApiCall from "../../../hooks/usePostApiCall";
 import formatDateForPayload from "../../../helpers/DateHelper";
-import { GridLoader } from "react-spinners";
+import { LoaderMark } from "@/Loaders/Loader";
 // import downloadExcel from "../../helpers/downloadExcel";
 import useExcelParser from "../../../hooks/useExcelParser";
 import { downloadExcel } from "../../../helpers/downloadExcel";
@@ -441,7 +441,7 @@ const CustomerInvoice = () => {
                     <div className='mt-4'>
                         {
                             franchiseeBillingLoading ? <div style={{ height: "75vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <GridLoader size={20} />
+                                <LoaderMark />
                                 <p className="mt-12 h5">Loading Franchise Billing ...</p>
                             </div>
                                 :

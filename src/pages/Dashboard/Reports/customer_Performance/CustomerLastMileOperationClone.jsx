@@ -5,7 +5,7 @@ import DateRangeInput from "../../../../components/Common/DateRangeInput";
 
 import Select from 'react-select'
 import { GET_ADMIN_BOOKING_DETAILS, GET_CUSTOMER_SERVICE, GET_OPERATION_PERFORMANCE, GET_USER_API, PRODUCT_LIST, SERVICE_CENTER, SPD_OPERATION_PERFORMANCE, GET_ALL_REGION, GET_CUSTOMER_PERFORMANCE_FDSR, GET_CUSTOMER_PERFORMANCE_FDSR_CLONE } from '../../../../api';
-import { GridLoader } from 'react-spinners';
+import { LoaderMark } from "@/Loaders/Loader";
 import { IoMdCloudDownload } from "react-icons/io";
 import TableContainer from '../../../../components/Table/TableContainer';
 import { customStyles } from '../../../../helpers/CustomStyle';
@@ -907,7 +907,7 @@ const CustomerLastMileOperationClone = () => {
                     <div className='mt-4'>
                         {
                             bookingLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <GridLoader size={20} />
+                                <LoaderMark />
                                 <p className="mt-12 h5">Loading customer Performance ...</p>
                             </div>
                                 :

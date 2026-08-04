@@ -5,8 +5,7 @@ import TableContainer from "../../components/Table/TableContainer";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
 import { ITRACK_SCANS } from "../../api";
 import ToasterProvider from "../../helpers/ToasterProvider";
-import { GridLoader } from "react-spinners";
-
+import { LoaderMark } from "@/Loaders/Loader";
 const ITrack = () => {
     const [awbNumber, setAwbNumber] = useState("");
     const { apifunc: getScans, data, loading, error } = useGetApiCall();
@@ -122,7 +121,7 @@ const ITrack = () => {
                 <div className="mt-6">
                     {loading ? (
                         <div className="flex flex-col justify-center items-center py-12">
-                            <GridLoader size={15} color="#34c38f" />
+                            <LoaderMark />
                             <p className="mt-4">Fetching scan records...</p>
                         </div>
                     ) : (

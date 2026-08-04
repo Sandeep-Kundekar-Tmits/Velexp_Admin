@@ -11,7 +11,7 @@ import usePostApiCall from "../../../hooks/usePostApiCall"
 import { useExcelExport } from "../../../hooks/useExcelExport"
 import ToasterProvider from "../../../helpers/ToasterProvider"
 import YMD_DateFormate from "../../../helpers/YMD_DateFormate"
-import { GridLoader } from "react-spinners";
+import { LoaderMark } from "@/Loaders/Loader";
 import StatsCard from "../../../components/StatsCard"
 const CDUpdate = () => {
     const columns = useMemo(
@@ -269,7 +269,7 @@ const CDUpdate = () => {
                             showTable ? <div className='mt-4'>
                                 {
                                     UploadCdReportUpdateLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                        <GridLoader size={20} />
+                                        <LoaderMark />
                                         <p className="mt-12 h5">Loading CD Report ...</p>
                                     </div>
                                         :

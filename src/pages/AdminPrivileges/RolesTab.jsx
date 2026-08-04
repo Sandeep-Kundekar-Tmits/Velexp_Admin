@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui";
 import { RiDeleteBinLine, RiEditLine } from "react-icons/ri";
-import { GridLoader } from "react-spinners";
+import { LoaderMark } from "@/Loaders/Loader";
 import TableContainer from "../../components/Table/TableContainer";
 import DeleteModal from "../../components/Common/DeleteModal";
 import RoleFormModal from "../../components/AdminPrivileges/RoleFormModal";
@@ -75,7 +75,7 @@ const RolesTab = () => {
             </div>
 
             {loading ? (
-                <div className="flex justify-center mt-12"><GridLoader color="#556ee6" /></div>
+                <div className="flex justify-center mt-12"><LoaderMark /></div>
             ) : (
                 <TableContainer
                     columns={columns}

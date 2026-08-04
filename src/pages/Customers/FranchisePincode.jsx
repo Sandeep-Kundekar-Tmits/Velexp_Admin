@@ -8,7 +8,7 @@ import { useGetApiCall } from "../../hooks/useGetApiCall";
 import { DELETE_CUSTOMER_FRANCHISE_PINCODE, DELETE_DEFAULT_FRANCHISE_PINCODE, GET_ALL_FRANCHISE_PINCODE, GET_USER_API, GET_VIEW_FRANCHISE_PINCODES, UPLOAD_FRANCHISE_PINCODE } from "../../api";
 import useExcelParser from "../../hooks/useExcelParser";
 import TableContainer from "../../components/Table/TableContainer";
-import { GridLoader } from "react-spinners";
+import { LoaderMark } from "@/Loaders/Loader";
 import usePostApiCall from "../../hooks/usePostApiCall";
 import ToasterProvider from "../../helpers/ToasterProvider";
 import SimpleModal from "../../components/SimpleModal";
@@ -495,7 +495,7 @@ const FranchisePincode = () => {
                     <div className='mt-1'>
                         {
                             (FranchisePincodeDataLoading || ViewFranchisePincodeloading) ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <GridLoader size={20} />
+                                <LoaderMark />
                                 <p className="mt-12 h5">Loading Franchise Pincode ...</p>
                             </div>
                                 :

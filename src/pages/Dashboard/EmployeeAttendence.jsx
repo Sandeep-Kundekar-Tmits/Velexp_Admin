@@ -1,7 +1,7 @@
 import { Button, Col, FormGroup, Input, Label, Row } from "@/components/ui"
 import MainHeaderComp from "../../components/MainHeaderCom"
 import DateRangeInput from "../../components/Common/DateRangeInput"
-import { GridLoader } from "react-spinners";
+import { LoaderMark } from "@/Loaders/Loader";
 import { useEffect, useMemo, useState } from "react";
 import Select from "react-select";
 import { customStyles } from "../../helpers/CustomStyle";
@@ -261,7 +261,7 @@ const EmployeeAttendence = () => {
                     <div className='mt-2'>
                         {
                             EmployeeFilterLoading ? <div style={{ height: "75vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <GridLoader size={20} />
+                                <LoaderMark />
                                 <p className="mt-12 h5">Loading Bookings ...</p>
                             </div>
                                 :

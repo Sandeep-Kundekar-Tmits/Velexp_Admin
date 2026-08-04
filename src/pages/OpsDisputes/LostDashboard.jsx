@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import TableContainer from "../../components/Table/TableContainer";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
 import { OPS_DISPUTES_LOST } from "../../api";
-import { GridLoader } from "react-spinners";
+import { LoaderMark } from "@/Loaders/Loader";
 import MainHeaderComp from "../../components/MainHeaderCom";
 
 const LostDashboard = () => {
@@ -86,7 +86,7 @@ const LostDashboard = () => {
 
     if (loading) return (
         <div className="flex justify-center mt-12">
-            <GridLoader color="#556ee6" />
+            <LoaderMark />
         </div>
     );
 
