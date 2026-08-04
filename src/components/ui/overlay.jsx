@@ -212,31 +212,6 @@ export const Progress = forwardRef(function Progress(
   );
 });
 
-/* ---------------- Breadcrumb ---------------- */
-
-export const Breadcrumb = forwardRef(function Breadcrumb({ className, children, ...rest }, ref) {
-  return (
-    <nav ref={ref} aria-label="breadcrumb" {...rest}>
-      <ol className={cn("flex list-none items-center gap-1 p-0 text-ink-muted", className)}>{children}</ol>
-    </nav>
-  );
-});
-
-export const BreadcrumbItem = forwardRef(function BreadcrumbItem(
-  { active, className, children, ...rest },
-  ref
-) {
-  return (
-    <li
-      ref={ref}
-      className={cn(
-        "after:mx-1 after:text-slate-300 after:content-['/'] last:after:content-['']",
-        active && "text-ink",
-        className
-      )}
-      {...rest}
-    >
-      {children}
-    </li>
-  );
-});
+/* Breadcrumb / BreadcrumbItem were here. Breadcrumbs are gone from the app --
+   the shared PageHeader carries the section name instead -- so the primitives
+   went with their last callers. */

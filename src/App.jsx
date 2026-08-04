@@ -69,7 +69,15 @@ const App = () => {
               path={route.path}
               element={
                 <Authmiddleware path={route.path}>
-                  <VerticalLayout>{route.component}</VerticalLayout>
+                  <VerticalLayout>
+                    {/* Inner boundary, so a lazy chunk suspends only the content
+                        area. The outer <Suspense> is above VerticalLayout, so
+                        every navigation used to unmount the sidebar too and
+                        flash a full-screen loader over the whole app. */}
+                    <Suspense fallback={<Loader message="Loading page..." fullscreen={false} />}>
+                      {route.component}
+                    </Suspense>
+                  </VerticalLayout>
                 </Authmiddleware>
               }
               key={idx}

@@ -147,3 +147,57 @@
     .col-lg-6 { width: 50%; } .col-lg-12 { width: 100%; }
   }
 }
+
+/* ------------------------------------------------------------------------
+ * Legacy surface bridge.
+ *
+ * Text across the app is tokenised (text-ink / text-ink-muted), so inverting
+ * those tokens in app.css retints every screen. Surfaces are not: bg-white is
+ * hardcoded in 69 files against 3 using bg-surface, and text-black in 15. Left
+ * alone that gives light text on still-white cards -- unreadable everywhere.
+ *
+ * Rather than editing 69 files, the hardcoded light utilities are remapped
+ * onto the same tokens. One place to change a colour, and screens that later
+ * migrate to bg-surface/text-ink keep working unchanged.
+ *
+ * Declared outside @layer so it beats Tailwind's own utilities without
+ * !important on every line; the print escape hatch below then beats this.
+ * --------------------------------------------------------------------- */
+
+.bg-white { background-color: var(--color-surface); }
+.bg-light { background-color: color-mix(in srgb, var(--color-surface) 70%, var(--color-canvas)); }
+.bg-gray-100, .bg-gray-200,
+.bg-slate-100, .bg-slate-200 { background-color: color-mix(in srgb, var(--color-surface) 70%, var(--color-canvas)); }
+
+.text-black, .text-dark,
+.text-slate-700, .text-slate-800, .text-slate-900 { color: var(--color-ink); }
+
+/* Bootstrap-era light chrome that the compat layer still hands out. */
+.btn-light { background: color-mix(in srgb, var(--color-surface) 60%, var(--color-canvas)); color: var(--color-ink); }
+.form-control, .form-select { background: color-mix(in srgb, var(--color-surface) 60%, var(--color-canvas)); }
+.form-control::placeholder { color: color-mix(in srgb, var(--color-ink-muted) 70%, transparent); }
+
+/*
+ * Print escape hatch.
+ *
+ * AWB labels and invoices are physical output: a dark label wastes toner and,
+ * more importantly, a barcode on a dark field will not scan. Re-declaring the
+ * tokens locally restores the light theme for everything inside these roots,
+ * including anything that reads them indirectly.
+ */
+[data-print-surface] {
+  --color-surface: #ffffff;
+  --color-canvas: #ffffff;
+  --color-line: #e2e8f0;
+  --color-ink: #0f172a;
+  --color-ink-muted: #475569;
+  background-color: #ffffff;
+  color: #0f172a;
+}
+[data-print-surface] .bg-white,
+[data-print-surface].bg-white { background-color: #ffffff; }
+[data-print-surface] .bg-light,
+[data-print-surface] .bg-gray-100, [data-print-surface] .bg-gray-200,
+[data-print-surface] .bg-slate-100, [data-print-surface] .bg-slate-200 { background-color: #f1f5f9; }
+[data-print-surface] .text-black, [data-print-surface] .text-dark { color: #000000; }
+[data-print-surface] .form-control, [data-print-surface] .form-select { background: #ffffff; }

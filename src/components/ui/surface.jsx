@@ -7,9 +7,13 @@ import { cn } from "@/lib/cn";
 
 /* ---------------- Card ---------------- */
 
+/* The `card` / `card-body` class names carry no styling of their own -- they
+   are what layout-compat matches on to spot a card that holds nothing but a
+   grid, so it can drop its frame instead of boxing the grid's own panel. They
+   also line these up with the 26 places that write className="card" by hand. */
 export const Card = forwardRef(function Card({ className, children, ...rest }, ref) {
   return (
-    <div ref={ref} className={cn("rounded border border-line bg-surface", className)} {...rest}>
+    <div ref={ref} className={cn("card rounded border border-line bg-surface", className)} {...rest}>
       {children}
     </div>
   );
@@ -17,7 +21,7 @@ export const Card = forwardRef(function Card({ className, children, ...rest }, r
 
 export const CardBody = forwardRef(function CardBody({ className, children, ...rest }, ref) {
   return (
-    <div ref={ref} className={cn("p-3", className)} {...rest}>
+    <div ref={ref} className={cn("card-body p-3", className)} {...rest}>
       {children}
     </div>
   );

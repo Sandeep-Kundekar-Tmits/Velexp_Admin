@@ -20,6 +20,9 @@ const AirwayBillMiniTable = React.forwardRef(({ data }, ref) => {
   return (
     <div
       ref={ref}
+      // Physical output: opts this subtree out of the dark theme. A barcode on
+      // a dark field will not scan, and a dark label wastes toner.
+      data-print-surface=""
       className="border flex justify-center"
       style={{
         width: "75mm",

@@ -8,7 +8,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import PropTypes from 'prop-types';
 //import components
-import Breadcrumbs from '../../components/Common/Breadcrumb';
 import { Button, Col, FormFeedback, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Row, Spinner, Table } from "@/components/ui";
 import DateRangeInput from "../../components/Common/DateRangeInput";
 import TableContainer from "../../components/Table/TableContainer";
@@ -316,8 +315,6 @@ const AddPod = () => {
         />
       </div>
       <div className="container-fluid">
-        {/* <Breadcrumbs title="Tables" breadcrumbItem="Data Tables" /> */}
-
         {ReturnComponent(selectedTitle)}
         {/* Filters Section */}
         <Row className="mt-4 items-end mx-0">

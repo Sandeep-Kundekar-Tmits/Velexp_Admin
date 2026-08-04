@@ -68,21 +68,23 @@ const ProfileMenu = (props) => {
         <div className="icon-wrapper fs-4">
           {getUserIcon()}
         </div>
-        {
-          props?.showLogo && <div className="user-info">
-            <div className="font-bold text-white ">{displayText}</div>
-            <small className="">
-              {
-                isAdmin ? 'Full Access' :
-                  userType === 'sales' ? 'Sales Team' :
-                    userType === 'pod' ? 'POD Manager' :
-                      userType === 'accounting' ? 'Accounts Team' :
-                        userType === "Retail-Franchise" ? "Retail-Franchise Team" :
-                          userType === "operations" ? "Operations" : 'Standard User'
-              }
-            </small>
-          </div>
-        }
+        {/* Always rendered, hidden by CSS while the rail is collapsed and
+            unhovered. This used to be gated on a `showLogo` prop, so the label
+            was absent from the DOM the moment the rail collapsed and hovering
+            the widened rail showed a nameless icon. */}
+        <div className="user-info">
+          <div className="font-bold text-white ">{displayText}</div>
+          <small className="">
+            {
+              isAdmin ? 'Full Access' :
+                userType === 'sales' ? 'Sales Team' :
+                  userType === 'pod' ? 'POD Manager' :
+                    userType === 'accounting' ? 'Accounts Team' :
+                      userType === "Retail-Franchise" ? "Retail-Franchise Team" :
+                        userType === "operations" ? "Operations" : 'Standard User'
+            }
+          </small>
+        </div>
 
       </div>
     );

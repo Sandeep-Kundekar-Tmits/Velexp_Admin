@@ -13,6 +13,7 @@ import {
 
 import { rankItem } from '@tanstack/match-sorter-utils';
 import { FaFileExcel, FaSearch, FaTimes } from "react-icons/fa";
+import PageHeaderActions from "../VerticalLayout/PageHeaderActions";
 import OverlayTrigger from "rsuite/esm/internals/Overlay/OverlayTrigger";
 // import JobListGlobalFilter from "./GlobalSearchFilter";
 
@@ -58,7 +59,7 @@ const DebouncedInput = ({
     }, [debounce, onChange, value]);
 
     return (
-        <div className="relative flex items-center w-full " style={{ borderLeft: "1px solid #B0ACAC", paddingLeft: "10px", height: "45px" }}>
+        <div className="table-search relative flex items-center w-full " style={{ borderLeft: "1px solid var(--color-line)", paddingLeft: "10px", height: "45px" }}>
             <FaSearch
                 className="absolute ml-1 text-ink-muted"
                 style={{ zIndex: 1, fontSize: "14px" }}
@@ -118,6 +119,22 @@ const TableContainer = ({
     stickyTop = 0,
     rightExtraFiled = null,
     autoResetPageIndex = true,
+    /**
+     * Number of lines a cell may use before it is cut off with an ellipsis.
+     *
+     * Opt-in, because it also switches the table to `table-layout: fixed` --
+     * columns stop resizing themselves around the longest value in the column,
+     * which is the point (widths stay put as you page through data) but is a
+     * real change for the 80 screens that were built against auto layout.
+     *
+     * Column widths then come from each column's TanStack `size`, so a page
+     * that needs a narrow Actions column sets `size: 90` on it. Left unset,
+     * every column defaults to 150 and they divide the width evenly.
+     *
+     * Action and select columns are never clamped: they hold controls, not
+     * text, and cutting a button in half helps nobody.
+     */
+    cellLines = null,
 }) => {
 
     const [columnFilters, setColumnFilters] = useState([]);
@@ -180,13 +197,79 @@ const TableContainer = ({
     // }, [customPageSize, setPageSize]);
 
     return (
-        <div style={{ border: "solid #B0ACAC 1px" }}>
+        /* `grid-shell` (layout-compat.css) is the whole look of the grid: the
+           glass panel, the toolbar, the table and the pagination bar. It is
+           applied here rather than by each screen so all ~81 of them share one
+           definition -- and so a screen has to opt *out*, not in, which is the
+           right default for a component this widely used.
+
+           `table-toolbar`, `table-search` and `table-pagination` below are the
+           selector hooks it needs; nothing else targets them. */
+        <div className="grid-shell" style={{ border: "solid var(--color-line) 1px" }}>
+            {/* Export controls live in the page header, not the grid toolbar.
+                Doing it here rather than screen by screen moves them for all
+                ~81 call sites at once, and keeps every screen's actions in the
+                one place a user looks for them. Falls back to rendering in
+                place when there is no header (see PageHeaderActions). */}
+            {(isDownloadExcle || excelItems.some(item => item.show)) && (
+                <PageHeaderActions>
+                    <div className="flex items-center gap-2">
+                        {isDownloadExcle && (
+                            <Button
+                                disabled={data.length < 1}
+                                onClick={onDownloadExcle}
+                                className="table-action-btn table-action-btn-solid"
+                            >
+                                <FaFileExcel size={15} aria-hidden="true" />
+                                <span>{ExcleLoading ? "Exporting..." : "Download Excel"}</span>
+                            </Button>
+                        )}
+
+                        {excelItems.map((item, index) => {
+                            if (!item.show) return null;
+
+                            return (
+                                <div key={index} className="relative">
+                                    <Button
+                                        id={`excel-btn-${index}`}
+                                        disabled={item.disabled || item.loading || data.length < 1}
+                                        onClick={item.onClick ?? (() => { })}
+                                        className="table-action-btn table-action-btn-ghost"
+                                    >
+                                        {item.loading ? (
+                                            <>
+                                                <Spinner size="sm" />
+                                                <span>Exporting...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <FaFileExcel size={15} aria-hidden="true" />
+                                                <span>{item.label}</span>
+                                            </>
+                                        )}
+                                    </Button>
+
+                                    {item.tooltip && (
+                                        <Tooltip target={`excel-btn-${index}`} placement="top">
+                                            {item.tooltip}
+                                        </Tooltip>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </PageHeaderActions>
+            )}
+
             <div className="rounded-1 mt-0">
-                <div className="flex flex-wrap mb-0 items-center  p-0 justify-between" style={{ height: "45px" }} >
-                    {/* Left section (Page size + Excel download) */}
-                    <div className="flex  items-center w-3/4 mb-0 p-0">
+                <div className="table-toolbar flex flex-wrap mb-0 items-center  p-0 justify-between" style={{ height: "45px" }} >
+                    {/* Left section (page size + whatever the screen adds).
+                        Was w-3/4 back when the export buttons lived here; now
+                        it takes only what it needs so the search field can use
+                        the rest. */}
+                    <div className="flex items-center mb-0 p-0">
                         {isCustomPageSize && (
-                            <div className=" mb-0 flex items-center" style={{ minWidth: "90px", borderRight: "solid #B0ACAC 1px", height: "45px", marginLeft: "10px", marginRight: "10px" }}>
+                            <div className=" mb-0 flex items-center" style={{ minWidth: "90px", borderRight: "solid var(--color-line) 1px", height: "45px", marginLeft: "10px", marginRight: "10px" }}>
                                 <select
                                     className="form-select pageSize  border-0 "
 
@@ -211,75 +294,15 @@ const TableContainer = ({
                             </div>
                         }
 
-                        {isDownloadExcle && (
-                            <div className="mr-2 mb-0 my-0 flex items-center">
-                                <Button
-                                    disabled={data.length < 1}
-                                    onClick={onDownloadExcle}
-                                    className="flex items-center px-2 bg-success-500 border-success text-white"
-                                    style={{
-                                        height: "35px",
-                                        borderRadius: "4px",
-                                        fontWeight: "500",
-                                        // marginLeft: "10px"
-                                    }}
-                                >
-                                    {
-                                        ExcleLoading ? <span className="mr-2">Exporting...</span> : <span className="mr-2">Download Excel</span>
-                                    }
-                                    <FaFileExcel size={18} className="mr-2" />
-                                </Button>
-                            </div>
-                        )}
-                        {excelItems.map((item, index) => {
-                            if (!item.show) return null;
-
-                            return (
-                                <div key={index} className="mr-2 mb-1 relative">
-                                    <Button
-                                        id={`excel-btn-${index}`}
-                                        disabled={item.disabled || item.loading || data.length < 1}
-                                        onClick={item.onClick ?? (() => { })}
-                                        className="flex items-center px-2 bg-transparent border-success text-success-500"
-                                        style={{
-                                            borderRadius: "10px",
-                                            fontWeight: "500",
-                                            paddingTop: "7px",
-                                            paddingBottom: "7px",
-                                        }}
-                                    >
-                                        {item.loading ? (
-                                            <>
-                                                <Spinner size="sm" className="mr-2" />
-                                                Exporting...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <span className="mr-2">{item.label}</span>
-                                                <FaFileExcel size={18} />
-                                            </>
-                                        )}
-                                    </Button>
-
-                                    {item.tooltip && (
-                                        <Tooltip target={`excel-btn-${index}`} placement="top">
-                                            {item.tooltip}
-                                        </Tooltip>
-                                    )}
-                                </div>
-                            );
-                        })}
-
-
                     </div>
 
                     {/* Right section (Search) */}
-                    <div className="w-1/4 flex justify-end items-center">
+                    <div className="flex min-w-0 flex-1 justify-end items-center">
                         {
                             ShowClearBtn && <Button onClick={OnClearClick} className="bg-danger-500 border-0 mb-0 mr-2" style={{ height: "34px", width: "100px" }}>Clear</Button>
                         }
                         {rightExtraFiled && (
-                            <div className="mr-1" style={{ borderRight: "1px solid #B0ACAC", paddingRight: "8px", height: "45px", display: "flex", alignItems: "center" }}>
+                            <div className="mr-1" style={{ borderRight: "1px solid var(--color-line)", paddingRight: "8px", height: "45px", display: "flex", alignItems: "center" }}>
                                 {rightExtraFiled}
                             </div>
                         )}
@@ -302,9 +325,20 @@ const TableContainer = ({
                     style={{
                         ...(tableHeight ? { maxHeight: tableHeight, overflow: 'auto' } : {})
                     }}
-                    className={divClassName ? divClassName : "table-responsive"}
+                    // scroll-slim always: the OS default scrollbar is a light
+                    // grey column, and every grid now sits on a dark panel.
+                    className={`scroll-slim ${divClassName ? divClassName : "table-responsive"}`}
                 >
-                    <Table hover className={`${tableClass} mb-0`} bordered={isBordered} style={{ borderCollapse: 'separate', borderSpacing: 0 }}>
+                    <Table
+                        hover
+                        className={`${tableClass} mb-0`}
+                        bordered={isBordered}
+                        style={{
+                            borderCollapse: 'separate',
+                            borderSpacing: 0,
+                            ...(cellLines ? { tableLayout: 'fixed', width: '100%' } : {})
+                        }}
+                    >
                         <thead
                             className={`${theadClass} bg-light`}
                             style={isStickyHeader ? { position: 'sticky', top: stickyTop, zIndex: 2 } : { position: 'sticky', top: 0, zIndex: 2 }}
@@ -323,11 +357,15 @@ const TableContainer = ({
                                                 colSpan={header.colSpan}
                                                 rowSpan={rowSpan}
                                                 style={{
-                                                    border: 'solid #B0ACAC 1px',
+                                                    border: 'solid var(--color-line) 1px',
                                                     verticalAlign: 'middle',
                                                     textAlign: 'center',
-                                                    backgroundColor: '#f8f9fa',
-                                                    cursor: header.column.getCanSort() ? "pointer" : "default"
+                                                    backgroundColor: 'var(--color-surface)',
+                                                    cursor: header.column.getCanSort() ? "pointer" : "default",
+                                                    // Under table-layout:fixed the header row is what
+                                                    // sets the column widths, so this is where the
+                                                    // column's `size` has to land.
+                                                    ...(cellLines ? { width: header.getSize() } : {})
                                                 }}
                                                 onClick={header.column.getToggleSortingHandler()}
                                             >
@@ -354,7 +392,7 @@ const TableContainer = ({
 
 
                         {
-                            getRowModel().rows.length > 0 ? <tbody className="" style={{ border: "solid #B0ACAC 1px " }}>
+                            getRowModel().rows.length > 0 ? <tbody className="" style={{ border: "solid var(--color-line) 1px " }}>
                                 {
                                     getRowModel().rows.map(row => {
                                         return (
@@ -377,9 +415,25 @@ const TableContainer = ({
                                                                 border: 'solid #eee 1px'
                                                             }}
                                                         >
-                                                            {flexRender(
-                                                                cell.column.columnDef.cell,
-                                                                cell.getContext()
+                                                            {cellLines && !isActionOrSelect ? (
+                                                                // -webkit-line-clamp needs a block container.
+                                                                // A <td> cannot be one without dropping out
+                                                                // of the table formatting context, hence the
+                                                                // wrapper rather than clamping the cell.
+                                                                <div
+                                                                    className="table-cell-clamp"
+                                                                    style={{ WebkitLineClamp: cellLines, lineClamp: cellLines }}
+                                                                >
+                                                                    {flexRender(
+                                                                        cell.column.columnDef.cell,
+                                                                        cell.getContext()
+                                                                    )}
+                                                                </div>
+                                                            ) : (
+                                                                flexRender(
+                                                                    cell.column.columnDef.cell,
+                                                                    cell.getContext()
+                                                                )
                                                             )}
                                                         </td>
                                                     );
@@ -417,8 +471,8 @@ const TableContainer = ({
                                                     colSpan={header.colSpan}
                                                     className="font-bold text-center"
                                                     style={{
-                                                        border: 'solid #B0ACAC 1px',
-                                                        backgroundColor: '#f8f9fa', // Ensure background color for sticky
+                                                        border: 'solid var(--color-line) 1px',
+                                                        backgroundColor: 'var(--color-surface)', // Ensure background color for sticky
                                                         ...(isStickyFooter ? { position: 'sticky', bottom: 0, zIndex: 1 } : {})
                                                     }}
                                                 >
@@ -442,7 +496,7 @@ const TableContainer = ({
 
             {
                 isPagination && (
-                    <Row className=" mx-2" style={{ marginTop: "0px" }}>
+                    <Row className="table-pagination mx-2" style={{ marginTop: "0px" }}>
                         <Col sm={12} md={5} style={{ alignItems: "center", display: "flex", marginLeft: "0px" }}>
                             <div className="dataTables_info">Showing {getState().pagination.pageIndex * getState().pagination.pageSize + 1} to {Math.min((getState().pagination.pageIndex + 1) * getState().pagination.pageSize, data.length)} of {data.length} Results</div>
                         </Col>

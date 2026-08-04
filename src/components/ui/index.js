@@ -55,6 +55,4 @@ export {
   PopoverBody,
   Tooltip,
   Progress,
-  Breadcrumb,
-  BreadcrumbItem,
 } from "./overlay";

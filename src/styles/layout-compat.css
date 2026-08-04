@@ -22,6 +22,10 @@
   /* Gutter around the floating rail. Every offset below derives from it, so
      the panel and the content margin can never drift apart. */
   --sidebar-gap: 0.875rem;
+  /* Collapse/expand duration. Shared by the rail width, the header height and
+     the content margin so the three never run at different speeds -- at 0.25s
+     the rail snapped open faster than the eye could follow the labels. */
+  --sidebar-transition: 0.45s;
 }
 
 /* ---------------------------------------------------------------- sidebar */
@@ -53,7 +57,8 @@
   color: #a5b0c9;
   display: flex;
   flex-direction: column;
-  transition: width 0.25s ease;
+  transition: width var(--sidebar-transition) ease,
+    box-shadow var(--sidebar-transition) ease;
 }
 
 /*
@@ -133,15 +138,204 @@ body.vertical-collpsed .vertical-menu .metismenu li > a > i {
 }
 
 /* Clears the fixed sidebar. Without this every page renders underneath it.
-   Two gaps, not one: the rail is inset from the left edge and needs the same
-   breathing room on its right. */
+   One gap, not two: the box starts exactly where the rail ends, because the
+   page inside already contributes .page-content + .container-fluid padding
+   (0.5rem + 0.75rem). Adding a second --sidebar-gap on top pushed the first
+   card ~34px off the rail while the right edge sat at 20px -- visibly
+   lopsided. At one gap both sides inset by the same 1.25rem. */
 .main-content {
-  margin-left: calc(var(--sidebar-width) + var(--sidebar-gap) * 2);
+  margin-left: calc(var(--sidebar-width) + var(--sidebar-gap));
   min-height: 100vh;
   /* Wide report tables (15-25 columns) must scroll inside their own container
      rather than pushing the whole document sideways. */
-  max-width: calc(100% - var(--sidebar-width) - var(--sidebar-gap) * 2);
+  max-width: calc(100% - var(--sidebar-width) - var(--sidebar-gap));
   overflow-x: hidden;
+  /* Toggling body.vertical-collpsed rewrites --sidebar-width, which moves this
+     margin. Without a transition the page jumped 182px in one frame while the
+     rail beside it animated -- same duration keeps them locked together. */
+  transition: margin-left var(--sidebar-transition) ease,
+    max-width var(--sidebar-transition) ease;
+}
+
+/*
+ * Page gutter == rail gutter.
+ *
+ * .main-content stops exactly at the rail's right edge, so the visible gap
+ * between the two is whatever padding the page itself carries -- and that was
+ * neither uniform nor equal to --sidebar-gap. Pages ran 12px (page-content
+ * px-0 + .container-fluid), 20px (page-content + .container-fluid) or 24px
+ * (the modernised screens' own px-6), against a 14px gutter on every other
+ * side of the rail. The content always sat further from the rail than the rail
+ * sat from the window.
+ *
+ * Setting it in one place from the same token means the four gutters -- rail
+ * to window, rail to content, content to window, and the rail's own top and
+ * bottom -- are the same number by construction. .container-fluid is zeroed
+ * because it would otherwise stack a second gutter inside this one; it keeps
+ * its padding anywhere outside a page shell.
+ *
+ * Unlayered, so it beats the `px-0` / `px-4` utilities the pages set on
+ * .page-content. That is deliberate: the gutter is a layout decision, not a
+ * per-screen one. A page that genuinely needs full bleed should say so on an
+ * inner element.
+ */
+/* ------------------------------------------------------------ page header */
+
+/*
+ * The one page header, rendered by VerticalLayout for every route.
+ *
+ * A floating panel on the same glass as the rail and the grid, not a bar
+ * welded to the top edge. Its margin is --sidebar-gap, the same token
+ * .page-content uses for its inline padding, so the header's left and right
+ * edges land exactly on the content's below it -- and its top edge lines up
+ * with the top of the sidebar rail, which is inset by that same token.
+ *
+ * z-index because .main-content also holds the AmbientBackground, which is
+ * absolutely positioned over the whole column; without a stacking context of
+ * its own the header would render underneath it.
+ */
+.page-header {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 0 0 auto;
+  min-height: 3.5rem;
+  margin: var(--sidebar-gap) var(--sidebar-gap) 0.75rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: 1.25rem;
+  background: rgb(17 24 39 / 0.7);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 18px 45px -28px rgb(2 6 23 / 0.9);
+}
+
+/* min-width:0 is what lets the ellipsis below actually trigger -- a flex item
+   defaults to min-content width and would push the actions off instead. */
+.page-header-titles {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.page-header-eyebrow,
+.page-header-title,
+.page-header-subtitle {
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Carries what the breadcrumbs used to, without implying its ancestors are
+   links -- the old breadcrumb rendered plain text styled as a trail. */
+.page-header-eyebrow {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+.page-header-title {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+  color: #fff;
+}
+/* A screen's own one-liner. Sentence case, unlike the eyebrow -- these are
+   sentences ("Manage corporate, franchise and retail customers."), and
+   uppercase tracking would make them unreadable. */
+.page-header-subtitle {
+  margin-top: 1px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: #94a3b8;
+}
+
+.page-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+}
+
+/*
+ * Export / download controls that TableContainer sends up into the header.
+ *
+ * They used to sit in the grid toolbar at three different heights, radii and
+ * paddings (35px/4px, auto/10px, and whatever the screen added). One pair of
+ * classes here means every screen's actions match each other and match the
+ * page's own primary button beside them.
+ */
+.table-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  height: 2.25rem;
+  padding-inline: 0.875rem;
+  border-radius: 0.5rem;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.table-action-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.table-action-btn-solid {
+  border: 1px solid rgb(34 197 94 / 0.35);
+  background: rgb(34 197 94 / 0.16);
+  color: #86efac;
+}
+.table-action-btn-solid:not(:disabled):hover {
+  background: rgb(34 197 94 / 0.26);
+  color: #fff;
+  box-shadow: 0 0 18px -4px rgb(34 197 94 / 0.9);
+}
+.table-action-btn-ghost {
+  border: 1px solid rgb(255 255 255 / 0.12);
+  background: rgb(255 255 255 / 0.04);
+  color: #cbd5e1;
+}
+.table-action-btn-ghost:not(:disabled):hover {
+  border-color: rgb(34 197 94 / 0.45);
+  color: #86efac;
+  background: rgb(34 197 94 / 0.12);
+}
+
+/* Mobile drawer trigger. Same pill as .sidebar-toggle so the two controls read
+   as one family. */
+.page-header-menu {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: 9999px;
+  background: rgb(255 255 255 / 0.05);
+  color: #a5b0c9;
+  cursor: pointer;
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+.page-header-menu:hover {
+  color: #fff;
+  background: rgb(59 130 246 / 0.22);
+  border-color: rgb(59 130 246 / 0.45);
+}
+.page-header-menu:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: 2px;
+}
+
+.main-content .page-content {
+  padding-inline: var(--sidebar-gap);
+}
+.main-content .page-content .container-fluid {
+  padding-inline: 0;
 }
 
 @media (max-width: 991.98px) {
@@ -167,30 +361,70 @@ body.vertical-collpsed .vertical-menu .metismenu li > a > i {
 
 /* --------------------------------------------------- sidebar header/toggle */
 
-/* The mark is 1.73:1, so inside a wide, short box `object-fit: contain` fits it
-   to the HEIGHT and leaves the spare width empty -- at the old 40px row it drew
-   only ~69px across. Row height is therefore the dial that sizes the logo; 72px
-   renders it ~125px wide, still inside the ~196px the row can give it. */
+/*
+ * The padding around the logo is baked into the PNG, not applied by CSS.
+ *
+ * vellocity-express-white-bg.png is a 1.73:1 canvas whose artwork covers only
+ * ~78% of its width and ~38% of its height -- the rest is transparent. So
+ * `object-fit: contain` was fitting the empty canvas: in a 234x104 box the
+ * wordmark drew about 140x40 and floated in ~32px of nothing above and below.
+ * No amount of trimming the header margin touches that, because the gap is
+ * inside the image.
+ *
+ * The fix is to oversize the image past the box and clip the overflow, which
+ * crops the transparent band away. At width:92% the artwork lands at ~167px
+ * wide inside a 56px row.
+ *
+ * The two numbers are not independent: the row has to be shorter than the
+ * image's own height (215/1.73 = 124px) by less than the empty band it is
+ * cropping (38px per side), or the crop starts eating the wordmark. At 56px it
+ * takes 34px per side, which leaves ~4px of clearance. Raising the width
+ * without raising the height eats into that.
+ */
 .sidebar-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.375rem;
-  height: 4.5rem;
-  margin: 1.25rem 0.5rem 0.5rem;
+  height: 3.5rem;
+  margin: 0.25rem 0.5rem 0;
   flex: 0 0 auto;
+  /* Matches the rail's own width transition, so hovering a collapsed rail
+     grows the header and slides the menu down as one movement instead of
+     snapping the tree on the first frame. */
+  transition: height var(--sidebar-transition) ease;
 }
 .sidebar-brand {
-  display: block;
-  width: 85%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;   /* this is what crops the PNG's transparent border */
+  width: 100%;
   height: 100%;
   min-width: 0;
   flex: 0 1 auto;
 }
-/* Collapsed: the logo is gone, so the control centres itself in the rail. */
+.sidebar-brand img {
+  width: 92%;
+  max-width: none;    /* .img-fluid caps at 100%, which would undo the crop */
+  height: auto;
+  flex: 0 0 auto;
+}
+
+/*
+ * Collapsed rail: logo hidden, header shrunk to a plain top inset.
+ *
+ * Both are scoped to :not(:hover) so the hover-to-reveal state gets the full
+ * header back -- widening the rail to 250px around an empty box was the whole
+ * problem. The logo is in the DOM in every state now; this is what hides it.
+ */
 body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-header {
+  height: 1.5rem;
   justify-content: center;
   margin-inline: 0;
+}
+body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-brand {
+  display: none;
 }
 
 .sidebar-toggle {
@@ -321,7 +555,16 @@ body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-header {
   top: 0.25rem;
   bottom: 0.25rem;
   width: 1px;
-  background: rgb(255 255 255 / 0.08);
+  /* Dotted, drawn as a gradient rather than `border-left: dotted`: the border
+     keyword gives 1px dots on 1px gaps, which at this scale reads as a grey
+     line with the edges chewed off. 2 on 3 is legibly a dotted rail.
+     The alpha is up from 0.08 because the dots cover 40% of the run -- at the
+     solid line's value the rail all but disappeared. */
+  background: repeating-linear-gradient(
+    to bottom,
+    rgb(255 255 255 / 0.18) 0 2px,
+    transparent 2px 5px
+  );
 }
 .metismenu .sub-menu li > a {
   padding: 0.3125rem 0.75rem;
@@ -381,20 +624,41 @@ body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-header {
 }
 
 /*
- * Sidebar footer (role badge + logout dropdown).
+ * Sidebar footer.
  *
- * This is the Dropdown wrapper, a direct flex child of .vertical-menu. The
- * generic Dropdown primitive is inline-block, which is right for a toolbar
- * button but wrong here -- as a flex child it would not span the sidebar, so
- * the badge sat in a narrow box that spilled past the sidebar edge.
+ * .sidebar-foot is the row -- role badge on the left, rail collapse arrow on
+ * the right -- and is the flex child of .vertical-menu that pins to the bottom.
+ * .sidebar-footer inside it is the Dropdown wrapper for the badge/logout menu.
+ * The generic Dropdown primitive is inline-block, which is right for a toolbar
+ * button but wrong here -- it would not span the row, so the badge sat in a
+ * narrow box that spilled past the sidebar edge.
  */
-.sidebar-footer {
-  display: block !important;
-  width: 100%;
+.sidebar-foot {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding-right: 0.5rem;
   margin-top: auto;   /* pins to the bottom; must be on the flex child itself */
   flex-shrink: 0;
   border-top: 1px solid rgb(255 255 255 / 0.12);
   background: rgb(0 0 0 / 0.15);
+}
+/* Collapsed, a 32px badge and a 32px button will not sit side by side in a
+   68px rail, so the arrow drops below the avatar. It is never hidden: it is
+   the only way back out of the collapsed state without hovering. */
+body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-foot {
+  flex-direction: column;
+  padding: 0 0 0.5rem;
+}
+.sidebar-footer {
+  display: block !important;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+/* Label beside the avatar. Present in the DOM in every state; this is what
+   hides it on the collapsed rail, and hovering brings it back with the logo. */
+body.vertical-collpsed .vertical-menu:not(:hover) .user-info {
+  display: none;
 }
 .sidebar-footer > button {
   width: 100%;
@@ -496,6 +760,29 @@ table.dataTable > tbody td {
   border: 1px solid var(--color-line);
 }
 
+/*
+ * Clamped cell text, for TableContainer's `cellLines` prop.
+ *
+ * The line count itself is set inline from the prop; this is the rest of the
+ * mechanism. -webkit-box is still the only multi-line ellipsis with real
+ * support, so it stays as the base and the standard `line-clamp` (Chrome 129+)
+ * is declared alongside for engines that understand it.
+ */
+.table-cell-clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  /* .table-nowrap / .nowrap set white-space:nowrap on every cell and it
+     inherits in here, which would leave nothing to clamp -- the text would
+     just run on one line. The wrapper declares its own wrapping so it works
+     whichever legacy class the call site passes. */
+  white-space: normal;
+  /* Emails, tracking numbers and IDs contain no break opportunities, so
+     without this they push the column wider and defeat the fixed layout that
+     `cellLines` turned on. */
+  overflow-wrap: anywhere;
+}
+
 .table-nowrap th,
 .table-nowrap td,
 .nowrap th,
@@ -522,6 +809,51 @@ table.dataTable > tbody td {
 .dt-responsive {
   width: 100%;
   overflow-x: auto;
+}
+
+/*
+ * Slim scroll surface, opt-in per container.
+ *
+ * Native scrollbars are painted by the OS in light grey, which now reads as a
+ * bright bar down the inside edge of every dark panel. This is deliberately a
+ * class rather than a bare `::-webkit-scrollbar` rule: a global override would
+ * also repaint the sidebar's simplebar track and the print surfaces, which
+ * both draw their own.
+ *
+ * The thumb is inset with a transparent border rather than by narrowing the
+ * bar, so the grab area stays a full 10px while the visible pill reads as 4px
+ * -- a genuinely 4px-wide scrollbar is pretty and almost impossible to hit.
+ */
+.scroll-slim {
+  /* Firefox has no pseudo-elements for this; these two are the whole API. */
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--color-ink-muted) 40%, transparent) transparent;
+  /* Hitting the last row must not carry on scrolling the page behind it. */
+  overscroll-behavior: contain;
+}
+.scroll-slim::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.scroll-slim::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scroll-slim::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--color-ink-muted) 35%, transparent);
+  background-clip: content-box;
+  border: 3px solid transparent;
+  border-radius: 999px;
+}
+/* Two steps: the bar firms up when the pointer is anywhere over the scroll
+   region, then takes the accent colour when it is over the thumb itself. */
+.scroll-slim:hover::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--color-ink-muted) 55%, transparent);
+}
+.scroll-slim::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--color-accent-500) 80%, transparent);
+}
+.scroll-slim::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 /* Sticky header used by the report screens. */
@@ -578,4 +910,306 @@ thead.table-light th {
 .pagination .page-item.disabled .page-link {
   opacity: 0.5;
   pointer-events: none;
+}
+
+/* ----------------------------------------------------------- grid shell ---
+ *
+ * Everything a TableContainer draws: the panel it sits in, the toolbar above
+ * the grid, the grid itself and the pagination bar below it.
+ *
+ * TableContainer puts this class on its own root, so all ~81 screens get the
+ * same grid without a single page opting in. That is the whole point of it
+ * living here rather than in per-page Tailwind variants: the grid is one
+ * component, and it should look like one component everywhere. A page only
+ * needs its own classes for something genuinely page-specific -- the customer
+ * list, for instance, still owns the flex chain that makes its grid fill the
+ * viewport, because that depends on what else that page stacks above it.
+ *
+ * What it replaces: a flush 45px toolbar whose controls were separated by
+ * full-height vertical hairlines, a select and a search input with no border,
+ * radius or padding of their own, light-grey table headers left over from the
+ * pre-dark theme, and a square hairline border around the lot.
+ *
+ * !important appears only where TableContainer sets that exact property as an
+ * inline style (the 45px heights, the 10px margins, the hairline borders) --
+ * everything else is left to normal specificity. Unlayered, so it beats both
+ * those utilities and the .table / .pagination rules earlier in this file.
+ * ------------------------------------------------------------------------ */
+
+/* In @layer base, unlike the rules below: everything in this file is unlayered
+   and so outranks Tailwind's utilities, which would make these defaults beat a
+   `[--grid-accent:#22C55E]` a screen sets them with. Layered, the utility wins
+   and the knob works.
+
+   The accent default is the blue the rest of the new UI uses (the sidebar's
+   glow, the primary button gradient) rather than --color-accent-500, which is
+   the older cyan and would read as a second accent on the same screen. */
+@layer base {
+  .grid-shell {
+    --grid-accent: #3b82f6;
+    --grid-line: rgb(255 255 255 / 0.08);
+    --grid-control: rgb(255 255 255 / 0.04);
+    --grid-surface: rgb(17 24 39 / 0.7);
+    --grid-header: #0d1424;
+  }
+}
+
+/* ---- panel ---- */
+
+/* The same glass as the sidebar and the stat tiles, so a grid reads as a panel
+   on the canvas rather than as a bordered box drawn on top of one. The border
+   is !important because TableContainer sets a square hairline inline. */
+.grid-shell {
+  border: 1px solid var(--grid-line) !important;
+  border-radius: 1rem;
+  background: var(--grid-surface);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 24px 70px -30px rgb(2 6 23 / 0.9);
+  /* Deliberately NOT overflow:hidden. Nothing opaque reaches the rounded
+     corners -- the toolbar and pagination bars are transparent and the header
+     row sits below the toolbar -- while several screens put a react-select in
+     the toolbar with its menu rendered inline rather than portalled, and
+     clipping here would cut those menus off at the panel edge. */
+}
+
+/* A grid inside a card would otherwise be a panel inside a panel, and inset a
+   further 12px from where the same grid sits on a screen with no card -- which
+   is the alignment drifting again. Where the grid is all the card holds, the
+   card gives up its frame and its padding and the grid takes the space.
+
+   :only-child on purpose: a card that also holds filters or a header is a real
+   grouping, so it keeps its box and the grid just nests inside it. */
+.card:has(> .grid-shell:only-child),
+.card:has(> .card-body:only-child > .grid-shell:only-child) {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.card-body:has(> .grid-shell:only-child) {
+  padding: 0;
+}
+
+/* ---- toolbar ---- */
+
+.grid-shell .table-toolbar {
+  height: auto !important;
+  min-height: 3.5rem;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--grid-line);
+  /* The select's arrow and its drop-down list are painted by the OS, and come
+     back light-on-light here without this. */
+  color-scheme: dark;
+}
+
+/* The two groups are hard-coded to 3/4 and 1/4, which leaves a gap on screens
+   with no export buttons and squeezes the search box on screens with several. */
+.grid-shell .table-toolbar > div:first-child {
+  width: auto;
+  flex: 1 1 auto;
+  gap: 0.5rem;
+}
+.grid-shell .table-toolbar > div:last-child {
+  width: auto;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+/* Per-control margins are replaced by the groups' gap. */
+.grid-shell .table-toolbar > div > div {
+  margin-right: 0 !important;
+}
+
+/* Page-size select. The wrapper carried the divider and the fixed height. */
+.grid-shell .table-toolbar div:has(> .pageSize) {
+  height: auto !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+}
+.grid-shell .table-toolbar .pageSize {
+  width: auto;
+  height: 2.25rem;
+  padding: 0 0.5rem 0 0.625rem;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 0.5rem;
+  background: var(--grid-control);
+  color: var(--color-ink);
+  font-size: 12px;
+}
+
+/* Search box. The border is drawn as an inset shadow so the inline borderLeft
+   can simply be dropped rather than overridden edge by edge, and the width is
+   definite rather than a percentage -- the group around it is shrink-to-fit,
+   so a percentage would have nothing stable to resolve against. */
+.grid-shell .table-toolbar .table-search {
+  width: 18rem;
+  max-width: 100%;
+  height: 2.25rem !important;
+  padding-left: 0 !important;
+  border: 0 !important;
+  border-radius: 0.5rem;
+  background: var(--grid-control);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+  transition: box-shadow 0.15s;
+}
+.grid-shell .table-toolbar .table-search:focus-within {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--grid-accent) 60%, transparent),
+    0 0 0 3px color-mix(in srgb, var(--grid-accent) 18%, transparent);
+}
+.grid-shell .table-toolbar .table-search .form-control {
+  height: 2.25rem !important;
+  /* Clears the icons at either end, which are absolutely positioned. */
+  padding-left: 2rem;
+  padding-right: 1.75rem;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--color-ink);
+  font-size: 13px;
+}
+.grid-shell .table-toolbar .table-search .form-control:focus {
+  outline: none;
+  box-shadow: none;
+}
+.grid-shell .table-toolbar .table-search .form-control::placeholder {
+  color: color-mix(in srgb, var(--color-ink-muted) 75%, transparent);
+}
+/* Search icon, then the clear button -- nth-of-type(2) rather than
+   last-of-type because the clear button only renders once there is a value,
+   and last-of-type would then move the search icon to the right instead. */
+.grid-shell .table-toolbar .table-search > svg:first-of-type {
+  left: 0.625rem;
+  margin-left: 0;
+  color: var(--color-ink-muted);
+}
+.grid-shell .table-toolbar .table-search > svg:nth-of-type(2) {
+  inset-inline-end: 0.5rem;
+  margin-right: 0;
+  color: var(--color-ink-muted);
+}
+.grid-shell .table-toolbar .table-search > svg:nth-of-type(2):hover {
+  color: var(--color-ink);
+}
+
+/* Export and clear buttons, which set their own height and radius inline. */
+.grid-shell .table-toolbar .btn {
+  height: 2.25rem !important;
+  padding: 0 0.75rem !important;
+  border-radius: 0.5rem !important;
+}
+
+/* ---- the grid ----
+ *
+ * border-separate keeps the sticky header's own bottom border from being
+ * collapsed away with the first row's, which is what made it look like the
+ * header lost its edge the moment you scrolled.
+ *
+ * TableContainer sets the th/td borders and the header background inline, so
+ * those specific properties need !important; the rest does not. */
+
+.grid-shell table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.grid-shell thead th {
+  padding: 0.875rem 0.75rem !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--grid-line) !important;
+  /* Opaque, not the panel's translucent surface: rows scroll under this and
+     would otherwise show through it. */
+  background: var(--grid-header) !important;
+  color: var(--color-ink-muted);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.grid-shell tbody {
+  border: 0 !important;
+}
+.grid-shell tbody tr {
+  transition: background-color 0.2s;
+}
+.grid-shell tbody tr:nth-child(odd) {
+  background: rgb(255 255 255 / 0.02);
+}
+.grid-shell tbody tr:hover {
+  background: color-mix(in srgb, var(--grid-accent) 10%, transparent);
+}
+.grid-shell tbody td {
+  border: 0 !important;
+  border-bottom: 1px solid rgb(255 255 255 / 0.05) !important;
+  color: #e2e8f0;
+  font-size: 13px;
+}
+/* The empty state, which TableContainer renders with a light inline fill. */
+.grid-shell tbody td[colspan] {
+  background: transparent !important;
+  color: var(--color-ink-muted);
+}
+
+.grid-shell tfoot td {
+  border: 0 !important;
+  border-top: 1px solid var(--grid-line) !important;
+  background: var(--grid-header) !important;
+  color: var(--color-ink);
+}
+
+/* ---- pagination ---- */
+
+.grid-shell .table-pagination {
+  align-items: center;
+  row-gap: 0.75rem;
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--grid-line);
+}
+.grid-shell .table-pagination > div {
+  padding: 0;
+}
+.grid-shell .table-pagination .dataTables_info {
+  font-size: 12px;
+  color: var(--color-ink-muted);
+}
+.grid-shell .table-pagination .dataTables_paginate {
+  justify-content: flex-end;
+}
+.grid-shell .table-pagination .pagination {
+  gap: 0.375rem;
+}
+.grid-shell .table-pagination .page-link {
+  min-width: 2rem;
+  height: 2rem;
+  margin: 0;
+  padding: 0 0.5rem;
+  border: 1px solid var(--grid-line);
+  border-radius: 0.5rem;
+  background: var(--grid-control);
+  color: var(--color-ink);
+  font-size: 12px;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+.grid-shell .table-pagination .page-item:not(.active):not(.disabled) .page-link:hover {
+  border-color: color-mix(in srgb, var(--grid-accent) 45%, transparent);
+  background: color-mix(in srgb, var(--grid-accent) 20%, transparent);
+  color: #fff;
+}
+.grid-shell .table-pagination .page-item.active .page-link {
+  border-color: var(--grid-accent);
+  background: var(--grid-accent);
+  color: #fff;
+  font-weight: 600;
+}
+.grid-shell .table-pagination .page-item.disabled .page-link {
+  opacity: 0.4;
+}
+/* The ellipsis is rendered as a disabled page-item as well, but it is a label
+   rather than a target -- only the disabled prev/next keep a button shape. */
+.grid-shell .table-pagination .page-item.disabled:not(.previous):not(.next) .page-link {
+  background: transparent;
+  border-color: transparent;
 }

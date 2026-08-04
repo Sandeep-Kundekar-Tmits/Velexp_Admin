@@ -74,54 +74,69 @@ const Sidebar = (props) => {
           zIndex: isMobile ? 1100 : undefined,
         }}
       >
+        {/* The logo is always rendered now. It used to be gated on `showLogo`,
+            which meant that once collapsed it was gone from the DOM -- so
+            hovering the rail widened it back to 250px around an empty header.
+            Visibility is CSS's job (see .sidebar-brand), because only CSS can
+            tell "collapsed" from "collapsed and hovered". */}
         <div className="sidebar-header">
-          {showLogo && (
-            <Link to="/" className="sidebar-brand">
-              <img
-                src={logoLightPng}
-                alt="Main Logo"
-                className="img-fluid"
-                style={{ height: "100%", width: "100%", objectFit: "contain" }}
-              />
-            </Link>
-          )}
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (isMobile) {
+          <Link to="/" className="sidebar-brand">
+            {/* Sizing is entirely in .sidebar-brand img. The inline
+                height/width/object-fit that used to be here fitted the PNG's
+                mostly-empty canvas rather than the artwork inside it. */}
+            <img src={logoLightPng} alt="Main Logo" />
+          </Link>
+          {/* Mobile keeps its dismiss control up here; the drawer covers the
+              screen, so the X belongs at the top where a close button is
+              expected. The desktop collapse arrow lives in the footer. */}
+          {isMobile && mobileSidebarOpen && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
                 onMobileClose?.();
-              } else {
-                tToggle();
-              }
-            }}
-            className="sidebar-toggle"
-            aria-label={
-              isMobile && mobileSidebarOpen
-                ? "Close menu"
-                : showLogo
-                  ? "Collapse sidebar"
-                  : "Expand sidebar"
-            }
-            aria-expanded={showLogo}
-          >
-            {isMobile && mobileSidebarOpen ? (
+              }}
+              className="sidebar-toggle"
+              aria-label="Close menu"
+            >
               <X aria-hidden="true" size={16} />
-            ) : showLogo ? (
-              <ChevronLeft aria-hidden="true" size={16} />
-            ) : (
-              <ChevronRight aria-hidden="true" size={16} />
-            )}
-          </button>
+            </button>
+          )}
         </div>
 
-        <div data-simplebar ref={menuScrollRef} className="mt-4" style={{ height: "75vh" }}>
+        {/* mt-2, not mt-4: this gap sits directly under the logo and read as
+            part of its bottom spacing once the header margin was trimmed. */}
+        <div data-simplebar ref={menuScrollRef} className="mt-2" style={{ height: "75vh" }}>
           <SidebarNav
             onLinkClick={() => { if (isMobile) onMobileClose?.(); }}
           />
         </div>
 
-        <ProfileMenu showLogo={showLogo} />
+        {/* Footer row: role badge and the collapse control side by side, so the
+            arrow sits next to the label it acts on ("ADMIN"). The button is a
+            sibling of ProfileMenu rather than a child, so a click on it counts
+            as an outside click and dismisses an open logout menu. */}
+        <div className="sidebar-foot">
+          <ProfileMenu />
+          {!isMobile && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                tToggle();
+              }}
+              className="sidebar-toggle"
+              aria-label={showLogo ? "Collapse sidebar" : "Expand sidebar"}
+              aria-expanded={showLogo}
+            >
+              {showLogo ? (
+                <ChevronLeft aria-hidden="true" size={16} />
+              ) : (
+                <ChevronRight aria-hidden="true" size={16} />
+              )}
+            </button>
+          )}
+        </div>
       </div>
     </React.Fragment>
   );

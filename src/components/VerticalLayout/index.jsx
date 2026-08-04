@@ -5,7 +5,9 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import Sidebar from "./Sidebar";
-import Header from "./Header";
+import PageHeader from "./PageHeader";
+import { PageHeaderContext } from "./PageHeaderContext";
+import AmbientBackground from "../Common/AmbientBackground";
 
 import { useUiStore } from "@/stores/uiStore";
 
@@ -13,6 +15,8 @@ const MOBILE_BREAKPOINT = 992;
 
 const Layout = (props) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < MOBILE_BREAKPOINT);
+  // What the mounted screen calls itself, when it says. See PageHeaderContext.
+  const [pageHeader, setPageHeader] = useState(null);
 
   // These were read from the Redux Layout slice, which VerticalLayout then
   // dispatched straight back unchanged. Nothing else ever wrote them, so the
@@ -43,11 +47,6 @@ const Layout = (props) => {
           this, so it has to be the dark theme colour -- .main-content keeps its
           own light surface, so no content screen is affected. */}
       <div id="layout-wrapper" className="bg-[#050816]" style={{ height: "100vh" }}>
-
-        {/* Show Header only on mobile — it has the hamburger + page title */}
-        {isMobile && (
-          <Header onMobileToggle={openMobileSidebar} />
-        )}
 
         {/* Backdrop when mobile sidebar is open */}
         {isMobile && mobileSidebarOpen && (
@@ -83,12 +82,38 @@ const Layout = (props) => {
           theme="light"
         />
 
+        {/* bg-canvas, not bg-white: the content area is the page canvas, one
+            step darker than the cards that sit on it. Leaving bg-white here
+            would resolve to the card surface via the legacy bridge and flatten
+            the two together. */}
+        {/* flex column: the header takes its natural height and the scroll box
+            below it absorbs the rest, so the header stays put while a report
+            scrolls under it. */}
         <div
-          className="main-content bg-white overflow-hidden p-0"
+          className="main-content relative flex flex-col bg-canvas overflow-hidden p-0"
           style={{ height: "100vh" }}
         >
-          <div className="overflow-auto h-full">
-            {props.children}
+          {/* One backdrop for the whole app rather than one per screen. It
+              sits outside the scroll box on purpose: the routes and hubs are
+              a static backdrop, and having them slide up as you page through
+              a report would make them the moving thing on screen. Spotlight
+              off -- a cursor-tracking glow behind a data grid is a
+              distraction rather than a flourish. */}
+          <AmbientBackground showSpotlight={false} clearCentre={false} />
+
+          {/* One header for every route. Screens no longer draw their own --
+              MainHeaderCom forwards its title into this one through the
+              provider below rather than rendering a second bar. */}
+          <PageHeader
+            isMobile={isMobile}
+            onMobileToggle={openMobileSidebar}
+            override={pageHeader}
+          />
+
+          <div className="scroll-slim relative z-10 min-h-0 flex-1 overflow-auto">
+            <PageHeaderContext.Provider value={setPageHeader}>
+              {props.children}
+            </PageHeaderContext.Provider>
           </div>
         </div>
       </div>

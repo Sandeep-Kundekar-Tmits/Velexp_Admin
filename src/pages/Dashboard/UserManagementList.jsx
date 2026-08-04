@@ -5,10 +5,10 @@ import TableContainer from "../../components/Table/TableContainer";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
 import { GET_ALL_USER_LIST, GET_USER_API } from "../../api";
 import usePostApiCall from "../../hooks/usePostApiCall";
-import AmbientBackground from "../../components/Common/AmbientBackground";
 import Loader from "../../Loaders/Loader";
 import { motion } from "framer-motion";
-import { Building2, ChevronRight, Eye, Handshake, Pencil, Store, UserPlus, Users } from "lucide-react";
+import { Building2, Eye, Handshake, Pencil, Store, UserPlus, Users } from "lucide-react";
+import MainHeaderCom from "../../components/MainHeaderCom";
 import { cn } from "@/lib/cn";
 
 const EASE = [0.22, 1, 0.36, 1];
@@ -31,35 +31,41 @@ const STAT_ACCENTS = {
     green: "text-[#22C55E] shadow-[0_0_30px_-10px_rgba(34,197,94,0.8)]",
 };
 
-/* Reskins TableContainer from the outside. It renders plain table/thead/th/td
-   plus .page-item/.page-link pagination, so descendant variants restyle all of
-   it without editing the shared component that 80 other pages depend on. */
-const TABLE_SKIN = cn(
-    "[&_table]:!border-separate [&_table]:!border-spacing-0 [&_table]:w-full",
-    // Header: sticky, opaque enough that rows scrolling under it stay hidden.
-    "[&_thead]:!bg-[#0d1424] [&_thead_th]:!bg-[#0d1424] [&_thead_th]:!border-0",
-    "[&_thead_th]:!text-[11px] [&_thead_th]:!font-semibold [&_thead_th]:!uppercase",
-    "[&_thead_th]:!tracking-wider [&_thead_th]:!text-[#94A3B8] [&_thead_th]:!py-3.5",
-    "[&_thead_th]:!border-b [&_thead_th]:!border-white/8",
-    // Body: zebra striping plus a hover lift.
-    "[&_tbody]:!border-0",
-    "[&_tbody_tr]:!border-0 [&_tbody_tr]:transition-colors [&_tbody_tr]:duration-200",
-    "[&_tbody_tr:nth-child(odd)]:!bg-white/[0.02]",
-    "[&_tbody_tr:hover]:!bg-[#3B82F6]/10",
-    "[&_tbody_td]:!border-0 [&_tbody_td]:!border-b [&_tbody_td]:!border-white/5",
-    "[&_tbody_td]:!py-3 [&_tbody_td]:!text-[13px] [&_tbody_td]:!text-slate-200",
-    // Search box and page-size select that TableContainer renders above the grid.
-    "[&_.form-control]:!bg-white/[0.04] [&_.form-control]:!border [&_.form-control]:!border-white/8",
-    "[&_.form-control]:!text-white [&_.form-control]:!rounded-lg [&_.form-control]:placeholder:!text-[#94A3B8]/60",
-    "[&_select]:!bg-[#0d1424] [&_select]:!text-white [&_select]:!border-white/8 [&_select]:!rounded-lg",
-    // Pagination.
-    "[&_.dataTables_info]:!text-[#94A3B8] [&_.dataTables_info]:!text-[12px]",
-    "[&_.page-link]:!bg-white/[0.04] [&_.page-link]:!border-white/8 [&_.page-link]:!text-slate-300",
-    "[&_.page-link]:!rounded-lg [&_.page-link]:!mx-0.5 [&_.page-link]:transition-colors",
-    "[&_.page-item:hover_.page-link]:!bg-[#3B82F6]/20 [&_.page-item:hover_.page-link]:!text-white",
-    "[&_.page-item.active_.page-link]:!bg-[#3B82F6] [&_.page-item.active_.page-link]:!text-white",
-    "[&_.page-item.active_.page-link]:!border-[#3B82F6]",
-    "[&_.page-item.disabled_.page-link]:!opacity-40"
+/*
+ * Makes the grid the only thing on the page that scrolls, from ~lg up.
+ *
+ * The layout gives every screen a 100vh scroll box (.main-content > div), and
+ * this page put ~330px of header and stat tiles above a 72vh grid -- which
+ * overflows it, so the page scrollbar and the grid's own scrollbar ended up
+ * side by side, each moving a different part of the same table.
+ *
+ * Instead the page is pinned to that box and the row area absorbs whatever is
+ * left, so the toolbar, the sticky header and the pagination all stay put and
+ * one scrollbar moves the rows. Sized by flex rather than a calc() against the
+ * viewport because the stat grid is 2 columns at lg and 4 at xl -- the chrome
+ * above the table is not a constant, and a magic number would be wrong at one
+ * of the two breakpoints.
+ *
+ * TableContainer renders <outer><grid/><pagination/></outer> with no hook on
+ * the wrapper elements, so the flex chain is driven from out here. This is the
+ * one thing about the grid that stays page-specific: how much height there is
+ * to give it depends on what this screen stacks above it, so it cannot live in
+ * .grid-shell with the rest of the styling.
+ *
+ * Below lg the stat tiles stack, there is no spare height to hand out, and the
+ * page scrolls as before with the grid capped at its own tableHeight.
+ */
+const TABLE_FILL = cn(
+    "lg:flex lg:min-h-0 lg:flex-1 lg:flex-col",
+    "lg:[&>div]:flex lg:[&>div]:min-h-0 lg:[&>div]:flex-1 lg:[&>div]:flex-col",
+    "lg:[&>div>div:first-child]:flex lg:[&>div>div:first-child]:min-h-0",
+    "lg:[&>div>div:first-child]:flex-1 lg:[&>div>div:first-child]:flex-col",
+    // Pagination keeps its natural height instead of being squeezed.
+    "lg:[&>div>div:last-child]:shrink-0",
+    // `!` beats the inline max-height TableContainer sets from `tableHeight`,
+    // which is left in place as the sub-lg cap.
+    "lg:[&_.table-responsive]:!max-h-none",
+    "lg:[&_.table-responsive]:min-h-0 lg:[&_.table-responsive]:flex-1"
 );
 
 const UserManagementList = () => {
@@ -84,13 +90,19 @@ const UserManagementList = () => {
         navigate("/add-user");
     }, [navigate]);
 
-    // Memoized columns configuration
+    /* Memoized columns configuration.
+     *
+     * `size` is what fixes the widths: TableContainer's cellLines prop puts the
+     * table in table-layout:fixed and feeds these numbers to the header row.
+     * They are proportions, not pixels -- the table is still width:100%, so
+     * these divide it 120:120:200:120:130:170:100. */
     const columns = useMemo(() => [
         {
             header: 'First name',
             accessorKey: 'first_name',
             enableColumnFilter: false,
             enableSorting: true,
+            size: 120,
             cell: ({ getValue }) => getValue()?.trim() || "--",
         },
         {
@@ -98,6 +110,7 @@ const UserManagementList = () => {
             accessorKey: 'last_name',
             enableColumnFilter: false,
             enableSorting: true,
+            size: 120,
             cell: ({ getValue }) => getValue()?.trim() || "--",
         },
         {
@@ -105,6 +118,7 @@ const UserManagementList = () => {
             accessorKey: 'email',
             enableColumnFilter: false,
             enableSorting: true,
+            size: 200,
             cell: ({ getValue }) => getValue()?.trim() || "--",
         },
         {
@@ -112,6 +126,7 @@ const UserManagementList = () => {
             accessorKey: 'phone',
             enableColumnFilter: false,
             enableSorting: true,
+            size: 120,
             cell: ({ getValue }) => getValue()?.trim() || "--",
         },
         {
@@ -119,6 +134,7 @@ const UserManagementList = () => {
             accessorKey: 'cust_type',
             enableColumnFilter: false,
             enableSorting: true,
+            size: 130,
             cell: ({ row }) => {
                 const type = row.original.cust_type?.type_of_cust?.trim();
                 if (!type) return "--";
@@ -134,6 +150,7 @@ const UserManagementList = () => {
             accessorKey: 'customer_name',
             enableColumnFilter: false,
             enableSorting: true,
+            size: 170,
             cell: ({ getValue }) => getValue()?.trim() || "--",
         },
         {
@@ -141,14 +158,22 @@ const UserManagementList = () => {
             accessorKey: 'actions',
             enableColumnFilter: false,
             enableSorting: false,
+            /* Sized for its content, not squeezed with the text columns: two
+               labelled buttons plus the cell padding need ~170px, which is what
+               this share of the 1010 total works out to at the widths this
+               screen renders at. */
+            size: 150,
             cell: ({ row }) => (
-                <div className="flex gap-2">
+                /* nowrap + shrink-0: this column holds controls, so it may
+                   overflow before it lets a button break across two lines or
+                   squash "View" to "Vie...". */
+                <div className="flex shrink-0 items-center justify-center gap-2 whitespace-nowrap">
                     <Button
                         color="success"
                         size="sm"
                         onClick={() => handleView(row.original)}
                         aria-label={`View ${row.original?.customer_name || "customer"}`}
-                        className="gap-1.5 rounded-lg border border-[#3B82F6]/30 bg-[#3B82F6]/15 text-[#93C5FD] transition-all duration-200 hover:bg-[#3B82F6]/25 hover:text-white hover:shadow-[0_0_18px_-4px_rgba(59,130,246,0.9)]"
+                        className="shrink-0 gap-1.5 rounded-lg border border-[#3B82F6]/30 bg-[#3B82F6]/15 text-[#93C5FD] transition-all duration-200 hover:bg-[#3B82F6]/25 hover:text-white hover:shadow-[0_0_18px_-4px_rgba(59,130,246,0.9)]"
                     >
                         <Eye aria-hidden="true" className="size-3.5" />
                         View
@@ -158,7 +183,7 @@ const UserManagementList = () => {
                         size="sm"
                         onClick={() => handleEdit(row.original)}
                         aria-label={`Edit ${row.original?.customer_name || "customer"}`}
-                        className="gap-1.5 rounded-lg border border-[#8B5CF6]/30 bg-[#8B5CF6]/15 text-[#C4B5FD] transition-all duration-200 hover:bg-[#8B5CF6]/25 hover:text-white hover:shadow-[0_0_18px_-4px_rgba(139,92,246,0.9)]"
+                        className="shrink-0 gap-1.5 rounded-lg border border-[#8B5CF6]/30 bg-[#8B5CF6]/15 text-[#C4B5FD] transition-all duration-200 hover:bg-[#8B5CF6]/25 hover:text-white hover:shadow-[0_0_18px_-4px_rgba(139,92,246,0.9)]"
                     >
                         <Pencil aria-hidden="true" className="size-3.5" />
                         Edit
@@ -212,62 +237,49 @@ const UserManagementList = () => {
         return (
             // flex column with a definite height, so the loader can stretch to
             // fill it and centre itself rather than hugging the top.
-            <div className="relative flex h-full min-h-full flex-col bg-[#050816]">
-                <AmbientBackground showSpotlight={false} />
+            <div className="relative flex h-full min-h-full flex-col">
                 {/* Inline, not fixed: this replaces the page body while the
-                    layout chrome around it stays interactive. */}
+                    layout chrome around it stays interactive. Transparent, so
+                    the layout's backdrop stays visible underneath. */}
                 <Loader message="Loading customers..." fullscreen={false} className="relative z-10 flex-1 bg-transparent backdrop-blur-none" />
             </div>
         )
     }
 
     return (
-        <div className="page-content relative min-h-full overflow-x-hidden bg-[#050816] px-0 py-0 antialiased">
-            {/* Reused from the login screen. Spotlight is off here: this is a
-                work surface, and a cursor-tracking glow behind a data grid is
-                a distraction rather than a flourish. */}
-            <AmbientBackground showSpotlight={false} clearCentre={false} />
-
-            <div className="relative z-10 px-4 py-6 sm:px-6">
-                {/* Breadcrumb. Plain text, not links -- adding navigation targets
-                    would be new routing, which is out of scope here. */}
-                <nav aria-label="Breadcrumb" className="mb-4">
-                    <ol className="flex items-center gap-1.5 text-[12px] text-[#94A3B8]">
-                        <li>Dashboard</li>
-                        <li aria-hidden="true"><ChevronRight className="size-3.5" /></li>
-                        <li className="font-medium text-slate-300" aria-current="page">User Management</li>
-                    </ol>
-                </nav>
-
-                <motion.div
-                    initial={{ opacity: 0, y: -8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, ease: EASE }}
-                    className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
-                >
-                    <div>
-                        <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-[28px]">
-                            User Management
-                        </h1>
-                        <p className="mt-1.5 text-[14px] text-[#94A3B8]">
-                            Manage corporate, franchise and retail customers.
-                        </p>
-                    </div>
-
-                    <motion.button
+        /* No background of its own: the canvas and the route backdrop are the
+           layout's job now, so every screen shares one rather than each
+           painting its own over the top. */
+        <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased lg:flex lg:h-full lg:flex-col lg:overflow-hidden">
+            {/* No px-* here: the inline gutter comes from .page-content, which
+                layout-compat sets from --sidebar-gap so it matches the rail's
+                own gutter. Adding padding here would stack a second one. */}
+            {/* pb-4 only: the gap above comes from the page header's own
+                bottom margin, and a py-4 here would stack a second one. */}
+            <div className="relative z-10 pb-4 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col">
+                {/* Renders nothing here -- MainHeaderCom hands all three up to
+                    the layout's PageHeader. Same call the other 69 screens
+                    make, so this one is no longer a special case. */}
+                <MainHeaderCom
+                    title="User Management"
+                    subTitle="Manage corporate, franchise and retail customers."
+                    extraFields={<motion.button
                         type="button"
                         onClick={handleAddUser}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         transition={{ duration: 0.2, ease: EASE }}
-                        className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-linear-to-r from-[#3B82F6] to-[#8B5CF6] px-5 text-[14px] font-semibold text-white shadow-[0_10px_30px_-10px_rgba(59,130,246,0.8)] transition-shadow duration-200 hover:shadow-[0_16px_40px_-10px_rgba(139,92,246,0.9)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#38BDF8]"
+                        className="inline-flex h-9 shrink-0 items-center justify-center gap-2 rounded-lg bg-linear-to-r from-[#3B82F6] to-[#8B5CF6] px-4 text-[13px] font-semibold text-white shadow-[0_10px_30px_-12px_rgba(59,130,246,0.9)] transition-shadow duration-200 hover:shadow-[0_16px_40px_-12px_rgba(139,92,246,0.9)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#38BDF8]"
                     >
                         <UserPlus aria-hidden="true" className="size-4" />
                         Add User
-                    </motion.button>
-                </motion.div>
+                    </motion.button>}
+                />
 
-                <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                {/* Tiles are read-once context, not the subject of the screen,
+                    so they are sized to stay out of the grid's way: ~92px tall
+                    against the old ~124px. */}
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
                     {stats.map(({ label, value, Icon, accent }, index) => (
                         <motion.div
                             key={label}
@@ -275,23 +287,25 @@ const UserManagementList = () => {
                             variants={cardVariants}
                             initial="hidden"
                             animate="show"
-                            whileHover={{ y: -3 }}
-                            className="group rounded-2xl border border-white/8 bg-[rgba(17,24,39,0.70)] p-5 backdrop-blur-xl transition-colors duration-200 hover:border-white/[0.16]"
+                            whileHover={{ y: -2 }}
+                            className="group rounded-xl border border-white/8 bg-[rgba(17,24,39,0.70)] p-3.5 backdrop-blur-xl transition-colors duration-200 hover:border-white/[0.16]"
                         >
                             <div className="flex items-start justify-between">
-                                <p className="text-[12px] font-medium uppercase tracking-wider text-[#94A3B8]">
+                                <p className="text-[11px] font-medium uppercase tracking-wider text-[#94A3B8]">
                                     {label}
                                 </p>
                                 <span
                                     className={cn(
-                                        "flex size-9 items-center justify-center rounded-xl border border-white/8 bg-white/[0.04] transition-shadow duration-200",
+                                        "flex size-8 items-center justify-center rounded-lg border border-white/8 bg-white/[0.04] transition-shadow duration-200",
                                         STAT_ACCENTS[accent]
                                     )}
                                 >
-                                    <Icon aria-hidden="true" className="size-4.5" />
+                                    <Icon aria-hidden="true" className="size-4" />
                                 </span>
                             </div>
-                            <p className="mt-3 text-3xl font-semibold tracking-tight text-white">
+                            {/* leading-tight, or the 22px figure reserves a 32px
+                                line box and gives back the padding just saved. */}
+                            <p className="mt-1.5 text-[22px] font-semibold leading-tight tracking-tight text-white">
                                 {value.toLocaleString()}
                             </p>
                         </motion.div>
@@ -302,11 +316,11 @@ const UserManagementList = () => {
                     initial={{ opacity: 0, y: 14 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.3, ease: EASE, delay: 0.2 }}
-                    className={cn(
-                        "mt-6 overflow-hidden rounded-2xl border border-white/8 bg-[rgba(17,24,39,0.70)] backdrop-blur-xl",
-                        "shadow-[0_24px_70px_-30px_rgba(2,6,23,0.9)]",
-                        TABLE_SKIN
-                    )}
+                    /* The panel, the grid skin and the toolbar/pagination
+                       chrome all come from .grid-shell, which TableContainer
+                       applies to itself. All this wrapper still owns is the
+                       entrance animation and the full-height flex chain. */
+                    className={cn("mt-4", TABLE_FILL)}
                 >
                     <TableContainer
                         columns={columns}
@@ -318,10 +332,21 @@ const UserManagementList = () => {
                         pagination="pagination"
                         buttonClass="btn-success"
                         paginationWrapper='dataTables_paginate paging_simple_numbers'
-                        tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                        /* Column widths come from each column's `size` and stay
+                           put as you page through the data, instead of the
+                           browser re-measuring them against whatever happens to
+                           be on screen. Values longer than two lines are cut
+                           with an ellipsis. */
+                        cellLines={2}
+                        /* table-nowrap / nowrap dropped: they pin every cell to
+                           a single line, which leaves cellLines nothing to
+                           wrap. */
+                        tableClass="dt-responsive w-full dataTable no-footer dtr-inline"
                         theadClass="sticky top-0 z-10"
                         isStickyHeader={true}
                         stickyTop={0}
+                        /* The sub-lg cap only. TABLE_FILL drops it above that
+                           and lets the row area take the leftover height. */
                         tableHeight="72vh"
                     />
                 </motion.div>
