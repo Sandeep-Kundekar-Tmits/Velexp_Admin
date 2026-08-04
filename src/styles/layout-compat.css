@@ -16,37 +16,143 @@
  */
 
 :root {
-  --sidebar-width: 250px;
+  --sidebar-width-expanded: 250px;
+  --sidebar-width: var(--sidebar-width-expanded);
   --header-height: 70px;
+  /* Gutter around the floating rail. Every offset below derives from it, so
+     the panel and the content margin can never drift apart. */
+  --sidebar-gap: 0.875rem;
 }
 
 /* ---------------------------------------------------------------- sidebar */
 
+/*
+ * Floating glass rail.
+ *
+ * Detached from all three edges by --sidebar-gap rather than pinned flush, so
+ * it reads as a panel sitting on the canvas. top/bottom drive the height --
+ * the inline height:100vh that Sidebar.jsx used to carry was removed, since an
+ * explicit height would have overridden `bottom` and pushed the foot of the
+ * panel past the viewport.
+ */
 .vertical-menu {
   position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
+  top: var(--sidebar-gap);
+  left: var(--sidebar-gap);
+  bottom: var(--sidebar-gap);
   width: var(--sidebar-width);
   z-index: 1001;
-  background: var(--color-brand-700);
-  color: #cbd5e1;
+  /* Same glass as the cards on the new screens: palette "Card" over the
+     #050816 canvas, not a colour of its own. */
+  background: rgb(17 24 39 / 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: 1.25rem;
+  box-shadow: 0 24px 60px -24px rgb(2 6 23 / 0.9),
+    0 0 48px -28px rgb(59 130 246 / 0.65);
+  color: #a5b0c9;
   display: flex;
   flex-direction: column;
+  transition: width 0.25s ease;
 }
 
-/* Clears the fixed sidebar. Without this every page renders underneath it. */
+/*
+ * Collapsed rail.
+ *
+ * Sidebar.jsx has always toggled body.vertical-collpsed, but nothing ever
+ * styled it, so on desktop the minimise button only hid the logo. Redefining
+ * --sidebar-width on <body> cascades to both .vertical-menu and .main-content,
+ * so the rail and the content margin stay in lockstep from one declaration.
+ */
+body.vertical-collpsed {
+  --sidebar-width: 68px;
+}
+/* A pill with equal padding and no label collapses to a circle, which is the
+   shape the reference uses for the active icon tile. */
+body.vertical-collpsed .vertical-menu .metismenu li > a {
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  margin: 0.25rem auto;
+}
+
+/*
+ * Hover-to-reveal.
+ *
+ * A per-item flyout tooltip is not possible here: the menu lives inside the
+ * [data-simplebar] scroll box, which needs overflow-y:auto, and CSS forces the
+ * other axis to auto too -- so anything positioned outside the rail gets
+ * clipped. Widening the rail itself sidesteps that entirely.
+ *
+ * Only `width` is overridden, never --sidebar-width, so .main-content keeps its
+ * collapsed margin and the page underneath never reflows. The rail simply
+ * floats over it, which is also why the shadow deepens while open.
+ */
+body.vertical-collpsed .vertical-menu:hover {
+  width: var(--sidebar-width-expanded);
+  box-shadow: 0 30px 70px -20px rgb(2 6 23 / 0.95),
+    0 0 60px -24px rgb(59 130 246 / 0.75);
+}
+body.vertical-collpsed .vertical-menu:hover .metismenu li > a {
+  justify-content: flex-start;
+  width: auto;
+  height: auto;
+  padding: 0.4375rem 0.75rem;
+  margin: 0.125rem 0.625rem;
+}
+body.vertical-collpsed .vertical-menu:hover .metismenu li > a > span,
+body.vertical-collpsed .vertical-menu:hover .metismenu .has-arrow::after {
+  display: inline;
+}
+body.vertical-collpsed .vertical-menu:hover .metismenu .has-arrow::after {
+  display: block;
+}
+body.vertical-collpsed .vertical-menu:hover .metismenu .sub-menu.mm-show,
+body.vertical-collpsed .vertical-menu:hover .metismenu li.mm-active > .sub-menu {
+  display: block;
+}
+
+/* While collapsed and untouched, sub-menus are hidden -- so an active child
+   would leave no trace at all. Tinting the parent keeps the current section
+   visible even when the page it belongs to is out of sight. */
+body.vertical-collpsed .vertical-menu:not(:hover) .metismenu li.mm-active > a {
+  background: rgb(59 130 246 / 0.18);
+  color: #fff;
+}
+/* Labels, carets and open branches all collapse away; only icons survive. */
+body.vertical-collpsed .vertical-menu .metismenu li > a > span,
+body.vertical-collpsed .vertical-menu .metismenu .has-arrow::after {
+  display: none;
+}
+body.vertical-collpsed .vertical-menu .metismenu .sub-menu {
+  display: none;
+}
+body.vertical-collpsed .vertical-menu .metismenu li > a > i {
+  font-size: 17px;
+}
+
+/* Clears the fixed sidebar. Without this every page renders underneath it.
+   Two gaps, not one: the rail is inset from the left edge and needs the same
+   breathing room on its right. */
 .main-content {
-  margin-left: var(--sidebar-width);
+  margin-left: calc(var(--sidebar-width) + var(--sidebar-gap) * 2);
   min-height: 100vh;
   /* Wide report tables (15-25 columns) must scroll inside their own container
      rather than pushing the whole document sideways. */
-  max-width: calc(100% - var(--sidebar-width));
+  max-width: calc(100% - var(--sidebar-width) - var(--sidebar-gap) * 2);
   overflow-x: hidden;
 }
 
 @media (max-width: 991.98px) {
+  /* Off-canvas drawer: flush to the edges and square, because a floating panel
+     that slides in from nowhere reads as a rendering glitch on a phone. */
   .vertical-menu {
+    top: 0;
+    left: 0;
+    bottom: 0;
+    border-radius: 0;
+    border-width: 0 1px 0 0;
     transform: translateX(-100%);
     transition: transform 0.2s ease;
   }
@@ -55,7 +161,63 @@
   }
   .main-content {
     margin-left: 0;
+    max-width: 100%;
   }
+}
+
+/* --------------------------------------------------- sidebar header/toggle */
+
+/* The mark is 1.73:1, so inside a wide, short box `object-fit: contain` fits it
+   to the HEIGHT and leaves the spare width empty -- at the old 40px row it drew
+   only ~69px across. Row height is therefore the dial that sizes the logo; 72px
+   renders it ~125px wide, still inside the ~196px the row can give it. */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.375rem;
+  height: 4.5rem;
+  margin: 1.25rem 0.5rem 0.5rem;
+  flex: 0 0 auto;
+}
+.sidebar-brand {
+  display: block;
+  width: 85%;
+  height: 100%;
+  min-width: 0;
+  flex: 0 1 auto;
+}
+/* Collapsed: the logo is gone, so the control centres itself in the rail. */
+body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-header {
+  justify-content: center;
+  margin-inline: 0;
+}
+
+.sidebar-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: 9999px;
+  background: rgb(255 255 255 / 0.05);
+  color: #a5b0c9;
+  cursor: pointer;
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.sidebar-toggle:hover {
+  color: #fff;
+  background: rgb(59 130 246 / 0.22);
+  border-color: rgb(59 130 246 / 0.45);
+  box-shadow: 0 6px 16px -6px rgb(59 130 246 / 0.85);
+}
+.sidebar-toggle:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: 2px;
 }
 
 /* ------------------------------------------------------------- menu tree */
@@ -70,38 +232,76 @@
   width: 100%;
 }
 
+/* The reference groups its items into clusters separated by whitespace. The
+   menu tree carries no group markers, so top-level entries get even breathing
+   room instead -- the same airy rhythm without inventing boundaries that are
+   not in the data. */
+.metismenu > li + li {
+  margin-top: 0.1875rem;
+}
+
+/* Pill rows. The reference rail carries no borders or fills at rest -- the
+   items read as plain icon+label until you touch them -- so the border stays
+   transparent and only the radius is always on. Keeping the border declared
+   (rather than `none`) means hover cannot shift the row by a pixel. */
 .metismenu li > a {
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  padding: 0.6rem 1.25rem;
-  color: #cbd5e1;
-  font-size: 13px;
+  gap: 0.6875rem;
+  margin: 0.125rem 0.625rem;
+  padding: 0.4375rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 9999px;
+  color: #a5b0c9;
+  font-size: 12.5px;
   font-weight: 500;
+  line-height: 1.25rem;
   text-decoration: none;
-  transition: color 0.15s, background-color 0.15s;
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 .metismenu li > a:hover {
   color: #fff;
   background: rgb(255 255 255 / 0.06);
 }
 .metismenu li > a > i {
-  min-width: 1.25rem;
-  font-size: 15px;
+  min-width: 1.125rem;
+  font-size: 14px;
   text-align: center;
 }
 
-/* MetisMenu marks the active branch by adding mm-active on the <li>. */
-.metismenu li.mm-active > a,
-.metismenu li > a.active {
+/* Active leaf is a solid blue pill, as in the reference -- flat and confident
+   rather than a gradient. An open parent branch gets only a faint tint, so the
+   blue always marks the page you are actually on rather than the group it
+   happens to live under. */
+.metismenu li > a.active,
+.metismenu li > a.active > i,
+.metismenu li > a.active > span,
+.metismenu .sub-menu li > a.active,
+.metismenu .sub-menu li > a.active > span {
   color: #fff;
-  background: rgb(255 255 255 / 0.1);
+}
+.metismenu li > a.active {
+  background: linear-gradient(135deg, #3b82f6, #2f6fe0);
+  box-shadow: 0 8px 20px -8px rgb(59 130 246 / 0.9);
+  font-weight: 600;
+}
+.metismenu .sub-menu li > a.active {
+  background: linear-gradient(135deg, #3b82f6, #2f6fe0);
+  box-shadow: 0 8px 20px -8px rgb(59 130 246 / 0.9);
+}
+.metismenu li.mm-active > a {
+  color: #fff;
+  background: rgb(255 255 255 / 0.05);
+}
+.metismenu li.mm-active > a.active {
+  background: linear-gradient(135deg, #3b82f6, #2f6fe0);
 }
 
 /* Nested lists: collapsed by default, revealed when MetisMenu adds mm-show. */
 .metismenu .sub-menu {
   margin: 0;
-  padding: 0 0 0 1.75rem;
+  padding: 0 0 0 1.5rem;
   list-style: none;
   display: none;
 }
@@ -109,11 +309,25 @@
 .metismenu li.mm-active > .sub-menu {
   display: block;
 }
+/* Guide rail down the nested branch, so children read as belonging to it. */
+.metismenu .sub-menu {
+  position: relative;
+}
+.metismenu .sub-menu.mm-show::before,
+.metismenu li.mm-active > .sub-menu::before {
+  content: "";
+  position: absolute;
+  left: 1.5rem;
+  top: 0.25rem;
+  bottom: 0.25rem;
+  width: 1px;
+  background: rgb(255 255 255 / 0.08);
+}
 .metismenu .sub-menu li > a {
-  padding: 0.4rem 1.25rem;
-  font-size: 12.5px;
+  padding: 0.3125rem 0.75rem;
+  font-size: 12px;
   font-weight: 400;
-  color: #94a3b8;
+  color: #8e9ab6;
 }
 .metismenu .sub-menu li > a:hover {
   color: #fff;
@@ -126,7 +340,7 @@
 .metismenu .has-arrow::after {
   content: "";
   position: absolute;
-  right: 1.25rem;
+  right: 0.5625rem;
   top: 50%;
   width: 0.4rem;
   height: 0.4rem;

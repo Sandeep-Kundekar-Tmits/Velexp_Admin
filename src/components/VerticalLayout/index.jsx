@@ -39,7 +39,10 @@ const Layout = (props) => {
 
   return (
     <React.Fragment>
-      <div id="layout-wrapper" className="bg-white" style={{ height: "100vh" }}>
+      {/* Canvas behind the floating rail. The gutter around the panel shows
+          this, so it has to be the dark theme colour -- .main-content keeps its
+          own light surface, so no content screen is affected. */}
+      <div id="layout-wrapper" className="bg-[#050816]" style={{ height: "100vh" }}>
 
         {/* Show Header only on mobile — it has the hamburger + page title */}
         {isMobile && (

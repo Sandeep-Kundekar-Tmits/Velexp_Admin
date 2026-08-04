@@ -64,8 +64,16 @@ function MenuNode({ node, path, depth, onNavigate }) {
     const active = pathname === node.url;
     return (
       <li>
-        <Link to={node.url} className={active ? "active" : undefined} onClick={onNavigate}>
-          {node.icon && <i className={node.icon} />}
+        {/* aria-label carries the item name for screen readers when the rail is
+            collapsed and the visible <span> is hidden. */}
+        <Link
+          to={node.url}
+          className={active ? "active" : undefined}
+          onClick={onNavigate}
+          aria-label={node.label}
+          aria-current={active ? "page" : undefined}
+        >
+          {node.icon && <i className={node.icon} aria-hidden="true" />}
           <span>{node.label}</span>
         </Link>
       </li>
@@ -79,12 +87,13 @@ function MenuNode({ node, path, depth, onNavigate }) {
         href="#"
         className="has-arrow"
         aria-expanded={isOpen}
+        aria-label={node.label}
         onClick={(e) => {
           e.preventDefault();
           toggleMenu(key);
         }}
       >
-        {node.icon && <i className={node.icon} />}
+        {node.icon && <i className={node.icon} aria-hidden="true" />}
         <span>{node.label}</span>
       </a>
       <ul className={`sub-menu${isOpen ? " mm-show" : ""}`}>
