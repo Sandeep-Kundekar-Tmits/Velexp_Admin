@@ -2,9 +2,6 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Row, Col, Card, CardBody, FormGroup, Label, CardText, CardTitle, Badge } from "@/components/ui";
 import Select from "react-select";
 import { customStyles } from "../../helpers/CustomStyle";
-import { useGetApiCall } from "../../hooks/useGetApiCall";
-import { GET_ALL_REGION, SERVICE_CENTER } from "../../api";
-import { ReturnFilterData } from "../../helpers/ReportBookingFilter";
 import { StatsCard } from "../FilterComponents/StatsCard";
 
 const CustomerServiceFilter = ({ AllEntries = {}, ApplyFilter, BookingList }) => {

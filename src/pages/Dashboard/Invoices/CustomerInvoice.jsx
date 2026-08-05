@@ -9,12 +9,11 @@ import { useGetApiCall } from "../../../hooks/useGetApiCall";
 import { GET_FRANCHISE_INVOICE, GET_USER_API, UPLOAD_FRANCHISE_INVOICE } from "../../../api";
 import usePostApiCall from "../../../hooks/usePostApiCall";
 import formatDateForPayload from "../../../helpers/DateHelper";
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 // import downloadExcel from "../../helpers/downloadExcel";
 import useExcelParser from "../../../hooks/useExcelParser";
 import { downloadExcel } from "../../../helpers/downloadExcel";
 import { usePDF } from "react-to-pdf";
-import { Loader } from "rsuite";
 import FranchiseInvoiceGenerate from "../../../PdfComponents/FranchiseInvoiceGenerate";
 import ToasterProvider from "../../../helpers/ToasterProvider";
 
@@ -376,99 +375,106 @@ const CustomerInvoice = () => {
         }
     }
     return (
-        <div className='page-content py-0 px-0'>
-            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                <MainHeaderComp
-                    title="Generate Franchise Bills"
-                />
-            </div>
-            <div className="container-fluid px-4">
-                <div className="mt-4">
-                    <Row className="pb-0 items-end border-bottom">
-                        <Col md={4}>
-                            <FormGroup className="mb-0">
-                                <Label for="gstUpload">Upload Invoice</Label>
-                                <Input type="file" id="gstUpload" onChange={UploadInvoiceChange} />
-                                {
-                                    JsonLoadingError && <Spinner size="sm" className="ml-2">
-                                        Loading...
-                                    </Spinner>
-                                }
-                                <FormText color="muted" className="mb-0">Upload Invoice file</FormText>
-                            </FormGroup>
-                        </Col>
-                        <Col md={2}>
-                            <Button color="primary" onClick={UploadInvoice} disabled={!showUploadBtn || !UploadedFile} className="w-full" style={{ height: "38px", marginBottom: "35px" }} >
-                                {
-                                    UploadFranchiseInvoiceLoading ? <Spinner size="sm">
-                                        Loading...
-                                    </Spinner> : "Upload"
-                                }
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+            {/* No sticky wrapper: MainHeaderComp draws nothing inline now, it
+                hands the title to the layout's PageHeader. */}
+            <MainHeaderComp
+                title="Generate Franchise Bills"
+                subTitle="Upload a rate sheet, then bill a franchise for a date range."
+            />
+
+            <div className="container-fluid page-fit-body relative z-10 pb-4">
+                {/* Two stacked bordered rows became one: uploading a sheet and
+                    billing a customer are separate steps, so a rule keeps them
+                    apart rather than 90px of vertical space. */}
+                <div className="filter-row">
+                    <div className="filter-group">
+                        <div className="flex w-full flex-col gap-1.5 sm:w-56">
+                            <Label for="gstUpload" className="form-label m-0 font-bold text-ink-muted">
+                                Upload Invoice
+                            </Label>
+                            <Input type="file" id="gstUpload" onChange={UploadInvoiceChange} />
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <Button
+                                className="table-action-btn table-action-btn-solid"
+                                onClick={UploadInvoice}
+                                disabled={!showUploadBtn || !UploadedFile}
+                            >
+                                {UploadFranchiseInvoiceLoading ? "Uploading..." : "Upload"}
                             </Button>
-                        </Col>
-                    </Row>
-                    <Row className="pt-4 pb-4 items-end border-bottom">
-                        <Col md={4}>
-                            <FormGroup className="mb-0">
-                                <Label>Select Customer</Label>
-                                <SearchableDropdown
-                                    onChange={handleLocationChange}
-                                    locations={Customes}
-                                    placeholder="Select Customer"
-                                    className="w-full"
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={4}>
-                            <FormGroup className="mb-0">
-                                <Label>Select Date Range</Label>
-                                <DateRangeInput
-                                    onChange={handleDateChange}
-                                    value={selectedRange}
-                                    isBorder={true}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={2}>
-                            <Button color="primary" className="w-full" style={{ height: "38px", marginBottom: "15px" }} onClick={CheckFranchiseDetails}>
-                                Check
-                            </Button>
-                        </Col>
-                    </Row>
+                            {JsonLoadingError && <Spinner size="sm">Loading...</Spinner>}
+                        </div>
+                    </div>
+
+                    <div aria-hidden="true" className="filter-divider" />
+
+                    <div className="filter-group">
+                        <div className="flex w-full flex-col gap-1.5 sm:w-52">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                Select Customer
+                            </Label>
+                            <SearchableDropdown
+                                onChange={handleLocationChange}
+                                locations={Customes}
+                                placeholder="Select Customer"
+                                className="w-full"
+                            />
+                        </div>
+
+                        <div className="flex w-full flex-col gap-1.5 sm:w-56">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                Select Date Range
+                            </Label>
+                            <DateRangeInput
+                                onChange={handleDateChange}
+                                value={selectedRange}
+                                isBorder={true}
+                            />
+                        </div>
+
+                        <Button
+                            className="table-action-btn table-action-btn-primary"
+                            onClick={CheckFranchiseDetails}
+                        >
+                            Check
+                        </Button>
+                    </div>
                 </div>
 
-                <div className=" mt-0">
-                    <div className='mt-4'>
-                        {
-                            franchiseeBillingLoading ? <div style={{ height: "75vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <LoaderMark />
-                                <p className="mt-12 h5">Loading Franchise Billing ...</p>
-                            </div>
+                <div className="page-fit-body mt-4">
+                    {
+                        franchiseeBillingLoading ? <Loader message="Loading Franchise Billing ..." fullscreen={false} />
+                            : error ?
+                                /* An empty result is information, not a heading:
+                                   it was an <h4> in a 50vh box, which shouted
+                                   louder than the page title. */
+                                <p className="m-0 rounded-xl border border-white/8 bg-white/2 px-4 py-12 text-center text-[13px] text-ink-muted">
+                                    {error?.msg || "No Bookings Found"}
+                                </p>
                                 :
-                                <>{
-                                    error ?
-                                        <div style={{ height: "50vh" }}>
-                                            <h4 className="text-center text-ink-muted">{error?.msg || "No Bookings Found"}</h4>
-                                        </div>
-                                        :
-                                        <TableContainer
-                                            columns={columns}
-                                            data={BillData || []}
-                                            isGlobalFilter={true}
-                                            isPagination={true}
-                                            isCustomPageSize={true}
-                                            isDownloadExcle={true}
-                                            onDownloadExcle={DownloadBookingDetails}
-                                            SearchPlaceholder="Search From Table"
-                                            pagination="pagination"
-                                            paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
-                                        />
-                                }
-                                </>
-
-                        }
-                    </div>
+                                <TableContainer
+                                    columns={columns}
+                                    data={BillData || []}
+                                    isGlobalFilter={true}
+                                    isPagination={true}
+                                    isCustomPageSize={true}
+                                    isDownloadExcle={true}
+                                    onDownloadExcle={DownloadBookingDetails}
+                                    SearchPlaceholder="Search From Table"
+                                    pagination="pagination"
+                                    paginationWrapper='dataTables_paginate paging_simple_numbers'
+                                    /* table-bordered dropped: .grid-shell draws
+                                       the row rules now. */
+                                    tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                                    theadClass="sticky top-0 z-10"
+                                    isStickyHeader={true}
+                                    stickyTop={0}
+                                    fillHeight
+                                    tableHeight="65vh"
+                                />
+                    }
                     {/*  showing the downloading message and loader */}
                     {
                         isGenerating && <Loader message="Generating the Pdf....." />

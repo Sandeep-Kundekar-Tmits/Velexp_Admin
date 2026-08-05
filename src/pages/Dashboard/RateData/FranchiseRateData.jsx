@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react"
 
 import Select from "react-select";
-import { Button, Col, FormGroup, Input, Label, Row, Spinner } from "@/components/ui";
-import { LoaderMark } from "@/Loaders/Loader";
+import { Button, Input, Label, Spinner } from "@/components/ui";
+import Loader from "@/Loaders/Loader";
 import { useGetApiCall } from "../../../hooks/useGetApiCall";
 import { GET_ALL_FRNCHISE_RATE_DATA, UPLOAD_FRANCHISE_RATE_DATA_UPLOAD } from "../../../api";
 import MainHeaderComp from "../../../components/MainHeaderCom";
@@ -259,61 +259,53 @@ const FranchiseRateData = () => {
 
 
     return (
-        <div className='page-content py-0 px-0'>
-            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                <MainHeaderComp
-                    title="Franchise Rate Data"
-                    extraFields={
-                        <div className="flex items-center">
-                            <h6 className="text-black font-bold mb-0 mr-2" style={{ fontSize: "14px" }}>Template</h6>
-                            {["Default"]?.map((ele) => (
-                                <div className="ml-2" key={ele}>
-                                    <Button
-                                        onClick={converToExcel}
-                                        className="flex items-center justify-center p-2 m-auto bg-transparent border-success text-success-500"
-                                        style={{ borderRadius: "7px", width: "100px", fontWeight: "500", fontSize: "12px" }}
-                                    >
-                                        {ConvertingEmptyExcelLoading
-                                            ? <span>Exporting...</span>
-                                            : <span>{ele}</span>}
-                                        <FaFileExcel size={14} className="ml-1" />
-                                    </Button>
-                                </div>
-                            ))}
-                        </div>
-                    }
-                />
-            </div>
-            <div className="container-fluid px-4">
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+            <MainHeaderComp
+                title="Franchise Rate Data"
+                extraFields={
+                    <div className="flex items-center">
+                        <h6 className="text-ink font-bold mb-0 mr-2" style={{ fontSize: "14px" }}>Template</h6>
+                        {["Default"]?.map((ele) => (
+                            <div className="ml-2" key={ele}>
+                                <Button
+                                    onClick={converToExcel}
+                                    className="table-action-btn table-action-btn-solid"
+                                >
+                                    {ConvertingEmptyExcelLoading
+                                        ? <span>Exporting...</span>
+                                        : <span>{ele}</span>}
+                                    <FaFileExcel size={14} aria-hidden="true" />
+                                </Button>
+                            </div>
+                        ))}
+                    </div>
+                }
+            />
 
-                {/* filters */}
-                <Row className="  flex align-align-items-center my-4">
-                    <Col md={4}>
-                        <div className="flex items-center w-full" >
-                            <Input type="file" style={{ width: "100%" }} onChange={UploadChange}
-                            />
-                        </div>
-                    </Col>
-                    <Col md={4}>
+            <div className="page-fit-body relative z-10 pb-4">
+                <div className="flex flex-wrap items-end gap-3 border-b border-white/8 pb-4">
+                    <div className="flex w-full flex-col gap-1.5 sm:w-64">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Upload File
+                        </Label>
+                        <Input type="file" onChange={UploadChange} />
+                    </div>
+
+                    <div className="flex items-center gap-2">
                         <Button
-                            style={{ width: "50%" }}
                             disabled={JsonLoading || !file || selecetedExcelData?.length === 0}
-                            className="bg-brand-500 text-white flex items-center justify-center"
+                            className="table-action-btn table-action-btn-primary"
                             onClick={UploadRateData}
                         >
                             {UploadFranchiseRateDataLoading ? "Uploading..." : "Upload"}
                         </Button>
                         {JsonLoading && <Spinner size="sm">loading...</Spinner>}
-                    </Col>
-                </Row>
+                    </div>
+                </div>
 
-                {/* main page */}
-                <div className="mainpage mt-4">
+                <div className="page-fit-body mt-4">
                     {AllFranchiseRateDataLoading
-                        ? <div style={{ height: "40vh" }} className="container-fluid flex flex-col justify-center items-center">
-                            <LoaderMark />
-                            <p className="mt-12 h5">Loading Franchise Rate Data ...</p>
-                        </div>
+                        ? <Loader message="Loading Franchise Rate Data ..." fullscreen={false} />
                         : <TableContainer
                             columns={columns}
                             data={AllFranchiseRateDatas || []}
@@ -322,8 +314,13 @@ const FranchiseRateData = () => {
                             SearchPlaceholder="Search From Table"
                             pagination="pagination"
                             paginationWrapper='dataTables_paginate paging_simple_numbers'
-                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                            tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                            theadClass="sticky top-0 z-10"
+                            isStickyHeader={true}
+                            stickyTop={0}
                             isCustomPageSize={true}
+                            fillHeight
+                            tableHeight="65vh"
                         />}
                 </div>
             </div>

@@ -72,9 +72,10 @@
 body.vertical-collpsed {
   --sidebar-width: 68px;
 }
+
 /* A pill with equal padding and no label collapses to a circle, which is the
    shape the reference uses for the active icon tile. */
-body.vertical-collpsed .vertical-menu .metismenu li > a {
+body.vertical-collpsed .vertical-menu .metismenu li>a {
   justify-content: center;
   width: 2.5rem;
   height: 2.5rem;
@@ -99,41 +100,48 @@ body.vertical-collpsed .vertical-menu:hover {
   box-shadow: 0 30px 70px -20px rgb(2 6 23 / 0.95),
     0 0 60px -24px rgb(59 130 246 / 0.75);
 }
-body.vertical-collpsed .vertical-menu:hover .metismenu li > a {
+
+body.vertical-collpsed .vertical-menu:hover .metismenu li>a {
   justify-content: flex-start;
   width: auto;
   height: auto;
   padding: 0.4375rem 0.75rem;
   margin: 0.125rem 0.625rem;
 }
-body.vertical-collpsed .vertical-menu:hover .metismenu li > a > span,
+
+body.vertical-collpsed .vertical-menu:hover .metismenu li>a>span,
 body.vertical-collpsed .vertical-menu:hover .metismenu .has-arrow::after {
   display: inline;
 }
+
 body.vertical-collpsed .vertical-menu:hover .metismenu .has-arrow::after {
   display: block;
 }
+
 body.vertical-collpsed .vertical-menu:hover .metismenu .sub-menu.mm-show,
-body.vertical-collpsed .vertical-menu:hover .metismenu li.mm-active > .sub-menu {
+body.vertical-collpsed .vertical-menu:hover .metismenu li.mm-active>.sub-menu {
   display: block;
 }
 
 /* While collapsed and untouched, sub-menus are hidden -- so an active child
    would leave no trace at all. Tinting the parent keeps the current section
    visible even when the page it belongs to is out of sight. */
-body.vertical-collpsed .vertical-menu:not(:hover) .metismenu li.mm-active > a {
+body.vertical-collpsed .vertical-menu:not(:hover) .metismenu li.mm-active>a {
   background: rgb(59 130 246 / 0.18);
   color: #fff;
 }
+
 /* Labels, carets and open branches all collapse away; only icons survive. */
-body.vertical-collpsed .vertical-menu .metismenu li > a > span,
+body.vertical-collpsed .vertical-menu .metismenu li>a>span,
 body.vertical-collpsed .vertical-menu .metismenu .has-arrow::after {
   display: none;
 }
+
 body.vertical-collpsed .vertical-menu .metismenu .sub-menu {
   display: none;
 }
-body.vertical-collpsed .vertical-menu .metismenu li > a > i {
+
+body.vertical-collpsed .vertical-menu .metismenu li>a>i {
   font-size: 17px;
 }
 
@@ -213,18 +221,36 @@ body.vertical-collpsed .vertical-menu .metismenu li > a > i {
 
 /* min-width:0 is what lets the ellipsis below actually trigger -- a flex item
    defaults to min-content width and would push the actions off instead. */
+/* flex-basis 0, not auto: with `auto` the basis is the intrinsic width of the
+   longest line -- a full-sentence subtitle -- so the block asked for far more
+   room than the header had and only gave it back through shrinking. From 0 it
+   simply takes the space that is left, and its children ellipsise into it. */
 .page-header-titles {
-  flex: 1 1 auto;
+  flex: 1 1 0;
   min-width: 0;
+  overflow: hidden;
 }
+
+/*
+ * All three are exactly one line, ellipsised.
+ *
+ * display:block and max-width:100% are the belt to nowrap's braces: a <p> that
+ * is ever laid out as a flex or grid item stops honouring its parent's width,
+ * and the subtitle -- the longest of the three, a whole sentence on several
+ * screens -- was the one that ran past the edge of the header on a phone
+ * instead of clipping.
+ */
 .page-header-eyebrow,
 .page-header-title,
 .page-header-subtitle {
+  display: block;
+  max-width: 100%;
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 /* Carries what the breadcrumbs used to, without implying its ancestors are
    links -- the old breadcrumb rendered plain text styled as a trail. */
 .page-header-eyebrow {
@@ -234,6 +260,7 @@ body.vertical-collpsed .vertical-menu .metismenu li > a > i {
   text-transform: uppercase;
   color: #64748b;
 }
+
 .page-header-title {
   font-size: 17px;
   font-weight: 600;
@@ -241,6 +268,7 @@ body.vertical-collpsed .vertical-menu .metismenu li > a > i {
   line-height: 1.35;
   color: #fff;
 }
+
 /* A screen's own one-liner. Sentence case, unlike the eyebrow -- these are
    sentences ("Manage corporate, franchise and retail customers."), and
    uppercase tracking would make them unreadable. */
@@ -256,6 +284,106 @@ body.vertical-collpsed .vertical-menu .metismenu li > a > i {
   align-items: center;
   gap: 0.5rem;
   flex: 0 0 auto;
+  /* Explicit rather than relying on .page-header-titles growing to push it
+     over: a screen with a short title and no subtitle still leaves the actions
+     hard right. */
+  margin-inline-start: auto;
+}
+
+/* The host is rendered on every route whether or not the screen fills it, so
+   it must take no space when it is empty -- otherwise the gap and, on mobile,
+   the full-width row below would show on screens with no actions at all. */
+.page-header-actions:empty {
+  display: none;
+}
+
+/*
+ * Mobile header.
+ *
+ * One row does not survive a phone: the title, a hamburger and two or three
+ * action buttons cannot share 360px. Because .page-header-titles is min-width:0
+ * (so its ellipsis works), the title is what gives -- it would shrink to
+ * nothing while the buttons kept their full width.
+ *
+ * So the actions drop to their own row and the title keeps a floor.
+ */
+@media (max-width: 639.98px) {
+  .page-header {
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  /* Beats the min-width:0 above, so the buttons wrap before the title does. */
+  .page-header-titles {
+    min-width: 8rem;
+  }
+
+  .page-header-title {
+    font-size: 15px;
+  }
+
+  /* Full width on its own line, and scrollable rather than squashed: a screen
+     with three actions would otherwise shrink each one until its label
+     wrapped. The bar is hidden -- it is a row of buttons, and the overflow is
+     discoverable by dragging. */
+  .page-header-actions {
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  /*
+   * Right-aligned via an auto margin on the first button, not
+   * justify-content:flex-end.
+   *
+   * The row scrolls when the actions are wider than the phone, and flex-end on
+   * a scroll container makes the overflowing start unreachable -- you can
+   * scroll toward the end but never back past the container's origin. An auto
+   * margin resolves to 0 the moment there is no free space, so the row falls
+   * back to starting at the left edge and every button stays reachable.
+   */
+  .page-header-actions>*:first-child {
+    margin-inline-start: auto;
+  }
+
+  .page-header-actions::-webkit-scrollbar {
+    display: none;
+  }
+
+  .page-header-actions>* {
+    flex: 0 0 auto;
+  }
+
+  /*
+   * Header actions collapse to their icon.
+   *
+   * "Edit Estimated Delivery Date" beside "Download Excel" is wider than a
+   * phone, and a scrolling row of long labels is a poor trade when the icon
+   * already says it. Only buttons that HAVE an icon collapse -- :has() leaves
+   * a text-only button labelled rather than turning it into an empty square.
+   *
+   * font-size:0 rather than hiding the label: the text stays in the DOM and in
+   * the accessibility tree, so the button keeps its accessible name and a
+   * screen reader still announces "Download Excel". display:none on the label
+   * would leave an icon button with no name at all.
+   */
+  .page-header-actions .table-action-btn:has(svg),
+  .page-header-actions .table-action-btn:has(i) {
+    width: 2.25rem;
+    padding-inline: 0;
+    gap: 0;
+    justify-content: center;
+    font-size: 0;
+  }
+
+  /* Icons size from width/height, not from the inherited font-size, so they
+     survive the rule above -- this only restores the box they sit in. */
+  .page-header-actions .table-action-btn>svg,
+  .page-header-actions .table-action-btn>i {
+    font-size: 1rem;
+    flex: 0 0 auto;
+  }
 }
 
 /*
@@ -279,29 +407,67 @@ body.vertical-collpsed .vertical-menu .metismenu li > a > i {
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease,
     box-shadow 0.2s ease;
 }
+
 .table-action-btn:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
+
 .table-action-btn-solid {
   border: 1px solid rgb(34 197 94 / 0.35);
   background: rgb(34 197 94 / 0.16);
   color: #86efac;
 }
+
 .table-action-btn-solid:not(:disabled):hover {
   background: rgb(34 197 94 / 0.26);
   color: #fff;
   box-shadow: 0 0 18px -4px rgb(34 197 94 / 0.9);
 }
+
+/* The extra export buttons (excelItems). Green like the one above, because
+   they do the same kind of thing. */
+.table-action-btn-export {
+  border: 1px solid rgb(255 255 255 / 0.12);
+  background: rgb(255 255 255 / 0.04);
+  color: #cbd5e1;
+}
+
+.table-action-btn-export:not(:disabled):hover {
+  border-color: rgb(34 197 94 / 0.45);
+  color: #86efac;
+  background: rgb(34 197 94 / 0.12);
+}
+
+/* A screen's secondary action, next to its primary one -- "Find Missing POD"
+   beside "Add POD". Neutral at rest and blue on hover, so it never reads as a
+   third export button. */
 .table-action-btn-ghost {
   border: 1px solid rgb(255 255 255 / 0.12);
   background: rgb(255 255 255 / 0.04);
   color: #cbd5e1;
 }
+
 .table-action-btn-ghost:not(:disabled):hover {
-  border-color: rgb(34 197 94 / 0.45);
-  color: #86efac;
-  background: rgb(34 197 94 / 0.12);
+  border-color: rgb(59 130 246 / 0.5);
+  color: #fff;
+  background: rgb(59 130 246 / 0.18);
+  box-shadow: 0 0 18px -6px rgb(59 130 246 / 0.9);
+}
+
+/* The screen's own primary action -- "Add POD", "Add User". Green is spoken
+   for by the export buttons, so this takes the blue the rest of the new UI
+   uses, and is a fill rather than a tint so one action per header reads as the
+   one to press. */
+.table-action-btn-primary {
+  border: 1px solid transparent;
+  background: linear-gradient(to right, #3b82f6, #8b5cf6);
+  color: #fff;
+  box-shadow: 0 10px 30px -12px rgb(59 130 246 / 0.9);
+}
+
+.table-action-btn-primary:not(:disabled):hover {
+  box-shadow: 0 16px 40px -12px rgb(139 92 246 / 0.9);
 }
 
 /* Mobile drawer trigger. Same pill as .sidebar-toggle so the two controls read
@@ -321,11 +487,13 @@ body.vertical-collpsed .vertical-menu .metismenu li > a > i {
   cursor: pointer;
   transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
+
 .page-header-menu:hover {
   color: #fff;
   background: rgb(59 130 246 / 0.22);
   border-color: rgb(59 130 246 / 0.45);
 }
+
 .page-header-menu:focus-visible {
   outline: 2px solid #38bdf8;
   outline-offset: 2px;
@@ -334,11 +502,13 @@ body.vertical-collpsed .vertical-menu .metismenu li > a > i {
 .main-content .page-content {
   padding-inline: var(--sidebar-gap);
 }
+
 .main-content .page-content .container-fluid {
   padding-inline: 0;
 }
 
 @media (max-width: 991.98px) {
+
   /* Off-canvas drawer: flush to the edges and square, because a floating panel
      that slides in from nowhere reads as a rendering glitch on a phone. */
   .vertical-menu {
@@ -350,9 +520,11 @@ body.vertical-collpsed .vertical-menu .metismenu li > a > i {
     transform: translateX(-100%);
     transition: transform 0.2s ease;
   }
+
   body.sidebar-enable .vertical-menu {
     transform: translateX(0);
   }
+
   .main-content {
     margin-left: 0;
     max-width: 100%;
@@ -394,37 +566,66 @@ body.vertical-collpsed .vertical-menu .metismenu li > a > i {
      snapping the tree on the first frame. */
   transition: height var(--sidebar-transition) ease;
 }
+
 .sidebar-brand {
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;   /* this is what crops the PNG's transparent border */
+  overflow: hidden;
+  /* this is what crops the PNG's transparent border */
   width: 100%;
   height: 100%;
   min-width: 0;
   flex: 0 1 auto;
 }
-.sidebar-brand img {
+
+.sidebar-brand-full {
   width: 92%;
-  max-width: none;    /* .img-fluid caps at 100%, which would undo the crop */
+  max-width: none;
+  /* .img-fluid caps at 100%, which would undo the crop */
   height: auto;
   flex: 0 0 auto;
 }
 
+/* Hidden by default -- only the collapsed-and-unhovered rule below shows it.
+   The full wordmark doesn't fit the 68px collapsed rail, so this is the mark
+   that stands in for it there.
+
+   Sized by height, not width, same crop trick as .sidebar-brand-full above:
+   at a 1.5:1 source ratio, height:2.5rem computes to ~60px wide, wider than
+   the ~52px the collapsed rail actually has room for -- .sidebar-brand's own
+   overflow:hidden trims that excess off the sides rather than shrinking the
+   mark to fit, so it reads as a similar size to the icons around it instead
+   of a small logo floating in a tall empty header. */
+.sidebar-brand-collapsed {
+  display: none;
+  width: auto;
+  max-width: none;
+  height: 6rem;
+  flex: 0 0 auto;
+}
+
 /*
- * Collapsed rail: logo hidden, header shrunk to a plain top inset.
+ * Collapsed rail: full wordmark swapped for the icon-only mark, and the
+ * header shrunk to fit that mark instead of the taller expanded-state row.
  *
  * Both are scoped to :not(:hover) so the hover-to-reveal state gets the full
  * header back -- widening the rail to 250px around an empty box was the whole
- * problem. The logo is in the DOM in every state now; this is what hides it.
+ * problem. Both logos are in the DOM in every state now; this just swaps
+ * which one is visible.
  */
 body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-header {
-  height: 1.5rem;
+  height: 3.5rem;
   justify-content: center;
   margin-inline: 0;
 }
-body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-brand {
+
+body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-brand-full {
   display: none;
+}
+
+body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-brand-collapsed {
+  display: block;
 }
 
 .sidebar-toggle {
@@ -443,12 +644,14 @@ body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-brand {
   transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease,
     box-shadow 0.2s ease;
 }
+
 .sidebar-toggle:hover {
   color: #fff;
   background: rgb(59 130 246 / 0.22);
   border-color: rgb(59 130 246 / 0.45);
   box-shadow: 0 6px 16px -6px rgb(59 130 246 / 0.85);
 }
+
 .sidebar-toggle:focus-visible {
   outline: 2px solid #38bdf8;
   outline-offset: 2px;
@@ -461,6 +664,7 @@ body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-brand {
   padding: 0;
   list-style: none;
 }
+
 .metismenu li {
   display: block;
   width: 100%;
@@ -470,7 +674,7 @@ body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-brand {
    menu tree carries no group markers, so top-level entries get even breathing
    room instead -- the same airy rhythm without inventing boundaries that are
    not in the data. */
-.metismenu > li + li {
+.metismenu>li+li {
   margin-top: 0.1875rem;
 }
 
@@ -478,7 +682,7 @@ body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-brand {
    items read as plain icon+label until you touch them -- so the border stays
    transparent and only the radius is always on. Keeping the border declared
    (rather than `none`) means hover cannot shift the row by a pixel. */
-.metismenu li > a {
+.metismenu li>a {
   display: flex;
   align-items: center;
   gap: 0.6875rem;
@@ -494,11 +698,13 @@ body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-brand {
   transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease,
     box-shadow 0.2s ease;
 }
-.metismenu li > a:hover {
+
+.metismenu li>a:hover {
   color: #fff;
   background: rgb(255 255 255 / 0.06);
 }
-.metismenu li > a > i {
+
+.metismenu li>a>i {
   min-width: 1.125rem;
   font-size: 14px;
   text-align: center;
@@ -508,27 +714,31 @@ body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-brand {
    rather than a gradient. An open parent branch gets only a faint tint, so the
    blue always marks the page you are actually on rather than the group it
    happens to live under. */
-.metismenu li > a.active,
-.metismenu li > a.active > i,
-.metismenu li > a.active > span,
-.metismenu .sub-menu li > a.active,
-.metismenu .sub-menu li > a.active > span {
+.metismenu li>a.active,
+.metismenu li>a.active>i,
+.metismenu li>a.active>span,
+.metismenu .sub-menu li>a.active,
+.metismenu .sub-menu li>a.active>span {
   color: #fff;
 }
-.metismenu li > a.active {
+
+.metismenu li>a.active {
   background: linear-gradient(135deg, #3b82f6, #2f6fe0);
   box-shadow: 0 8px 20px -8px rgb(59 130 246 / 0.9);
   font-weight: 600;
 }
-.metismenu .sub-menu li > a.active {
+
+.metismenu .sub-menu li>a.active {
   background: linear-gradient(135deg, #3b82f6, #2f6fe0);
   box-shadow: 0 8px 20px -8px rgb(59 130 246 / 0.9);
 }
-.metismenu li.mm-active > a {
+
+.metismenu li.mm-active>a {
   color: #fff;
   background: rgb(255 255 255 / 0.05);
 }
-.metismenu li.mm-active > a.active {
+
+.metismenu li.mm-active>a.active {
   background: linear-gradient(135deg, #3b82f6, #2f6fe0);
 }
 
@@ -539,16 +749,19 @@ body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-brand {
   list-style: none;
   display: none;
 }
+
 .metismenu .sub-menu.mm-show,
-.metismenu li.mm-active > .sub-menu {
+.metismenu li.mm-active>.sub-menu {
   display: block;
 }
+
 /* Guide rail down the nested branch, so children read as belonging to it. */
 .metismenu .sub-menu {
   position: relative;
 }
+
 .metismenu .sub-menu.mm-show::before,
-.metismenu li.mm-active > .sub-menu::before {
+.metismenu li.mm-active>.sub-menu::before {
   content: "";
   position: absolute;
   left: 1.5rem;
@@ -560,19 +773,19 @@ body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-brand {
      line with the edges chewed off. 2 on 3 is legibly a dotted rail.
      The alpha is up from 0.08 because the dots cover 40% of the run -- at the
      solid line's value the rail all but disappeared. */
-  background: repeating-linear-gradient(
-    to bottom,
-    rgb(255 255 255 / 0.18) 0 2px,
-    transparent 2px 5px
-  );
+  background: repeating-linear-gradient(to bottom,
+      rgb(255 255 255 / 0.18) 0 2px,
+      transparent 2px 5px);
 }
-.metismenu .sub-menu li > a {
+
+.metismenu .sub-menu li>a {
   padding: 0.3125rem 0.75rem;
   font-size: 12px;
   font-weight: 400;
   color: #8e9ab6;
 }
-.metismenu .sub-menu li > a:hover {
+
+.metismenu .sub-menu li>a:hover {
   color: #fff;
 }
 
@@ -580,6 +793,7 @@ body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-brand {
 .metismenu .has-arrow {
   position: relative;
 }
+
 .metismenu .has-arrow::after {
   content: "";
   position: absolute;
@@ -593,7 +807,8 @@ body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-brand {
   transition: transform 0.15s ease;
   opacity: 0.7;
 }
-.metismenu li.mm-active > .has-arrow::after,
+
+.metismenu li.mm-active>.has-arrow::after,
 .metismenu .has-arrow[aria-expanded="true"]::after {
   transform: translateY(-35%) rotate(45deg);
 }
@@ -608,17 +823,19 @@ body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-brand {
  * !important is needed to beat the inline height; the element becomes a
  * normal flex child that scrolls, and the footer is pinned below it.
  */
-.vertical-menu > [data-simplebar] {
+.vertical-menu>[data-simplebar] {
   height: auto !important;
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
 }
-.vertical-menu > [data-simplebar]::-webkit-scrollbar {
+
+.vertical-menu>[data-simplebar]::-webkit-scrollbar {
   width: 6px;
 }
-.vertical-menu > [data-simplebar]::-webkit-scrollbar-thumb {
+
+.vertical-menu>[data-simplebar]::-webkit-scrollbar-thumb {
   background: rgb(255 255 255 / 0.18);
   border-radius: 3px;
 }
@@ -638,11 +855,13 @@ body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-brand {
   align-items: center;
   gap: 0.25rem;
   padding-right: 0.5rem;
-  margin-top: auto;   /* pins to the bottom; must be on the flex child itself */
+  margin-top: auto;
+  /* pins to the bottom; must be on the flex child itself */
   flex-shrink: 0;
   border-top: 1px solid rgb(255 255 255 / 0.12);
   background: rgb(0 0 0 / 0.15);
 }
+
 /* Collapsed, a 32px badge and a 32px button will not sit side by side in a
    68px rail, so the arrow drops below the avatar. It is never hidden: it is
    the only way back out of the collapsed state without hovering. */
@@ -650,57 +869,112 @@ body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-foot {
   flex-direction: column;
   padding: 0 0 0.5rem;
 }
+
+/* Identity on the left, logout on the right. */
 .sidebar-footer {
-  display: block !important;
+  display: flex !important;
+  align-items: center;
+  gap: 0.25rem;
   flex: 1 1 auto;
   min-width: 0;
 }
+
 /* Label beside the avatar. Present in the DOM in every state; this is what
    hides it on the collapsed rail, and hovering brings it back with the logo. */
 body.vertical-collpsed .vertical-menu:not(:hover) .user-info {
   display: none;
 }
-.sidebar-footer > button {
-  width: 100%;
-  display: block;
-  background: transparent;
-  border: 0;
-  padding: 0;
-  color: inherit;
-}
-/* Opens upward, so it must clear the footer rather than overlap it. */
-.sidebar-footer [role="menu"] {
-  left: 0.5rem;
-  right: 0.5rem;
-  bottom: 100%;
-  margin-bottom: 0.5rem;
-}
-.sidebar-footer .dropdown-item {
-  display: flex;
-  align-items: center;
+
+/* Collapsed there is no room for avatar and logout side by side, so they
+   stack -- as does the collapse arrow below them, from .sidebar-foot. */
+body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-footer {
+  flex-direction: column;
   gap: 0.375rem;
-  padding: 0.5rem 0.75rem;
-  color: var(--color-ink);
-  text-decoration: none;
-  font-size: 13px;
-}
-.sidebar-footer .dropdown-item:hover {
-  background: #f1f5f9;
 }
 
 .user-badge {
-  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  flex: 1 1 auto;
+  padding: 0.5rem;
   color: #fff;
+  /* The JSX asks for justify-center, which is right only when the label is
+     hidden. With a label it left-aligns like every other row in the rail. */
+  justify-content: flex-start;
 }
+
+body.vertical-collpsed .vertical-menu:not(:hover) .user-badge {
+  justify-content: center;
+  flex: 0 0 auto;
+  padding: 0.25rem;
+}
+
+.user-badge .user-info {
+  min-width: 0;
+}
+
+.user-badge .user-info>div,
+.user-badge .user-info>small {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.user-badge .user-info>small {
+  color: #94a3b8;
+  font-size: 11px;
+}
+
+/*
+ * Logout.
+ *
+ * Was the single live item in a drop-up menu whose hover was #f1f5f9 under
+ * light text -- the row disappeared as you pointed at it. It is a control in
+ * the footer now, tinted danger so it is not mistaken for the collapse arrow
+ * beside it.
+ */
+.sidebar-logout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid rgb(255 255 255 / 0.08);
+  border-radius: 9999px;
+  background: rgb(255 255 255 / 0.05);
+  color: #fca5a5;
+  cursor: pointer;
+  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.sidebar-logout:hover {
+  color: #fff;
+  background: rgb(232 82 34 / 0.28);
+  border-color: rgb(232 82 34 / 0.55);
+  box-shadow: 0 6px 16px -6px rgb(232 82 34 / 0.85);
+}
+
+.sidebar-logout:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: 2px;
+}
+
 .user-badge .icon-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
 .user-badge .user-info small {
   color: #94a3b8;
   font-size: 11px;
 }
+
 .fs-4 {
   font-size: 1.25rem;
 }
@@ -735,9 +1009,14 @@ table.dataTable,
   font-variant-numeric: tabular-nums;
 }
 
-.table > thead th,
-table.dataTable > thead th {
-  background: #f1f5f9;
+.table>thead th,
+table.dataTable>thead th {
+  /* Was a literal #f1f5f9 under color: var(--color-ink). Once ink inverted for
+     the dark theme that became light text on a near-white band -- unreadable on
+     every screen that writes its own <table class="table"> instead of going
+     through TableContainer, which restyles thead itself. From the token it
+     follows the theme, and still comes out light inside a print surface. */
+  background: var(--color-canvas);
   color: var(--color-ink);
   font-weight: 600;
   text-align: left;
@@ -747,8 +1026,8 @@ table.dataTable > thead th {
   border-bottom: 1px solid var(--color-line);
 }
 
-.table > tbody td,
-table.dataTable > tbody td {
+.table>tbody td,
+table.dataTable>tbody td {
   padding: 0.35rem 0.5rem;
   height: 34px;
   vertical-align: middle;
@@ -809,6 +1088,14 @@ table.dataTable > tbody td {
 .dt-responsive {
   width: 100%;
   overflow-x: auto;
+  /* A block box would clamp to its parent's width on its own, but every one of
+     these sits inside a flex column (.page-fit-body, a Card body, a filter
+     Row) at some depth, and a flex item's default min-width is auto -- it
+     refuses to shrink below its content's own width. A wide report table
+     (15-25 columns) then pushed the box itself wider instead of scrolling
+     inside it, so the overflow escaped past .main-content's own clip instead
+     of staying reachable behind this element's scrollbar. */
+  min-width: 0;
 }
 
 /*
@@ -831,27 +1118,33 @@ table.dataTable > tbody td {
   /* Hitting the last row must not carry on scrolling the page behind it. */
   overscroll-behavior: contain;
 }
+
 .scroll-slim::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
+
 .scroll-slim::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .scroll-slim::-webkit-scrollbar-thumb {
   background-color: color-mix(in srgb, var(--color-ink-muted) 35%, transparent);
   background-clip: content-box;
   border: 3px solid transparent;
   border-radius: 999px;
 }
+
 /* Two steps: the bar firms up when the pointer is anywhere over the scroll
    region, then takes the accent colour when it is over the thumb itself. */
 .scroll-slim:hover::-webkit-scrollbar-thumb {
   background-color: color-mix(in srgb, var(--color-ink-muted) 55%, transparent);
 }
+
 .scroll-slim::-webkit-scrollbar-thumb:hover {
   background-color: color-mix(in srgb, var(--color-accent-500) 80%, transparent);
 }
+
 .scroll-slim::-webkit-scrollbar-corner {
   background: transparent;
 }
@@ -868,15 +1161,18 @@ thead.table-light th {
 .dataTables_wrapper {
   width: 100%;
 }
+
 .dataTables_info {
   font-size: 12px;
   color: var(--color-ink-muted);
 }
+
 .dataTables_paginate {
   display: flex;
   align-items: center;
   gap: 0.25rem;
 }
+
 .dataTables_paginate .pagination {
   display: flex;
   align-items: center;
@@ -885,6 +1181,7 @@ thead.table-light th {
   margin: 0;
   padding: 0;
 }
+
 .dataTables_paginate .page-item .page-link,
 .pagination .page-link {
   display: inline-flex;
@@ -901,12 +1198,14 @@ thead.table-light th {
   cursor: pointer;
   text-decoration: none;
 }
+
 .pagination .page-item.active .page-link,
-.pagination li.active > a {
+.pagination li.active>a {
   background: var(--color-brand-500);
   border-color: var(--color-brand-500);
   color: #fff;
 }
+
 .pagination .page-item.disabled .page-link {
   opacity: 0.5;
   pointer-events: none;
@@ -985,6 +1284,7 @@ thead.table-light th {
   background: transparent;
   box-shadow: none;
 }
+
 .card-body:has(> .grid-shell:only-child) {
   padding: 0;
 }
@@ -997,25 +1297,24 @@ thead.table-light th {
   gap: 0.75rem;
   padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--grid-line);
-  /* The select's arrow and its drop-down list are painted by the OS, and come
-     back light-on-light here without this. */
-  color-scheme: dark;
 }
 
 /* The two groups are hard-coded to 3/4 and 1/4, which leaves a gap on screens
    with no export buttons and squeezes the search box on screens with several. */
-.grid-shell .table-toolbar > div:first-child {
+.grid-shell .table-toolbar>div:first-child {
   width: auto;
   flex: 1 1 auto;
   gap: 0.5rem;
 }
-.grid-shell .table-toolbar > div:last-child {
+
+.grid-shell .table-toolbar>div:last-child {
   width: auto;
   flex: 0 1 auto;
   min-width: 0;
 }
+
 /* Per-control margins are replaced by the groups' gap. */
-.grid-shell .table-toolbar > div > div {
+.grid-shell .table-toolbar>div>div {
   margin-right: 0 !important;
 }
 
@@ -1026,6 +1325,7 @@ thead.table-light th {
   margin: 0 !important;
   border: 0 !important;
 }
+
 .grid-shell .table-toolbar .pageSize {
   width: auto;
   height: 2.25rem;
@@ -1052,10 +1352,12 @@ thead.table-light th {
   box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
   transition: box-shadow 0.15s;
 }
+
 .grid-shell .table-toolbar .table-search:focus-within {
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--grid-accent) 60%, transparent),
     0 0 0 3px color-mix(in srgb, var(--grid-accent) 18%, transparent);
 }
+
 .grid-shell .table-toolbar .table-search .form-control {
   height: 2.25rem !important;
   /* Clears the icons at either end, which are absolutely positioned. */
@@ -1067,27 +1369,32 @@ thead.table-light th {
   color: var(--color-ink);
   font-size: 13px;
 }
+
 .grid-shell .table-toolbar .table-search .form-control:focus {
   outline: none;
   box-shadow: none;
 }
+
 .grid-shell .table-toolbar .table-search .form-control::placeholder {
   color: color-mix(in srgb, var(--color-ink-muted) 75%, transparent);
 }
+
 /* Search icon, then the clear button -- nth-of-type(2) rather than
    last-of-type because the clear button only renders once there is a value,
    and last-of-type would then move the search icon to the right instead. */
-.grid-shell .table-toolbar .table-search > svg:first-of-type {
+.grid-shell .table-toolbar .table-search>svg:first-of-type {
   left: 0.625rem;
   margin-left: 0;
   color: var(--color-ink-muted);
 }
-.grid-shell .table-toolbar .table-search > svg:nth-of-type(2) {
+
+.grid-shell .table-toolbar .table-search>svg:nth-of-type(2) {
   inset-inline-end: 0.5rem;
   margin-right: 0;
   color: var(--color-ink-muted);
 }
-.grid-shell .table-toolbar .table-search > svg:nth-of-type(2):hover {
+
+.grid-shell .table-toolbar .table-search>svg:nth-of-type(2):hover {
   color: var(--color-ink);
 }
 
@@ -1131,21 +1438,26 @@ thead.table-light th {
 .grid-shell tbody {
   border: 0 !important;
 }
+
 .grid-shell tbody tr {
   transition: background-color 0.2s;
 }
+
 .grid-shell tbody tr:nth-child(odd) {
   background: rgb(255 255 255 / 0.02);
 }
+
 .grid-shell tbody tr:hover {
   background: color-mix(in srgb, var(--grid-accent) 10%, transparent);
 }
+
 .grid-shell tbody td {
   border: 0 !important;
   border-bottom: 1px solid rgb(255 255 255 / 0.05) !important;
   color: #e2e8f0;
   font-size: 13px;
 }
+
 /* The empty state, which TableContainer renders with a light inline fill. */
 .grid-shell tbody td[colspan] {
   background: transparent !important;
@@ -1168,19 +1480,24 @@ thead.table-light th {
   padding: 0.75rem 1rem;
   border-top: 1px solid var(--grid-line);
 }
-.grid-shell .table-pagination > div {
+
+.grid-shell .table-pagination>div {
   padding: 0;
 }
+
 .grid-shell .table-pagination .dataTables_info {
   font-size: 12px;
   color: var(--color-ink-muted);
 }
+
 .grid-shell .table-pagination .dataTables_paginate {
   justify-content: flex-end;
 }
+
 .grid-shell .table-pagination .pagination {
   gap: 0.375rem;
 }
+
 .grid-shell .table-pagination .page-link {
   min-width: 2rem;
   height: 2rem;
@@ -1193,23 +1510,456 @@ thead.table-light th {
   font-size: 12px;
   transition: background-color 0.15s, border-color 0.15s, color 0.15s;
 }
+
 .grid-shell .table-pagination .page-item:not(.active):not(.disabled) .page-link:hover {
   border-color: color-mix(in srgb, var(--grid-accent) 45%, transparent);
   background: color-mix(in srgb, var(--grid-accent) 20%, transparent);
   color: #fff;
 }
+
 .grid-shell .table-pagination .page-item.active .page-link {
   border-color: var(--grid-accent);
   background: var(--grid-accent);
   color: #fff;
   font-weight: 600;
 }
+
 .grid-shell .table-pagination .page-item.disabled .page-link {
   opacity: 0.4;
 }
+
 /* The ellipsis is rendered as a disabled page-item as well, but it is a label
    rather than a target -- only the disabled prev/next keep a button shape. */
 .grid-shell .table-pagination .page-item.disabled:not(.previous):not(.next) .page-link {
   background: transparent;
   border-color: transparent;
+}
+
+/* ------------------------------------------------------- date range picker */
+
+/*
+ * DateRangeInput, used by ~20 report and filter screens.
+ *
+ * Its trigger and popup were styled inline (#fff panel, #dcdcdc border,
+ * #6b6b6b text) plus a <style> block of unscoped .rdr* overrides injected on
+ * every open. Inline styles are unreachable from a stylesheet, so the control
+ * stayed light on every dark screen, and the unscoped block meant one
+ * component was restyling a third-party library globally.
+ *
+ * Both now live here: the trigger matches .form-control, and the calendar is
+ * repainted under .date-range-portal so the overrides cannot leak.
+ */
+.date-range {
+  position: relative;
+  width: 100%;
+}
+
+.date-range-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  padding-inline: 0.625rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-DEFAULT);
+  background: transparent;
+  color: var(--color-ink);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+/* isBorder: the control is standing on its own rather than sitting inside a
+   toolbar that already draws the box around it. */
+.date-range-trigger-bordered {
+  border-color: var(--color-line);
+  background: color-mix(in srgb, var(--color-surface) 60%, var(--color-canvas));
+}
+
+.date-range-trigger:hover {
+  border-color: color-mix(in srgb, var(--color-brand-500) 55%, var(--color-line));
+}
+
+.date-range-trigger:focus-visible {
+  outline: 2px solid var(--color-accent-500);
+  outline-offset: 2px;
+}
+
+.date-range-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Unset dates read as a hint, not as data. */
+.date-range-placeholder {
+  color: var(--color-ink-muted);
+}
+
+.date-range-icon {
+  flex: 0 0 auto;
+  color: var(--color-ink-muted);
+}
+
+/* Fixed, and a child of <body>: the calendar is portalled out of the field so
+   that no ancestor's overflow can clip it. top/left come from the component,
+   measured against the trigger. z-index clears the modal (1050) and the
+   offcanvas (1045) it is most often opened inside. */
+.date-range-portal {
+  position: fixed;
+  z-index: 1200;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 0.75rem;
+  background: var(--color-surface);
+  box-shadow: 0 24px 60px -20px rgb(2 6 23 / 0.9);
+  /* Never wider or taller than the window it is measured against, whatever the
+     calendar's own intrinsic size. The component drops to one stacked month
+     below sm; this is the backstop for anything in between. */
+  max-width: calc(100vw - 1rem);
+  max-height: calc(100vh - 1rem);
+  overflow: auto;
+}
+
+@media (max-width: 639.98px) {
+  /* One month stacked is narrow enough to fill the phone rather than float in
+     the middle of it, and the day cells get the width back. */
+  .date-range-portal .rdrCalendarWrapper,
+  .date-range-portal .rdrMonth {
+    width: 100%;
+  }
+  .date-range-portal .rdrMonth {
+    padding-inline: 0.5rem;
+  }
+}
+
+/* react-date-range ships a light theme; everything below repaints it. */
+.date-range-portal .rdrCalendarWrapper,
+.date-range-portal .rdrMonthAndYearWrapper,
+.date-range-portal .rdrMonths,
+.date-range-portal .rdrMonth,
+.date-range-portal .rdrWeekDays {
+  background: transparent;
+  color: var(--color-ink);
+  font-family: inherit;
+}
+
+.date-range-portal .rdrMonthAndYearWrapper {
+  height: 50px;
+  padding-top: 10px;
+}
+
+.date-range-portal .rdrMonthName {
+  color: var(--color-ink-muted);
+}
+
+.date-range-portal .rdrNextPrevButton {
+  background: rgb(255 255 255 / 0.06);
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 6px;
+}
+
+.date-range-portal .rdrNextPrevButton:hover {
+  background: rgb(255 255 255 / 0.14);
+}
+
+/* The arrows are CSS triangles drawn with border-color, so they need
+   repainting separately from the button they sit in. */
+.date-range-portal .rdrPprevButton i {
+  border-color: transparent var(--color-ink) transparent transparent;
+}
+
+.date-range-portal .rdrNextButton i {
+  border-color: transparent transparent transparent var(--color-ink);
+}
+
+.date-range-portal .rdrMonthAndYearPickers select {
+  padding: 4px 8px;
+  border: 1px solid rgb(255 255 255 / 0.1);
+  border-radius: 6px;
+  background: var(--color-surface);
+  color: var(--color-ink);
+  font-weight: 500;
+}
+
+/* The dropdown list is painted by the OS, not the page -- without this it
+   inherits a white popup with white text. */
+.date-range-portal .rdrMonthAndYearPickers select option {
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+
+.date-range-portal .rdrWeekDay {
+  color: var(--color-ink-muted);
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.date-range-portal .rdrDayNumber span {
+  color: var(--color-ink);
+  font-weight: 500;
+}
+
+.date-range-portal .rdrDayPassive .rdrDayNumber span {
+  color: color-mix(in srgb, var(--color-ink-muted) 55%, transparent);
+}
+
+.date-range-portal .rdrDayToday .rdrDayNumber span::after {
+  background: transparent;
+  border: 1px solid rgb(255 255 255 / 0.25);
+  border-radius: 4px;
+}
+
+.date-range-portal .rdrSelected,
+.date-range-portal .rdrInRange,
+.date-range-portal .rdrStartEdge,
+.date-range-portal .rdrEndEdge {
+  top: 4px;
+  bottom: 4px;
+}
+
+.date-range-portal .rdrDayStartEdge {
+  border-top-left-radius: 6px;
+  border-bottom-left-radius: 6px;
+}
+
+.date-range-portal .rdrDayEndEdge {
+  border-top-right-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
+
+.date-range-portal .rdrDayHovered .rdrDayNumber::after {
+  border-color: var(--color-accent-500);
+}
+
+.date-range-portal .rdrMonthPicker,
+.date-range-portal .rdrYearPicker {
+  margin: 0 5px;
+}
+
+.date-range-portal .rdrMonthsHorizontal {
+  gap: 10px;
+}
+
+/* ------------------------------------------------------ fit-to-screen grids */
+
+/*
+ * Pins a screen to the viewport so the grid's rows are the only thing that
+ * scrolls.
+ *
+ * By default a screen is as tall as its content and the layout's scroll box
+ * scrolls it. For a report that is wrong twice over: the page scrollbar and
+ * the grid's own scrollbar end up side by side, each moving a different part
+ * of the same table, and the toolbar and pagination scroll away from the rows
+ * they belong to.
+ *
+ * Opt-in per screen, because a form or an upload flow is taller than the
+ * viewport by design and should keep scrolling. Three pieces, and all three
+ * are required -- one plain div left in the middle breaks the chain and the
+ * grid goes back to auto height:
+ *
+ *   .page-fit        on the .page-content root
+ *   .page-fit-body   on every wrapper between that root and the grid
+ *   fillHeight       the TableContainer prop, which adds .grid-shell-fill
+ *
+ * Sized by flex rather than a calc() against the viewport because the chrome
+ * above the grid is not a constant -- filters wrap, stat tiles restack -- so a
+ * magic number would be wrong at some width.
+ *
+ * Below 992px (the layout's own desktop line) there is no spare height to hand
+ * out, so all of this reverts to document flow and TableContainer's tableHeight
+ * caps the grid as before.
+ */
+@media (min-width: 992px) {
+  .page-fit {
+    display: flex;
+    height: 100%;
+    min-height: 0;
+    flex-direction: column;
+    overflow: hidden;
+    /* The rail is inset from the bottom by --sidebar-gap, like its top and
+       left, but the content column is a flat 100vh -- so a pinned grid ended
+       flush with the window, with no gap under the pagination bar and its foot
+       out of line with the rail's.
+       Here rather than on .main-content: only a page that pins itself has a
+       bottom edge to align. An ordinary scrolling screen just runs on, and a
+       gap there would change screens that were already right. */
+    padding-bottom: var(--sidebar-gap);
+  }
+
+  /* min-width:0 down this whole chain for the same reason as .table-responsive
+     above: each box is a column-flex item of the one before it, and the
+     default min-width:auto on a flex item would otherwise let a wide table's
+     content push every ancestor wider instead of stopping at .table-responsive
+     to scroll. */
+  .page-fit-body {
+    display: flex;
+    min-height: 0;
+    min-width: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+  }
+
+  .grid-shell-fill {
+    display: flex;
+    min-height: 0;
+    min-width: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+  }
+
+  /* Toolbar and rows. */
+  .grid-shell-fill>div:first-child {
+    display: flex;
+    min-height: 0;
+    min-width: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+  }
+
+  /* The rows themselves take the leftover. !important beats the inline
+     max-height TableContainer sets from tableHeight, which is left in place as
+     the sub-992px cap. */
+  .grid-shell-fill .table-responsive {
+    max-height: none !important;
+    min-height: 0;
+    flex: 1 1 auto;
+  }
+
+  /* Pagination keeps its natural height instead of being squeezed. */
+  .grid-shell-fill>.table-pagination {
+    flex: 0 0 auto;
+  }
+}
+
+/* ----------------------------------------------------------- filter rows */
+
+/*
+ * A screen's filter bar: one row, related controls grouped, groups separated
+ * by a rule.
+ *
+ * The pincode and rate-data screens each had two stacked rows -- "view this
+ * customer" above "upload a sheet" -- costing ~90px of vertical space that the
+ * grid below wants, and repeating the same flex-wrap utility string four
+ * times. One row with a divider says the same thing in half the height.
+ *
+ * Below sm every group goes full width so the fields stack on a phone, and the
+ * divider turns with them: a vertical rule between two stacked groups would be
+ * a stray line beside the fields rather than a separation between them.
+ */
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  column-gap: 1rem;
+  row-gap: 0.75rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+}
+
+.filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.filter-divider {
+  /* Beats the row's align-items:flex-end, so the rule spans the tallest group
+     instead of sitting on the baseline with the buttons. */
+  align-self: stretch;
+  width: 100%;
+  height: 1px;
+  background: rgb(255 255 255 / 0.1);
+}
+
+@media (min-width: 640px) {
+  .filter-group {
+    width: auto;
+  }
+
+  .filter-divider {
+    width: 1px;
+    height: auto;
+  }
+}
+
+@media (max-width: 639.98px) {
+  /*
+   * Fields share the row with their action instead of each claiming a line.
+   *
+   * Every field wrapper is written `w-full sm:w-52`, so on a phone a filter
+   * with a date range and a Check button was three rows tall -- label, control,
+   * then the button on its own line below. Overriding the width here (unlayered
+   * CSS beats the utility) lets them flow: a field takes at least 9rem and
+   * grows, the button takes what it needs beside it, and the row wraps only
+   * when there genuinely is not room.
+   *
+   * :has(label) so this reaches field wrappers only. The button groups in the
+   * same row are plain divs holding a Button and a Spinner, and stretching
+   * those would push the action away from the field it belongs to.
+   */
+  .filter-group > div:has(label) {
+    width: auto;
+    flex: 1 1 9rem;
+    min-width: 0;
+  }
+
+  /* The date field needs more than the 9rem basis: its trigger renders two
+     dd/MM/yyyy dates and an icon, and below that it starts eliding. */
+  .filter-group > div:has(.date-range) {
+    flex-basis: 13rem;
+  }
+}
+
+/* ----------------------------------------------------------------- tabs */
+
+/*
+ * Tab strips.
+ *
+ * The NavLink primitive styles an `active` PROP, but every screen marks the
+ * current tab with className="active" instead -- TabsProvider, the reconcile
+ * and weight screens, the dispute list. The prop is never passed, so nothing
+ * was marking the selection and all tabs read alike.
+ *
+ * Styling the class rather than converting the call sites: it is what the
+ * markup already says, and it covers the hand-written <a className="nav-link">
+ * strips as well as the ones built from the primitive.
+ */
+.nav-link.active {
+  color: #fff;
+  background: rgb(59 130 246 / 0.12);
+  border-bottom-color: #3b82f6;
+}
+
+.nav-link.active:hover {
+  color: #fff;
+}
+
+/* The strip itself: a hairline under the row so the active tab's underline
+   reads as sitting on a rule rather than floating. */
+[data-variant="tabs"] {
+  gap: 0.125rem;
+  border-bottom: 1px solid rgb(255 255 255 / 0.08);
+}
+
+[data-variant="tabs"] .nav-link {
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  padding-inline: 0.875rem;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+[data-variant="tabs"] .nav-link:not(.active):hover {
+  background: rgb(255 255 255 / 0.04);
+}
+
+/* nav-justified splits the row evenly; without a min-width the labels wrap
+   into two lines on a phone instead of the strip scrolling. */
+.nav-justified>li>.nav-link {
+  text-align: center;
 }

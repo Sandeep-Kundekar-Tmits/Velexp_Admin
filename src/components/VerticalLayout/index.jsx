@@ -110,7 +110,9 @@ const Layout = (props) => {
             override={pageHeader}
           />
 
-          <div className="scroll-slim relative z-10 min-h-0 flex-1 overflow-auto">
+          {/* page-scroll is a hook, not styling: Loader looks for it to find
+              the content section it should centre itself in. */}
+          <div className="page-scroll scroll-slim relative z-10 min-h-0 flex-1 overflow-auto">
             <PageHeaderContext.Provider value={setPageHeader}>
               {props.children}
             </PageHeaderContext.Provider>

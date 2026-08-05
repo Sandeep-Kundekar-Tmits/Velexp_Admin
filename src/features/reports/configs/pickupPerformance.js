@@ -31,10 +31,18 @@ export const pickupPerformance = {
   loadingText: "Loading Pickup Performance ...",
   select: (res) => res?.bookings ?? [],
 
+  /*
+   * Two rows on desktop, 12 columns each.
+   *
+   * The two multi-selects were span 6 -- half the bar apiece -- which pushed
+   * the other four filters and the Check button onto a third row and left the
+   * dropdowns far wider than the values they hold. 4/4/4 then 3/3/3/2 fits the
+   * same six filters and the button into two.
+   */
   filters: [
-    { name: "serviceCenter", type: "multiSelect", label: "Select Service Center", source: "serviceCenters", span: 6 },
-    { name: "region", type: "multiSelect", label: "Select Region", source: "regions", span: 6 },
-    { name: "dateRange", type: "dateRange", label: "Select Date Range", required: true, span: 3 },
+    { name: "serviceCenter", type: "multiSelect", label: "Select Service Center", source: "serviceCenters", span: 4 },
+    { name: "region", type: "multiSelect", label: "Select Region", source: "regions", span: 4 },
+    { name: "dateRange", type: "dateRange", label: "Select Date Range", required: true, span: 4 },
     { name: "customer", type: "select", label: "Customer", source: "customers", placeholder: "Search Customer", span: 3 },
     { name: "mode", type: "select", label: "Select Mode", options: MODE_OPTIONS, placeholder: "Search Mode", span: 3 },
     { name: "product", type: "select", label: "Select Product", source: "products", placeholder: "Search Product", span: 3 },

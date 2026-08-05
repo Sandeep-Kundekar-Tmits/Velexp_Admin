@@ -1,14 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Row, Col, FormGroup, Spinner } from "@/components/ui";
+import { Spinner } from "@/components/ui";
 import { Button, FormFeedback, Input, Label, Table } from "@/components/ui";
 import DateRangeInput from "../../../../components/Common/DateRangeInput";
 
 import Select from 'react-select'
-import { GET_ADMIN_BOOKING_DETAILS, GET_CUSTOMER_SERVICE, GET_OPERATION_PERFORMANCE, GET_USER_API, PRODUCT_LIST, SERVICE_CENTER, SPD_OPERATION_PERFORMANCE, GET_ALL_REGION, GET_CUSTOMER_PERFORMANCE_FDSR, GET_CUSTOMER_PERFORMANCE_FDSR_CLONE } from '../../../../api';
-import { LoaderMark } from "@/Loaders/Loader";
+import { GET_ADMIN_BOOKING_DETAILS, GET_CUSTOMER_SERVICE, GET_OPERATION_PERFORMANCE, GET_USER_API, PRODUCT_LIST, SPD_OPERATION_PERFORMANCE, GET_ALL_REGION, GET_CUSTOMER_PERFORMANCE_FDSR, GET_CUSTOMER_PERFORMANCE_FDSR_CLONE } from '../../../../api';
+import { useQuery } from "@tanstack/react-query";
+import { qk } from "@/lib/queryKeys";
+import { fetchServiceCenters } from "@/services/reference.service";
+import Loader from "@/Loaders/Loader";
 import { IoMdCloudDownload } from "react-icons/io";
 import TableContainer from '../../../../components/Table/TableContainer';
-import { customStyles } from '../../../../helpers/CustomStyle';
+import { customStyles, CheckboxOption, SelectedCountValue } from '../../../../helpers/CustomStyle';
 import usePostApiCall from '../../../../hooks/usePostApiCall';
 import { useGetApiCall } from '../../../../hooks/useGetApiCall';
 import formatDateForPayload from '../../../../helpers/DateHelper';
@@ -19,8 +22,21 @@ import renderCountWithPercent from '../../../../components/renderCountWithPercen
 import { useOperationFDSR } from '../../../../hooks/useOperationFDSR';
 import { useNewOperationDelivaryStrikeRate } from '../../../../hooks/useNewOperationDelivaryStrikeRate';
 import StatsCard from '../../../../components/StatsCard';
-import SelectedItemsDisplay from '../../../../components/Common/SelectedItemsDisplay';
 import MainHeaderComp from '../../../../components/MainHeaderCom';
+
+/* Same contract as LastMileOperations.jsx: a checkbox per option instead of a
+   chip strip beside the control, and a count in the control instead of one
+   chip per value. See CustomStyle.jsx for why. */
+const MULTI_SELECT_PROPS = {
+    isMulti: true,
+    isClearable: true,
+    hideSelectedOptions: false,
+    closeMenuOnSelect: false,
+    styles: customStyles,
+    components: { Option: CheckboxOption, ValueContainer: SelectedCountValue },
+    menuPortalTarget: document.body,
+    menuPosition: "fixed",
+};
 
 const CustomerLastMileOperationClone = () => {
     useEffect(() => {
@@ -603,8 +619,12 @@ const CustomerLastMileOperationClone = () => {
     // defining get user api
     const { apifunc: GetUserList, data: UserList } = useGetApiCall()
 
-    // definging the get service center api
-    const { apifunc: GetServiceCenter, data: ServiceCenters } = useGetApiCall()
+    // service centers -- cached 30min via react-query instead of refetched on every mount
+    const { data: ServiceCenters } = useQuery({
+        queryKey: qk.reference.serviceCenters(),
+        queryFn: fetchServiceCenters,
+        staleTime: 30 * 60_000,
+    })
 
     // selected service center
     const [SelectedServiceCenters, setSelectedServiceCenters] = useState([])
@@ -634,7 +654,6 @@ const CustomerLastMileOperationClone = () => {
     //  calling user api
     useEffect(() => {
         GetUserList(`${GET_USER_API}/`)
-        GetServiceCenter(SERVICE_CENTER)
         //  calling the get product list api
         GetProductsList(PRODUCT_LIST)
         //  calling the regions api
@@ -776,156 +795,125 @@ const CustomerLastMileOperationClone = () => {
 
 
     return (
-        <div className='page-content py-0 px-0'>
-            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                <MainHeaderComp title="Customer Delivery Strike Rate (FDSR)" subTitle="" />
-            </div>
-            <div className="container-fluid px-2">
-                <div>
-                    <Row className='gx-3 flex items-end pt-2 border-bottom pb-2'>
-                        {/* select region  */}
-                        <Col md={6}>
-                            <FormGroup className="mb-0">
-                                <Label for="Customer" className="font-bold text-ink-muted mb-1">Select Region</Label>
-                                <div className="flex items-center">
-                                    <div style={{ width: "250px" }}>
-                                        <Select
-                                            options={AllRegions}
-                                            placeholder="Search Region"
-                                            isMulti={true}
-                                            value={SelectedRegion}
-                                            onChange={setSelectedRegion}
-                                            isClearable={true}
-                                            menuPortalTarget={document.body}
-                                            menuPosition="fixed"
-                                            styles={customStyles}
-                                            controlShouldRenderValue={false}
-                                            hideSelectedOptions={true}
-                                        />
-                                    </div>
-                                    <SelectedItemsDisplay
-                                        selectedItems={SelectedRegion}
-                                        onRemove={(item) => setSelectedRegion(SelectedRegion.filter(r => r.value !== item.value))}
-                                        targetId="region-overflow"
-                                        placeholder="No Region Selected"
-                                    />
-                                </div>
-                            </FormGroup>
-                        </Col>
-                        {/*  service centers list */}
-                        <Col md={6}>
-                            <FormGroup className="mb-0">
-                                <Label for="Customer" className="font-bold text-ink-muted mb-1">Select Service Center</Label>
-                                <div className="flex items-center">
-                                    <div style={{ width: "250px" }}>
-                                        <Select options={ServiceCenterOption}
-                                            placeholder="Search Service Center"
-                                            isMulti={true}
-                                            value={SelectedServiceCenters}
-                                            onChange={setSelectedServiceCenters}
-                                            isClearable={true}
-                                            menuPortalTarget={document.body}
-                                            menuPosition="fixed"
-                                            styles={customStyles}
-                                            controlShouldRenderValue={false}
-                                            hideSelectedOptions={true}
-                                        />
-                                    </div>
-                                    <SelectedItemsDisplay
-                                        selectedItems={SelectedServiceCenters}
-                                        onRemove={(item) => setSelectedServiceCenters(SelectedServiceCenters.filter(s => s.value !== item.value))}
-                                        targetId="sc-overflow"
-                                        placeholder="No Service Center Selected"
-                                    />
-                                </div>
-                            </FormGroup>
-                        </Col>
-                    </Row>
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+            <MainHeaderComp
+                title="Customer Delivery Strike Rate (FDSR)"
+                subTitle="Region and service-center level delivery TAT for one customer."
+            />
 
-                    <Row className='gx-3 flex items-center pt-2'>
-                        <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label className='mb-1'>Select Date Range</Label>
-                                <DateRangeInput
-                                    value={selectedRange}
-                                    onChange={handleChange}
-                                    isBorder={true}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label className='mb-1'>Customer</Label>
-                                <Select
-                                    options={UserListOptions}
-                                    placeholder="Search Customer"
-                                    value={username}
-                                    onChange={setUsername}
-                                    isClearable={true}
-                                    menuPortalTarget={document.body}
-                                    menuPosition="fixed"
-                                    styles={customStyles}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label className='mb-1' for="Customer">Payment Mode</Label>
-                                <Select options={paymentModeOptions}
-                                    placeholder="Search Payment Mode"
-                                    value={PaymentMode}
-                                    onChange={setPaymentMode}
-                                    isClearable={true}
-                                    menuPortalTarget={document.body}
-                                    menuPosition="fixed"
-                                    styles={customStyles} />
-                            </FormGroup>
-                        </Col>
-
-                        <Col md={3} className=' flex items-center gap-2 mt-2'>
-                            <Button color="primary" disabled={bookingLoading} style={{ height: "38px", width: "100%" }} onClick={OnCheckClick}>
-                                Check
-                            </Button>
-                        </Col>
-                    </Row>
-
-
-                    <div className='flex gap-6'>
-                        {
-                            Object.entries(FinalStatusCount).map(([key, value], index) => {
-                                return (
-                                    <StatsCard label={key}
-                                        value={value} />
-                                )
-                            })
-                        }
+            <div className="page-fit-body relative z-10 pb-4">
+                {/* Filters -- see LastMileOperations.jsx for the reasoning:
+                    checkboxes in the dropdown replace the chip strip beside
+                    the control, and every field wraps to the next line rather
+                    than push the row past the card. */}
+                <div className="flex flex-wrap items-end gap-3 border-b border-white/8 pb-4">
+                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Select Region
+                        </Label>
+                        <Select
+                            options={AllRegions}
+                            placeholder="Search Region"
+                            value={SelectedRegion}
+                            onChange={setSelectedRegion}
+                            {...MULTI_SELECT_PROPS}
+                        />
                     </div>
+
+                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Select Service Center
+                        </Label>
+                        <Select
+                            options={ServiceCenterOption}
+                            placeholder="Search Service Center"
+                            value={SelectedServiceCenters}
+                            onChange={setSelectedServiceCenters}
+                            {...MULTI_SELECT_PROPS}
+                        />
+                    </div>
+
+                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Select Date Range
+                        </Label>
+                        <DateRangeInput
+                            value={selectedRange}
+                            onChange={handleChange}
+                            isBorder={true}
+                        />
+                    </div>
+
+                    <div className="flex w-full flex-col gap-1.5 sm:w-56">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Customer
+                        </Label>
+                        <Select
+                            options={UserListOptions}
+                            placeholder="Search Customer"
+                            value={username}
+                            onChange={setUsername}
+                            isClearable={true}
+                            menuPortalTarget={document.body}
+                            menuPosition="fixed"
+                            styles={customStyles}
+                        />
+                    </div>
+
+                    <div className="flex w-full flex-col gap-1.5 sm:w-48">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Payment Mode
+                        </Label>
+                        <Select
+                            options={paymentModeOptions}
+                            placeholder="Search Payment Mode"
+                            value={PaymentMode}
+                            onChange={setPaymentMode}
+                            isClearable={true}
+                            menuPortalTarget={document.body}
+                            menuPosition="fixed"
+                            styles={customStyles}
+                        />
+                    </div>
+
+                    <Button
+                        color="primary"
+                        disabled={bookingLoading}
+                        className="h-9.5 shrink-0 px-6"
+                        onClick={OnCheckClick}
+                    >
+                        Check
+                    </Button>
                 </div>
 
-                <div className=''>
+                {Object.keys(FinalStatusCount).length > 0 && (
+                    <div className="mt-4 flex flex-wrap gap-3">
+                        {Object.entries(FinalStatusCount).map(([key, value]) => (
+                            <StatsCard key={key} label={key} value={value} />
+                        ))}
+                    </div>
+                )}
 
-                    <div className='mt-4'>
-                        {
-                            bookingLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <LoaderMark />
-                                <p className="mt-12 h5">Loading customer Performance ...</p>
-                            </div>
-                                :
-                                <>
-                                    <TableContainer
-                                        columns={LastMilecolumns}
-                                        data={SecondMiles || []}
-                                        isGlobalFilter={true}
-                                        isPagination={true}
-                                        SearchPlaceholder="Search From Table"
-                                        pagination="pagination"
-                                        paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
-                                        isCustomPageSize={true}
-                                        isDownloadExcle={true}
-                                        isStickyHeader={true}
-                                        stickyTop={0}
-                                        onDownloadExcle={async () => {
+                <div className="page-fit-body mt-4">
+                    {
+                        bookingLoading ? <Loader message="Loading customer Performance ..." fullscreen={false} /> : (
+                            <TableContainer
+                                columns={LastMilecolumns}
+                                data={SecondMiles || []}
+                                isGlobalFilter={true}
+                                isPagination={true}
+                                SearchPlaceholder="Search From Table"
+                                pagination="pagination"
+                                paginationWrapper='dataTables_paginate paging_simple_numbers'
+                                tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                                theadClass="sticky top-0 z-10"
+                                isCustomPageSize={true}
+                                isDownloadExcle={true}
+                                isStickyHeader={true}
+                                stickyTop={0}
+                                fillHeight
+                                tableHeight="72vh"
+                                onDownloadExcle={async () => {
                                             const toTitleCase = (str) =>
                                                 str
                                                     .replace(/_/g, " ")
@@ -967,12 +955,10 @@ const CustomerLastMileOperationClone = () => {
                                                 FinalStatusCount
                                             )
                                         }}
-                                        ExcleLoading={SecondMileLoading}
-                                    // excelItems={excelItems}
-                                    />
-                                </>
-                        }
-                    </div>
+                                ExcleLoading={SecondMileLoading}
+                            />
+                        )
+                    }
                 </div>
             </div>
         </div>

@@ -3,7 +3,6 @@ import {
     Button, Card, CardBody, Col, Container, Form, FormGroup, Input, Label, Row, Spinner, Badge,
     Nav, NavItem, NavLink, TabContent, TabPane, Table, Modal, ModalHeader, ModalBody, ModalFooter
 } from "@/components/ui"
-import classnames from "classnames"
 import MainHeaderComp from "../../components/MainHeaderCom"
 import SearchableDropdown from "../../components/Common/SearchableDropdown"
 import { useGetApiCall } from "../../hooks/useGetApiCall"
@@ -323,14 +322,14 @@ const InvoiceFlow = () => {
     return (
         <React.Fragment>
             <div className='page-content py-0 px-0'>
-                <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                    <MainHeaderComp title="Invoice Flow" />
-                </div>
+                {/* No sticky wrapper: MainHeaderComp draws nothing inline, it hands
+                    the title to the layout's PageHeader. */}
+                <MainHeaderComp title="Invoice Flow" />
                 <div className="container-fluid px-4 py-4">
                     <Nav tabs className="nav-tabs-custom nav-success mb-6">
                         <NavItem>
                             <NavLink
-                                className={classnames({ active: activeTab === "1" })}
+                                active={activeTab === "1"}
                                 onClick={() => setActiveTab("1")}
                             >
                                 <span className="hidden sm:block">Create Invoice</span>
@@ -338,7 +337,7 @@ const InvoiceFlow = () => {
                         </NavItem>
                         <NavItem>
                             <NavLink
-                                className={classnames({ active: activeTab === "2" })}
+                                active={activeTab === "2"}
                                 onClick={() => setActiveTab("2")}
                             >
                                 <span className="hidden sm:block">Invoice History</span>
@@ -353,11 +352,11 @@ const InvoiceFlow = () => {
                                     <CardBody className="p-6">
                                         <h5 className="mb-6 font-bold">1. Upload Working Excel</h5>
 
-                                        <div className="text-center p-12 border-2 border-dashed rounded bg-soft-light">
+                                        <div className="text-center p-12 rounded-lg border-2 border-dashed border-white/15">
                                             <div className="mb-6">
                                                 <i className="mdi mdi-file-excel-outline text-success-500" style={{ fontSize: "5rem" }}></i>
                                             </div>
-                                            <h4>Select File</h4>
+                                            <h4 className="text-ink">Select File</h4>
                                             <p className="text-ink-muted mb-6">Choose the Excel file from Billing Working.</p>
                                             <p className="text-ink-muted text-xs mb-6">
                                                 <i className="mdi mdi-information-outline mr-1"></i>
@@ -389,16 +388,16 @@ const InvoiceFlow = () => {
                                     </CardBody>
                                 </Card>
                             ) : (
-                                <div className="animate-fade-in">
-                                    <Card className="shadow-sm border-0 mb-6 bg-soft-success border-start border-4 border-success">
+                                <div>
+                                    <Card className="shadow-sm mb-6 bg-success-500/10 border-y-0 border-r-0 border-l-4 border-success-500">
                                         <CardBody>
                                             <Row className="items-center">
                                                 <Col md={8}>
                                                     <h5 className="mb-1 font-bold text-success-500">Preview Prepared: {previewData.customer_name}</h5>
                                                     <p className="mb-0 text-ink-muted">Period: {formatDate(previewData.start_date)} to {formatDate(previewData.end_date)} | Total Ships: {previewData.bills?.length || 0}</p>
                                                 </Col>
-                                                <Col md={4} className="text-md-end mt-4 mt-md-0">
-                                                    <Button color="secondary" className="mr-2" onClick={() => setPreviewData(null)}>Cancel</Button>
+                                                <Col md={4} className="flex justify-end gap-2 mt-4 md:mt-0">
+                                                    <Button color="secondary" onClick={() => setPreviewData(null)}>Cancel</Button>
                                                     <Button color="primary" onClick={handleGenerateInvoice} disabled={generating}>
                                                         {generating ? <Spinner size="sm" /> : "Generate Final Invoice"}
                                                     </Button>
@@ -448,7 +447,7 @@ const InvoiceFlow = () => {
                                             <Row>
                                                 {Object.entries(previewData.booking).map(([zone, data]) => (
                                                     <Col md={3} key={zone} className="mb-4">
-                                                        <Card className="border-0 shadow-sm h-full bg-white">
+                                                        <Card className="border-0 shadow-sm h-full">
                                                             <CardBody className="p-4">
                                                                 <div className="flex justify-between items-center mb-2">
                                                                     <Badge color={zone === "UNMAPPED" || data.total_amount === 0 ? "danger" : "info"} className="px-2 py-1">

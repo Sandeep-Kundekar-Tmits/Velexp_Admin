@@ -1,13 +1,16 @@
-import { Button, Card, CardBody, Col, FormGroup, Label, Row } from "@/components/ui"
+import { Button, Col, FormGroup, Label, Row } from "@/components/ui"
 import Select from 'react-select'
 import { customStyles } from "../../../helpers/CustomStyle"
 import { FaCloudDownloadAlt } from "react-icons/fa";
 import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { qk } from "@/lib/queryKeys";
+import { fetchServiceCenters } from "@/services/reference.service";
 import { useGetApiCall } from "../../../hooks/useGetApiCall";
-import { GET_USER_API, SERVICE_CENTER, UPLOAD_GET_REVENUE_API } from "../../../api";
+import { GET_USER_API, UPLOAD_GET_REVENUE_API } from "../../../api";
 import TableContainer from "../../../components/Table/TableContainer";
 import usePostApiCall from "../../../hooks/usePostApiCall";
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import { downloadExcel } from "../../../helpers/downloadExcel";
 import { useExcelExport } from "../../../hooks/useExcelExport";
 import MainHeaderComp from "../../../components/MainHeaderCom";
@@ -122,8 +125,12 @@ const RevenueReport = () => {
     //  api functions
     // defining get user api
     const { apifunc: GetAllCustomers, data: CustomerList, loading: CustomerLoading } = useGetApiCall()
-    // definging the get service center api
-    const { apifunc: GetServiceCenter, data: ServiceCentersList, loading: ServiceCenterLoading } = useGetApiCall()
+    // service centers -- cached 30min via react-query instead of refetched on every mount
+    const { data: ServiceCentersList, isLoading: ServiceCenterLoading } = useQuery({
+        queryKey: qk.reference.serviceCenters(),
+        queryFn: fetchServiceCenters,
+        staleTime: 30 * 60_000,
+    })
     // defining the get revenue api
     const { apifunc: UploadRevenue, data: RevenueData, loading: RevenueDataLoading } = usePostApiCall()
     const { exportToExcel, isExporting, exportProgress } = useExcelExport();
@@ -131,8 +138,6 @@ const RevenueReport = () => {
     useEffect(() => {
         // calling the customer api
         GetAllCustomers(`${GET_USER_API}/`)
-        // calling the service Center api
-        GetServiceCenter(SERVICE_CENTER)
     }, [])
 
 
@@ -281,12 +286,15 @@ const RevenueReport = () => {
         }), payload)
     }
     return (
-        <div className='page-content py-0 px-0'>
-            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                <MainHeaderComp title="Old Revenue Report" />
-            </div>
-            <div className="container-fluid px-4">
-                <div className="mt-4">
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+            {/* No sticky wrapper: MainHeaderComp draws nothing inline now, it
+                hands the title to the layout's PageHeader. */}
+            <MainHeaderComp
+                title="Old Revenue Report"
+                subTitle="Revenue by customer, service centre and region."
+            />
+            <div className="container-fluid page-fit-body relative z-10 pb-4">
+                <div className="">
                     <Row>
                         <Col md={3}>
                             <FormGroup className="mb-2">
@@ -358,8 +366,18 @@ const RevenueReport = () => {
                                 />
                             </FormGroup>
                         </Col>
-                        <Col md={3} className='flex mt-4 content-center flex-wrap gap-2'>
-                            <Button color="primary" onClick={CheckClick} style={{ width: "100%", height: "38px" }}>
+                        {/* items-end + mb-2, not mt-4: the button has no label
+                            above it, and mt-4 was a hand-picked 16px standing
+                            in for a label whose real height is ~22px -- so the
+                            button sat above the inputs' baseline instead of on
+                            it. mb-2 matches the FormGroup margin beside it. */}
+                        <Col md={3} className="mb-2 flex items-end">
+                            <Button
+                                color="primary"
+                                onClick={CheckClick}
+                                className="w-full"
+                                style={{ height: "38px" }}
+                            >
                                 {
                                     RevenueDataLoading ? "Checking..." : "Check"
                                 }
@@ -370,69 +388,60 @@ const RevenueReport = () => {
                     {/*  filter section */}
                     {
                         RevenueListData?.total_revenue &&
-                        <Row className="border-top pt-6 ml-0" style={{ width: "100%" }}>
-                            <Col md="3">
-                                <Card className="mb-4 border" style={{ minHeight: "70px" }}>
-                                    <CardBody className="py-2">
-                                        <h5 className="text-ink-muted text-center">Total Revenue</h5>
-                                        <h3 className="my-2 text-center">{RevenueListData?.total_revenue}</h3>
-                                    </CardBody>
-                                </Card>
-                            </Col>
-                            <Col md="3">
-                                <Card className="mb-4 border" style={{ minHeight: "70px" }}>
-                                    <CardBody className="py-2">
-                                        <h5 className="text-ink-muted text-center">Total Shipments</h5>
-                                        <h3 className="my-2 text-center">{RevenueListData?.bookings?.length}</h3>
-                                    </CardBody>
-                                </Card>
-                            </Col>
-                            <Col md="3">
-                                <Card className="mb-4  border" style={{ minHeight: "70px" }}>
-                                    <CardBody className="py-2">
-                                        <h5 className="text-ink-muted text-center">Avarage</h5>
-                                        <h3 className="my-0 text-center">{Math.ceil(RevenueListData?.total_revenue / RevenueListData?.bookings?.length)}</h3>
-                                    </CardBody>
-                                </Card>
-                            </Col>
-                            {/* <Col md="3">
-                                <Card className="mb-4 shadow-sm" style={{ minHeight: "80px" }}>
-                                    <CardBody className="py-2">
-                                        <h5 className="text-ink-muted text-center"></h5>
-                                        <h3 className="my-2 text-center"></h3>
-                                    </CardBody>
-                                </Card>
-                            </Col> */}
-                        </Row>
+                        /* Stat tiles on the same glass as the rest of the app,
+                           and sized like the customer list's: ~92px, so they
+                           give context without competing with the grid for the
+                           screen. Was three bordered Cards in a Row, ~124px
+                           tall and painted on the canvas. */
+                        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                            {[
+                                ["Total Revenue", RevenueListData?.total_revenue],
+                                ["Total Shipments", RevenueListData?.bookings?.length],
+                                ["Average", Math.ceil(RevenueListData?.total_revenue / RevenueListData?.bookings?.length)],
+                            ].map(([label, value]) => (
+                                <div
+                                    key={label}
+                                    className="rounded-xl border border-white/8 bg-[rgba(17,24,39,0.70)] p-3.5 backdrop-blur-xl"
+                                >
+                                    <p className="m-0 text-[11px] font-medium uppercase tracking-wider text-ink-muted">
+                                        {label}
+                                    </p>
+                                    <p className="m-0 mt-1.5 text-[22px] font-semibold leading-tight tracking-tight text-white">
+                                        {Number.isFinite(value) ? value.toLocaleString() : (value ?? "--")}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
                     }
 
                 </div>
 
-                <div className=''>
-                    {/* <h2>Bookings</h2> */}
-                    <div className='mt-1'>
-                        {
-                            RevenueDataLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <LoaderMark />
-                                <p className="mt-12 h5">Loading ...</p>
-                            </div>
-                                :
-                                <TableContainer
-                                    columns={columns}
-                                    data={RevenueListData || []}
-                                    isGlobalFilter={true}
-                                    isPagination={true}
-                                    isCustomPageSize={true}
-                                    SearchPlaceholder="Search From Table"
-                                    pagination="pagination"
-                                    paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                    tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
-                                    isDownloadExcle={true}
-                                    ExcleLoading={isExporting}
-                                    onDownloadExcle={DownloadRevenueDetails}
-                                />
-                        }
-                    </div>
+                <div className="page-fit-body mt-4">
+                    {
+                        RevenueDataLoading ? <Loader message="Loading ..." fullscreen={false} />
+                            :
+                            <TableContainer
+                                columns={columns}
+                                data={RevenueListData || []}
+                                isGlobalFilter={true}
+                                isPagination={true}
+                                isCustomPageSize={true}
+                                SearchPlaceholder="Search From Table"
+                                pagination="pagination"
+                                paginationWrapper='dataTables_paginate paging_simple_numbers'
+                                /* table-bordered dropped: .grid-shell draws the
+                                   row rules now, and the two only fought. */
+                                tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                                theadClass="sticky top-0 z-10"
+                                isStickyHeader={true}
+                                stickyTop={0}
+                                fillHeight
+                                tableHeight="60vh"
+                                isDownloadExcle={true}
+                                ExcleLoading={isExporting}
+                                onDownloadExcle={DownloadRevenueDetails}
+                            />
+                    }
                 </div>
             </div>
         </div>

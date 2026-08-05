@@ -94,15 +94,29 @@ const CancelShipments = () => {
 
     return (
         <React.Fragment>
-            <div className="page-content py-0 px-0">
-                <div className="bg-white" style={{ position: "sticky", top: 0, zIndex: 1001, width: "100%" }}>
-                    <MainHeaderComp title="Cancel Shipments" />
-                </div>
+            {/* No page-fit: an upload flow with a preview below it is taller
+                than the viewport by design and should keep scrolling. */}
+            <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
+                {/* No sticky wrapper: MainHeaderComp draws nothing inline now,
+                    it hands the title and the template download to the layout's
+                    PageHeader. */}
+                <MainHeaderComp
+                    title="Cancel Shipments"
+                    subTitle="Cancel booked AWBs from a sheet or a pasted list."
+                    extraFields={
+                        <Button
+                            onClick={downloadTemplate}
+                            className="table-action-btn table-action-btn-export"
+                        >
+                            <MdFileDownload size={15} aria-hidden="true" /> Template
+                        </Button>
+                    }
+                />
 
-                <div className="container-fluid px-4 py-4">
+                <div className="container-fluid relative z-10 px-4 pb-4">
 
                     {/* ── Cancel form ── */}
-                    <Card className="shadow-sm border-0 mb-4">
+                    <Card className="mb-4">
                         <CardBody className="py-4">
                             <Row className="gap-4 items-stretch">
 
@@ -110,14 +124,14 @@ const CancelShipments = () => {
                                 <Col md={4} className="border-end pr-4">
                                     <div className="flex items-center justify-between mb-2">
                                         <span className="font-bold text-xs">Upload Excel / CSV</span>
-                                        <Button color="outline-success" size="sm" onClick={downloadTemplate} className="flex items-center gap-1 py-0 px-2" style={{ fontSize: "0.75rem" }}>
-                                            <MdFileDownload size={14} /> Template
-                                        </Button>
                                     </div>
+                                    {/* Colours in classes, not inline: the dashed
+                                        #adb5bd on #f8f9fa was a white panel on
+                                        the dark theme, and inline styles are
+                                        unreachable from any stylesheet. */}
                                     <label
                                         htmlFor="cancel-file-input"
-                                        className="rounded-3 flex flex-col items-center justify-center text-center w-full mb-0"
-                                        style={{ border: "1.5px dashed #adb5bd", background: "#f8f9fa", cursor: "pointer", padding: "22px 12px" }}
+                                        className="mb-0 flex w-full cursor-pointer flex-col items-center justify-center rounded-xl border-[1.5px] border-dashed border-white/15 bg-white/3 px-3 py-6 text-center transition-colors hover:border-[#3B82F6]/50 hover:bg-[#3B82F6]/8"
                                         onDragOver={(e) => e.preventDefault()}
                                         onDrop={(e) => {
                                             e.preventDefault()
@@ -126,7 +140,7 @@ const CancelShipments = () => {
                                         }}
                                     >
                                         <MdCloudUpload size={30} className="text-ink-muted mb-1" />
-                                        <p className="mb-0 font-semibold text-ink-muted" style={{ fontSize: "0.8rem" }}>Click or drag & drop</p>
+                                        <p className="mb-0 font-semibold text-ink-muted" style={{ fontSize: "0.8rem" }}>Click or drag &amp; drop</p>
                                         <p className="mb-0 text-ink-muted" style={{ fontSize: "0.72rem" }}>.xlsx or .csv</p>
                                         <input id="cancel-file-input" ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="hidden" onChange={handleFile} />
                                     </label>
@@ -175,35 +189,39 @@ const CancelShipments = () => {
 
                     {/* ── Cancel results ── */}
                     {results && (
-                        <Card className="shadow-sm border-0 mb-4">
+                        <Card className="mb-4">
                             <CardBody>
                                 <h6 className="font-bold mb-4">Results</h6>
-                                <Row className="gap-2 mb-4">
-                                    <Col xs={6} md={3}>
-                                        <div className="rounded-3 bg-success-500 bg-opacity-10 border border-success border-opacity-25 p-2 text-center">
-                                            <div className="font-bold text-success-500" style={{ fontSize: "1.5rem" }}>{successList.length}</div>
-                                            <div className="text-xs text-success-500">Cancelled</div>
+                                {/* Tinted tiles, written as Tailwind alpha
+                                    colours.
+
+                                    These were `bg-success-500 bg-opacity-10
+                                    border-success border-opacity-25` -- Bootstrap
+                                    5 opacity utilities, which Tailwind does not
+                                    provide, so they did nothing at all. Each
+                                    tile rendered a SOLID success/danger/warning
+                                    fill with same-coloured text on top: green
+                                    on green, red on red, unreadable.
+
+                                    Same shape as the stat tiles elsewhere:
+                                    count large, label small and muted. */}
+                                <div className="mb-4 grid grid-cols-2 gap-2 md:grid-cols-4">
+                                    {[
+                                        ["Cancelled", successList.length, "border-success-500/30 bg-success-500/12 text-success-500"],
+                                        ["Failed", failedList.length, "border-danger-500/30 bg-danger-500/12 text-danger-500"],
+                                        ["Not Allowed", notAllowedList.length, "border-warning-500/30 bg-warning-500/12 text-warning-500"],
+                                        ["Already Cancelled", alreadyCancelledList.length, "border-white/10 bg-white/4 text-ink-muted"],
+                                    ].map(([label, count, tone]) => (
+                                        <div key={label} className={`rounded-xl border p-3 text-center ${tone}`}>
+                                            <div className="text-[22px] font-semibold leading-tight tracking-tight">
+                                                {count}
+                                            </div>
+                                            <div className="mt-0.5 text-[11px] font-medium uppercase tracking-wider opacity-80">
+                                                {label}
+                                            </div>
                                         </div>
-                                    </Col>
-                                    <Col xs={6} md={3}>
-                                        <div className="rounded-3 bg-danger-500 bg-opacity-10 border border-danger border-opacity-25 p-2 text-center">
-                                            <div className="font-bold text-danger-500" style={{ fontSize: "1.5rem" }}>{failedList.length}</div>
-                                            <div className="text-xs text-danger-500">Failed</div>
-                                        </div>
-                                    </Col>
-                                    <Col xs={6} md={3}>
-                                        <div className="rounded-3 bg-warning-500 bg-opacity-10 border border-warning border-opacity-25 p-2 text-center">
-                                            <div className="font-bold text-warning-500" style={{ fontSize: "1.5rem" }}>{notAllowedList.length}</div>
-                                            <div className="text-xs text-warning-500">Not Allowed</div>
-                                        </div>
-                                    </Col>
-                                    <Col xs={6} md={3}>
-                                        <div className="rounded-3 bg-secondary bg-opacity-10 border border-secondary border-opacity-25 p-2 text-center">
-                                            <div className="font-bold text-ink-muted" style={{ fontSize: "1.5rem" }}>{alreadyCancelledList.length}</div>
-                                            <div className="text-xs text-ink-muted">Already Cancelled</div>
-                                        </div>
-                                    </Col>
-                                </Row>
+                                    ))}
+                                </div>
 
                                 {successList.length > 0 && (
                                     <div className="mb-2">

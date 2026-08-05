@@ -2,14 +2,14 @@ import { Button, Col, FormGroup, Label, Row } from "@/components/ui"
 import Select from "react-select";
 import { customStyles } from "../../helpers/CustomStyle";
 import { useEffect, useMemo, useState } from "react";
-import { useGetApiCall } from "../../hooks/useGetApiCall";
-import { GET_POP_RECONSILATION_PAYMENT_REPORT, GET_USER_API, POP_RECONCILATION_PAYMENT_CONFIRMATION, SERVICE_CENTER } from "../../api";
+import { useServiceCenters } from "../../hooks/queries/useReferenceData";
+import { GET_POP_RECONSILATION_PAYMENT_REPORT, GET_USER_API, POP_RECONCILATION_PAYMENT_CONFIRMATION } from "../../api";
 import DateRangeInput from "../../components/Common/DateRangeInput";
 import TableContainer from "../../components/Table/TableContainer";
 import UpdatedReconcilation from "../../components/POP_Reconcilation/UpdatedReconcilation";
 import usePostApiCall from "../../hooks/usePostApiCall";
 import YMD_DateFormate from "../../helpers/YMD_DateFormate";
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import { useExcelExport } from "../../hooks/useExcelExport";
 import MainHeaderComp from "../../components/MainHeaderCom";
 // Use local date methods instead of toISOString()
@@ -30,12 +30,10 @@ const PopReconcilation = () => {
         endDate: null,
     });
     const [showPopup, setShowPopup] = useState(false)
-    // service center option dropdown
-    const [ServiceCenterOption, setServiceCenterOption] = useState([])
+    // service centers -- cached 30min, shared across every screen that asks
+    const { data: ServiceCenterOption = [] } = useServiceCenters()
     //  defining the get all pop_payment_report  api
     const { apifunc: POP_Get_AllReconcilation, data: ReconcilationData, loading: ReconcilationListLoading } = usePostApiCall()
-    // definging the get service center api
-    const { apifunc: GetServiceCenter, data: ServiceCenters } = useGetApiCall()
     // defining the payment confirmation api
     const { apifunc: PaymentConfirmation, loading: PaymentConfirmationLoading } = usePostApiCall(() => {
         setShowPopup(false)
@@ -68,7 +66,6 @@ const PopReconcilation = () => {
 
     //  calling user api
     useEffect(() => {
-        GetServiceCenter(SERVICE_CENTER)
         // calling the  get all reconsilation api call
         const targetDate = new Date();
         const year = targetDate.getFullYear();
@@ -90,18 +87,7 @@ const PopReconcilation = () => {
         if (ReconcilationData) {
             setPOP_Reconcilation(ReconcilationData?.pop_data)
         }
-
-        //  getting the service center data
-        if (ServiceCenters) {
-            let updatedServiceCenters = ServiceCenters.map((ele) => {
-                return {
-                    value: ele?.ec_code,
-                    label: ele?.ec_code
-                }
-            })
-            setServiceCenterOption(updatedServiceCenters)
-        }
-    }, [ReconcilationData, ServiceCenters]);
+    }, [ReconcilationData]);
 
 
     const handleDateChange = (range) => {
@@ -214,10 +200,7 @@ const PopReconcilation = () => {
                 <div className="mt-2">
                     {
                         ReconcilationListLoading ?
-                            <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <LoaderMark />
-                                <p className="mt-12 h5">Loading ...</p>
-                            </div> :
+                            <Loader message="Loading ..." fullscreen={false} /> :
                             <TableContainer
                                 columns={columns}
                                 data={POP_Reconcilation || []}

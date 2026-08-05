@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react"
 import { customStyles } from "../../../helpers/CustomStyle"
 import Select from "react-select";
-import { Button, Col, FormGroup, Input, Label, Row, Spinner } from "@/components/ui";
-import { LoaderMark } from "@/Loaders/Loader";
+import { Button, Input, Label, Spinner } from "@/components/ui";
+import Loader from "@/Loaders/Loader";
 import MainHeaderComp from "../../../components/MainHeaderCom";
 import usePostApiCall from "../../../hooks/usePostApiCall";
 import { useGetApiCall } from "../../../hooks/useGetApiCall";
@@ -392,89 +392,86 @@ const CorporateRateData = () => {
     );
 
     return (
-        <div className='page-content py-0 px-0'>
-            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                <MainHeaderComp
-                    title="Corporate Rate Data"
-                    extraFields={
-                        <div className="flex items-center">
-                            <h6 className="text-black font-bold mb-0 mr-2" style={{ fontSize: "14px" }}>Template</h6>
-                            {["Default", "ASUS"]?.map((ele) => (
-                                <div className="ml-2" key={ele}>
-                                    <Button
-                                        onClick={() => converToExcel(ele)}
-                                        className="flex items-center justify-center p-2 m-auto bg-transparent border-success text-success-500"
-                                        style={{ borderRadius: "7px", width: "100px", fontWeight: "500", fontSize: "12px" }}
-                                    >
-                                        {(ConvertingEmptyExcelLoading && SelectedTypeOfExcel === ele)
-                                            ? <span>Exporting...</span>
-                                            : <span>{ele}</span>}
-                                        <FaFileExcel size={14} className="ml-1" />
-                                    </Button>
-                                </div>
-                            ))}
-                        </div>
-                    }
-                />
-            </div>
-            <div className="container-fluid px-4">
-
-                {/* filters */}
-                <div className="mainfilter">
-                    <Row className=" mt-4 border-bottom">
-                        <Col md={4}>
-                            <FormGroup className="">
-                                <Label>Select Customer</Label>
-                                <Select
-                                    options={CustomerList}
-                                    // isDisabled={selectedPincodeOption?.value === "default"}
-                                    placeholder={GetCustomerLoading ? "loading..." : `Search Customer`}
-                                    value={CustomerName}
-                                    onChange={setCustomerName}
-                                    isClearable={true}
-                                    styles={customStyles}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={4} style={{ marginTop: "28px" }}>
-                            <Button
-                                className="bg-brand-500"
-                                style={{ width: "50%" }}
-                                disabled={!CustomerName}
-                                onClick={onViewCustomer}
-                            >
-                                View
-                            </Button>
-                        </Col>
-                    </Row>
-                    {/* <hr /> */}
-                    <Row className="  flex align-align-items-center my-4">
-                        <Col md={4}>
-                            <div className="flex items-center w-full" >
-                                <Input type="file" style={{ width: "100%" }} disabled={!CustomerName} onChange={UploadChange} />
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+            <MainHeaderComp
+                title="Corporate Rate Data"
+                extraFields={
+                    <div className="flex items-center">
+                        <h6 className="text-ink font-bold mb-0 mr-2" style={{ fontSize: "14px" }}>Template</h6>
+                        {["Default", "ASUS"]?.map((ele) => (
+                            <div className="ml-2" key={ele}>
+                                <Button
+                                    onClick={() => converToExcel(ele)}
+                                    className="table-action-btn table-action-btn-solid"
+                                >
+                                    {(ConvertingEmptyExcelLoading && SelectedTypeOfExcel === ele)
+                                        ? <span>Exporting...</span>
+                                        : <span>{ele}</span>}
+                                    <FaFileExcel size={14} aria-hidden="true" />
+                                </Button>
                             </div>
-                        </Col>
-                        <Col md={4}>
+                        ))}
+                    </div>
+                }
+            />
+
+            <div className="page-fit-body relative z-10 pb-4">
+                {/* One row: view a customer's rates on the left, upload a new
+                    sheet on the right, a rule between the two. See .filter-row
+                    in layout-compat.css. */}
+                <div className="filter-row">
+                    <div className="filter-group">
+                        <div className="flex w-full flex-col gap-1.5 sm:w-52">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                Select Customer
+                            </Label>
+                            <Select
+                                options={CustomerList}
+                                placeholder={GetCustomerLoading ? "loading..." : `Search Customer`}
+                                value={CustomerName}
+                                onChange={setCustomerName}
+                                isClearable={true}
+                                styles={customStyles}
+                                menuPortalTarget={document.body}
+                                menuPosition="fixed"
+                            />
+                        </div>
+
+                        <Button
+                            className="table-action-btn table-action-btn-solid"
+                            disabled={!CustomerName}
+                            onClick={onViewCustomer}
+                        >
+                            View
+                        </Button>
+                    </div>
+
+                    <div aria-hidden="true" className="filter-divider" />
+
+                    <div className="filter-group">
+                        <div className="flex w-full flex-col gap-1.5 sm:w-52">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                Upload File
+                            </Label>
+                            <Input type="file" disabled={!CustomerName} onChange={UploadChange} />
+                        </div>
+
+                        <div className="flex items-center gap-2">
                             <Button
-                                style={{ width: "50%" }}
                                 disabled={!CustomerName || JsonLoading || !file || selecetedExcelData?.length === 0}
-                                className="bg-brand-500 text-white flex items-center justify-center"
+                                className="table-action-btn table-action-btn-primary"
                                 onClick={UploadRateData}
                             >
                                 {UploadCorporateRateDataLoading ? "Uploading..." : "Upload"}
                             </Button>
                             {JsonLoading && <Spinner size="sm">loading...</Spinner>}
-                        </Col>
-                    </Row>
+                        </div>
+                    </div>
                 </div>
 
-                {/* main page */}
-                <div className="mainpage mt-1">
+                <div className="page-fit-body mt-4">
                     {(AllCorporateRateDataLoading || CorporateRateInfoLoading)
-                        ? <div style={{ height: "40vh" }} className="container-fluid flex flex-col justify-center items-center">
-                            <LoaderMark />
-                            <p className="mt-12 h5">Loading Corporate Rate Data ...</p>
-                        </div>
+                        ? <Loader message="Loading Corporate Rate Data ..." fullscreen={false} />
                         : <TableContainer
                             columns={columns}
                             data={AllCorporateRateDatas || []}
@@ -483,8 +480,13 @@ const CorporateRateData = () => {
                             SearchPlaceholder="Search From Table"
                             pagination="pagination"
                             paginationWrapper='dataTables_paginate paging_simple_numbers'
-                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                            tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                            theadClass="sticky top-0 z-10"
+                            isStickyHeader={true}
+                            stickyTop={0}
                             isCustomPageSize={true}
+                            fillHeight
+                            tableHeight="65vh"
                         />}
                 </div>
             </div>

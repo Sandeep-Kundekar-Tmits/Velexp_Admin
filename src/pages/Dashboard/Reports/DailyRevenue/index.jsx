@@ -2,7 +2,7 @@
 import React, { useMemo } from "react"
 import { Button, Card, CardBody, Col, Collapse, Row, Spinner } from "@/components/ui"
 import { MdRefresh, MdKeyboardArrowDown } from "react-icons/md"
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import { useState } from "react"
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
@@ -87,11 +87,17 @@ const DailyRevenue = () => {
 
     return (
         <React.Fragment>
-            <div className="page-content py-0 px-0">
-                <div className="bg-white" style={{ position: "sticky", top: "0px", zIndex: 1001, width: "100%" }}>
-                    <MainHeaderComp
-                        title="Daily Revenue"
-                        extraFields={
+            {/* No page-fit: this is a dashboard of KPI tiles and charts above
+                the grid, taller than the viewport by design, so it keeps
+                scrolling rather than being pinned. */}
+            <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
+                {/* No sticky wrapper: MainHeaderComp draws nothing inline now,
+                    it hands the title and these controls to the layout's
+                    PageHeader, which is already fixed above the scroll box. */}
+                <MainHeaderComp
+                    title="Daily Revenue"
+                    subTitle="Today against yesterday and month to date."
+                    extraFields={
                             <div className="flex items-center gap-2 justify-end flex-wrap">
                                 <div className="flex items-center gap-2 shrink-0">
                                     <DatePicker
@@ -116,14 +122,10 @@ const DailyRevenue = () => {
                             </div>
                         }
                     />
-                </div>
 
-                <div className="container-fluid px-4 py-4">
+                <div className="container-fluid relative z-10 px-4 py-4">
                     {!data ? (
-                        <div style={{ height: "40vh" }} className="flex flex-col justify-center items-center">
-                            <LoaderMark />
-                            <p className="mt-6 h6 text-ink-muted">Loading revenue…</p>
-                        </div>
+                        <Loader message="Loading revenue…" fullscreen={false} />
                     ) : (
                         <>
                             <KpiCards

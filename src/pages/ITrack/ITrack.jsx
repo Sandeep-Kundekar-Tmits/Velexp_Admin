@@ -1,11 +1,11 @@
 import React, { useState, useMemo, useCallback } from "react";
-import { Button, Col, Row, Input, FormGroup, Label, Card, CardBody } from "@/components/ui";
+import { Button, Input, Label } from "@/components/ui";
 import MainHeaderCom from "../../components/MainHeaderCom";
 import TableContainer from "../../components/Table/TableContainer";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
 import { ITRACK_SCANS } from "../../api";
 import ToasterProvider from "../../helpers/ToasterProvider";
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 const ITrack = () => {
     const [awbNumber, setAwbNumber] = useState("");
     const { apifunc: getScans, data, loading, error } = useGetApiCall();
@@ -17,12 +17,6 @@ const ITrack = () => {
             return;
         }
         await getScans(`${ITRACK_SCANS}?awb=${awbNumber}`);
-    };
-
-    const handleKeyPress = (e) => {
-        if (e.key === "Enter") {
-            handleScan();
-        }
     };
 
     const columns = useMemo(() => [
@@ -85,45 +79,52 @@ const ITrack = () => {
     }, [data]);
 
     return (
-        <div className="page-content py-0 px-0">
-            <MainHeaderCom title="ITrack - AWB Scan History" />
-            
-            <div className="container-fluid px-4 mt-4">
-                <Card>
-                    <CardBody>
-                        <Row className="items-center">
-                            <Col md={6}>
-                                <div className="flex items-center gap-2">
-                                    <Label for="awbInput" className="mb-0 whitespace-nowrap">Scan AWB:</Label>
-                                    <Input
-                                        id="awbInput"
-                                        type="text"
-                                        placeholder="Enter AWB Number"
-                                        value={awbNumber}
-                                        onChange={(e) => setAwbNumber(e.target.value)}
-                                        onKeyPress={handleKeyPress}
-                                        autoFocus
-                                        style={{ maxWidth: "300px" }}
-                                    />
-                                    <Button
-                                        color="primary"
-                                        onClick={handleScan}
-                                        disabled={loading}
-                                    >
-                                        {loading ? "..." : "Submit"}
-                                    </Button>
-                                </div>
-                            </Col>
-                        </Row>
-                    </CardBody>
-                </Card>
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+            <MainHeaderCom
+                title="ITrack - AWB Scan History"
+                subTitle="Scan an AWB to see every checkpoint recorded against it."
+            />
 
-                <div className="mt-6">
-                    {loading ? (
-                        <div className="flex flex-col justify-center items-center py-12">
-                            <LoaderMark />
-                            <p className="mt-4">Fetching scan records...</p>
+            <div className="container-fluid page-fit-body relative z-10 pb-4">
+                {/* One filter row, no Card around it: a bordered box holding a
+                    single field and a button was a panel inside a panel once
+                    the grid below grew its own. A rule separates them.
+
+                    A form, so Enter submits -- this screen is fed by a barcode
+                    scanner, which types the AWB and sends Return. The old
+                    onKeyPress handler did that by hand and is now the browser's
+                    job. */}
+                <form
+                    className="filter-row"
+                    onSubmit={(e) => { e.preventDefault(); handleScan(); }}
+                >
+                    <div className="filter-group">
+                        <div className="flex w-full flex-col gap-1.5 sm:w-64">
+                            <Label for="awbInput" className="form-label m-0 font-bold text-ink-muted">
+                                Scan AWB
+                            </Label>
+                            <Input
+                                id="awbInput"
+                                type="text"
+                                placeholder="Enter AWB Number"
+                                value={awbNumber}
+                                onChange={(e) => setAwbNumber(e.target.value)}
+                                autoFocus
+                            />
                         </div>
+                        <Button
+                            type="submit"
+                            className="table-action-btn table-action-btn-primary"
+                            disabled={loading}
+                        >
+                            {loading ? "Scanning..." : "Submit"}
+                        </Button>
+                    </div>
+                </form>
+
+                <div className="page-fit-body mt-4">
+                    {loading ? (
+                        <Loader message="Fetching scan records..." fullscreen={false} />
                     ) : (
                         <TableContainer
                             columns={columns}
@@ -135,9 +136,13 @@ const ITrack = () => {
                             pagination="pagination"
                             buttonClass="btn-success"
                             paginationWrapper='dataTables_paginate paging_simple_numbers'
-                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                            /* table-bordered dropped: .grid-shell draws the row
+                               rules now, and the two only fought each other. */
+                            tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                            theadClass="sticky top-0 z-10"
                             isStickyHeader={true}
                             stickyTop={0}
+                            fillHeight
                             tableHeight="60vh"
                         />
                     )}

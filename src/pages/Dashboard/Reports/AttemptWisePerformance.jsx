@@ -1,15 +1,18 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Row, Col, FormGroup, Spinner } from "@/components/ui";
+import { Spinner } from "@/components/ui";
 import { Button, FormFeedback, Input, Label, Table } from "@/components/ui";
 import DateRangeInput from '../../../components/Common/DateRangeInput';
 import TableContainer from '../../../components/Table/TableContainer';
 import Select from 'react-select'
-import { customStyles } from '../../../helpers/CustomStyle';
+import { customStyles, CheckboxOption, SelectedCountValue } from '../../../helpers/CustomStyle';
+import { useQuery } from "@tanstack/react-query";
+import { qk } from "@/lib/queryKeys";
+import { fetchServiceCenters } from "@/services/reference.service";
 import { useGetApiCall } from '../../../hooks/useGetApiCall';
-import { GET_ADMIN_BOOKING_DETAILS, GET_ALL_REGION, GET_ATTEMPT_WISE_DELIVARY_REPORT, GET_CUSTOMER_SERVICE, GET_OPERATION_PERFORMANCE, GET_USER_API, PRODUCT_LIST, SERVICE_CENTER, SPD_OPERATION_PERFORMANCE } from '../../../api';
+import { GET_ADMIN_BOOKING_DETAILS, GET_ALL_REGION, GET_ATTEMPT_WISE_DELIVARY_REPORT, GET_CUSTOMER_SERVICE, GET_OPERATION_PERFORMANCE, GET_USER_API, PRODUCT_LIST, SPD_OPERATION_PERFORMANCE } from '../../../api';
 import usePostApiCall from '../../../hooks/usePostApiCall';
 import formatDateForPayload from '../../../helpers/DateHelper';
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import { IoMdCloudDownload } from "react-icons/io";
 // import CustomerServiceFilter from '../../../components/CustomerService/CustomerServiceFilter';
 import OperationPerformanceFilter from '../../../components/Report/OperationPerformanceFilter';
@@ -21,8 +24,26 @@ import TabsProvider from '../../../components/TabsProvider';
 import { useSecondMileExcel } from '../../../hooks/useSecondMileExcel';
 import { useAttemptWiseExcel } from '../../../hooks/useAttemptWiseExcel';
 import renderCountWithPercent from '../../../components/renderCountWithPercent';
-import SelectedItemsDisplay from '../../../components/Common/SelectedItemsDisplay';
 import MainHeaderComp from '../../../components/MainHeaderCom';
+
+/* Same contract as LastMileOperations.jsx: a checkbox per option instead of a
+   chip strip beside the control, and a count in the control instead of one
+   chip per value. See CustomStyle.jsx for why. */
+const MULTI_SELECT_PROPS = {
+    isMulti: true,
+    isClearable: true,
+    hideSelectedOptions: false,
+    closeMenuOnSelect: false,
+    styles: customStyles,
+    components: { Option: CheckboxOption, ValueContainer: SelectedCountValue },
+    menuPortalTarget: document.body,
+    /* "fixed", not the default "absolute": the default recomputes the portal
+       offset from document coordinates once at open, which drifts if the page
+       underneath scrolls while the menu is open. "fixed" tracks the control's
+       position in the viewport instead. */
+    menuPosition: "fixed",
+};
+
 const AttemptWisePerformance = () => {
     useEffect(() => {
         document.title = "Attempt Wise Delivery Performance";
@@ -89,7 +110,12 @@ const AttemptWisePerformance = () => {
     const { apifunc: GetUserList, data: UserList } = useGetApiCall()
 
     // definging the get service center api
-    const { apifunc: GetServiceCenter, data: ServiceCenters } = useGetApiCall()
+    // service centers -- cached 30min via react-query instead of refetched on every mount
+    const { data: ServiceCenters } = useQuery({
+        queryKey: qk.reference.serviceCenters(),
+        queryFn: fetchServiceCenters,
+        staleTime: 30 * 60_000,
+    })
 
     // selected service center
     const [SelectedServiceCenters, setSelectedServiceCenters] = useState([])
@@ -360,7 +386,6 @@ const AttemptWisePerformance = () => {
     //  calling user api
     useEffect(() => {
         GetUserList(`${GET_USER_API}/`)
-        GetServiceCenter(SERVICE_CENTER)
         //  calling the get product list api
         GetProductsList(PRODUCT_LIST)
         //  calling the regions api
@@ -503,142 +528,118 @@ const AttemptWisePerformance = () => {
 
 
     return (
-        <div className='page-content py-0 px-0'>
-            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                <MainHeaderComp title="Attempt-wise Delivery Performance" subTitle="" />
-            </div>
-            <div className="container-fluid px-2">
-                <div>
-                    <Row className='gx-3 flex items-end pt-2 border-bottom pb-2'>
-                        {/* select region  */}
-                        <Col md={6}>
-                            <FormGroup className="mb-0">
-                                <Label for="Customer" className="font-bold text-ink-muted mb-1">Select Region</Label>
-                                <div className="flex items-center">
-                                    <div style={{ width: "250px" }}>
-                                        <Select
-                                            options={AllRegions}
-                                            placeholder="Search Region"
-                                            isMulti={true}
-                                            value={SelectedRegion}
-                                            onChange={setSelectedRegion}
-                                            isClearable={true}
-                                            styles={customStyles}
-                                            controlShouldRenderValue={false}
-                                            hideSelectedOptions={true}
-                                        />
-                                    </div>
-                                    <SelectedItemsDisplay
-                                        selectedItems={SelectedRegion}
-                                        onRemove={(item) => setSelectedRegion(SelectedRegion.filter(r => r.value !== item.value))}
-                                        targetId="region-overflow"
-                                        placeholder='No Region Selected'
-                                    />
-                                </div>
-                            </FormGroup>
-                        </Col>
-                        {/*  service centers list */}
-                        <Col md={6}>
-                            <FormGroup className="mb-0">
-                                <Label for="Customer" className="font-bold text-ink-muted mb-1">Select Service Center</Label>
-                                <div className="flex items-center">
-                                    <div style={{ width: "250px" }}>
-                                        <Select options={ServiceCenterOption}
-                                            placeholder="Search Service Center"
-                                            isMulti={true}
-                                            value={SelectedServiceCenters}
-                                            onChange={setSelectedServiceCenters}
-                                            isClearable={true}
-                                            styles={customStyles}
-                                            controlShouldRenderValue={false}
-                                            hideSelectedOptions={true}
-                                        />
-                                    </div>
-                                    <SelectedItemsDisplay
-                                        selectedItems={SelectedServiceCenters}
-                                        onRemove={(item) => setSelectedServiceCenters(SelectedServiceCenters.filter(s => s.value !== item.value))}
-                                        targetId="sc-overflow"
-                                        placeholder='No Service Center Selected'
-                                    />
-                                </div>
-                            </FormGroup>
-                        </Col>
-                    </Row>
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+            <MainHeaderComp
+                title="Attempt-wise Delivery Performance"
+                subTitle="Region and service-center level attempt outcomes."
+            />
 
-                    <Row className='gx-3 flex items-center pt-2'>
-                        <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label for="DateRange">Date Range</Label>
-                                <DateRangeInput
-                                    value={selectedRange}
-                                    onChange={handleChange}
-                                    isBorder={true}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={3}>
-                            <div style={{ width: "250px" }}>
-                                <FormGroup className="mb-2">
-                                    <Label for="Customer">Payment Mode</Label>
-                                    <Select options={paymentModeOptions}
-                                        placeholder="Search Customer"
-                                        value={PaymentMode}
-                                        onChange={setPaymentMode}
-                                        isClearable={true}
-                                        styles={customStyles} />
-                                </FormGroup>
-                            </div>
-                        </Col>
+            <div className="page-fit-body relative z-10 pb-4">
+                {/* Filters -- see LastMileOperations.jsx for the reasoning:
+                    checkboxes in the dropdown replace the chip strip beside
+                    the control, and every field wraps to the next line rather
+                    than push the row past the card. */}
+                <div className="flex flex-wrap items-end gap-3 border-b border-white/8 pb-4">
+                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Select Region
+                        </Label>
+                        <Select
+                            options={AllRegions}
+                            placeholder="Search Region"
+                            value={SelectedRegion}
+                            onChange={setSelectedRegion}
+                            {...MULTI_SELECT_PROPS}
+                        />
+                    </div>
 
-                        <Col md={3} className=' flex align-items-cente items-center gap-2 mt-2'>
-                            <Button color="primary" disabled={bookingLoading} style={{ height: "2.2rem", width: "100%" }} onClick={OnCheckClick}>
-                                Check
-                            </Button>
-                        </Col>
-                    </Row>
+                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Select Service Center
+                        </Label>
+                        <Select
+                            options={ServiceCenterOption}
+                            placeholder="Search Service Center"
+                            value={SelectedServiceCenters}
+                            onChange={setSelectedServiceCenters}
+                            {...MULTI_SELECT_PROPS}
+                        />
+                    </div>
+
+                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Date Range
+                        </Label>
+                        <DateRangeInput
+                            value={selectedRange}
+                            onChange={handleChange}
+                            isBorder={true}
+                        />
+                    </div>
+
+                    <div className="flex w-full flex-col gap-1.5 sm:w-48">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Payment Mode
+                        </Label>
+                        <Select
+                            options={paymentModeOptions}
+                            placeholder="Search Customer"
+                            value={PaymentMode}
+                            onChange={setPaymentMode}
+                            isClearable={true}
+                            styles={customStyles}
+                            menuPortalTarget={document.body}
+                            menuPosition="fixed"
+                        />
+                    </div>
+
+                    <Button
+                        color="primary"
+                        disabled={bookingLoading}
+                        className="h-9.5 shrink-0 px-6"
+                        onClick={OnCheckClick}
+                    >
+                        Check
+                    </Button>
                 </div>
 
-                <div className=''>
-
-                    <div className='mt-4'>
-                        {
-                            bookingLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <LoaderMark />
-                                <p className="mt-12 h5">Loading Operation Performance ...</p>
-                            </div>
-                                :
-                                <>
-                                    <TableContainer
-                                        columns={columns}
-                                        data={SecondMiles || []}
-                                        isGlobalFilter={true}
-                                        isPagination={true}
-                                        SearchPlaceholder="Search From Table"
-                                        pagination="pagination"
-                                        paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
-                                        isCustomPageSize={true}
-                                        isDownloadExcle={true}
-                                        onDownloadExcle={async () => {
-                                            let rowData = BookingData;
-                                            let newHeaders = Object.keys(BookingData[0]).map(ele => {
-                                                return ele
-                                            })
-                                            await AttemptWiseReport(SecondMiles, "Operations_attempt_strike_rate", {
-                                                sheetName: "Operation_Performance",
-                                                headers: newHeaders,
-                                                rows: rowData
-                                            },
-                                                SelectedPayload,
-                                                FinalStatusCount
-                                            )
-                                        }}
-                                        ExcleLoading={AttemptWiseLoading}
-                                    // excelItems={excelItems}
-                                    />
-                                </>
-                        }
-                    </div>
+                <div className="page-fit-body mt-4">
+                    {
+                        bookingLoading ? <Loader message="Loading Operation Performance ..." fullscreen={false} /> : (
+                            <TableContainer
+                                columns={columns}
+                                data={SecondMiles || []}
+                                isGlobalFilter={true}
+                                isPagination={true}
+                                SearchPlaceholder="Search From Table"
+                                pagination="pagination"
+                                paginationWrapper='dataTables_paginate paging_simple_numbers'
+                                tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                                theadClass="sticky top-0 z-10"
+                                isStickyHeader={true}
+                                stickyTop={0}
+                                isCustomPageSize={true}
+                                isDownloadExcle={true}
+                                fillHeight
+                                tableHeight="72vh"
+                                onDownloadExcle={async () => {
+                                    let rowData = BookingData;
+                                    let newHeaders = Object.keys(BookingData[0]).map(ele => {
+                                        return ele
+                                    })
+                                    await AttemptWiseReport(SecondMiles, "Operations_attempt_strike_rate", {
+                                        sheetName: "Operation_Performance",
+                                        headers: newHeaders,
+                                        rows: rowData
+                                    },
+                                        SelectedPayload,
+                                        FinalStatusCount
+                                    )
+                                }}
+                                ExcleLoading={AttemptWiseLoading}
+                            />
+                        )
+                    }
                 </div>
             </div>
         </div>

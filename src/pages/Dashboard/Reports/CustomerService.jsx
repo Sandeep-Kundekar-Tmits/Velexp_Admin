@@ -6,10 +6,11 @@ import TableContainer from '../../../components/Table/TableContainer';
 import Select from 'react-select'
 import { customStyles } from '../../../helpers/CustomStyle';
 import { useGetApiCall } from '../../../hooks/useGetApiCall';
-import { GET_ADMIN_BOOKING_DETAILS, GET_CUSTOMER_SERVICE, GET_USER_API, SERVICE_CENTER } from '../../../api';
+import { useServiceCenters } from '../../../hooks/queries/useReferenceData';
+import { GET_ADMIN_BOOKING_DETAILS, GET_CUSTOMER_SERVICE, GET_USER_API } from '../../../api';
 import usePostApiCall from '../../../hooks/usePostApiCall';
 import formatDateForPayload from '../../../helpers/DateHelper';
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import { IoMdCloudDownload } from "react-icons/io";
 import CustomerServiceFilter from '../../../components/CustomerService/CustomerServiceFilter';
 const CustomerService = () => {
@@ -151,22 +152,19 @@ const CustomerService = () => {
     // defining get user api
     const { apifunc: GetUserList, data: UserList } = useGetApiCall()
 
-    // definging the get service center api
-    const { apifunc: GetServiceCenter, data: ServiceCenters } = useGetApiCall()
+    // service centers -- cached 30min, shared across every screen that asks
+    const { data: ServiceCenterOption = [] } = useServiceCenters()
 
     // selected service center
     const [SelectedServiceCenters, setSelectedServiceCenters] = useState([])
-    // service center option dropdown
-    const [ServiceCenterOption, setServiceCenterOption] = useState([])
     // onCheck button click
     const [BookingData, setBookingData] = useState([])
 
-    //  defining the get booking list 
+    //  defining the get booking list
     const { apifunc: GetBookingList, data: BookingList, loading: bookingLoading } = usePostApiCall()
     //  calling user api
     useEffect(() => {
         GetUserList(`${GET_USER_API}/`)
-        GetServiceCenter(SERVICE_CENTER)
     }, [])
 
     useEffect(() => {
@@ -186,20 +184,6 @@ const CustomerService = () => {
             setUserListOption(updatedOptions);
         }
     }, [UserList]);
-
-    //  
-    //  getting the service center data
-    useEffect(() => {
-        if (ServiceCenters) {
-            let updatedServiceCenters = ServiceCenters.map((ele) => {
-                return {
-                    value: ele?.ec_code,
-                    label: ele?.ec_code
-                }
-            })
-            setServiceCenterOption(updatedServiceCenters)
-        }
-    }, [ServiceCenters])
 
     const OnCheckClick = async () => {
         setIsShowFilter(false)
@@ -352,10 +336,7 @@ const CustomerService = () => {
                 <div className=''>
                     <div className='mt-4'>
                         {
-                            bookingLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <LoaderMark />
-                                <p className="mt-12 h5">Loading Customer Services ...</p>
-                            </div>
+                            bookingLoading ? <Loader message="Loading Customer Services ..." fullscreen={false} />
                                 :
                                 <TableContainer
                                     columns={columns}

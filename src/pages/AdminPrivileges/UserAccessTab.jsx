@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Button, Input } from "@/components/ui";
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import TableContainer from "../../components/Table/TableContainer";
 import UserOverridesPanel from "../../components/AdminPrivileges/UserOverridesPanel";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
@@ -54,8 +54,8 @@ const UserAccessTab = () => {
     ], []);
 
     return (
-        <div>
-            <div className="flex flex-wrap gap-2 mb-4">
+        <div className="page-fit-body">
+            <div className="flex flex-wrap gap-2 mb-3">
                 <Input
                     style={{ maxWidth: 260 }}
                     placeholder="Search username / name / email"
@@ -72,18 +72,26 @@ const UserAccessTab = () => {
             </div>
 
             {loading ? (
-                <div className="flex justify-center mt-12"><LoaderMark /></div>
+                <Loader fullscreen={false} />
             ) : (
-                <>
+                <div className="page-fit-body">
                     <TableContainer
                         columns={columns}
                         data={rows}
                         isGlobalFilter={false}
                         isPagination={false}
-                        tableClass="table-bordered table-nowrap"
+                        tableClass="table-nowrap"
+                        theadClass="sticky top-0 z-10"
+                        isStickyHeader={true}
+                        stickyTop={0}
+                        fillHeight
+                        tableHeight="60vh"
                     />
 
-                    <div className="flex justify-between items-center mt-4 px-4 py-2 bg-canvas rounded border">
+                    {/* shrink-0: a plain sibling of the fillHeight grid inside
+                        the same flex column, so it keeps its own height
+                        instead of being squeezed as the rows grow. */}
+                    <div className="flex justify-between items-center mt-4 px-4 py-2 bg-canvas rounded border shrink-0">
                         <span className="text-ink-muted text-xs">
                             Showing {total > 0 ? (page - 1) * pageSize + 1 : 0} to {Math.min(page * pageSize, total)} of {total} entries
                         </span>
@@ -92,7 +100,7 @@ const UserAccessTab = () => {
                             <Button size="sm" color="secondary" outline disabled={page >= totalPages} onClick={() => load(page + 1)}>Next ›</Button>
                         </div>
                     </div>
-                </>
+                </div>
             )}
 
             {selectedUser && (

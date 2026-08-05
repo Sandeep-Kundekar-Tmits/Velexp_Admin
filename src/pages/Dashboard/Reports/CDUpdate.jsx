@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react"
-import { useGetApiCall } from "../../../hooks/useGetApiCall"
-import { SERVICE_CENTER, UPLOAD_CD_UPDATE_REPORT } from "../../../api"
-import { Button, Card, Col, FormGroup, Label, Row } from "@/components/ui"
+import { useQuery } from "@tanstack/react-query"
+import { qk } from "@/lib/queryKeys"
+import { fetchServiceCenters } from "@/services/reference.service"
+import { UPLOAD_CD_UPDATE_REPORT } from "../../../api"
+import { Button, Label } from "@/components/ui"
 import Select from 'react-select'
 import { customStyles } from "../../../helpers/CustomStyle"
 import TableContainer from "../../../components/Table/TableContainer"
@@ -11,7 +13,7 @@ import usePostApiCall from "../../../hooks/usePostApiCall"
 import { useExcelExport } from "../../../hooks/useExcelExport"
 import ToasterProvider from "../../../helpers/ToasterProvider"
 import YMD_DateFormate from "../../../helpers/YMD_DateFormate"
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import StatsCard from "../../../components/StatsCard"
 const CDUpdate = () => {
     const columns = useMemo(
@@ -77,19 +79,16 @@ const CDUpdate = () => {
     }
 
     //  api functions
-    // definging the get service center api
-    const { apifunc: GetServiceCenter, data: ServiceCentersList, loading: ServiceCenterLoading } = useGetApiCall()
+    // service centers -- cached 30min via react-query instead of refetched on every mount
+    const { data: ServiceCentersList, isLoading: ServiceCenterLoading } = useQuery({
+        queryKey: qk.reference.serviceCenters(),
+        queryFn: fetchServiceCenters,
+        staleTime: 30 * 60_000,
+    })
     // defining the get all shipment pickups api
     const { apifunc: UploadCDUpdateReport, loading: UploadCdReportUpdateLoading } = usePostApiCall(null, "")
     const { exportToExcel, isExporting, exportProgress } = useExcelExport();
     // useEffects
-    useEffect(() => {
-        // calling the service Center api
-        GetServiceCenter(SERVICE_CENTER)
-    }, [])
-
-
-
     useEffect(() => {
         // service center and regoins and it should be unique
         if (ServiceCentersList) {
@@ -123,24 +122,6 @@ const CDUpdate = () => {
         }
 
 
-    }, [ServiceCentersList])
-    useEffect(() => {
-        // service center and regoins and it should be unique
-        if (ServiceCentersList) {
-            // service center
-            let serviceCenter = ServiceCentersList.map((ele) => {
-                return {
-                    value: ele?.ec_code,
-                    label: ele?.ec_code
-                }
-            }).filter((item, index, self) =>
-                index === self.findIndex((t) => (
-                    t.value === item.value
-                ))
-            );
-
-            setServiceCenters(serviceCenter)
-        }
     }, [ServiceCentersList])
 
     const GetDataFunctionCall = async () => {
@@ -186,93 +167,91 @@ const CDUpdate = () => {
 
     }
     return (
-        (
-            <div className='page-content py-0 px-0' style={{ overflowX: 'hidden' }} >
-                <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                    <MainHeaderCom title="CD Update" />
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+            <MainHeaderCom title="CD Update" subTitle="Delayed checkpoint updates by service center." />
+
+            <div className="page-fit-body relative z-10 pb-4">
+                {/* Filters -- single row that wraps rather than the fixed
+                    Bootstrap grid, same as the rest of the report screens. */}
+                <div className="flex flex-wrap items-end gap-3 border-b border-white/8 pb-4">
+                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Select Date Range
+                        </Label>
+                        <DateRangeInput
+                            value={selectedRange}
+                            onChange={handleChange}
+                            isBorder={true}
+                        />
+                    </div>
+
+                    <div className="flex w-full flex-col gap-1.5 sm:w-56">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Region
+                        </Label>
+                        <Select
+                            name="region"
+                            options={Regions}
+                            placeholder={ServiceCenterLoading ? "loading...." : "Search Region"}
+                            onChange={(option) => OnSelectChange("region", option)}
+                            isClearable={true}
+                            menuPortalTarget={document.body}
+                            menuPosition="fixed"
+                            styles={customStyles}
+                        />
+                    </div>
+
+                    <div className="flex w-full flex-col gap-1.5 sm:w-56">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Service Center
+                        </Label>
+                        <Select
+                            value={CdUpdatePayload?.service_center}
+                            name="service_center"
+                            options={ServiceCenters}
+                            placeholder={ServiceCenterLoading ? "loading...." : "Search Service Center"}
+                            onChange={(option) => OnSelectChange("service_center", option)}
+                            isClearable={true}
+                            menuPortalTarget={document.body}
+                            menuPosition="fixed"
+                            styles={customStyles}
+                        />
+                    </div>
+
+                    <Button
+                        color="primary"
+                        className="h-9.5 shrink-0 px-6"
+                        onClick={GetDataFunctionCall}
+                    >
+                        {UploadCdReportUpdateLoading ? "Getting data..." : "Get Data"}
+                    </Button>
                 </div>
-                <div className="container-fluid px-2">
-                    {/* head */}
 
-                    {/*  cards */}
-                    <Row className='gx-3 flex items-end pt-2'>
-                        <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label className="font-bold text-ink-muted mb-1">Select Date Range</Label>
-                                <DateRangeInput
-                                    value={selectedRange}
-                                    onChange={handleChange}
-                                    isBorder={true}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label for="Region" className="font-bold text-ink-muted mb-1">Region</Label>
-                                <Select
-                                    name="region"
-                                    options={Regions}
-                                    placeholder={ServiceCenterLoading ? "loading...." : "Search Region"}
-                                    onChange={(option) => OnSelectChange("region", option)}
-                                    isClearable={true}
-                                    menuPortalTarget={document.body}
-                                    menuPosition="fixed"
-                                    styles={customStyles} />
-                            </FormGroup>
-                        </Col>
-                        <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label for="ServiceCenter" className="font-bold text-ink-muted mb-1">Service Center</Label>
-                                <Select
-                                    value={CdUpdatePayload?.service_center}
-                                    name="service_center"
-                                    options={ServiceCenters}
-                                    placeholder={ServiceCenterLoading ? "loading...." : "Search Service Center"}
-                                    onChange={(option) => OnSelectChange("service_center", option)}
-                                    isClearable={true}
-                                    menuPortalTarget={document.body}
-                                    menuPosition="fixed"
-                                    styles={customStyles} />
-                            </FormGroup>
-                        </Col>
-                        <Col md={2}>
-                            <Button color="primary" className="font-bold mb-2" style={{ height: "38px", width: "100%" }}
-                                onClick={GetDataFunctionCall}
-                            >
-                                {
-                                    UploadCdReportUpdateLoading ? "Getting data..." : " Get Data"
-                                }
-                            </Button>
-                        </Col>
-                    </Row>
+                {/* delayed counts summary */}
+                {Delayed_counts.length > 0 && (
+                    <div className="mt-4">
+                        <h4 className="mb-2 text-[14px] font-semibold text-ink">Delayed Counts</h4>
+                        <TableContainer
+                            columns={DelayedCountColoumn}
+                            data={Delayed_counts || []}
+                            isGlobalFilter={true}
+                            isPagination={true}
+                            isCustomPageSize={true}
+                            SearchPlaceholder="Search From Table"
+                            pagination="pagination"
+                            paginationWrapper='dataTables_paginate paging_simple_numbers'
+                            tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                            theadClass="sticky top-0 z-10"
+                        />
+                    </div>
+                )}
 
-                    {/* delayed counts cards */}
+                <div className="page-fit-body mt-4">
                     {
-                        Delayed_counts.length > 0 && <div className="border-top pt-4">
-                            <h4>Delayed Counts</h4>
-                            <TableContainer
-                                columns={DelayedCountColoumn}
-                                data={Delayed_counts || []}
-                                isGlobalFilter={true}
-                                isPagination={true}
-                                isCustomPageSize={true}
-                                SearchPlaceholder="Search From Table"
-                                pagination="pagination"
-                                paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
-                            />
-                        </div>
-                    }
-
-                    <div className=' border-top pt-4'>
-                        {
-                            showTable ? <div className='mt-4'>
+                        showTable ? (
+                            <div className="page-fit-body">
                                 {
-                                    UploadCdReportUpdateLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                        <LoaderMark />
-                                        <p className="mt-12 h5">Loading CD Report ...</p>
-                                    </div>
-                                        :
+                                    UploadCdReportUpdateLoading ? <Loader message="Loading CD Report ..." fullscreen={false} /> : (
                                         <TableContainer
                                             columns={columns}
                                             data={CdUpdateList || []}
@@ -285,19 +264,27 @@ const CDUpdate = () => {
                                             SearchPlaceholder="Search From Table"
                                             pagination="pagination"
                                             paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                                            tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                                            theadClass="sticky top-0 z-10"
+                                            isStickyHeader={true}
+                                            stickyTop={0}
+                                            fillHeight
+                                            tableHeight="60vh"
                                         />
+                                    )
                                 }
-                            </div> : <div className="flex justify-center items-center">
-                                <Button color="primary" onClick={() => { setShowtable(!showTable) }} disabled={CdUpdateList.length < 1}>{
-                                    showTable ? "Hide Delayed Data" : "Show Delayed Data"
-                                }</Button>
                             </div>
-                        }
-                    </div>
+                        ) : (
+                            <div className="flex items-center justify-center">
+                                <Button color="primary" onClick={() => { setShowtable(!showTable) }} disabled={CdUpdateList.length < 1}>
+                                    {showTable ? "Hide Delayed Data" : "Show Delayed Data"}
+                                </Button>
+                            </div>
+                        )
+                    }
                 </div>
             </div>
-        )
+        </div>
     )
 }
 export default CDUpdate

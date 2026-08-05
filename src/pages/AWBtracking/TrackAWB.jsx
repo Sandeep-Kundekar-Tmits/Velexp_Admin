@@ -1,5 +1,7 @@
-import { Button, Col, FormGroup, Input, Label, Row } from "@/components/ui"
+import { Button, Input, Label } from "@/components/ui"
+import { CalendarClock, FileSearch } from "lucide-react"
 import MainHeaderComp from "../../components/MainHeaderCom"
+import Loader from "@/Loaders/Loader"
 import { useState } from "react"
 import usePostApiCall from "../../hooks/usePostApiCall"
 import { GET_DOMESTIC_HISTORY_DETAILS, TRACK_AWB } from "../../api"
@@ -107,50 +109,80 @@ const TrackAWB = () => {
 
 
     return (
-        <div className='container mt-2 py-0 px-0'>
+        /* page-content, not `container`: this was the only screen using the
+           fixed-width container, so it sat narrower than every other page and
+           its gutters did not line up with the header above it. */
+        <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
             <MainHeaderComp
                 title="Track AWB"
+                subTitle="Look up a shipment's checkpoints and pieces."
                 extraFields={
                     (awbDetails && shipmentDetails && Object.keys(shipmentDetails).length > 0) &&
-                    <button className="btn btn-primary" onClick={() => {
-                        setActiveComponent("edit_edd")
-                    }}>
-                        Edit Estimated Delivery Date
-                    </button>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            className="table-action-btn table-action-btn-ghost"
+                            onClick={() => setActiveComponent("edit_edd")}
+                        >
+                            <CalendarClock aria-hidden="true" size={15} />
+                            Edit Estimated Delivery Date
+                        </Button>
+                        {/* The route out of this screen, so it is the primary
+                            action and it is labelled. It was a 60px circular
+                            icon-only FAB pinned to the bottom-right corner with
+                            only a title attribute -- the one thing this page
+                            navigates to, and nothing said so. */}
+                        <Button
+                            className="table-action-btn table-action-btn-primary"
+                            onClick={handleDetailView}
+                        >
+                            <FileSearch aria-hidden="true" size={15} />
+                            View Full Trace
+                        </Button>
+                    </div>
                 }
             />
 
-            <div className="container-fluid px-4" style={{ height: "90vh", overflowY: "auto" }}>
+            {/* No height:90vh with its own scrollbar: that nested a second
+                scroll region inside the layout's, so the page and the panel
+                scrolled against each other. The layout's box already scrolls. */}
+            <div className="container-fluid relative z-10 px-4 pb-4">
 
-                {/*  */}
-                <div className=" mt-4 border-bottom w-full flex pb-4 items-center justify-center">
-
-                    <div className="flex items-center" style={{ width: "300px" }} >
-                        <Input type="text" placeholder="Enter AWB Number" onChange={(e) => {
-                            setAwbNumber(e.target.value)
-                        }} />
+                {/* Search row, left-aligned like every other filter row on the
+                    app rather than centred on its own. */}
+                <div className="filter-row">
+                    <div className="filter-group">
+                        <div className="flex w-full flex-col gap-1.5 sm:w-64">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                AWB Number
+                            </Label>
+                            <Input
+                                type="text"
+                                placeholder="Enter AWB Number"
+                                onChange={(e) => setAwbNumber(e.target.value)}
+                            />
+                        </div>
+                        <Button
+                            className="table-action-btn table-action-btn-primary"
+                            onClick={OngetAwbDetails}
+                            disabled={!awbNumber || awbDetailsLoading}
+                        >
+                            Track AWB
+                        </Button>
                     </div>
-                    <Button
-                        className="bg-brand-500  ml-2"
-                        onClick={OngetAwbDetails}
-                        disabled={!awbNumber || awbDetailsLoading}
-                    >
-                        Track AWB
-                    </Button>
-
                 </div>
+
                 {/* tracking info display */}
                 {
 
                     awbDetailsLoading ? (
-                        <div className="text-center py-12">
-                            <div className="spinner-border text-brand-500" role="status">
-                                <span className="visually-hidden">Loading...</span>
-                            </div>
-                        </div>) :
+                        /* The shared loader: .spinner-border has no definition
+                           left in the compat layer, so this showed nothing at
+                           all while the lookup was running. */
+                        <Loader message="Tracking shipment…" fullscreen={false} />
+                    ) :
                         shipmentDetails && shipementPices.length > 0 && (
-                            <div>
-                                <div className="row gap-0">
+                            <div className="mt-4">
+                                <div className="row gap-y-3">
 
                                     <div className="col-12 col-lg-4">
                                         <Section title="Shipment Overview">
@@ -198,7 +230,7 @@ const TrackAWB = () => {
                                 </div>
 
                                 {/* Second Row */}
-                                <div className="row gap-0">
+                                <div className="row mt-3 gap-y-3">
 
                                     <div className="col-12 col-md-6">
                                         <Section title="Document & Invoice Info">
@@ -213,15 +245,20 @@ const TrackAWB = () => {
                                     </div>
 
                                     <div className="col-12 col-md-6">
-                                        <div className="border h-full">
-                                            <div className="bg-canvas px-4 py-2 border-bottom">
-                                                <h6 className="font-semibold text-ink-muted mb-0">
+                                        {/* Same panel as Section beside it, so
+                                            the two halves of the row match. */}
+                                        <div className="flex h-full flex-col overflow-hidden rounded-xl border border-white/8 bg-[rgba(17,24,39,0.70)] backdrop-blur-xl">
+                                            <div className="border-b border-white/8 px-4 py-2.5">
+                                                <h6 className="m-0 text-[11px] font-semibold uppercase tracking-wider text-ink-muted">
                                                     Shipment Pieces
                                                 </h6>
                                             </div>
 
-                                            <div style={{ maxHeight: "250px", overflowY: "auto" }}>
-                                                <table className="table table-bordered table-sm mb-0">
+                                            <div className="scroll-slim" style={{ maxHeight: "250px", overflowY: "auto" }}>
+                                                {/* table-bordered dropped: a
+                                                    boxed grid inside a glass
+                                                    panel drew two frames. */}
+                                                <table className="table table-sm mb-0">
                                                     <thead className="table-light sticky-top">
                                                         <tr>
                                                             <th>Piece No</th>
@@ -268,7 +305,7 @@ const TrackAWB = () => {
                                         <div>
                                             <div className="pl-4 flex flex-col items-center justify-center gap-2">
                                                 <div
-                                                    className="bg-brand-500 text-white text-center font-semibold rounded-full py-1"
+                                                    className="rounded-full border border-[#3B82F6]/30 bg-[#3B82F6]/15 py-1 text-center font-semibold text-[#93C5FD]"
                                                     style={{ width: "48px", fontSize: "14px" }}
                                                 >
                                                     {item.Statuscode}
@@ -283,13 +320,16 @@ const TrackAWB = () => {
                                         {/* Timeline Dot & Line */}
                                         <div className="flex flex-col items-center mx-6 relative">
 
-                                            {/* Dot */}
+                                            {/* Dot. #cfe2ff and rgba(13,110,253)
+                                                below were Bootstrap's blues,
+                                                not the palette's -- the ring
+                                                read as a pale halo on the dark
+                                                canvas. */}
                                             <div
-                                                className="bg-brand-500 rounded-full border border-4"
+                                                className="rounded-full border-4 border-[#3B82F6]/25 bg-[#3B82F6] shadow-[0_0_18px_-4px_rgba(59,130,246,0.9)]"
                                                 style={{
                                                     width: "24px",
                                                     height: "24px",
-                                                    borderColor: "#cfe2ff",
                                                     zIndex: 10
                                                 }}
                                             ></div>
@@ -297,12 +337,11 @@ const TrackAWB = () => {
                                             {/* Line (Except Last Item) */}
                                             {index < filteredArray.length - 1 && (
                                                 <div
-                                                    className="absolute"
+                                                    className="absolute bg-[#3B82F6]/35"
                                                     style={{
                                                         top: "28px",
                                                         width: "2px",
                                                         height: "110px",
-                                                        backgroundColor: "rgba(13,110,253,0.4)"
                                                     }}
                                                 ></div>
                                             )}
@@ -336,55 +375,49 @@ const TrackAWB = () => {
                 ReturnComponent("edit_edd")
             }
 
-            {/* Floating Detail View Button */}
-            {shipmentDetails && Object.keys(shipmentDetails).length > 0 && (
-                <button
-                    className="btn btn-info btn-lg rounded-full fixed"
-                    style={{
-                        bottom: "30px",
-                        right: "30px",
-                        width: "60px",
-                        height: "60px",
-                        zIndex: 1000,
-                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)"
-                    }}
-                    onClick={handleDetailView}
-                    title="View Detailed Shipment Trace"
-                >
-                    <i className="bx bx-detail" style={{ fontSize: "24px" }}></i>
-                </button>
-            )}
         </div>
     )
 }
 export default TrackAWB
 
+/*
+ * A block of shipment facts.
+ *
+ * Was `<div className="border">` -- Tailwind v4's preflight leaves the default
+ * border-color at currentColor, so that drew a full-strength ink-coloured box
+ * rather than the hairline it was after. Now the same glass panel as the rest
+ * of the app.
+ */
 const Section = ({ title, children }) => (
-    <div className="border h-full">
+    <div className="flex h-full flex-col overflow-hidden rounded-xl border border-white/8 bg-[rgba(17,24,39,0.70)] backdrop-blur-xl">
         {/* Header */}
-        <div className="bg-canvas px-4 py-2 border-bottom">
-            <h6 className="font-semibold text-ink-muted mb-0">
+        <div className="border-b border-white/8 px-4 py-2.5">
+            <h6 className="m-0 text-[11px] font-semibold uppercase tracking-wider text-ink-muted">
                 {title}
             </h6>
         </div>
 
-        {/* Content */}
-        <div className="p-4">
-            <div className="row row-cols-2 gap-4">
-                {children}
-            </div>
-        </div>
+        {/* Content.
+            A real two-column grid: this was `row row-cols-2`, and row-cols-*
+            is one of the Bootstrap classes the compat layer never defined --
+            so every Pair fell back to `.col { flex: 1 0 0% }` and the seven
+            facts were squeezed onto a single line. */}
+        <dl className="m-0 grid grid-cols-2 gap-x-4 gap-y-3 p-4">
+            {children}
+        </dl>
     </div>
 );
 
 
+/* Value above label, so the eye runs down the values -- these are read for the
+   data, not for the field names. */
 const Pair = ({ label, value }) => (
-    <div className="col">
-        <div className="font-semibold text-ink  text-break">
+    <div className="min-w-0">
+        <dd className="m-0 break-words text-[13px] font-semibold text-ink">
             {value || "-"}
-        </div>
-        <div className="text-ink-muted ">
+        </dd>
+        <dt className="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-ink-muted">
             {label}
-        </div>
+        </dt>
     </div>
 );

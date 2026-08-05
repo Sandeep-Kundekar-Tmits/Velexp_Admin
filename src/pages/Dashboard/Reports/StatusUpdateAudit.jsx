@@ -1,18 +1,34 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Row, Col, Button, FormGroup, Label } from "@/components/ui";
+import { Button, Label } from "@/components/ui";
 import Select from "react-select";
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import MainHeaderComp from "../../../components/MainHeaderCom";
 import DateRangeInput from "../../../components/Common/DateRangeInput";
 import TableContainer from "../../../components/Table/TableContainer";
-import { customStyles } from "../../../helpers/CustomStyle";
+import { customStyles, CheckboxOption, SelectedCountValue } from "../../../helpers/CustomStyle";
 import usePostApiCall from "../../../hooks/usePostApiCall";
-import { useGetApiCall } from "../../../hooks/useGetApiCall";
-import { GET_ALL_REGION, SERVICE_CENTER, STATUS_UPDATE } from "../../../api";
+import { useQuery } from "@tanstack/react-query";
+import { qk } from "@/lib/queryKeys";
+import { fetchServiceCenters as fetchServiceCentersRaw } from "@/services/reference.service";
+import { useRegions } from "../../../hooks/queries/useReferenceData";
+import { STATUS_UPDATE } from "../../../api";
 import YMD_DateFormate from "../../../helpers/YMD_DateFormate";
 import ToasterProvider from "../../../helpers/ToasterProvider";
 import { useExcelExport } from "../../../hooks/useExcelExport";
-import SelectedItemsDisplay from "../../../components/Common/SelectedItemsDisplay";
+
+/* Same contract as LastMileOperations.jsx: a checkbox per option instead of a
+   chip strip beside the control, and a count in the control instead of one
+   chip per value. See CustomStyle.jsx for why. */
+const MULTI_SELECT_PROPS = {
+    isMulti: true,
+    isClearable: true,
+    hideSelectedOptions: false,
+    closeMenuOnSelect: false,
+    styles: customStyles,
+    components: { Option: CheckboxOption, ValueContainer: SelectedCountValue },
+    menuPortalTarget: document.body,
+    menuPosition: "fixed",
+};
 
 const StatusUpdateAudit = () => {
     const { ErrorToaster } = ToasterProvider();
@@ -25,19 +41,18 @@ const StatusUpdateAudit = () => {
     const [auditData, setAuditData] = useState([]);
     const [fullResponse, setFullResponse] = useState(null);
 
-    // defining the api to get region
-    const { apifunc: fetchRegions, data: regionData } = useGetApiCall()
-    // defining the api to get service center
-    const { apifunc: fetchServiceCenters, data: serviceCenterData } = useGetApiCall()
+    // regions -- cached 30min, shared across every screen that asks
+    const { data: regionOptions = [] } = useRegions()
+    // service centers -- raw shape (region field intact) needed for the
+    // region-based filtering below, still on the same shared cache entry
+    const { data: serviceCenterData } = useQuery({
+        queryKey: qk.reference.serviceCenters(),
+        queryFn: fetchServiceCentersRaw,
+        staleTime: 30 * 60_000,
+    })
     // defining the api for audit data
     const { apifunc: fetchAuditData, loading: auditLoading } = usePostApiCall();
     const { exportToExcel, isExporting } = useExcelExport();
-
-    // calling the api to get region and service center
-    useEffect(() => {
-        fetchRegions(GET_ALL_REGION)
-        fetchServiceCenters(SERVICE_CENTER)
-    }, [])
 
     // clear or filter service centers when region changes
     useEffect(() => {
@@ -49,16 +64,6 @@ const StatusUpdateAudit = () => {
             }));
         }
     }, [selectedRegion, serviceCenterData]);
-
-    const regionOptions = useMemo(() => {
-        if (regionData) {
-            return regionData.map(item => ({
-                value: item.region,
-                label: item.region
-            }));
-        }
-        return [];
-    }, [regionData]);
 
     const serviceCenterOptions = useMemo(() => {
         if (serviceCenterData) {
@@ -253,94 +258,62 @@ const StatusUpdateAudit = () => {
 
 
     return (
-        <div className="page-content py-0 px-0" style={{ overflowX: 'hidden' }} >
-            <div className="bg-white sticky-top " style={{ top: '0px', zIndex: 1001 }}>
-                <MainHeaderComp title="Status Update Audit" subTitle="" />
-            </div>
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+            <MainHeaderComp title="Status Update Audit" subTitle="Mobile vs. manual status counts by region and service center." />
 
+            <div className="page-fit-body relative z-10 pb-4">
+                {/* Filters -- see LastMileOperations.jsx for the reasoning:
+                    checkboxes in the dropdown replace the chip strip beside
+                    the control, and every field wraps to the next line rather
+                    than push the row past the card. */}
+                <div className="flex flex-wrap items-end gap-3 border-b border-white/8 pb-4">
+                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Region
+                        </Label>
+                        <Select
+                            options={regionOptions}
+                            value={selectedRegion}
+                            onChange={setSelectedRegion}
+                            placeholder="Select Region"
+                            {...MULTI_SELECT_PROPS}
+                        />
+                    </div>
 
-            <div className="mt-6 px-2">
-                <Row className="mb-2 items-end border-bottom">
-                    <Col md={6}>
-                        <FormGroup className="mb-0">
-                            <Label className="font-bold text-ink-muted  mb-1">Region</Label>
-                            <div className="flex items-center">
-                                <div style={{ width: "250px" }}>
-                                    <Select
-                                        options={regionOptions}
-                                        value={selectedRegion}
-                                        onChange={setSelectedRegion}
-                                        placeholder="Select Region"
-                                        styles={customStyles}
-                                        isClearable
-                                        isMulti
-                                        controlShouldRenderValue={false}
-                                        hideSelectedOptions={true}
-                                    />
-                                </div>
-                                <SelectedItemsDisplay
-                                    selectedItems={selectedRegion}
-                                    onRemove={(item) => setSelectedRegion(selectedRegion.filter(r => r.value !== item.value))}
-                                    targetId="region-overflow"
-                                    placeholder='No Region Selected'
-                                />
-                            </div>
-                        </FormGroup>
-                    </Col>
-                    <Col md={6}>
-                        <FormGroup className="mb-0">
-                            <Label className="font-bold text-ink-muted mb-1">Service Center</Label>
-                            <div className="flex items-center">
-                                <div style={{ width: "250px" }}>
-                                    <Select
-                                        options={serviceCenterOptions}
-                                        value={selectedServiceCenter}
-                                        onChange={setSelectedServiceCenter}
-                                        placeholder="Search Service Center"
-                                        styles={customStyles}
-                                        isClearable
-                                        isMulti
-                                        controlShouldRenderValue={false}
-                                        hideSelectedOptions={true}
-                                    />
-                                </div>
-                                <SelectedItemsDisplay
-                                    selectedItems={selectedServiceCenter}
-                                    onRemove={(item) => setSelectedServiceCenter(selectedServiceCenter.filter(s => s.value !== item.value))}
-                                    targetId="sc-overflow"
-                                    placeholder='No Service Center Selected'
-                                />
-                            </div>
-                        </FormGroup>
-                    </Col>
-                </Row>
-                <Row className="mb-6 items-end">
-                    <Col md={3}>
-                        <FormGroup className="mb-0">
-                            <Label className="font-bold text-ink-muted mb-1">Date Range</Label>
-                            <DateRangeInput value={selectedRange} onChange={setSelectedRange} isBorder={true} />
-                        </FormGroup>
-                    </Col>
-                    <Col md={3} className="mb-4">
-                        <Button
-                            color="primary"
-                            className="w-full"
-                            style={{ height: "38px", fontWeight: "600" }}
-                            onClick={handleGetData}
-                            disabled={auditLoading || !selectedRange?.startDate || !selectedRange?.endDate}
-                        >
-                            {auditLoading ? "Loading..." : "Get Data"}
-                        </Button>
-                    </Col>
-                </Row>
+                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Service Center
+                        </Label>
+                        <Select
+                            options={serviceCenterOptions}
+                            value={selectedServiceCenter}
+                            onChange={setSelectedServiceCenter}
+                            placeholder="Search Service Center"
+                            {...MULTI_SELECT_PROPS}
+                        />
+                    </div>
 
-                <div style={{ position: 'relative' }}>
+                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Date Range
+                        </Label>
+                        <DateRangeInput value={selectedRange} onChange={setSelectedRange} isBorder={true} />
+                    </div>
+
+                    <Button
+                        color="primary"
+                        className="h-9.5 shrink-0 px-6"
+                        onClick={handleGetData}
+                        disabled={auditLoading || !selectedRange?.startDate || !selectedRange?.endDate}
+                    >
+                        {auditLoading ? "Loading..." : "Get Data"}
+                    </Button>
+                </div>
+
+                <div className="page-fit-body mt-4">
                     {
                         auditLoading ? (
-                            <div style={{ height: "40vh" }} className="container-fluid flex flex-col justify-center items-center">
-                                <LoaderMark />
-                                <p className="mt-12 h5">Loading Audit Data...</p>
-                            </div>
+                            <Loader message="Loading Audit Data..." fullscreen={false} />
                         ) : (
                             <TableContainer
                                 columns={columns}
@@ -354,11 +327,13 @@ const StatusUpdateAudit = () => {
                                 SearchPlaceholder="Search From Table"
                                 pagination="pagination"
                                 paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                tableClass="table-bordered table-nowrap dt-responsive w-full dataTable no-footer"
+                                tableClass="table-nowrap dt-responsive w-full dataTable no-footer"
+                                theadClass="sticky top-0 z-10"
                                 isCustomPageSize={true}
                                 isStickyHeader={true}
                                 isStickyFooter={true}
-                                tableHeight="500px"
+                                fillHeight
+                                tableHeight="72vh"
                             />
                         )
                     }

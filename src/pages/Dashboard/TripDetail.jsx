@@ -1,6 +1,7 @@
 import { Button, Col, FormGroup, Input, Label, Row, Card, CardBody, CardTitle, Badge } from "@/components/ui";
 import MainHeaderComp from "../../components/MainHeaderCom";
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
+import { Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import TableContainer from "../../components/Table/TableContainer";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
@@ -282,69 +283,81 @@ const TripDetail = () => {
     );
 
     return (
-        <div className='page-content py-0 px-0'>
-            <div className="bg-white sticky-top" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                <MainHeaderComp title="Ops Trip Details" />
-            </div>
-            
-            <div className="container-fluid px-4 mt-6">
-                <Card>
-                    <CardBody>
-                        <Row className="items-end">
-                            <Col md={4}>
-                                <FormGroup className="mb-0">
-                                    <Label>Employee Code <span className="text-danger-500">*</span></Label>
-                                    <Input 
-                                        type="text" 
-                                        value={employeeCode} 
-                                        placeholder="e.g. EMP123" 
-                                        onChange={(e) => onInputChange("employeeCode", e)} 
-                                        style={{ height: "39px" }} 
-                                    />
-                                </FormGroup>
-                            </Col>
-                            <Col md={4}>
-                                <FormGroup className="mb-0">
-                                    <Label>Trip Date <span className="text-danger-500">*</span></Label>
-                                    <Input 
-                                        type="date" 
-                                        value={tripDate} 
-                                        onChange={(e) => onInputChange("tripDate", e)} 
-                                        style={{ height: "39px" }} 
-                                    />
-                                </FormGroup>
-                            </Col>
-                            <Col md={4} className="flex items-end" style={{gap: '10px'}}>
-                                <Button onClick={onGetData} color="primary" className="w-full" style={{ height: "39px" }}>
-                                    Get Trip Details
-                                </Button>
-                                <Button onClick={() => setIsUploadModalOpen(true)} color="success" className="w-full" style={{ height: "39px" }}>
-                                    + Add Reading
-                                </Button>
-                            </Col>
-                        </Row>
-                    </CardBody>
-                </Card>
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+            {/* No sticky wrapper: MainHeaderComp draws nothing inline now, it
+                hands the title and the Add Reading action to the layout's
+                PageHeader, which is already fixed above the scroll box. */}
+            <MainHeaderComp
+                title="Ops Trip Details"
+                subTitle="Odometer readings and distance covered per employee, per day."
+                extraFields={
+                    <Button
+                        className="table-action-btn table-action-btn-primary"
+                        onClick={() => setIsUploadModalOpen(true)}
+                    >
+                        <Plus aria-hidden="true" size={15} />
+                        Add Reading
+                    </Button>
+                }
+            />
+
+            <div className="container-fluid page-fit-body relative z-10 pb-4">
+                {/* One row, no Card around it: a bordered box holding two fields
+                    and a button was a panel inside a panel once the grid below
+                    grew its own. A rule under the row separates them. */}
+                <div className="filter-row">
+                    <div className="filter-group">
+                        <div className="flex w-full flex-col gap-1.5 sm:w-52">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                Employee Code <span className="text-danger-500">*</span>
+                            </Label>
+                            <Input
+                                type="text"
+                                value={employeeCode}
+                                placeholder="e.g. EMP123"
+                                onChange={(e) => onInputChange("employeeCode", e)}
+                                style={{ height: "39px" }}
+                            />
+                        </div>
+
+                        <div className="flex w-full flex-col gap-1.5 sm:w-44">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                Trip Date <span className="text-danger-500">*</span>
+                            </Label>
+                            <Input
+                                type="date"
+                                value={tripDate}
+                                onChange={(e) => onInputChange("tripDate", e)}
+                                style={{ height: "39px" }}
+                            />
+                        </div>
+
+                        <Button
+                            className="table-action-btn table-action-btn-primary"
+                            onClick={onGetData}
+                        >
+                            Get Trip Details
+                        </Button>
+                    </div>
+                </div>
 
                 {tripsApiData && !tripsLoading && (
-                    <Row className="mt-4 mb-4">
-                        <Col md={12}>
-                            <Card className="bg-brand-500 text-white">
-                                <CardBody className="flex justify-between items-center py-2">
-                                    <h5 className="mb-0 text-white">Total Distance for the Day</h5>
-                                    <h3 className="mb-0 text-white">{dayTotalDistance} km</h3>
-                                </CardBody>
-                            </Card>
-                        </Col>
-                    </Row>
+                    /* The day's total as a stat tile on the app's glass, not a
+                       solid brand-blue Card -- a filled panel that loud beside
+                       the grid read as an alert rather than a summary. */
+                    <div className="mt-4 flex items-center justify-between rounded-xl border border-white/8 bg-[rgba(17,24,39,0.70)] px-4 py-3 backdrop-blur-xl">
+                        <p className="m-0 text-[11px] font-medium uppercase tracking-wider text-ink-muted">
+                            Total Distance for the Day
+                        </p>
+                        <p className="m-0 text-[22px] font-semibold leading-tight tracking-tight text-white">
+                            {dayTotalDistance} km
+                        </p>
+                    </div>
                 )}
 
-                <div className='mt-2'>
+                <div className="page-fit-body mt-4">
                     {tripsLoading ? (
-                        <div style={{ height: "50vh" }} className="flex flex-col justify-center items-center">
-                            <LoaderMark />
-                            <p className="mt-4 h5 text-ink-muted">Loading Trip Details...</p>
-                        </div>
+                        <Loader message="Loading Trip Details..." fullscreen={false} />
                     ) : (
                         <TableContainer
                             columns={columns}
@@ -355,7 +368,14 @@ const TripDetail = () => {
                             SearchPlaceholder="Search trips..."
                             pagination="pagination"
                             paginationWrapper='dataTables_paginate paging_simple_numbers'
-                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                            /* table-bordered dropped: .grid-shell draws the row
+                               rules now, and the two only fought each other. */
+                            tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                            theadClass="sticky top-0 z-10"
+                            isStickyHeader={true}
+                            stickyTop={0}
+                            fillHeight
+                            tableHeight="60vh"
                         />
                     )}
                 </div>

@@ -177,6 +177,21 @@
 .form-control, .form-select { background: color-mix(in srgb, var(--color-surface) 60%, var(--color-canvas)); }
 .form-control::placeholder { color: color-mix(in srgb, var(--color-ink-muted) 70%, transparent); }
 
+/* Options in a native <select>.
+ *
+ * `color-scheme: dark` on <body> tells the OS to paint the drop-down list dark,
+ * which is most of the fix. These cover the engines that apply it to the closed
+ * control but leave the open list at the UA default -- and they tie the list to
+ * the app's own surface colour rather than to whatever grey the platform picks.
+ *
+ * Unqualified `select`, not `.form-select`: the selects rendered inside table
+ * cells and in the hand-rolled pagination bars often carry no class at all. */
+select option,
+select optgroup {
+  background-color: var(--color-surface);
+  color: var(--color-ink);
+}
+
 /*
  * Print escape hatch.
  *
@@ -193,6 +208,9 @@
   --color-ink-muted: #475569;
   background-color: #ffffff;
   color: #0f172a;
+  /* Undoes the body-level dark scheme, or the OS would paint native controls
+     on a label or invoice dark while the surface around them is white. */
+  color-scheme: light;
 }
 [data-print-surface] .bg-white,
 [data-print-surface].bg-white { background-color: #ffffff; }

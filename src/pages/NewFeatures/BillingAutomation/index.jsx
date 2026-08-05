@@ -2,11 +2,14 @@
 // A shared period picker feeds the three one-click batch triggers.
 import React, { useState, useEffect, useCallback, useRef } from "react"
 import { Card, CardBody, Col, Label, Nav, NavItem, NavLink, Row, TabContent, TabPane, Spinner } from "@/components/ui"
-import classnames from "classnames"
+import { Check } from "lucide-react"
 import Select from "react-select"
 import { toast } from "react-toastify"
+import { cn } from "@/lib/cn"
 import MainHeaderComp from "../../../components/MainHeaderCom"
-import DateRangePicker from "../../../components/Common/DateRangePicker"
+import DateRangeInput from "../../../components/Common/DateRangeInput"
+import { customStyles } from "../../../helpers/CustomStyle"
+import YMD_DateFormate from "../../../helpers/YMD_DateFormate"
 import { BILLING_CONFIGURED_CUSTOMERS } from "../../../api"
 import useBatchPolling from "./useBatchPolling"
 import AutomationDashboardTab from "./AutomationDashboardTab"
@@ -31,11 +34,19 @@ const makeCustomOption = (isAllSelected) => (props) => {
         <div
             ref={innerRef}
             {...innerProps}
-            className="flex items-center gap-2 px-4 py-2"
-            style={{ cursor: "pointer", backgroundColor: checked ? "#e7f1ff" : "transparent" }}
+            className="flex cursor-pointer items-center gap-2 px-4 py-2"
+            style={{ backgroundColor: checked ? "color-mix(in srgb, var(--color-brand-500) 18%, transparent)" : "transparent" }}
         >
-            <input type="checkbox" checked={checked} onChange={() => {}} style={{ cursor: "pointer" }} />
-            <span>{data.label}</span>
+            <span
+                aria-hidden="true"
+                className={cn(
+                    "flex size-4 shrink-0 items-center justify-center rounded-sm border transition-colors",
+                    checked ? "border-white bg-white" : "border-current/40"
+                )}
+            >
+                {checked && <Check className="size-3" strokeWidth={3} style={{ color: "var(--color-brand-500)" }} />}
+            </span>
+            <span className="text-ink">{data.label}</span>
         </div>
     )
 }
@@ -76,7 +87,7 @@ const makeCustomValueContainer = (totalCount) => {
 
         return (
             <div style={{ display: "flex", alignItems: "center", flexWrap: "nowrap", overflow: "hidden", flex: 1 }}>
-                <span style={{ padding: "2px 8px", fontSize: "0.875rem", color: "#0c63e4", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                <span className="text-ink" style={{ padding: "2px 8px", fontSize: "0.875rem", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                     {displayText}
                 </span>
                 {children[1]}
@@ -87,7 +98,14 @@ const makeCustomValueContainer = (totalCount) => {
 
 const BillingAutomation = () => {
     const [activeTab, setActiveTab] = useState("dashboard")
-    const [period, setPeriod] = useState({ startDate: "", endDate: "" })
+    // Left unset, dates stay out of the batch body entirely and the backend
+    // defaults to the last calendar month -- so an empty picker must not turn
+    // into today's date here.
+    const [selectedRange, setSelectedRange] = useState({ startDate: null, endDate: null })
+    const { from_date, to_date } = selectedRange.startDate && selectedRange.endDate
+        ? YMD_DateFormate(selectedRange)
+        : { from_date: "", to_date: "" }
+    const period = { startDate: from_date, endDate: to_date }
     const [customers, setCustomers] = useState([])
     const [selectedCustomers, setSelectedCustomers] = useState([])
     const [loadingCustomers, setLoadingCustomers] = useState(false)
@@ -162,9 +180,9 @@ const BillingAutomation = () => {
     return (
         <React.Fragment>
             <div className="page-content py-0 px-0">
-                <div className="bg-white" style={{ position: "sticky", top: "0px", zIndex: 1001, width: "100%" }}>
-                    <MainHeaderComp title="Billing Automation" />
-                </div>
+                {/* No sticky wrapper: MainHeaderComp draws nothing inline, it hands
+                    the title to the layout's PageHeader. */}
+                <MainHeaderComp title="Billing Automation" />
 
                 <div className="container-fluid px-4 py-4">
                     {/* Shared period picker & customer selector */}
@@ -172,11 +190,11 @@ const BillingAutomation = () => {
                         <CardBody>
                             <Row className="items-end">
                                 <Col md={4} className="mb-2 mb-md-0">
-                                    <DateRangePicker
-                                        startDate={period.startDate}
-                                        endDate={period.endDate}
-                                        onChange={(s, e) => setPeriod({ startDate: s, endDate: e })}
-                                        label="Date Range"
+                                    <Label className="font-bold">Date Range</Label>
+                                    <DateRangeInput
+                                        value={selectedRange}
+                                        onChange={setSelectedRange}
+                                        isBorder={true}
                                     />
                                 </Col>
                                 <Col md={8}>
@@ -200,18 +218,15 @@ const BillingAutomation = () => {
                                                 menuIsOpen={customerMenuOpen}
                                                 onMenuOpen={() => setCustomerMenuOpen(true)}
                                                 onMenuClose={() => setCustomerMenuOpen(false)}
+                                                menuPortalTarget={document.body}
+                                                menuPosition="fixed"
                                                 components={{
                                                     Option: makeCustomOption(isAllSelected),
                                                     MultiValue: CustomMultiValue,
                                                     ValueContainer: makeCustomValueContainer(customerOptions.length),
                                                 }}
                                                 styles={{
-                                                    control: (base) => ({
-                                                        ...base,
-                                                        minHeight: "38px",
-                                                        borderColor: "#ced4da",
-                                                        "&:hover": { borderColor: "#80bdff" },
-                                                    }),
+                                                    ...customStyles,
                                                     multiValue: () => ({ display: "none" }),
                                                     valueContainer: (base) => ({
                                                         ...base,
@@ -239,7 +254,7 @@ const BillingAutomation = () => {
                         {TABS.map((t) => (
                             <NavItem key={t.id}>
                                 <NavLink
-                                    className={classnames({ active: activeTab === t.id })}
+                                    active={activeTab === t.id}
                                     onClick={() => setActiveTab(t.id)}
                                     style={{ cursor: "pointer" }}
                                 >

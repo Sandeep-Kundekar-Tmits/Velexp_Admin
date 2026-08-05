@@ -1,12 +1,24 @@
-import React, { useEffect, useMemo, useState, Fragment } from 'react';
-import { Row, Col, Button, Input, Label, FormGroup, Offcanvas, OffcanvasHeader, OffcanvasBody, Table as ReactstrapTable } from "@/components/ui";
+import React, { useCallback, useEffect, useMemo, useState, Fragment } from 'react';
+import { Row, Col, Button, Input, Label, Modal, ModalHeader, ModalBody, Table as ReactstrapTable } from "@/components/ui";
 import Select from 'react-select';
-import { X, CircleX } from 'lucide-react';
 import TableContainer from '../../components/Table/TableContainer';
-import { customStyles } from '../../helpers/CustomStyle';
+import { customStyles, CheckboxOption, SelectedCountValue } from '../../helpers/CustomStyle';
 import DateRangeInput from '../../components/Common/DateRangeInput';
 import MainHeaderComp from '../../components/MainHeaderCom';
-import SelectedItemsDisplay from '../../components/Common/SelectedItemsDisplay';
+
+/* Same contract as LastMileOperations.jsx: a checkbox per option instead of a
+   chip strip beside the control, and a count in the control instead of one
+   chip per value. See CustomStyle.jsx for why. */
+const MULTI_SELECT_PROPS = {
+    isMulti: true,
+    isClearable: true,
+    hideSelectedOptions: false,
+    closeMenuOnSelect: false,
+    styles: customStyles,
+    components: { Option: CheckboxOption, ValueContainer: SelectedCountValue },
+    menuPortalTarget: document.body,
+    menuPosition: "fixed",
+};
 
 const PerformanceReport = () => {
     useEffect(() => {
@@ -25,10 +37,10 @@ const PerformanceReport = () => {
     const [activeComponent, setActiveComponent] = useState("");
     const [selectedRowData, setSelectedRowData] = useState(null);
 
-    const handleRowClick = (rowData) => {
+    const handleRowClick = useCallback((rowData) => {
         setSelectedRowData(rowData);
         setActiveComponent("performance_detail");
-    };
+    }, []);
 
     const ReturnComponent = (title) => {
         let compObj = Components.find(ele => ele.title === title)
@@ -42,52 +54,70 @@ const PerformanceReport = () => {
         {
             title: "performance_detail",
             component: (
-                <Offcanvas
+                // Was an Offcanvas sliding in from the right -- a drawer reads
+                // as "more of the same page," but this is a single record's
+                // detail, disconnected from whatever row is still showing
+                // behind it. A centred modal is the right shape for that.
+                <Modal
                     isOpen={activeComponent === "performance_detail"}
                     toggle={() => setActiveComponent("")}
-                    direction="end"
-                    style={{ width: '500px' }}
+                    centered
+                    size="lg"
+                    scrollable
                 >
-                    <div className="flex items-center justify-between p-4 border-bottom">
-                        <h4 className="m-0 font-bold" style={{ color: "#334155", fontSize: '18px' }}>Report title</h4>
-                        <X
-                            size={20}
-                            className='text-ink-muted cursor-pointer'
-                            onClick={() => setActiveComponent("")}
-                        />
-                    </div>
-                    <OffcanvasBody>
-                        <Row className="mb-6">
-                            <Col md={6} className="mb-4">
-                                <h5 className="mb-0">{selectedRowData?.region || "region_name"}</h5>
-                                <small className="text-ink-muted">Region</small>
-                            </Col>
-                            <Col md={6} className="mb-4">
-                                <h5 className="mb-0">{selectedRowData?.service_centre || "service_centre_name"}</h5>
-                                <small className="text-ink-muted">Service Centre</small>
-                            </Col>
-                            <Col md={6} className="mb-4">
-                                <h5 className="mb-0">division_name</h5>
-                                <small className="text-ink-muted">Division</small>
-                            </Col>
-                            <Col md={6} className="mb-4">
-                                <h5 className="mb-0">employee_code</h5>
-                                <small className="text-ink-muted">Employee Code</small>
-                            </Col>
-                            <Col md={6} className="mb-4">
-                                <h5 className="mb-0">{selectedRowData?.total_capacity || "200"}</h5>
-                                <small className="text-ink-muted">Total Capacity</small>
-                            </Col>
-                            <Col md={6} className="mb-4">
-                                <h5 className="mb-0">{selectedRowData?.total_delivery || "180"}</h5>
-                                <small className="text-ink-muted">Total Delivery</small>
-                            </Col>
+                    <ModalHeader toggle={() => setActiveComponent("")}>
+                        {/* Was the literal string "Report title" -- a
+                            placeholder left in from the mockup. The row that
+                            opened this modal is right there in state. */}
+                        {selectedRowData?.service_centre
+                            ? `${selectedRowData.service_centre} -- Performance Detail`
+                            : "Performance Detail"}
+                    </ModalHeader>
+                    <ModalBody>
+                        {/* Label above, value below, muted-uppercase-on-bold --
+                            the same stat convention as the tiles on the
+                            customer list, not the inverted bold-value-then-
+                            small-caption the mockup had. "division"/
+                            "employee_code" render the same dash every other
+                            empty field does, not a lorem-ipsum-looking literal
+                            string, since the mock dataset carries neither. */}
+                        <Row className="mb-2">
+                            {[
+                                { label: "Region", value: selectedRowData?.region },
+                                { label: "Service Centre", value: selectedRowData?.service_centre },
+                                { label: "Division", value: selectedRowData?.division },
+                                { label: "Employee Code", value: selectedRowData?.employee_code },
+                                { label: "Total Capacity", value: selectedRowData?.total_capacity },
+                                { label: "Total Delivery", value: selectedRowData?.total_delivery },
+                            ].map(({ label, value }) => (
+                                <Col key={label} md={6} className="mb-4">
+                                    <p className="m-0 text-[11px] font-medium uppercase tracking-wider text-ink-muted">
+                                        {label}
+                                    </p>
+                                    <p className="m-0 mt-1 text-[15px] font-semibold text-ink">
+                                        {value || "--"}
+                                    </p>
+                                </Col>
+                            ))}
                         </Row>
 
-                        <hr />
+                        <div className="my-2 border-t border-white/8" />
 
-                        <ReactstrapTable bordered hover responsive className="text-center mt-4">
-                            <thead className="bg-canvas">
+                        <p className="mb-2 mt-4 text-[13px] font-semibold uppercase tracking-wide text-ink-muted">
+                            Delivery Schedule
+                        </p>
+
+                        {/* bordered/hover/responsive still set the base shape;
+                            the [&_...]:! overrides replace Table's built-in
+                            th background and hover tint, which are tuned for
+                            the light theme this screen has moved off of. */}
+                        <ReactstrapTable
+                            bordered
+                            hover
+                            responsive
+                            className="text-center [&_tbody_tr:hover]:!bg-white/5 [&_td]:!border-white/8 [&_th]:!border-white/8 [&_th]:!bg-canvas [&_th]:!text-[11px] [&_th]:!font-semibold [&_th]:!uppercase [&_th]:!tracking-wider [&_th]:!text-ink-muted [&_td]:!text-ink"
+                        >
+                            <thead>
                                 <tr>
                                     <th>Date</th>
                                     <th>Employees</th>
@@ -111,8 +141,8 @@ const PerformanceReport = () => {
                                 ))}
                             </tbody>
                         </ReactstrapTable>
-                    </OffcanvasBody>
-                </Offcanvas>
+                    </ModalBody>
+                </Modal>
             )
         }
     ]
@@ -204,12 +234,17 @@ const PerformanceReport = () => {
                 accessorKey: 'action',
                 enableColumnFilter: false,
                 enableSorting: false,
-                cell: (cellProps) => {
+                /* Had no onClick at all -- it only opened the modal because a
+                   click on it also bubbles up to the row's own handler
+                   (handleUserClick below). A button that says "View Details"
+                   should not depend on that; it should do the thing itself. */
+                cell: ({ row }) => {
                     return (
                         <Button
                             type="button"
                             color="primary"
                             className="btn-sm btn-rounded"
+                            onClick={() => handleRowClick(row.original)}
                         >
                             View Details
                         </Button>
@@ -217,7 +252,7 @@ const PerformanceReport = () => {
                 },
             },
         ],
-        []
+        [handleRowClick]
     );
 
     const data = [
@@ -227,121 +262,103 @@ const PerformanceReport = () => {
     ];
 
     return (
-        <div className="page-content py-0 px-0" style={{ overflowX: 'hidden' }}>
-            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                <MainHeaderComp
-                    title="Performance Report"
-                // subTitle="Performance Report"
-                />
-            </div>
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+            <MainHeaderComp title="Performance Report" subTitle="Capacity and delivery by region, service center and division." />
 
-            <div className="container-fluid px-2">
-                <Row className="gx-3 flex items-center pt-2">
-                    <Col md={4}>
-                        <FormGroup className="mb-2">
-                            <Label for="Region" className="font-bold text-ink-muted mb-1">Select Region</Label>
-                            <Select
-                                value={selectedRegion}
-                                onChange={setSelectedRegion}
-                                options={regionOptions}
-                                placeholder="Search Region"
-                                styles={customStyles}
-                            />
-                        </FormGroup>
-                    </Col>
-                    <Col md={4}>
-                        <FormGroup className="mb-2">
-                            <Label for="ServiceCenter" className="font-bold text-ink-muted mb-1">Select Service Center</Label>
-                            <div className="flex items-center">
-                                <div className="grow">
-                                    <Select
-                                        value={selectedServiceCentre}
-                                        onChange={setSelectedServiceCentre}
-                                        options={serviceCentreOptions}
-                                        placeholder="Search Service Center"
-                                        styles={customStyles}
-                                        isMulti
-                                        controlShouldRenderValue={false}
-                                    />
-                                </div>
-                                <SelectedItemsDisplay
-                                    selectedItems={selectedServiceCentre || []}
-                                    onRemove={(item) => setSelectedServiceCentre(selectedServiceCentre.filter(i => i.value !== item.value))}
-                                    targetId="popoverSC"
-                                    maxDisplay={3}
-                                />
-                            </div>
-                        </FormGroup>
-                    </Col>
-                    <Col md={4}>
-                        <FormGroup className="mb-2">
-                            <Label for="Division" className="font-bold text-ink-muted mb-1">Select Division</Label>
-                            <div className="flex items-center">
-                                <div className="grow">
-                                    <Select
-                                        value={selectedDivision}
-                                        onChange={setSelectedDivision}
-                                        options={divisionOptions}
-                                        placeholder="Search Division"
-                                        styles={customStyles}
-                                        isMulti
-                                        controlShouldRenderValue={false}
-                                    />
-                                </div>
-                                <SelectedItemsDisplay
-                                    selectedItems={selectedDivision || []}
-                                    onRemove={(item) => setSelectedDivision(selectedDivision.filter(i => i.value !== item.value))}
-                                    targetId="popoverDiv"
-                                    maxDisplay={3}
-                                />
-                            </div>
-                        </FormGroup>
-                    </Col>
-                </Row>
+            <div className="page-fit-body relative z-10 pb-4">
+                {/* Filters -- see LastMileOperations.jsx for the reasoning:
+                    checkboxes in the dropdown replace the chip strip beside
+                    the control, and every field wraps to the next line rather
+                    than push the row past the card. */}
+                <div className="flex flex-wrap items-end gap-3 border-b border-white/8 pb-4">
+                    <div className="flex w-full flex-col gap-1.5 sm:w-56">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Select Region
+                        </Label>
+                        <Select
+                            value={selectedRegion}
+                            onChange={setSelectedRegion}
+                            options={regionOptions}
+                            placeholder="Search Region"
+                            styles={customStyles}
+                            isClearable
+                            menuPortalTarget={document.body}
+                            menuPosition="fixed"
+                        />
+                    </div>
 
-                <Row className="gx-3 flex items-end mt-2">
-                    <Col md={4}>
-                        <FormGroup className="mb-2">
-                            <Label className="font-bold text-ink-muted mb-1">Date Range</Label>
-                            <DateRangeInput
-                                value={selectedRange}
-                                onChange={(range) => setSelectedRange(range)}
-                                isBorder={true}
-                            />
-                        </FormGroup>
-                    </Col>
-                    <Col md={3}>
-                        <FormGroup className="mb-2">
-                            <Label className="font-bold text-ink-muted mb-1">Employee Code</Label>
-                            <Input
-                                type="text"
-                                placeholder="Enter Employee Code"
-                                value={employeeCode}
-                                onChange={(e) => setEmployeeCode(e.target.value)}
-                            />
-                        </FormGroup>
-                    </Col>
-                    <Col md={2} className='flex mb-2 content-center flex-wrap gap-2'>
-                        <Button color="primary" className="font-bold" style={{ height: "2.4rem", width: "100%" }}>
-                            Get Data
-                        </Button>
-                    </Col>
-                </Row>
+                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Select Service Center
+                        </Label>
+                        <Select
+                            value={selectedServiceCentre}
+                            onChange={setSelectedServiceCentre}
+                            options={serviceCentreOptions}
+                            placeholder="Search Service Center"
+                            {...MULTI_SELECT_PROPS}
+                        />
+                    </div>
 
-                <TableContainer
-                    columns={columns}
-                    data={data}
-                    isGlobalFilter={true}
-                    isPagination={true}
-                    handleUserClick={handleRowClick}
-                    SearchPlaceholder="Search across all columns..."
-                    pagination="pagination"
-                    paginationWrapper='dataTables_paginate paging_simple_numbers'
-                    tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
-                    isStickyHeader={true}
-                    stickyTop={0}
-                    tableHeight="60vh"
-                />
+                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Select Division
+                        </Label>
+                        <Select
+                            value={selectedDivision}
+                            onChange={setSelectedDivision}
+                            options={divisionOptions}
+                            placeholder="Search Division"
+                            {...MULTI_SELECT_PROPS}
+                        />
+                    </div>
+
+                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Date Range
+                        </Label>
+                        <DateRangeInput
+                            value={selectedRange}
+                            onChange={(range) => setSelectedRange(range)}
+                            isBorder={true}
+                        />
+                    </div>
+
+                    <div className="flex w-full flex-col gap-1.5 sm:w-48">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Employee Code
+                        </Label>
+                        <Input
+                            type="text"
+                            placeholder="Enter Employee Code"
+                            value={employeeCode}
+                            onChange={(e) => setEmployeeCode(e.target.value)}
+                        />
+                    </div>
+
+                    <Button color="primary" className="h-9.5 shrink-0 px-6">
+                        Get Data
+                    </Button>
+                </div>
+
+                <div className="page-fit-body mt-4">
+                    <TableContainer
+                        columns={columns}
+                        data={data}
+                        isGlobalFilter={true}
+                        isPagination={true}
+                        handleUserClick={handleRowClick}
+                        SearchPlaceholder="Search across all columns..."
+                        pagination="pagination"
+                        paginationWrapper='dataTables_paginate paging_simple_numbers'
+                        tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                        theadClass="sticky top-0 z-10"
+                        isStickyHeader={true}
+                        stickyTop={0}
+                        fillHeight
+                        tableHeight="60vh"
+                    />
+                </div>
 
                 {ReturnComponent(activeComponent)}
             </div>

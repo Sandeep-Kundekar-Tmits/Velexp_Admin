@@ -31,43 +31,6 @@ const STAT_ACCENTS = {
     green: "text-[#22C55E] shadow-[0_0_30px_-10px_rgba(34,197,94,0.8)]",
 };
 
-/*
- * Makes the grid the only thing on the page that scrolls, from ~lg up.
- *
- * The layout gives every screen a 100vh scroll box (.main-content > div), and
- * this page put ~330px of header and stat tiles above a 72vh grid -- which
- * overflows it, so the page scrollbar and the grid's own scrollbar ended up
- * side by side, each moving a different part of the same table.
- *
- * Instead the page is pinned to that box and the row area absorbs whatever is
- * left, so the toolbar, the sticky header and the pagination all stay put and
- * one scrollbar moves the rows. Sized by flex rather than a calc() against the
- * viewport because the stat grid is 2 columns at lg and 4 at xl -- the chrome
- * above the table is not a constant, and a magic number would be wrong at one
- * of the two breakpoints.
- *
- * TableContainer renders <outer><grid/><pagination/></outer> with no hook on
- * the wrapper elements, so the flex chain is driven from out here. This is the
- * one thing about the grid that stays page-specific: how much height there is
- * to give it depends on what this screen stacks above it, so it cannot live in
- * .grid-shell with the rest of the styling.
- *
- * Below lg the stat tiles stack, there is no spare height to hand out, and the
- * page scrolls as before with the grid capped at its own tableHeight.
- */
-const TABLE_FILL = cn(
-    "lg:flex lg:min-h-0 lg:flex-1 lg:flex-col",
-    "lg:[&>div]:flex lg:[&>div]:min-h-0 lg:[&>div]:flex-1 lg:[&>div]:flex-col",
-    "lg:[&>div>div:first-child]:flex lg:[&>div>div:first-child]:min-h-0",
-    "lg:[&>div>div:first-child]:flex-1 lg:[&>div>div:first-child]:flex-col",
-    // Pagination keeps its natural height instead of being squeezed.
-    "lg:[&>div>div:last-child]:shrink-0",
-    // `!` beats the inline max-height TableContainer sets from `tableHeight`,
-    // which is left in place as the sub-lg cap.
-    "lg:[&_.table-responsive]:!max-h-none",
-    "lg:[&_.table-responsive]:min-h-0 lg:[&_.table-responsive]:flex-1"
-);
-
 const UserManagementList = () => {
     // Document title effect
     useEffect(() => {
@@ -241,7 +204,11 @@ const UserManagementList = () => {
                 {/* Inline, not fixed: this replaces the page body while the
                     layout chrome around it stays interactive. Transparent, so
                     the layout's backdrop stays visible underneath. */}
-                <Loader message="Loading customers..." fullscreen={false} className="relative z-10 flex-1 bg-transparent backdrop-blur-none" />
+                {/* bg-transparent / backdrop-blur-none / flex-1 dropped: the
+                    inline loader is transparent and fills its flex parent by
+                    default now, so this was undoing a default that no longer
+                    exists. */}
+                <Loader message="Loading customers..." fullscreen={false} className="relative z-10" />
             </div>
         )
     }
@@ -250,13 +217,13 @@ const UserManagementList = () => {
         /* No background of its own: the canvas and the route backdrop are the
            layout's job now, so every screen shares one rather than each
            painting its own over the top. */
-        <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased lg:flex lg:h-full lg:flex-col lg:overflow-hidden">
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
             {/* No px-* here: the inline gutter comes from .page-content, which
                 layout-compat sets from --sidebar-gap so it matches the rail's
                 own gutter. Adding padding here would stack a second one. */}
             {/* pb-4 only: the gap above comes from the page header's own
                 bottom margin, and a py-4 here would stack a second one. */}
-            <div className="relative z-10 pb-4 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col">
+            <div className="page-fit-body relative z-10 pb-4">
                 {/* Renders nothing here -- MainHeaderCom hands all three up to
                     the layout's PageHeader. Same call the other 69 screens
                     make, so this one is no longer a special case. */}
@@ -319,8 +286,8 @@ const UserManagementList = () => {
                     /* The panel, the grid skin and the toolbar/pagination
                        chrome all come from .grid-shell, which TableContainer
                        applies to itself. All this wrapper still owns is the
-                       entrance animation and the full-height flex chain. */
-                    className={cn("mt-4", TABLE_FILL)}
+                       entrance animation and its link in the height chain. */
+                    className="page-fit-body mt-4"
                 >
                     <TableContainer
                         columns={columns}
@@ -345,8 +312,11 @@ const UserManagementList = () => {
                         theadClass="sticky top-0 z-10"
                         isStickyHeader={true}
                         stickyTop={0}
-                        /* The sub-lg cap only. TABLE_FILL drops it above that
-                           and lets the row area take the leftover height. */
+                        /* Rows absorb the leftover height, so the grid is the
+                           only thing on the screen that scrolls. */
+                        fillHeight
+                        /* The sub-992px cap only; fillHeight drops it above
+                           that, where there is height to hand out. */
                         tableHeight="72vh"
                     />
                 </motion.div>

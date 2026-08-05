@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import "../../styles/InScanWeight.css"
+import MainHeaderComp from "../../components/MainHeaderCom";
 import { authFetch } from "@/lib/http";
 /* ------------------- ERROR POPUP COMPONENT ------------------- */
 
@@ -334,7 +335,17 @@ const InScanWeight = () => {
   /* ------------------- RENDER UI ------------------- */
 
   return (
-    <div className="form-container-ws">
+    /* The standard page shell, which this screen never had -- it rendered its
+       own 100vh container straight into the layout, so it carried no title and
+       its edges did not line up with any other page. page-fit because the
+       weight readout is meant to be read without scrolling. */
+    <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+      <MainHeaderComp
+        title="InScan Weight"
+        subTitle="Capture weight and dimensions from the connected scale."
+      />
+
+      <div className="form-container-ws page-fit-body relative z-10">
       {/* Row 1 */}
       <div>
         <div className="row-ws">
@@ -489,6 +500,8 @@ const InScanWeight = () => {
         <button className="save-btn-ws" onClick={handleSave}>
           Save Data
         </button>
+      </div>
+
       </div>
 
       {/* POPUPS */}

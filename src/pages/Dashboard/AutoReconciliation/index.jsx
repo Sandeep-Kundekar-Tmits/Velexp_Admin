@@ -72,8 +72,8 @@ const DataTable = ({ rows, emptyMsg = "No data", exportName = "export" }) => {
     };
 
     return (
-        <div>
-            <div className="flex items-center gap-2 mb-2">
+        <div className="flex min-h-0 flex-1 flex-col p-3">
+            <div className="flex shrink-0 items-center gap-2 mb-2">
                 <input
                     type="text"
                     className="form-control form-control-sm"
@@ -91,7 +91,10 @@ const DataTable = ({ rows, emptyMsg = "No data", exportName = "export" }) => {
                     Export {q ? `(${filtered.length})` : `(${rows.length})`}
                 </button>
             </div>
-            <div style={{ overflowX: "auto", maxHeight: "55vh", overflowY: "auto" }}>
+            {/* scroll-slim + flex-1 rather than a flat 55vh: on the pinned
+                screen the panel hands down whatever height is left, and a fixed
+                viewport fraction would either overflow it or leave a gap. */}
+            <div className="scroll-slim min-h-0 flex-1" style={{ overflow: "auto", maxHeight: "55vh" }}>
                 <table className="table table-sm table-hover mb-0">
                     <thead className="table-light" style={{ position: "sticky", top: 0 }}>
                         <tr>
@@ -227,8 +230,8 @@ const ManifestTable = ({ rows, emptyMsg = "No data", exportName = "export" }) =>
     };
 
     return (
-        <div>
-            <div className="flex items-center gap-2 mb-2">
+        <div className="flex min-h-0 flex-1 flex-col p-3">
+            <div className="flex shrink-0 items-center gap-2 mb-2">
                 <input
                     type="text"
                     className="form-control form-control-sm"
@@ -454,13 +457,19 @@ const AutoReconciliation = () => {
 
     // ─────────────────────────────────────────────────────────────
     return (
-        <div className="page-content py-0 px-0">
-            <div className="sticky bg-white" style={{ top: 0, zIndex: 100 }}>
-                <MainHeaderComp title="Auto Reconciliation" />
-            </div>
+        /* page-fit: the screen is pinned to the content box and the panels
+           inside it scroll, rather than the page scrolling as a whole. */
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+            {/* No sticky wrapper: MainHeaderComp draws nothing inline now, it
+                hands the title to the layout's PageHeader, which is already
+                fixed above the scroll box. */}
+            <MainHeaderComp
+                title="Auto Reconciliation"
+                subTitle="Match bank statement entries against pending manifests."
+            />
 
-            <div className="container-fluid px-4 pt-4">
-                <Nav tabs className="mb-4">
+            <div className="container-fluid page-fit-body relative z-10 px-4 pb-4">
+                <Nav tabs className="mb-4 shrink-0">
                     {[
                         { id: TAB_UPLOAD, label: "Upload Statement" },
                         { id: TAB_MANIFESTS, label: "Pending Manifests" },
@@ -479,13 +488,16 @@ const AutoReconciliation = () => {
 
                 {/* ══ TAB 1: Upload Statement ══════════════════════════════ */}
                 {activeTab === TAB_UPLOAD && (
-                    <Row className="gx-3" style={{ minHeight: "70vh" }}>
+                    /* flex-1/min-h-0 instead of minHeight:70vh -- the row takes
+                       whatever the pinned page has left, so the panels inside
+                       scroll rather than the screen. */
+                    <Row className="gx-3 min-h-0 flex-1">
 
                         {/* ── LEFT: upload form + statement list ── */}
-                        <Col md={4} className="flex flex-col gap-4">
+                        <Col md={4} className="flex min-h-0 flex-col gap-4">
 
                             {/* Upload form */}
-                            <Card className="shadow-sm">
+                            <Card className="">
                                 <CardBody className="p-4">
                                     <div className="flex items-center gap-2 mb-4">
                                         <FileText size={16} className="text-brand-500" />
@@ -556,7 +568,7 @@ const AutoReconciliation = () => {
                             </Card>
 
                             {/* Statement list */}
-                            <Card className="shadow-sm grow">
+                            <Card className="grow">
                                 <CardBody className="p-0 flex flex-col">
                                     <div className="px-4 py-2 border-bottom flex items-center justify-between">
                                         <div className="flex items-center gap-2">
@@ -615,7 +627,7 @@ const AutoReconciliation = () => {
                         </Col>
 
                         {/* ── RIGHT: detail + entries ── */}
-                        <Col md={8}>
+                        <Col md={8} className="flex min-h-0 flex-col">
                             {!selectedId ? (
                                 <div
                                     className="h-full flex flex-col items-center justify-center text-ink-muted"
@@ -625,7 +637,7 @@ const AutoReconciliation = () => {
                                     <p className="mt-2 text-xs">Select a statement from the left to view entries</p>
                                 </div>
                             ) : (
-                                <Card className="shadow-sm h-full">
+                                <Card className="h-full">
                                     <CardBody className="p-0 flex flex-col">
                                         {/* header */}
                                         <div className="px-4 py-2 border-bottom flex items-center justify-between flex-wrap gap-2">
@@ -685,8 +697,8 @@ const AutoReconciliation = () => {
 
                 {/* ══ TAB 2: Pending Manifests ═════════════════════════════ */}
                 {activeTab === TAB_MANIFESTS && (
-                    <Card className="shadow-sm">
-                        <CardBody className="p-0">
+                    <Card className="flex min-h-0 flex-1 flex-col">
+                        <CardBody className="flex min-h-0 flex-1 flex-col p-0">
                             <div className="px-4 py-2 border-bottom flex items-center gap-4 flex-wrap">
                                 {mfData && (
                                     <>

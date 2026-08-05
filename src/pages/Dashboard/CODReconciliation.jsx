@@ -8,7 +8,7 @@ import usePostApiCall from "../../hooks/usePostApiCall"
 import ToasterProvider from "../../helpers/ToasterProvider"
 import { COD_RECONCILIATION, COD_RECONCILIATION_APPROVE } from "../../api"
 import YMD_DateFormate from "../../helpers/YMD_DateFormate"
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import axios from "axios"
 import CODRejectModal from "./CODRejectModal"
 import { MdVisibility } from "react-icons/md"
@@ -246,10 +246,7 @@ const CODReconciliation = () => {
                 <Card className="shadow-sm border-0">
                     <CardBody className="p-0">
                         {loading ? (
-                            <div style={{ height: "40vh" }} className="flex flex-col justify-center items-center">
-                                <LoaderMark />
-                                <p className="mt-4 text-ink-muted">Fetching reconciliation data...</p>
-                            </div>
+                            <Loader message="Fetching reconciliation data..." fullscreen={false} />
                         ) : (
                             <TableContainer
                                 columns={columns}

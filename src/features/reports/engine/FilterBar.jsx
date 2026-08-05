@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import Select from "react-select";
 import { Button, Col, FormGroup, Label, Row } from "@/components/ui";
 import DateRangeInput from "@/components/Common/DateRangeInput";
-import { customStyles } from "@/helpers/CustomStyle";
+import { customStyles, CheckboxOption, SelectedCountValue } from "@/helpers/CustomStyle";
 import { useReferenceList } from "./useReferenceList";
 
 /**
@@ -47,9 +47,19 @@ function FilterField({ descriptor, value, onChange }) {
       onChange={onChange}
       placeholder={isLoading ? "Loading..." : descriptor.placeholder ?? "Search"}
       styles={customStyles}
-      {...(isMulti
-        ? { controlShouldRenderValue: false, hideSelectedOptions: false }
-        : { menuPortalTarget: document.body, menuPosition: "fixed" })}
+      menuPortalTarget={document.body}
+      menuPosition="fixed"
+      {...(isMulti && {
+        /* A checkbox per option, and a "N Selected" count in the control
+           instead of one chip per value -- controlShouldRenderValue was false
+           with nothing else standing in for it, so a multi-select here gave
+           no indication of what was picked once the menu closed.
+           hideSelectedOptions/closeMenuOnSelect false so a picked option stays
+           visible and checked rather than vanishing from the list. */
+        hideSelectedOptions: false,
+        closeMenuOnSelect: false,
+        components: { Option: CheckboxOption, ValueContainer: SelectedCountValue },
+      })}
     />
   );
 }
@@ -64,7 +74,12 @@ export default function FilterBar({ filters, values, onChange, onSubmit, isLoadi
   return (
     <Row>
       {filters.map((descriptor) => (
-        <Col key={descriptor.name} md={descriptor.span ?? 3}>
+        /* xs/sm as well as md: with only `md` set, a Col below that breakpoint
+           has no width at all and falls back to shrink-to-content, so on a
+           phone six filters queued up on one line squeezed to nothing. One per
+           row on phones, two up on small tablets, the config's own span from
+           md. */
+        <Col key={descriptor.name} xs={12} sm={6} md={descriptor.span ?? 3}>
           <FormGroup className="mb-2">
             {descriptor.label && <Label>{descriptor.label}</Label>}
             <FilterField
@@ -75,7 +90,12 @@ export default function FilterBar({ filters, values, onChange, onSubmit, isLoadi
           </FormGroup>
         </Col>
       ))}
-      <Col md={2} className="flex mb-4 content-center flex-wrap gap-2 mt-6">
+      {/* items-end rather than the old mt-6: the button has no label above it,
+          so it was being nudged down by a hand-tuned margin that matched the
+          label height at one font size and broke on a phone, where there is no
+          label to clear. Aligning to the bottom of the row does it at every
+          width. */}
+      <Col xs={12} sm={6} md={2} className="mb-2 flex items-end">
         <Button
           color="primary"
           onClick={onSubmit}

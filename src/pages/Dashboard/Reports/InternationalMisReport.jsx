@@ -1,13 +1,14 @@
 import { useState, useEffect, useMemo } from "react"
-import { Button } from "@/components/ui"
+import { Badge, Button, Label, Spinner } from "@/components/ui"
 import MainHeaderComp from "../../../components/MainHeaderCom"
 import TableContainer from "../../../components/Table/TableContainer"
 import { useGetApiCall } from "../../../hooks/useGetApiCall"
 import { INTERNATIONAL_SHIPMENTS_REPORT } from "../../../api"
 import ToasterProvider from "../../../helpers/ToasterProvider"
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import axios from 'axios'
-import DateRangePicker from "../../../components/Common/DateRangePicker"
+import DateRangeInput from "../../../components/Common/DateRangeInput"
+import YMD_DateFormate from "../../../helpers/YMD_DateFormate"
 
 const formatDate = (dateString) => {
     if (!dateString) return "-"
@@ -28,85 +29,60 @@ const InternationalMisReport = () => {
     const userId = useMemo(() => JSON.parse(localStorage.getItem("authUser"))?.user?.id, [])
     const [data, setData] = useState([])
     const [totalCount, setTotalCount] = useState(0)
-    const [page, setPage] = useState(1)
-    const [pageSize, setPageSize] = useState(20)
     const [downloading, setDownloading] = useState(false)
-    const [startDate, setStartDate] = useState("")
-    const [endDate, setEndDate] = useState("")
+    const [selectedRange, setSelectedRange] = useState({ startDate: null, endDate: null })
 
     const { apifunc: fetchReport, loading } = useGetApiCall()
     const { ErrorToaster, SucceesToaster } = ToasterProvider()
 
-    // Set default date range (current month)
+    // Default date range: current month to date
     useEffect(() => {
         const today = new Date()
         const firstDay = new Date(today.getFullYear(), today.getMonth(), 1)
-
-        const start = `${firstDay.getFullYear()}-${String(firstDay.getMonth() + 1).padStart(2, '0')}-${String(firstDay.getDate()).padStart(2, '0')}`
-        const end = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
-
-        setStartDate(start)
-        setEndDate(end)
+        setSelectedRange({ startDate: firstDay, endDate: today })
     }, [])
 
     const getDateRangeDifference = () => {
-        if (!startDate || !endDate) return 0
-        const start = new Date(startDate)
-        const end = new Date(endDate)
-        const diffTime = Math.abs(end - start)
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-        return diffDays
+        if (!selectedRange.startDate || !selectedRange.endDate) return 0
+        const diffTime = Math.abs(selectedRange.endDate - selectedRange.startDate)
+        return Math.ceil(diffTime / (1000 * 60 * 60 * 24))
     }
 
-    const isDateRangeValid = () => {
-        if (!startDate || !endDate) return false
-        return getDateRangeDifference() <= 31
-    }
-
-    const handleDateRangeChange = (start, end) => {
-        if (!start || !end) {
-            setStartDate(start)
-            setEndDate(end)
+    const handleDateRangeChange = ({ startDate, endDate }) => {
+        if (!startDate || !endDate) {
+            setSelectedRange({ startDate, endDate })
             return
         }
 
-        const startDateObj = new Date(start)
-        const endDateObj = new Date(end)
-
-        // Calculate the difference
-        const diffTime = Math.abs(endDateObj - startDateObj)
+        const diffTime = Math.abs(endDate - startDate)
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
         // If difference exceeds 31 days, auto-limit end date to start date + 31 days
         if (diffDays > 31) {
-            const maxEndDate = new Date(startDateObj)
+            const maxEndDate = new Date(startDate)
             maxEndDate.setDate(maxEndDate.getDate() + 31)
-
-            const limitedEnd = `${maxEndDate.getFullYear()}-${String(maxEndDate.getMonth() + 1).padStart(2, '0')}-${String(maxEndDate.getDate()).padStart(2, '0')}`
-            setStartDate(start)
-            setEndDate(limitedEnd)
+            setSelectedRange({ startDate, endDate: maxEndDate })
             SucceesToaster("End date automatically limited to 31 days from start date")
             return
         }
 
-        setStartDate(start)
-        setEndDate(end)
+        setSelectedRange({ startDate, endDate })
     }
 
     const handleFetchReport = async () => {
-        if (!startDate || !endDate) {
+        if (!selectedRange.startDate || !selectedRange.endDate) {
             ErrorToaster("Please select both start and end dates")
             return
         }
+        const { from_date, to_date } = YMD_DateFormate(selectedRange)
 
         try {
-            const params = `user_id=${userId}&start_date=${startDate}&end_date=${endDate}&format=json`
+            const params = `user_id=${userId}&start_date=${from_date}&end_date=${to_date}&format=json`
             const res = await fetchReport(`${INTERNATIONAL_SHIPMENTS_REPORT}?${params}`)
 
             if (res?.data && Array.isArray(res.data)) {
                 setData(res.data)
                 setTotalCount(res.total_count || res.data.length)
-                setPage(1)
                 SucceesToaster(`Loaded ${res.data.length} records`)
             } else {
                 setData([])
@@ -126,14 +102,15 @@ const InternationalMisReport = () => {
             return
         }
 
+        const { from_date, to_date } = YMD_DateFormate(selectedRange)
         setDownloading(true)
         try {
             const response = await axios.post(
                 INTERNATIONAL_SHIPMENTS_REPORT,
                 {
                     user_id: userId,
-                    start_date: startDate,
-                    end_date: endDate,
+                    start_date: from_date,
+                    end_date: to_date,
                     format: "excel"
                 },
                 { responseType: 'blob' }
@@ -142,7 +119,7 @@ const InternationalMisReport = () => {
             const url = window.URL.createObjectURL(new Blob([response.data]))
             const link = document.createElement('a')
             link.href = url
-            link.setAttribute('download', `international-mis-report-${startDate}-to-${endDate}.xlsx`)
+            link.setAttribute('download', `international-mis-report-${from_date}-to-${to_date}.xlsx`)
             document.body.appendChild(link)
             link.click()
             link.parentNode.removeChild(link)
@@ -234,7 +211,7 @@ const InternationalMisReport = () => {
             cell: ({ getValue }) => {
                 const status = getValue()
                 const color = status === "Success" ? "success" : status === "Pending" ? "warning" : "danger"
-                return <span className={`badge bg-${color}`}>{status}</span>
+                return <Badge color={color}>{status}</Badge>
             }
         },
         {
@@ -246,17 +223,14 @@ const InternationalMisReport = () => {
         },
     ], [])
 
-    const totalPages = Math.max(1, Math.ceil(data.length / pageSize))
-    const paginatedData = data.slice((page - 1) * pageSize, page * pageSize)
-
     return (
-        <div className="page-content">
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
             <MainHeaderComp
                 title="International MIS Report"
                 subTitle={`Total: ${totalCount} shipments`}
                 extraFields={
                     <Button
-                        color="success"
+                        className="table-action-btn table-action-btn-solid"
                         onClick={handleDownload}
                         disabled={downloading || data.length === 0}
                     >
@@ -265,146 +239,65 @@ const InternationalMisReport = () => {
                 }
             />
 
-            <div className="container-fluid px-4 py-4">
-                {/* Filter Section */}
-                <div className="card mb-6">
-                    <div className="card-body">
-                        <div className="row gap-4 items-end">
-                            <div className="col-md-7">
-                                <DateRangePicker
-                                    startDate={startDate}
-                                    endDate={endDate}
-                                    onChange={handleDateRangeChange}
-                                    label="Select Date Range"
-                                />
-                                {startDate && endDate && (
-                                    <div className="alert alert-info mt-2 mb-0">
-                                        <small>
-                                            📅 Selected: {getDateRangeDifference()} days (Max: 31 days)
-                                        </small>
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="col-md-5">
-                                <Button
-                                    color="primary"
-                                    onClick={handleFetchReport}
-                                    disabled={loading || !startDate || !endDate}
-                                    className="w-full"
-                                >
-                                    {loading ? (
-                                        <>
-                                            <span className="spinner-border spinner-border-sm mr-2"></span>
-                                            Loading...
-                                        </>
-                                    ) : (
-                                        "Fetch Report"
-                                    )}
-                                </Button>
-                            </div>
-                        </div>
+            <div className="page-fit-body relative z-10 pb-4">
+                {/* Filters -- single row that wraps, same as the rest of the report screens. */}
+                <div className="flex flex-wrap items-end gap-3 border-b border-white/8 pb-4">
+                    <div className="flex w-full flex-col gap-1.5 sm:w-72">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Select Date Range
+                        </Label>
+                        <DateRangeInput
+                            value={selectedRange}
+                            onChange={handleDateRangeChange}
+                            isBorder={true}
+                        />
+                        {selectedRange.startDate && selectedRange.endDate && (
+                            <span className="text-xs text-ink-muted">
+                                Selected: {getDateRangeDifference()} days (Max: 31 days)
+                            </span>
+                        )}
                     </div>
+
+                    <Button
+                        color="primary"
+                        onClick={handleFetchReport}
+                        disabled={loading || !selectedRange.startDate || !selectedRange.endDate}
+                    >
+                        {loading ? (
+                            <>
+                                <Spinner size="sm" className="mr-2" />
+                                Loading...
+                            </>
+                        ) : (
+                            "Fetch Report"
+                        )}
+                    </Button>
                 </div>
 
-                {/* Table Section */}
-                {loading ? (
-                    <div className="flex justify-center py-12">
-                        <LoaderMark />
-                    </div>
-                ) : (
-                    <>
+                {/* Table */}
+                <div className="page-fit-body mt-4">
+                    {loading ? (
+                        <Loader fullscreen={false} />
+                    ) : (
                         <TableContainer
                             columns={columns}
-                            data={paginatedData}
+                            data={data}
                             isGlobalFilter={true}
-                            isPagination={false}
+                            isPagination={true}
+                            isCustomPageSize={true}
+                            defaultPageSize={20}
+                            pagination="pagination"
+                            paginationWrapper="dataTables_paginate paging_simple_numbers"
                             SearchPlaceholder="Search AWB, Customer, Origin, Destination..."
-                            tableClass="table-bordered table-nowrap"
+                            tableClass="table-nowrap"
+                            theadClass="sticky top-0 z-10"
+                            isStickyHeader={true}
+                            stickyTop={0}
+                            fillHeight
+                            tableHeight="72vh"
                         />
-
-                        {/* Pagination */}
-                        {data.length > 0 && (
-                            <div className="flex flex-wrap justify-between items-center mt-4 px-4 py-2 bg-canvas rounded border">
-                                <div className="flex items-center gap-2 mb-2 mb-sm-0">
-                                    <span className="text-ink-muted text-xs">
-                                        Showing <strong>{data.length > 0 ? (page - 1) * pageSize + 1 : 0}</strong> to <strong>{Math.min(page * pageSize, data.length)}</strong> of <strong>{totalCount}</strong> entries
-                                    </span>
-                                    {data.length > 10 && (
-                                        <div className="flex items-center gap-1 ml-4">
-                                            <label className="text-ink-muted text-xs mb-0">Per page:</label>
-                                            <select
-                                                className="form-select form-select-sm"
-                                                style={{ width: "70px", cursor: "pointer" }}
-                                                value={pageSize}
-                                                onChange={(e) => {
-                                                    const newSize = Number(e.target.value)
-                                                    setPageSize(newSize)
-                                                    setPage(1)
-                                                }}
-                                            >
-                                                <option value={10}>10</option>
-                                                <option value={20}>20</option>
-                                                <option value={50}>50</option>
-                                                <option value={100}>100</option>
-                                            </select>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {totalPages > 1 && (
-                                    <div className="flex items-center gap-1">
-                                        <Button
-                                            size="sm"
-                                            color="secondary"
-                                            outline
-                                            disabled={page <= 1}
-                                            onClick={() => setPage(page - 1)}
-                                        >
-                                            ‹ Prev
-                                        </Button>
-
-                                        <div className="flex gap-1">
-                                            {(() => {
-                                                const pages = []
-                                                const maxVisible = 5
-                                                let start = Math.max(1, page - 2)
-                                                let end = Math.min(totalPages, start + maxVisible - 1)
-                                                if (end - start + 1 < maxVisible) {
-                                                    start = Math.max(1, end - maxVisible + 1)
-                                                }
-                                                for (let i = start; i <= end; i++) {
-                                                    pages.push(
-                                                        <Button
-                                                            key={i}
-                                                            size="sm"
-                                                            color={page === i ? "primary" : "secondary"}
-                                                            outline={page !== i}
-                                                            onClick={() => setPage(i)}
-                                                        >
-                                                            {i}
-                                                        </Button>
-                                                    )
-                                                }
-                                                return pages
-                                            })()}
-                                        </div>
-
-                                        <Button
-                                            size="sm"
-                                            color="secondary"
-                                            outline
-                                            disabled={page >= totalPages}
-                                            onClick={() => setPage(page + 1)}
-                                        >
-                                            Next ›
-                                        </Button>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </>
-                )}
+                    )}
+                </div>
             </div>
         </div>
     )

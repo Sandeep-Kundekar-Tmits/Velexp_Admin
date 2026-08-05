@@ -5,7 +5,7 @@ import usePostApiCall from "../../hooks/usePostApiCall";
 import useExcelParser from "../../hooks/useExcelParser";
 import { GET_MIS_OPS_DATA, GET_MIS_TALLY, GET_MIS_TALLY_FILTER_DATA, GET_MIS_TALLY_MAIN, UPLOAD_MIS_TALLY } from "../../api";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import { FaRegEye } from "react-icons/fa";
 import MisTallyViewModel from "./MisTallyViewModel";
 import MisTallyFilter from "./MisTallyFilter";
@@ -269,34 +269,29 @@ const MisTallyComponent = () => {
     }
     return (
         <>
-            <div className="bg-white sticky-top" style={{ top: '0px', zIndex: 1001, width: '100%' }}>
-                <MainHeaderComp
-                    title="Tally MIS Report"
-                    extraFields={
-                        <div className="flex items-center">
-                            <FormGroup className="mb-0">
-                                <Input type="file" id="gstUpload" onChange={UploadMISOnChange} />
-                            </FormGroup>
-                            {
-                                JsonLoading && <Spinner size="sm" className="ml-2">
-                                    Loading...
-                                </Spinner>
-                            }
-                            {
-                                MISJsondata.length >= 1 &&
-                                <Button color="primary" className="ml-4 flex justify-center items-center" onClick={MISBulkUpoad} style={{ height: "2.2rem", width: "5rem" }} >
-                                    {
-                                        MISBulkUpoadLoading ? <Spinner size="sm" className="">
-                                            Loading...
-                                        </Spinner> : "Upload"
-                                    }
-                                </Button>
-                            }
-                        </div>
-                    }
-                />
-            </div>
-            <div className="container-fluid px-4 mt-4">
+            {/* No sticky wrapper: MainHeaderComp draws nothing inline now, it
+                hands the title and these controls to the layout's PageHeader,
+                which is already fixed above the scroll box. */}
+            <MainHeaderComp
+                title="Tally MIS Report"
+                subTitle="Upload and reconcile the Tally MIS sheet."
+                extraFields={
+                    <div className="flex items-center gap-2">
+                        <Input type="file" id="gstUpload" onChange={UploadMISOnChange} />
+                        {JsonLoading && <Spinner size="sm">Loading...</Spinner>}
+                        {
+                            MISJsondata.length >= 1 &&
+                            <Button
+                                className="table-action-btn table-action-btn-primary"
+                                onClick={MISBulkUpoad}
+                            >
+                                {MISBulkUpoadLoading ? "Uploading..." : "Upload"}
+                            </Button>
+                        }
+                    </div>
+                }
+            />
+            <div className="container-fluid relative z-10 px-4 pb-4">
 
                 {/* displaying the filters */}
                 <MisTallyFilter RecallInfo={RecallInfo} FilterData={FilterData} Removefilter={() => {
@@ -423,10 +418,7 @@ const MisTallyComponent = () => {
 
 
                     {
-                        (MISDataLoading || MISGroupedDataLoading) ? <div style={{ height: "75vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                            <LoaderMark />
-                            <p className="mt-12 h5">Loading MIS Tally ...</p>
-                        </div>
+                        (MISDataLoading || MISGroupedDataLoading) ? <Loader message="Loading MIS Tally ..." fullscreen={false} />
                             : <TableContainer
                                 columns={columns}
                                 data={!IsFilterd ? MISDisplayData : MISGroupedInfo || []}

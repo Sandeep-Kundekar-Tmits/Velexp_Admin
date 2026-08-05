@@ -8,12 +8,13 @@ import TableContainer from '../../../components/Table/TableContainer';
 import Select from 'react-select'
 import { customStyles } from '../../../helpers/CustomStyle';
 import { useGetApiCall } from '../../../hooks/useGetApiCall';
-import { GET_ADMIN_BOOKING_DETAILS, GET_USER_API, PRODUCT_LIST, SERVICE_CENTER } from '../../../api';
+import { useServiceCenters } from '../../../hooks/queries/useReferenceData';
+import { GET_ADMIN_BOOKING_DETAILS, GET_USER_API, PRODUCT_LIST } from '../../../api';
 import formatDateForPayload from '../../../helpers/DateHelper';
 import usePostApiCall from '../../../hooks/usePostApiCall';
 
 import AdminBookingFilter from '../../../components/AdminBooking/AdminBookingFilter';
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import { downloadExcel } from '../../../helpers/downloadExcel';
 const AdminBooking = () => {
     const [isExporting, setIsExporting] = useState(false);
@@ -118,8 +119,11 @@ const AdminBooking = () => {
         startDate: "",
         endDate: "",
     });
-    // service center option dropdown
-    // const [ServiceCenterOption, setServiceCenterOption] = useState([])
+    // service centers -- cached 30min, shared across every screen that asks.
+    // Was `const [ServiceCenterOption, setServiceCenterOption] = useState([])`
+    // commented out with its only setter, so the <Select> below referenced an
+    // undeclared variable and crashed the page on render.
+    const { data: ServiceCenterOption = [] } = useServiceCenters()
     // selected service center
     const [SelectedServiceCenters, setSelectedServiceCenters] = useState([])
 
@@ -138,31 +142,12 @@ const AdminBooking = () => {
     // select user option
     const [UserListOptions, setUserListOption] = useState([])
 
-    // definging the get service center api
-    const { apifunc: GetServiceCenter, data: ServiceCenters } = useGetApiCall()
-
     //  calling user api
     useEffect(() => {
         GetUserList(`${GET_USER_API}/`)
-        //  calling the service center api
-        GetServiceCenter(SERVICE_CENTER)
         //  calling the get product list api
         GetProductsList(PRODUCT_LIST)
     }, [])
-
-
-    // getting the service center data
-    // useEffect(() => {
-    //     if (ServiceCenters) {
-    //         let updatedServiceCenters = ServiceCenters.map((ele) => {
-    //             return {
-    //                 value: ele?.ec_code,
-    //                 label: ele?.ec_code
-    //             }
-    //         })
-    //         setServiceCenterOption(updatedServiceCenters)
-    //     }
-    // }, [ServiceCenters])
 
     useEffect(() => {
         if (UserList) {
@@ -549,10 +534,7 @@ const AdminBooking = () => {
                     {/* <h2>Bookings</h2> */}
                     <div className='mt-1'>
                         {
-                            bookingLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <LoaderMark />
-                                <p className="mt-12 h5">Loading Admin Booking ...</p>
-                            </div> :
+                            bookingLoading ? <Loader message="Loading Admin Booking ..." fullscreen={false} /> :
                                 <TableContainer
                                     columns={columns}
                                     data={BookingData || []}

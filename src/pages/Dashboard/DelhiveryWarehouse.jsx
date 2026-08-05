@@ -3,12 +3,13 @@ import Select from 'react-select'
 import { customStyles } from "../../helpers/CustomStyle"
 import { useEffect, useMemo, useState } from "react"
 import { useGetApiCall } from "../../hooks/useGetApiCall"
-import { ADD_NEW_WAREHOUSE, GET_WAREHOUSE_LIST, SERVICE_CENTER } from "../../api"
+import { ADD_NEW_WAREHOUSE, GET_WAREHOUSE_LIST } from "../../api"
 import TableContainer from "../../components/Table/TableContainer"
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import AddWareHouseModel from "../../components/WareHouse/AddWareHouseModel"
 import usePostApiCall from "../../hooks/usePostApiCall"
 import MainHeaderComp from "../../components/MainHeaderCom"
+import { Plus } from "lucide-react"
 
 const DelhiveryWarehouse = () => {
     const columns = useMemo(
@@ -102,26 +103,26 @@ const DelhiveryWarehouse = () => {
         }
     }, [Warehouselist])
     return (
-        <div className="page-content py-0 px-0">
-            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                <MainHeaderComp
-                    title="Delhivery Warehouse"
-                    extraFields={
-                        <Button color="primary" onClick={() => {
-                            setSelectedTitle("add_warehouse")
-                        }} style={{ height: "40px" }}>Add Delhivery</Button>
-                    }
-                />
-            </div>
-            <div className="container-fluid mt-6 px-4">
-
-                {/* tabel */}
-                <div className='mt-1'>
+        <div className="page-content page-fit py-0 px-0">
+            {/* No sticky wrapper: MainHeaderComp draws nothing inline, it hands
+                the title and button to the layout's PageHeader. */}
+            <MainHeaderComp
+                title="Delhivery Warehouse"
+                subTitle="Warehouses linked to each Delhivery service center."
+                extraFields={
+                    <Button
+                        className="table-action-btn table-action-btn-primary"
+                        onClick={() => setSelectedTitle("add_warehouse")}
+                    >
+                        <Plus aria-hidden="true" size={15} />
+                        Add Delhivery
+                    </Button>
+                }
+            />
+            <div className="page-fit-body relative z-10 pb-4">
+                <div className="page-fit-body">
                     {
-                        warehouseloading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                            <LoaderMark />
-                            <p className="mt-12 h5">Loading Warehouses Services ...</p>
-                        </div>
+                        warehouseloading ? <Loader message="Loading Warehouses Services ..." fullscreen={false} />
                             :
                             <TableContainer
                                 columns={columns}
@@ -131,7 +132,12 @@ const DelhiveryWarehouse = () => {
                                 SearchPlaceholder="Search From Table"
                                 pagination="pagination"
                                 paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                                tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                                theadClass="sticky top-0 z-10"
+                                isStickyHeader={true}
+                                stickyTop={0}
+                                fillHeight
+                                tableHeight="72vh"
                             />
                     }
                 </div>

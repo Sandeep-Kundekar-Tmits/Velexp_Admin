@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import TableContainer from "../../components/Table/TableContainer";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
 import { OPS_DISPUTES_BASE } from "../../api";
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import MainHeaderComp from "../../components/MainHeaderCom";
 
 const STATUS_TABS = [
@@ -97,7 +97,9 @@ const DisputeList = () => {
     ], [navigate]);
 
     return (
-        <div className="page-content">
+        /* page-fit with no page-fit-body chain: the grid is wrapped only in a
+           fragment, so it is already a direct flex child of this root. */
+        <div className="page-content page-fit">
             <MainHeaderComp
                 title="Disputes"
                 subTitle={`Total: ${total}`}
@@ -118,9 +120,7 @@ const DisputeList = () => {
             </Nav>
 
             {loading ? (
-                <div className="flex justify-center mt-12">
-                    <LoaderMark />
-                </div>
+                <Loader fullscreen={false} />
             ) : (
                 <>
                     <TableContainer
@@ -130,6 +130,7 @@ const DisputeList = () => {
                         isPagination={false}
                         SearchPlaceholder="Search AWB..."
                         tableClass="table-bordered table-nowrap"
+                        fillHeight
                     />
 
                     <div className="flex flex-wrap justify-between items-center mt-4 px-4 py-2 bg-canvas rounded border">

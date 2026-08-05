@@ -2,14 +2,14 @@ import DateRangeInput from '../../../components/Common/DateRangeInput';
 import "react-datepicker/dist/react-datepicker.css";
 import Select from 'react-select'
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Card, CardHeader, CardBody, Col, FormGroup, Label, Row, Spinner, Alert, Offcanvas, OffcanvasHeader, OffcanvasBody } from "@/components/ui";
+import { Button, FormGroup, Label, Modal, ModalHeader, ModalBody } from "@/components/ui";
 import { customStyles } from '../../../helpers/CustomStyle';
 import { useGetApiCall } from '../../../hooks/useGetApiCall';
 import { GET_MISSING_POD, POST_USER_API } from '../../../api';
 import formatDateForPayload from '../../../helpers/DateHelper';
 import usePostApiCall from '../../../hooks/usePostApiCall';
-import MissingPodTable from './MissingPodTable';
 import TableContainer from '../../Table/TableContainer';
+import Loader from '@/Loaders/Loader';
 
 /**
  * MissingPod Component
@@ -165,13 +165,21 @@ const MissingPod = ({ onClose }) => {
         }
     };
     return (
-        <Offcanvas isOpen={true} toggle={onClose} direction="end" style={{ width: '650px' }}>
-            <OffcanvasHeader toggle={onClose}>Find Missing Pod</OffcanvasHeader>
-            <OffcanvasBody>
-                <div className="mb-6 w-3/4 mx-auto">
+        /* Centred dialog, matching Add POD. `lg` is max-w-3xl (768px), a little
+           wider than the 650px drawer because the results table needs it. */
+        <Modal isOpen={true} toggle={onClose} centered size="lg" scrollable>
+            <ModalHeader toggle={onClose}>Find Missing Pod</ModalHeader>
+            <ModalBody>
+                {/* No panel around the filters: inside a bordered dialog it was
+                    a box in a box, and it boxed the two fields in tighter than
+                    the results table below them. Spacing separates the step
+                    now, not a frame. */}
+                <div>
                     {/* select customer id */}
-                    <FormGroup className="mb-4">
-                        <Label className='pb-0 font-bold'>Select Customer</Label>
+                    <FormGroup className="mb-3">
+                        <Label className="mb-1.5 block text-[13px] font-semibold text-slate-200">
+                            Select Customer
+                        </Label>
                         <Select
                             options={CustomerOptions}
                             placeholder="Search Customer"
@@ -179,12 +187,20 @@ const MissingPod = ({ onClose }) => {
                             onChange={setSelectedCustomer}
                             isClearable={true}
                             styles={customStyles}
+                            /* Same reason the date picker is portalled: the
+                               dialog body scrolls, so an inline menu would be
+                               clipped by it. customStyles already carries the
+                               menuPortal z-index. */
+                            menuPortalTarget={document.body}
+                            menuPosition="fixed"
                         />
                     </FormGroup>
 
                     {/* range selector */}
                     <FormGroup className="mb-4">
-                        <Label className='pb-1 block font-bold'>Select Date Range</Label>
+                        <Label className="mb-1.5 block text-[13px] font-semibold text-slate-200">
+                            Select Date Range
+                        </Label>
                         <DateRangeInput
                             value={selectedRange}
                             onChange={handleChange}
@@ -192,37 +208,47 @@ const MissingPod = ({ onClose }) => {
                         />
                     </FormGroup>
 
-                    <Button color="primary" onClick={CheckPod} block className="mt-2" style={{ height: "40px" }}>
+                    <Button
+                        onClick={CheckPod}
+                        className="table-action-btn table-action-btn-primary w-full justify-center"
+                    >
                         Check Missing POD
                     </Button>
                 </div>
 
                 {/* desplaying missing pods */}
-                <div className='flex justify-center items-center w-full'>
+                <div className="mt-5 w-full">
                     {
-                        MissingPodLoading ? <Spinner>
-                            Loading...
-                        </Spinner> : (
+                        MissingPodLoading ? (
+                            /* compact: this sits inside a modal, so it sizes to
+                               the results area rather than stretching to the
+                               bottom of the window the way it does on a page. */
+                            <Loader message="Looking for missing PODs..." fullscreen={false} compact />
+                        ) : (
                             MissingPodData?.data ?
-                                <div className='w-full'>
-                                    <TableContainer
-                                        columns={columns}
-                                        data={MissingPodData?.data || []}
-                                        isGlobalFilter={true}
-                                        isPagination={true}
-                                        SearchPlaceholder="Search From Table"
-                                        pagination="pagination"
-                                        paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
-                                    />
-                                </div>
-
-                                : <h4 className='text-ink-muted'>{MissingPodData?.msg}</h4>
+                                <TableContainer
+                                    columns={columns}
+                                    data={MissingPodData?.data || []}
+                                    isGlobalFilter={true}
+                                    isPagination={true}
+                                    SearchPlaceholder="Search From Table"
+                                    pagination="pagination"
+                                    paginationWrapper='dataTables_paginate paging_simple_numbers'
+                                    tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                                />
+                                : MissingPodData?.msg ? (
+                                    /* An empty result is information, not an
+                                       error heading -- it was an <h4>, which
+                                       shouted louder than the panel title. */
+                                    <p className="m-0 rounded-xl border border-white/8 bg-white/2 px-4 py-8 text-center text-[13px] text-ink-muted">
+                                        {MissingPodData.msg}
+                                    </p>
+                                ) : null
                         )
                     }
                 </div>
-            </OffcanvasBody>
-        </Offcanvas>
+            </ModalBody>
+        </Modal>
     )
 }
 

@@ -1,17 +1,14 @@
 import { useState, useEffect, useMemo } from "react"
-import { Button, Input } from "@/components/ui"
+import { Badge, Button, Input, Label, Spinner } from "@/components/ui"
 import MainHeaderComp from "../../../components/MainHeaderCom"
 import TableContainer from "../../../components/Table/TableContainer"
 import { useGetApiCall } from "../../../hooks/useGetApiCall"
 import { useExcelExport } from "../../../hooks/useExcelExport"
 import { INTERNATIONAL_DIMENSION_CHANGE_LOG } from "../../../api"
 import ToasterProvider from "../../../helpers/ToasterProvider"
-import { LoaderMark } from "@/Loaders/Loader";
-import DateRangePicker from "../../../components/Common/DateRangePicker"
-
-const toYMD = (date) => {
-    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-}
+import Loader from "@/Loaders/Loader";
+import DateRangeInput from "../../../components/Common/DateRangeInput"
+import YMD_DateFormate from "../../../helpers/YMD_DateFormate"
 
 const formatDate = (dateString) => {
     if (!dateString) return "-"
@@ -87,7 +84,7 @@ const newValueColumn = (oldKey, newKey) => ({
     cell: ({ row }) => {
         const changed = isChanged(row.original[oldKey], row.original[newKey])
         return (
-            <span className={changed ? "text-danger fw-semibold" : ""}>
+            <span className={changed ? "text-danger-500 font-semibold" : ""}>
                 {fmtNum(row.original[newKey])}
                 {changed && <i className="mdi mdi-swap-horizontal ml-1" style={{ fontSize: "12px" }}></i>}
             </span>
@@ -101,28 +98,23 @@ const InternationalDimensionChangeLog = () => {
     const [data, setData] = useState([])
     const [totalCount, setTotalCount] = useState(0)
     const [awbno, setAwbno] = useState("")
-    const [startDate, setStartDate] = useState(() => {
-        const d = new Date()
-        d.setDate(d.getDate() - 6)
-        return toYMD(d)
+    const [selectedRange, setSelectedRange] = useState(() => {
+        const start = new Date()
+        start.setDate(start.getDate() - 6)
+        return { startDate: start, endDate: new Date() }
     })
-    const [endDate, setEndDate] = useState(() => toYMD(new Date()))
 
     const { apifunc: fetchReport, loading } = useGetApiCall()
     const { exportToExcel, isExporting } = useExcelExport()
     const { ErrorToaster, SucceesToaster } = ToasterProvider()
 
-    const handleDateRangeChange = (start, end) => {
-        setStartDate(start)
-        setEndDate(end)
-    }
-
     const handleFetchReport = async () => {
         try {
+            const { from_date, to_date } = YMD_DateFormate(selectedRange)
             const params = new URLSearchParams()
             if (awbno.trim()) params.append("awbno", awbno.trim())
-            if (startDate) params.append("from_date", startDate)
-            if (endDate) params.append("to_date", endDate)
+            if (from_date) params.append("from_date", from_date)
+            if (to_date) params.append("to_date", to_date)
 
             const queryString = params.toString()
             const url = queryString ? `${INTERNATIONAL_DIMENSION_CHANGE_LOG}?${queryString}` : INTERNATIONAL_DIMENSION_CHANGE_LOG
@@ -161,8 +153,8 @@ const InternationalDimensionChangeLog = () => {
 
         const meta = {
             "AWB No": awbno.trim() || "All",
-            "From Date": formatDate(startDate),
-            "To Date": formatDate(endDate),
+            "From Date": formatDate(selectedRange.startDate),
+            "To Date": formatDate(selectedRange.endDate),
         }
 
         exportToExcel(data, "International_Dimension_Change_Log", (item) => ({
@@ -240,7 +232,7 @@ const InternationalDimensionChangeLog = () => {
             cell: ({ getValue }) => {
                 const source = getValue()
                 if (!source) return "-"
-                return <span className={`badge rounded-pill bg-${getSourceBadgeColor(source)}`}>{formatSourceLabel(source)}</span>
+                return <Badge color={getSourceBadgeColor(source)} pill>{formatSourceLabel(source)}</Badge>
             }
         },
         {
@@ -252,81 +244,85 @@ const InternationalDimensionChangeLog = () => {
         },
     ], [])
 
+    const { startDate, endDate } = selectedRange
+
     return (
-        <div className="page-content">
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
             <MainHeaderComp
                 title="International Dimension Change Log"
                 subTitle={`Total: ${totalCount} change(s) found${startDate && endDate ? ` — ${formatDate(startDate)} to ${formatDate(endDate)}` : ""}`}
             />
 
-            <div className="container-fluid px-4 py-4">
-                {/* Filter Section */}
-                <div className="card mb-6">
-                    <div className="card-body">
-                        <div className="row gap-4 items-end">
-                            <div className="col-md-3">
-                                <label className="font-bold form-label">AWB Number (optional)</label>
-                                <Input
-                                    type="text"
-                                    placeholder="Enter AWB number"
-                                    value={awbno}
-                                    onChange={(e) => setAwbno(e.target.value)}
-                                    onKeyDown={(e) => { if (e.key === "Enter") handleFetchReport() }}
-                                />
-                            </div>
-
-                            <div className="col-md-6">
-                                <DateRangePicker
-                                    startDate={startDate}
-                                    endDate={endDate}
-                                    onChange={handleDateRangeChange}
-                                    label="Date Range (defaults to last 7 days)"
-                                />
-                            </div>
-
-                            <div className="col-md-3">
-                                <Button
-                                    color="primary"
-                                    onClick={handleFetchReport}
-                                    disabled={loading}
-                                    className="w-full"
-                                >
-                                    {loading ? (
-                                        <>
-                                            <span className="spinner-border spinner-border-sm mr-2"></span>
-                                            Loading...
-                                        </>
-                                    ) : (
-                                        "Search"
-                                    )}
-                                </Button>
-                            </div>
-                        </div>
+            <div className="page-fit-body relative z-10 pb-4">
+                {/* Filters -- single row that wraps, same as the rest of the report screens. */}
+                <div className="flex flex-wrap items-end gap-3 border-b border-white/8 pb-4">
+                    <div className="flex w-full flex-col gap-1.5 sm:w-52">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            AWB Number (optional)
+                        </Label>
+                        <Input
+                            type="text"
+                            placeholder="Enter AWB number"
+                            value={awbno}
+                            onChange={(e) => setAwbno(e.target.value)}
+                            onKeyDown={(e) => { if (e.key === "Enter") handleFetchReport() }}
+                        />
                     </div>
+
+                    <div className="flex w-full flex-col gap-1.5 sm:w-72">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Date Range (defaults to last 7 days)
+                        </Label>
+                        <DateRangeInput
+                            value={selectedRange}
+                            onChange={setSelectedRange}
+                            isBorder={true}
+                        />
+                    </div>
+
+                    <Button
+                        color="primary"
+                        onClick={handleFetchReport}
+                        disabled={loading}
+                    >
+                        {loading ? (
+                            <>
+                                <Spinner size="sm" className="mr-2" />
+                                Loading...
+                            </>
+                        ) : (
+                            "Search"
+                        )}
+                    </Button>
                 </div>
 
-                {/* Table Section */}
-                {loading ? (
-                    <div className="flex justify-center py-12">
-                        <LoaderMark />
-                    </div>
-                ) : (
-                    <TableContainer
-                        columns={columns}
-                        data={data}
-                        isGlobalFilter={true}
-                        isPagination={true}
-                        isCustomPageSize={true}
-                        defaultPageSize={20}
-                        pagination="pagination"
-                        paginationWrapper="dataTables_paginate paging_simple_numbers"
-                        isDownloadExcle={true}
-                        onDownloadExcle={handleDownloadExcel}
-                        ExcleLoading={isExporting}
-                        SearchPlaceholder="Search AWB, Booking ID, Source..."
-                        tableClass="table-bordered table-nowrap"
-                    />
-                )}
+                {/* Table */}
+                <div className="page-fit-body mt-4">
+                    {loading ? (
+                        <Loader fullscreen={false} />
+                    ) : (
+                        <TableContainer
+                            columns={columns}
+                            data={data}
+                            isGlobalFilter={true}
+                            isPagination={true}
+                            isCustomPageSize={true}
+                            defaultPageSize={20}
+                            pagination="pagination"
+                            paginationWrapper="dataTables_paginate paging_simple_numbers"
+                            isDownloadExcle={true}
+                            onDownloadExcle={handleDownloadExcel}
+                            ExcleLoading={isExporting}
+                            SearchPlaceholder="Search AWB, Booking ID, Source..."
+                            tableClass="table-nowrap"
+                            theadClass="sticky top-0 z-10"
+                            isStickyHeader={true}
+                            stickyTop={0}
+                            fillHeight
+                            tableHeight="72vh"
+                        />
+                    )}
+                </div>
             </div>
         </div>
     )

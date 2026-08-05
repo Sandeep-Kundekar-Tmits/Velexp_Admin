@@ -1,19 +1,43 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Row, Col, FormGroup } from "@/components/ui";
 import { Button, Label } from "@/components/ui";
 import DateRangeInput from "../../../components/Common/DateRangeInput";
 import TableContainer from '../../../components/Table/TableContainer';
 import Select from 'react-select'
-import { customStyles } from '../../../helpers/CustomStyle';
+import { customStyles, CheckboxOption, SelectedCountValue } from '../../../helpers/CustomStyle';
+import { useQuery } from "@tanstack/react-query";
+import { qk } from "@/lib/queryKeys";
+import { fetchServiceCenters } from "@/services/reference.service";
 import { useGetApiCall } from '../../../hooks/useGetApiCall';
-import { GET_ALL_REGION, GET_USER_API, PRODUCT_LIST, PUD_OPERATION_PERFORMANCE, SERVICE_CENTER } from '../../../api';
+import { GET_ALL_REGION, GET_USER_API, PRODUCT_LIST, PUD_OPERATION_PERFORMANCE } from '../../../api';
 import usePostApiCall from '../../../hooks/usePostApiCall';
 import formatDateForPayload from '../../../helpers/DateHelper';
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import { useNewOperationPickupStrikeRate } from '../../../hooks/useNewOperationPickupStrikeRate';
-import { StatsCard } from '../../../components/FilterComponents/StatsCard';
-import SelectedItemsDisplay from '../../../components/Common/SelectedItemsDisplay';
+/* The default StatsCard (components/StatsCard), not the FilterComponents one
+   this used to import: that one takes title/color/unit/breakdown/isGroup, so
+   being called here with just label/value rendered no title and no styling at
+   all -- a blank card. This is the same component the rest of the Operation
+   Performance / Customer Performance report family renders. */
+import StatsCard from '../../../components/StatsCard';
 import MainHeaderComp from '../../../components/MainHeaderCom';
+
+/* Same contract as LastMileOperations.jsx: a checkbox per option instead of a
+   chip strip beside the control, and a count in the control instead of one
+   chip per value. See CustomStyle.jsx for why. */
+const MULTI_SELECT_PROPS = {
+    isMulti: true,
+    isClearable: true,
+    hideSelectedOptions: false,
+    closeMenuOnSelect: false,
+    styles: customStyles,
+    components: { Option: CheckboxOption, ValueContainer: SelectedCountValue },
+    menuPortalTarget: document.body,
+    /* "fixed", not the default "absolute": the default recomputes the portal
+       offset from document coordinates once at open, which drifts if the page
+       underneath scrolls while the menu is open. "fixed" tracks the control's
+       position in the viewport instead. */
+    menuPosition: "fixed",
+};
 const FirstMileOperation = () => {
     useEffect(() => {
         document.title = "Operation Performance Report";
@@ -60,8 +84,12 @@ const FirstMileOperation = () => {
     // to store all entries
     const [AllRegions, setAllRegions] = useState([])
 
-    // definging the get service center api
-    const { apifunc: GetServiceCenter, data: ServiceCenters } = useGetApiCall()
+    // service centers -- cached 30min via react-query instead of refetched on every mount
+    const { data: ServiceCenters } = useQuery({
+        queryKey: qk.reference.serviceCenters(),
+        queryFn: fetchServiceCenters,
+        staleTime: 30 * 60_000,
+    })
 
     // selected service center
     const [SelectedServiceCenters, setSelectedServiceCenters] = useState([])
@@ -336,7 +364,6 @@ const FirstMileOperation = () => {
 
     //  calling user api
     useEffect(() => {
-        GetServiceCenter(SERVICE_CENTER)
         //  calling the regions api
         GetAllRegions(GET_ALL_REGION)
     }, [])
@@ -434,158 +461,133 @@ const FirstMileOperation = () => {
     }, [SelectedRegion, AllServiceCenterOption]);
 
     return (
-        <div className='page-content py-0 px-0'>
-            <div className="bg-white sticky-top" style={{ top: '0px', zIndex: 1001 }}>
-                <MainHeaderComp title="Pickup Strike Rate (FPSR)" subTitle="" />
-            </div>
-            <div className="container-fluid px-2">
-                <div>
-                    <Row className='gx-3 flex items-end pt-2 border-bottom pb-2'>
-                        {/* select region  */}
-                        <Col md={6}>
-                            <FormGroup className="mb-0">
-                                <Label for="Customer" className="font-bold text-ink-muted mb-1">Select Region</Label>
-                                <div className="flex items-center">
-                                    <div style={{ width: "250px" }}>
-                                        <Select
-                                            options={AllRegions}
-                                            placeholder="Search Region"
-                                            isMulti={true}
-                                            value={SelectedRegion}
-                                            onChange={setSelectedRegion}
-                                            isClearable={true}
-                                            styles={customStyles}
-                                            controlShouldRenderValue={false}
-                                            hideSelectedOptions={true}
-                                        />
-                                    </div>
-                                    <SelectedItemsDisplay
-                                        selectedItems={SelectedRegion}
-                                        onRemove={(item) => setSelectedRegion(SelectedRegion.filter(i => i.value !== item.value))}
-                                        targetId="region-overflow"
-                                        placeholder='No Region Selected'
-                                    />
-                                </div>
-                            </FormGroup>
-                        </Col>
-                        {/*  service centers list */}
-                        <Col md={6}>
-                            <FormGroup className="mb-0">
-                                <Label for="Customer" className="font-bold text-ink-muted mb-1">Select Service Center</Label>
-                                <div className="flex items-center">
-                                    <div style={{ width: "250px" }}>
-                                        <Select options={ServiceCenterOption}
-                                            placeholder="Search"
-                                            isMulti={true}
-                                            value={SelectedServiceCenters}
-                                            onChange={setSelectedServiceCenters}
-                                            isClearable={true}
-                                            styles={customStyles}
-                                            controlShouldRenderValue={false}
-                                            hideSelectedOptions={true}
-                                        />
-                                    </div>
-                                    <SelectedItemsDisplay
-                                        selectedItems={SelectedServiceCenters}
-                                        onRemove={(item) => setSelectedServiceCenters(SelectedServiceCenters.filter(i => i.value !== item.value))}
-                                        targetId="sc-overflow"
-                                        placeholder='No Service Center Selected'
-                                    />
-                                </div>
-                            </FormGroup>
-                        </Col>
-                    </Row>
-                    <Row className='gx-3 flex items-center pt-2'>
-                        <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label for="DateRange">Date Range</Label>
-                                <DateRangeInput
-                                    value={selectedRange}
-                                    onChange={handleChange}
-                                    isBorder={true}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={3}>
-                            <div style={{ width: "250px" }}>
-                                <FormGroup className="mb-2">
-                                    <Label for="Customer">Payment Mode</Label>
-                                    <Select options={paymentModeOptions}
-                                        placeholder="Search Customer"
-                                        value={PaymentMode}
-                                        onChange={setPaymentMode}
-                                        isClearable={true}
-                                        styles={customStyles} />
-                                </FormGroup>
-                            </div>
-                        </Col>
-                        <Col md={3} className=' flex items-center items-center gap-2 mt-2'>
-                            <Button color="primary" disabled={bookingLoading} style={{ height: "2.2rem", width: "100%" }} onClick={OnCheckClick}>
-                                Check
-                            </Button>
-                        </Col>
-                    </Row>
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+            <MainHeaderComp
+                title="Pickup Strike Rate (FPSR)"
+                subTitle="Region and service-center level pickup TAT."
+            />
 
-                    <div className='flex gap-6 mt-4'>
-                        {
-                            Object.entries(FinalStatusCount).map(([key, value], index) => {
-                                return (
-                                    <StatsCard label={key}
-                                        value={value} />
-                                )
-                            })
-                        }
+            <div className="page-fit-body relative z-10 pb-4">
+                {/* Filters -- see LastMileOperations.jsx for the reasoning:
+                    checkboxes in the dropdown replace the chip strip beside
+                    the control, and every field wraps to the next line rather
+                    than push the row past the card. */}
+                <div className="flex flex-wrap items-end gap-3 border-b border-white/8 pb-4">
+                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Select Region
+                        </Label>
+                        <Select
+                            options={AllRegions}
+                            placeholder="Search Region"
+                            value={SelectedRegion}
+                            onChange={setSelectedRegion}
+                            {...MULTI_SELECT_PROPS}
+                        />
                     </div>
+
+                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Select Service Center
+                        </Label>
+                        <Select
+                            options={ServiceCenterOption}
+                            placeholder="Search Service Center"
+                            value={SelectedServiceCenters}
+                            onChange={setSelectedServiceCenters}
+                            {...MULTI_SELECT_PROPS}
+                        />
+                    </div>
+
+                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Date Range
+                        </Label>
+                        <DateRangeInput
+                            value={selectedRange}
+                            onChange={handleChange}
+                            isBorder={true}
+                        />
+                    </div>
+
+                    <div className="flex w-full flex-col gap-1.5 sm:w-48">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Payment Mode
+                        </Label>
+                        <Select
+                            options={paymentModeOptions}
+                            placeholder="Search Customer"
+                            value={PaymentMode}
+                            onChange={setPaymentMode}
+                            isClearable={true}
+                            styles={customStyles}
+                            menuPortalTarget={document.body}
+                            menuPosition="fixed"
+                        />
+                    </div>
+
+                    <Button
+                        color="primary"
+                        disabled={bookingLoading}
+                        className="h-9.5 shrink-0 px-6"
+                        onClick={OnCheckClick}
+                    >
+                        Check
+                    </Button>
                 </div>
 
-                <div className=''>
-                    <div className='mt-0'>
-                        {/* loading state */}
-                        {
-                            bookingLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <LoaderMark />
-                                <p className="mt-12 h5">Loading Operation Performance ...</p>
-                            </div>
-                                :
-                                <>
-                                    {/* table for the first mile operation */}
-                                    <TableContainer
-                                        columns={LastMilecolumns}
-                                        data={FirstMiles || []}
-                                        isGlobalFilter={true}
-                                        isPagination={true}
-                                        SearchPlaceholder="Search From Table"
-                                        pagination="pagination"
-                                        paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
-                                        isCustomPageSize={true}
-                                        isDownloadExcle={true}
-                                        onDownloadExcle={async () => {
-                                            let rowData = BookingData;
-                                            let newHeaders = Object.keys(BookingData[0]).map(ele => {
-                                                return ele
-                                            })
-                                            let secondeMileReportUpdate = [...FirstMiles].map(ele => {
-                                                return {
-                                                    ...ele,
-                                                    same_day_spd: ele?.same_day,
-                                                }
-                                            })
-                                            // calling the download excel function
-                                            await downloadExcel(secondeMileReportUpdate, "Pickup_Strike_Rate", {
-                                                sheetName: "Operation_Performance",
-                                                headers: newHeaders,
-                                                rows: rowData
-                                            },
-                                                SelectedPayload,
-                                                FinalStatusCount
-                                            )
-                                        }}
-                                        ExcleLoading={FirstMileLoading}
-                                    />
-                                </>
-                        }
+                {Object.keys(FinalStatusCount).length > 0 && (
+                    <div className="mt-4 flex flex-wrap gap-3">
+                        {Object.entries(FinalStatusCount).map(([key, value]) => (
+                            <StatsCard key={key} label={key} value={value} />
+                        ))}
                     </div>
+                )}
+
+                <div className="page-fit-body mt-4">
+                    {
+                        bookingLoading ? <Loader message="Loading Operation Performance ..." fullscreen={false} /> : (
+                            <TableContainer
+                                columns={LastMilecolumns}
+                                data={FirstMiles || []}
+                                isGlobalFilter={true}
+                                isPagination={true}
+                                SearchPlaceholder="Search From Table"
+                                pagination="pagination"
+                                paginationWrapper='dataTables_paginate paging_simple_numbers'
+                                tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                                theadClass="sticky top-0 z-10"
+                                isStickyHeader={true}
+                                stickyTop={0}
+                                isCustomPageSize={true}
+                                isDownloadExcle={true}
+                                fillHeight
+                                tableHeight="72vh"
+                                onDownloadExcle={async () => {
+                                    let rowData = BookingData;
+                                    let newHeaders = Object.keys(BookingData[0]).map(ele => {
+                                        return ele
+                                    })
+                                    let secondeMileReportUpdate = [...FirstMiles].map(ele => {
+                                        return {
+                                            ...ele,
+                                            same_day_spd: ele?.same_day,
+                                        }
+                                    })
+                                    // calling the download excel function
+                                    await downloadExcel(secondeMileReportUpdate, "Pickup_Strike_Rate", {
+                                        sheetName: "Operation_Performance",
+                                        headers: newHeaders,
+                                        rows: rowData
+                                    },
+                                        SelectedPayload,
+                                        FinalStatusCount
+                                    )
+                                }}
+                                ExcleLoading={FirstMileLoading}
+                            />
+                        )
+                    }
                 </div>
             </div>
         </div>

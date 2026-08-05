@@ -12,9 +12,8 @@ import formatDateForPayload from "../../helpers/DateHelper"
 import { downloadExcel } from "../../helpers/downloadExcel"
 import usePostApiCall from "../../hooks/usePostApiCall"
 import { usePDF } from "react-to-pdf"
-import { Loader } from "rsuite"
 import CorporateInvoiceGenerate from "../../PdfComponents/CorporateInvoiceGenerate"
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import ToasterProvider from "../../helpers/ToasterProvider"
 import YMD_DateFormate from "../../helpers/YMD_DateFormate"
 
@@ -473,97 +472,99 @@ const CorporateBilling = () => {
         }
     }
     return (
-        <div className='page-content py-0 px-0'>
-            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                <MainHeaderComp
-                    title="Generate Corporate Bills"
-                />
-            </div>
-            <div className="container-fluid px-4">
-                <div className="mt-4">
-                    <Row className="pb-0 items-end border-bottom">
-                        <Col md={4}>
-                            <FormGroup className="mb-0">
-                                <Label for="gstUpload">Upload Invoice</Label>
-                                <Input type="file" id="gstUpload" onChange={UploadInvoiceChange} />
-                                {
-                                    JsonLoadingError && <Spinner size="sm" className="ml-2">
-                                        Loading...
-                                    </Spinner>
-                                }
-                                <FormText color="muted" className="mb-0">Upload Invoice file if available</FormText>
-                            </FormGroup>
-                        </Col>
-                        <Col md={2}>
-                            <Button color="primary" disabled={!showUploadBtn || !UploadedFile} onClick={UploadInvoice} className="w-full" style={{ height: "38px", marginBottom: "35px" }} >
-                                {
-                                    UploadcorporateInvoiceLoading ? <Spinner size="sm">
-                                        Loading...
-                                    </Spinner> : "Upload"
-                                }
-                            </Button>
-                        </Col>
-                    </Row>
-                    <Row className="pt-4 pb-4 items-end border-bottom">
-                        <Col md={4}>
-                            <FormGroup className="mb-0">
-                                <Label>Select Customer</Label>
-                                <SearchableDropdown
-                                    onChange={handleLocationChange}
-                                    locations={Customes}
-                                    placeholder={GetuserLoading ? "loading..." : "Select Customer"}
-                                    className="w-full"
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={4}>
-                            <FormGroup className="mb-0">
-                                <Label>Select Date Range</Label>
-                                <DateRangeInput
-                                    onChange={handleDateChange}
-                                    value={selectedRange}
-                                    isBorder={true}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={2}>
-                            <Button color="primary" onClick={CheckCustomerBillings} className="w-full" style={{ height: "38px", marginBottom: "15px" }} >
-                                {
-                                    CorporateBillingLoading ? "Checking.." : "Check"
-                                }
-                            </Button>
-                        </Col>
-                    </Row>
-                </div>
-                {/*  */}
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+            {/* No sticky wrapper: MainHeaderComp draws nothing inline now, it
+                hands the title to the layout's PageHeader. */}
+            <MainHeaderComp
+                title="Generate Corporate Bills"
+                subTitle="Upload a rate sheet, then bill a corporate customer for a date range."
+            />
 
-                <div className=" mt-1">
-                    <div className='mt-2'>
-                        {
-                            CorporateBillingLoading ? <div style={{ height: "75vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <LoaderMark />
-                                <p className="mt-12 h5">Loading Corpotate Billing ...</p>
-                            </div>
-                                :
-                                <>{
-                                    <TableContainer
-                                        columns={columns}
-                                        data={BillData || []}
-                                        isGlobalFilter={true}
-                                        isPagination={true}
-                                        isCustomPageSize={true}
-                                        isDownloadExcle={true}
-                                        onDownloadExcle={DownloadBookingDetails}
-                                        SearchPlaceholder="Search From Table"
-                                        pagination="pagination"
-                                        paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
-                                    />
-                                }
-                                </>
+            <div className="container-fluid page-fit-body relative z-10 pb-4">
+                {/* Two stacked bordered rows became one, matching the franchise
+                    screen: upload on the left, bill a customer on the right,
+                    a rule between the two. */}
+                <div className="filter-row">
+                    <div className="filter-group">
+                        <div className="flex w-full flex-col gap-1.5 sm:w-56">
+                            <Label for="gstUpload" className="form-label m-0 font-bold text-ink-muted">
+                                Upload Invoice
+                            </Label>
+                            <Input type="file" id="gstUpload" onChange={UploadInvoiceChange} />
+                        </div>
 
-                        }
+                        <div className="flex items-center gap-2">
+                            <Button
+                                className="table-action-btn table-action-btn-solid"
+                                disabled={!showUploadBtn || !UploadedFile}
+                                onClick={UploadInvoice}
+                            >
+                                {UploadcorporateInvoiceLoading ? "Uploading..." : "Upload"}
+                            </Button>
+                            {JsonLoadingError && <Spinner size="sm">Loading...</Spinner>}
+                        </div>
                     </div>
+
+                    <div aria-hidden="true" className="filter-divider" />
+
+                    <div className="filter-group">
+                        <div className="flex w-full flex-col gap-1.5 sm:w-52">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                Select Customer
+                            </Label>
+                            <SearchableDropdown
+                                onChange={handleLocationChange}
+                                locations={Customes}
+                                placeholder={GetuserLoading ? "loading..." : "Select Customer"}
+                                className="w-full"
+                            />
+                        </div>
+
+                        <div className="flex w-full flex-col gap-1.5 sm:w-56">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                Select Date Range
+                            </Label>
+                            <DateRangeInput
+                                onChange={handleDateChange}
+                                value={selectedRange}
+                                isBorder={true}
+                            />
+                        </div>
+
+                        <Button
+                            className="table-action-btn table-action-btn-primary"
+                            onClick={CheckCustomerBillings}
+                        >
+                            {CorporateBillingLoading ? "Checking.." : "Check"}
+                        </Button>
+                    </div>
+                </div>
+
+                <div className="page-fit-body mt-4">
+                    {
+                        CorporateBillingLoading ? <Loader message="Loading Corpotate Billing ..." fullscreen={false} />
+                            :
+                            <TableContainer
+                                columns={columns}
+                                data={BillData || []}
+                                isGlobalFilter={true}
+                                isPagination={true}
+                                isCustomPageSize={true}
+                                isDownloadExcle={true}
+                                onDownloadExcle={DownloadBookingDetails}
+                                SearchPlaceholder="Search From Table"
+                                pagination="pagination"
+                                paginationWrapper='dataTables_paginate paging_simple_numbers'
+                                /* table-bordered dropped: .grid-shell draws the
+                                   row rules now. */
+                                tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                                theadClass="sticky top-0 z-10"
+                                isStickyHeader={true}
+                                stickyTop={0}
+                                fillHeight
+                                tableHeight="65vh"
+                            />
+                    }
                     {/*  showing the downloading message and loader */}
                     {
                         isGenerating && <Loader message="Generating the Pdf....." />

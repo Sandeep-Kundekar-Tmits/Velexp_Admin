@@ -7,6 +7,7 @@ import SidebarNav from "./SidebarNav";
 import { Link } from "react-router-dom";
 
 import logoLightPng from "../../assets/images/vellocity-express-white-bg.png";
+import logoCollapsedPng from "../../assets/images/mob-logo.png";
 import ProfileMenu from "../CommonForBoth/TopbarDropdown/ProfileMenu";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
@@ -74,17 +75,22 @@ const Sidebar = (props) => {
           zIndex: isMobile ? 1100 : undefined,
         }}
       >
-        {/* The logo is always rendered now. It used to be gated on `showLogo`,
-            which meant that once collapsed it was gone from the DOM -- so
-            hovering the rail widened it back to 250px around an empty header.
-            Visibility is CSS's job (see .sidebar-brand), because only CSS can
-            tell "collapsed" from "collapsed and hovered". */}
+        {/* Both logos are always rendered now. It used to be gated on
+            `showLogo`, which meant that once collapsed it was gone from the
+            DOM -- so hovering the rail widened it back to 250px around an
+            empty header. Visibility is CSS's job (see .sidebar-brand-full /
+            .sidebar-brand-collapsed), because only CSS can tell "collapsed"
+            from "collapsed and hovered". */}
         <div className="sidebar-header">
           <Link to="/" className="sidebar-brand">
             {/* Sizing is entirely in .sidebar-brand img. The inline
                 height/width/object-fit that used to be here fitted the PNG's
                 mostly-empty canvas rather than the artwork inside it. */}
-            <img src={logoLightPng} alt="Main Logo" />
+            <img src={logoLightPng} alt="Main Logo" className="sidebar-brand-full" />
+            {/* Icon-only mark shown once the rail collapses to the 68px rail
+                and isn't being hovered -- the full wordmark doesn't fit that
+                width, so the header used to just go blank instead. */}
+            <img src={logoCollapsedPng} alt="Main Logo" className="sidebar-brand-collapsed" />
           </Link>
           {/* Mobile keeps its dismiss control up here; the drawer covers the
               screen, so the X belongs at the top where a close button is

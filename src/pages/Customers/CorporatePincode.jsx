@@ -1,5 +1,5 @@
 import { FaFileExcel } from "react-icons/fa"
-import { Button, Col, FormGroup, Input, Label, Row, Spinner } from "@/components/ui"
+import { Button, Input, Label, Spinner } from "@/components/ui"
 import Select from "react-select";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { customStyles } from "../../helpers/CustomStyle";
@@ -15,7 +15,7 @@ import {
 } from "../../api";
 import useExcelParser from "../../hooks/useExcelParser";
 import TableContainer from "../../components/Table/TableContainer";
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import usePostApiCall from "../../hooks/usePostApiCall";
 import ToasterProvider from "../../helpers/ToasterProvider";
 import SimpleModal from "../../components/SimpleModal";
@@ -362,40 +362,42 @@ const CorporatePincode = ({ externalCustomer }) => {
 
 
     return (
-        <div className='page-content py-0 px-0'>
-            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                <MainHeaderCom
-                    title="Corporate Pincode"
-                    extraFields={
-                        <div className="flex items-center">
-                            <h6 className="text-black font-bold mb-0 mr-2" style={{ fontSize: "14px" }}>Template</h6>
-                            {["Default", "Customer"]?.map((ele) => (
-                                <div className="ml-2" key={ele}>
-                                    <Button
-                                        onClick={() => {
-                                            setSelectedtemplate(ele);
-                                            converToExcel(ele === "Customer" ? "customer" : "");
-                                        }}
-                                        className="flex items-center justify-center p-2 m-auto bg-transparent border-success text-success-500"
-                                        style={{ borderRadius: "7px", width: "100px", fontWeight: "500", fontSize: "12px" }}
-                                    >
-                                        {(ConvertingEmptyExcelLoading && selectedTemplate === ele)
-                                            ? <span>Exporting...</span>
-                                            : <span>{ele}</span>}
-                                        <FaFileExcel size={14} className="ml-1" />
-                                    </Button>
-                                </div>
-                            ))}
-                        </div>
-                    }
-                />
-            </div>
-            <div className="container-fluid mt-4 px-4">
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+            <MainHeaderCom
+                title="Corporate Pincode"
+                extraFields={
+                    <div className="flex items-center">
+                        <h6 className="text-ink font-bold mb-0 mr-2" style={{ fontSize: "14px" }}>Template</h6>
+                        {["Default", "Customer"]?.map((ele) => (
+                            <div className="ml-2" key={ele}>
+                                <Button
+                                    onClick={() => {
+                                        setSelectedtemplate(ele);
+                                        converToExcel(ele === "Customer" ? "customer" : "");
+                                    }}
+                                    className="table-action-btn table-action-btn-solid"
+                                >
+                                    {(ConvertingEmptyExcelLoading && selectedTemplate === ele)
+                                        ? <span>Exporting...</span>
+                                        : <span>{ele}</span>}
+                                    <FaFileExcel size={14} aria-hidden="true" />
+                                </Button>
+                            </div>
+                        ))}
+                    </div>
+                }
+            />
 
-                <Row className=" mt-4">
-                    <Col md={4}>
-                        <FormGroup className="mb-2">
-                            <Label>Select Customer</Label>
+            <div className="page-fit-body relative z-10 pb-4">
+                {/* One row: view a customer's pincodes on the left, upload a
+                    new sheet on the right, a rule between the two. See
+                    .filter-row in layout-compat.css. */}
+                <div className="filter-row">
+                    <div className="filter-group">
+                        <div className="flex w-full flex-col gap-1.5 sm:w-52">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                Select Customer
+                            </Label>
                             <Select
                                 options={UserListOptions}
                                 isDisabled={selectedPincodeOption?.value === "default"}
@@ -404,25 +406,27 @@ const CorporatePincode = ({ externalCustomer }) => {
                                 onChange={setUsername}
                                 isClearable={true}
                                 styles={customStyles}
+                                menuPortalTarget={document.body}
+                                menuPosition="fixed"
                             />
-                        </FormGroup>
-                    </Col>
-                    <Col md={4} style={{ marginTop: "28px" }}>
+                        </div>
+
                         <Button
-                            className="bg-brand-500"
-                            style={{ width: "50%" }}
+                            className="table-action-btn table-action-btn-solid"
                             disabled={!username}
                             onClick={onViewCustomer}
                         >
                             View
                         </Button>
-                    </Col>
-                </Row>
+                    </div>
 
-                <Row>
-                    <Col md={4}>
-                        <FormGroup className="mb-2">
-                            <Label>Select Pincode Type</Label>
+                    <div aria-hidden="true" className="filter-divider" />
+
+                    <div className="filter-group">
+                        <div className="flex w-full flex-col gap-1.5 sm:w-44">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                Select Pincode Type
+                            </Label>
                             <Select
                                 options={[
                                     { value: "default", label: "Default Pincode" },
@@ -433,37 +437,38 @@ const CorporatePincode = ({ externalCustomer }) => {
                                 placeholder="Select Pincode Type"
                                 isClearable
                                 styles={customStyles}
+                                menuPortalTarget={document.body}
+                                menuPosition="fixed"
                             />
-                        </FormGroup>
-                    </Col>
-                    <Col md={4}>
-                        <div className="flex items-center w-full" style={{ marginTop: "28px" }}>
-                            <Input type="file" style={{ width: "100%" }} onChange={UploadChange} />
                         </div>
-                    </Col>
-                    <Col md={4}>
-                        <Button
-                            style={{ marginTop: "28px", width: "50%" }}
-                            disabled={
-                                (UploadedCorporatePincode?.length ?? 0) < 1 ||
-                                (!file) ||
-                                (selectedPincodeOption?.value !== "default" && !username)
-                            }
-                            className="bg-brand-500 text-white flex items-center justify-center"
-                            onClick={UploadPincode}
-                        >
-                            {uploadCorporatePincodeLoading ? "Uploading..." : "Upload"}
-                        </Button>
-                        {JsonLoading && <Spinner size="sm">loading...</Spinner>}
-                    </Col>
-                </Row>
 
-                <div className='mt-1'>
-                    {(CorporatePincodeDataLoading || ViewCorporatePincodeloading)
-                        ? <div style={{ height: "40vh" }} className="container-fluid flex flex-col justify-center items-center">
-                            <LoaderMark />
-                            <p className="mt-12 h5">Loading Corporate Pincode ...</p>
+                        <div className="flex w-full flex-col gap-1.5 sm:w-52">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                Upload File
+                            </Label>
+                            <Input type="file" onChange={UploadChange} />
                         </div>
+
+                        <div className="flex items-center gap-2">
+                            <Button
+                                disabled={
+                                    (UploadedCorporatePincode?.length ?? 0) < 1 ||
+                                    (!file) ||
+                                    (selectedPincodeOption?.value !== "default" && !username)
+                                }
+                                className="table-action-btn table-action-btn-primary"
+                                onClick={UploadPincode}
+                            >
+                                {uploadCorporatePincodeLoading ? "Uploading..." : "Upload"}
+                            </Button>
+                            {JsonLoading && <Spinner size="sm">loading...</Spinner>}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="page-fit-body mt-4">
+                    {(CorporatePincodeDataLoading || ViewCorporatePincodeloading)
+                        ? <Loader message="Loading Corporate Pincode ..." fullscreen={false} />
                         : <TableContainer
                             isDownloadExcle={true}
                             columns={columns}
@@ -482,8 +487,13 @@ const CorporatePincode = ({ externalCustomer }) => {
                             SearchPlaceholder="Search From Table"
                             pagination="pagination"
                             paginationWrapper='dataTables_paginate paging_simple_numbers'
-                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                            tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                            theadClass="sticky top-0 z-10"
+                            isStickyHeader={true}
+                            stickyTop={0}
                             isCustomPageSize={true}
+                            fillHeight
+                            tableHeight="65vh"
                         />}
                 </div>
                 {

@@ -5,11 +5,14 @@ import Select from 'react-select'
 import { customStyles } from '../../../helpers/CustomStyle';
 import { useEffect, useMemo, useState } from "react";
 import TableContainer from "../../../components/Table/TableContainer";
-import { GET_ALL_REGION, GET_USER_API, OFD_OPERATIONS_PERFORMANCE, SERVICE_CENTER } from "../../../api";
+import { GET_ALL_REGION, GET_USER_API, OFD_OPERATIONS_PERFORMANCE } from "../../../api";
+import { useQuery } from "@tanstack/react-query";
+import { qk } from "@/lib/queryKeys";
+import { fetchServiceCenters } from "@/services/reference.service";
 import { useGetApiCall } from "../../../hooks/useGetApiCall";
 import usePostApiCall from "../../../hooks/usePostApiCall";
 import formatDateForPayload from "../../../helpers/DateHelper";
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import { useExcelExport } from "../../../hooks/useExcelExport";
 import { useFirstMileExcel } from "../../../hooks/useFirstMileExcel";
 import { useOFDExcel } from "../../../hooks/useOFDExcel";
@@ -63,8 +66,12 @@ const OFDperationsPerformance = () => {
 
     // defining get user api
     const { apifunc: GetUserList, data: UserList } = useGetApiCall()
-    // definging the get service center api
-    const { apifunc: GetServiceCenter, data: ServiceCenters } = useGetApiCall()
+    // service centers -- cached 30min via react-query instead of refetched on every mount
+    const { data: ServiceCenters } = useQuery({
+        queryKey: qk.reference.serviceCenters(),
+        queryFn: fetchServiceCenters,
+        staleTime: 30 * 60_000,
+    })
     // defining the get regions api
     const { apifunc: GetAllRegions, data: Regions } = useGetApiCall()
 
@@ -270,7 +277,6 @@ const OFDperationsPerformance = () => {
     const { apifunc: GetOFDOperationPerformance, data: OFDOperationsPerformance, loading: OFDOperationsLoading } = usePostApiCall()
     useEffect(() => {
         GetUserList(`${GET_USER_API}/`)
-        GetServiceCenter(SERVICE_CENTER)
         //  calling the regions api
         GetAllRegions(GET_ALL_REGION)
     }, [])
@@ -516,10 +522,7 @@ const OFDperationsPerformance = () => {
 
                     <div className='mt-1'>
                         {
-                            OFDOperationsLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <LoaderMark />
-                                <p className="mt-12 h5">Loading OFD Operation Performance ...</p>
-                            </div>
+                            OFDOperationsLoading ? <Loader message="Loading OFD Operation Performance ..." fullscreen={false} />
                                 :
                                 <>
                                     <TableContainer

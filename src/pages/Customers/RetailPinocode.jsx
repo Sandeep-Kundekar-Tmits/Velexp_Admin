@@ -1,11 +1,11 @@
-import { Button, Input, Spinner } from "@/components/ui"
+import { Button, Input, Label, Spinner } from "@/components/ui"
 import TableContainer from "../../components/Table/TableContainer"
 import { FaFileExcel } from "react-icons/fa"
 import useExcelParser from "../../hooks/useExcelParser"
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useExcelExport } from "../../hooks/useExcelExport"
 import { useGetApiCall } from "../../hooks/useGetApiCall"
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import { DELETE_RETAIL_PINCODE, GET_ALL_PICKUP_PINCODES, UPLOAD_PINCODES } from "../../api"
 import usePostApiCall from "../../hooks/usePostApiCall"
 import ToasterProvider from "../../helpers/ToasterProvider"
@@ -291,64 +291,45 @@ const RetailPincode = () => {
     };
 
     return (
-        <div className='page-content py-0 px-0'>
-            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                <MainHeaderCom
-                    title="Retail Pincode"
-                    extraFields={
-                        <div className="flex items-center">
-                            <h6 className="text-black font-bold mb-0 mr-2" style={{ fontSize: "14px" }}>Template</h6>
-                            <Button
-                                // disabled={data.length < 1}
-                                onClick={converToExcel}
-                                className="flex items-center px-2 bg-transparent border-success text-success-500"
-                                style={{
-                                    borderRadius: "7px",
-                                    fontWeight: "500",
-                                    fontSize: "12px",
-                                    height: "35px"
-                                }}
-                            >
-                                {
-                                    ConvertingEmptyExcelLoading ? <span className="mr-2">Exporting...</span> : <span className="mr-2">Download</span>
-                                }
-                                <FaFileExcel size={14} className="mr-1" />
-                            </Button>
-                        </div>
-                    }
-                />
-            </div>
-            <div className="container-fluid mt-4">
-                <div className="flex pb-4 border-bottom justify-between items-center">
-                    <div className="flex items-center mr-auto">
-                        {/* <h2 className="">Retail Pincode</h2> */}
-                        <div className="flex items-center">
-                            <div className="flex items-center mr-2">
-                                {/*  upload file */}
-                                <Input type="file" onChange={UploadChange} style={{ width: "250px" }} />
-                                {
-                                    RetailPincodeExcelData?.length >= 1 && <Button onClick={UploadPincode} className="bg-brand-500 text-white ml-2 flex items-center">{
-                                        UploadPincodeLoading ? <span className="mr-2">Uploading...</span> : <span className="mr-2">Upload</span>
-                                    }</Button>
-                                }
-                            </div>
-                            <div>
-                                {
-                                    JsonLoading && <Spinner size="sm">loading...</Spinner>
-                                }
-                            </div>
-                        </div>
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+            <MainHeaderCom
+                title="Retail Pincode"
+                extraFields={
+                    <div className="flex items-center">
+                        <h6 className="text-ink font-bold mb-0 mr-2" style={{ fontSize: "14px" }}>Template</h6>
+                        <Button
+                            // disabled={data.length < 1}
+                            onClick={converToExcel}
+                            className="table-action-btn table-action-btn-solid"
+                        >
+                            {ConvertingEmptyExcelLoading ? <span>Exporting...</span> : <span>Download</span>}
+                            <FaFileExcel size={14} aria-hidden="true" />
+                        </Button>
                     </div>
-                </div>
-            </div>
-            <div className=' px-2'>
+                }
+            />
 
-                <div className='mt-1'>
+            <div className="page-fit-body relative z-10 pb-4">
+                <div className="flex flex-wrap items-end gap-3 border-b border-white/8 pb-4">
+                    <div className="flex w-full flex-col gap-1.5 sm:w-64">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Upload File
+                        </Label>
+                        <Input type="file" onChange={UploadChange} />
+                    </div>
+
+                    {RetailPincodeExcelData?.length >= 1 && (
+                        <Button onClick={UploadPincode} className="table-action-btn table-action-btn-primary">
+                            {UploadPincodeLoading ? "Uploading..." : "Upload"}
+                        </Button>
+                    )}
+
+                    {JsonLoading && <Spinner size="sm">loading...</Spinner>}
+                </div>
+
+                <div className="page-fit-body mt-4">
                     {
-                        PincodeDataLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                            <LoaderMark />
-                            <p className="mt-12 h5">Loading Pincodes ...</p>
-                        </div>
+                        PincodeDataLoading ? <Loader message="Loading Pincodes ..." fullscreen={false} />
                             :
                             <TableContainer
                                 columns={columns}
@@ -368,11 +349,13 @@ const RetailPincode = () => {
                                 SearchPlaceholder="Search From Table"
                                 pagination="pagination"
                                 paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                                tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                                theadClass="sticky top-0 z-10"
+                                isStickyHeader={true}
+                                stickyTop={0}
                                 isCustomPageSize={true}
-                            // isDownloadExcle={true}
-                            // onDownloadExcle={DownloadPerformanceDetails}
-                            // ExcleLoading={isExporting}
+                                fillHeight
+                                tableHeight="65vh"
                             />
                     }
                 </div>

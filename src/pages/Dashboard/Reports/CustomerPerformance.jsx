@@ -1,24 +1,38 @@
 import React, { useEffect, useMemo } from 'react';
-import { Pagination, PaginationItem, PaginationLink, Container, Row, Col, FormGroup, Spinner, Card, CardBody } from "@/components/ui";
+import { Pagination, PaginationItem, PaginationLink, Container, Spinner, Card, CardBody } from "@/components/ui";
 
 import { Button, FormFeedback, Input, Label, Table } from "@/components/ui";
 import { useState } from "react";
 import TableContainer from '../../../components/Table/TableContainer';
 import Select from 'react-select'
-import { customStyles } from '../../../helpers/CustomStyle';
+import { customStyles, CheckboxOption, SelectedCountValue } from '../../../helpers/CustomStyle';
 import { useGetApiCall } from '../../../hooks/useGetApiCall';
-import { GET_ADMIN_BOOKING_DETAILS, GET_ALL_REGION, GET_CUSTOMER_PERFORMANCE, GET_USER_API, PRODUCT_LIST, SERVICE_CENTER } from '../../../api';
+import { useServiceCenters } from '../../../hooks/queries/useReferenceData';
+import { GET_ADMIN_BOOKING_DETAILS, GET_ALL_REGION, GET_CUSTOMER_PERFORMANCE, GET_USER_API, PRODUCT_LIST } from '../../../api';
 import formatDateForPayload from '../../../helpers/DateHelper';
 import usePostApiCall from '../../../hooks/usePostApiCall';
 
 import AdminBookingFilter from '../../../components/AdminBooking/AdminBookingFilter';
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import { downloadExcel } from '../../../helpers/downloadExcel';
 import { useExcelExport } from '../../../hooks/useExcelExport';
 import MainHeaderCom from '../../../components/MainHeaderCom';
-import SelectedItemsDisplay from '../../../components/Common/SelectedItemsDisplay';
 import DateRangeInput from '../../../components/Common/DateRangeInput';
 import ToasterProvider from '../../../helpers/ToasterProvider';
+
+/* Same contract as LastMileOperations.jsx: a checkbox per option instead of a
+   chip strip beside the control, and a count in the control instead of one
+   chip per value. See CustomStyle.jsx for why. */
+const MULTI_SELECT_PROPS = {
+    isMulti: true,
+    isClearable: true,
+    hideSelectedOptions: false,
+    closeMenuOnSelect: false,
+    styles: customStyles,
+    components: { Option: CheckboxOption, ValueContainer: SelectedCountValue },
+    menuPortalTarget: document.body,
+    menuPosition: "fixed",
+};
 
 const CustomerPerformance = () => {
     useEffect(() => {
@@ -131,8 +145,8 @@ const CustomerPerformance = () => {
     });
     // region state
     const [SelectedRegion, setSelectedRegion] = useState()
-    // service center option dropdown
-    const [ServiceCenterOption, setServiceCenterOption] = useState([])
+    // service centers -- cached 30min, shared across every screen that asks
+    const { data: ServiceCenterOption = [] } = useServiceCenters()
     // selected service center
     const [SelectedServiceCenters, setSelectedServiceCenters] = useState([])
 
@@ -152,33 +166,15 @@ const CustomerPerformance = () => {
     // select user option
     const [UserListOptions, setUserListOption] = useState([])
 
-    // definging the get service center api
-    const { apifunc: GetServiceCenter, data: ServiceCenters } = useGetApiCall()
     const { exportToExcel, isExporting, exportProgress } = useExcelExport();
     //  calling user api
     useEffect(() => {
         GetUserList(`${GET_USER_API}/`)
-        //  calling the service center api
-        GetServiceCenter(SERVICE_CENTER)
         //  calling the get product list api
         GetProductsList(PRODUCT_LIST)
         //  calling the regions api
         GetAllRegions(GET_ALL_REGION)
     }, [])
-
-
-    // getting the service center data
-    useEffect(() => {
-        if (ServiceCenters) {
-            let updatedServiceCenters = ServiceCenters.map((ele) => {
-                return {
-                    value: ele?.ec_code,
-                    label: ele?.ec_code
-                }
-            })
-            setServiceCenterOption(updatedServiceCenters)
-        }
-    }, [ServiceCenters])
 
     useEffect(() => {
         if (UserList) {
@@ -367,170 +363,148 @@ const CustomerPerformance = () => {
         return filteredBooking;
     };
     return (
-        <div className='page-content py-0 px-0' style={{ overflowX: 'hidden' }}>
-            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                <MainHeaderCom title="Customer Performance" />
-            </div>
-            <div className="container-fluid px-2">
-                <div>
-                    <Row className='gx-3 flex items-center pt-2'>
-                        {/*  service centers list */}
-                        <Col md={6}>
-                            <FormGroup className="mb-2">
-                                <Label for="ServiceCenter" className="font-bold text-ink-muted mb-1">Select Service Center</Label>
-                                <div className="flex items-center">
-                                    <div style={{ width: "250px", minWidth: "200px" }}>
-                                        <Select
-                                            options={ServiceCenterOption}
-                                            placeholder="Search Service Center"
-                                            isMulti={true}
-                                            value={SelectedServiceCenters}
-                                            onChange={setSelectedServiceCenters}
-                                            isClearable={true}
-                                            controlShouldRenderValue={false}
-                                            hideSelectedOptions={false}
-                                            styles={customStyles} />
-                                    </div>
-                                    <SelectedItemsDisplay
-                                        selectedItems={SelectedServiceCenters || []}
-                                        onRemove={(itemToRemove) => {
-                                            setSelectedServiceCenters(prev => prev.filter(item => item.value !== itemToRemove.value));
-                                        }}
-                                        targetId="serviceCenterPopover"
-                                        placeholder='No Service Center Selected'
-                                    />
-                                </div>
-                            </FormGroup>
-                        </Col>
-                        {/* select region  */}
-                        <Col md={6}>
-                            <FormGroup className="mb-2">
-                                <Label for="Region" className="font-bold text-ink-muted mb-1">Select Region</Label>
-                                <div className="flex items-center">
-                                    <div style={{ width: "250px", minWidth: "200px" }}>
-                                        <Select
-                                            options={AllRegions}
-                                            placeholder="Search"
-                                            isMulti={true}
-                                            value={SelectedRegion}
-                                            onChange={setSelectedRegion}
-                                            isClearable={true}
-                                            controlShouldRenderValue={false}
-                                            hideSelectedOptions={false}
-                                            styles={customStyles} />
-                                    </div>
-                                    <SelectedItemsDisplay
-                                        selectedItems={SelectedRegion || []}
-                                        onRemove={(itemToRemove) => {
-                                            setSelectedRegion(prev => prev.filter(item => item.value !== itemToRemove.value));
-                                        }}
-                                        targetId="regionPopover"
-                                        placeholder='No Region Selected'
-                                    />
-                                </div>
-                            </FormGroup>
-                        </Col>
-                    </Row>
-                    <Row className='gx-3 flex items-end mt-2'>
-                        {/* select date range */}
-                        <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label for="DateRange" className="font-bold text-ink-muted mb-1">Select Date Range</Label>
-                                <DateRangeInput
-                                    value={selectedRange}
-                                    onChange={handleChange}
-                                    isBorder={true}
-                                />
-                            </FormGroup>
-                        </Col>
-                        {/* select customer */}
-                        <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label for="Customer" className="font-bold text-ink-muted mb-1">Select Customer</Label>
-                                <Select options={UserListOptions}
-                                    placeholder="Search Customer"
-                                    value={username?.value ? username : null}
-                                    onChange={setUsername}
-                                    isClearable={true}
-                                    styles={customStyles} />
-                            </FormGroup>
-                        </Col>
-                        {/* mode */}
-                        <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label for="Mode" className="font-bold text-ink-muted mb-1">Select Mode</Label>
-                                <Select
-                                    options={[
-                                        { label: "forward", value: "forward" },
-                                        { label: "reverse", value: "reverse" }
-                                    ]}
-                                    placeholder="Search Mode"
-                                    value={SelectedMode}
-                                    onChange={setSelectedMode}
-                                    isClearable={true}
-                                    styles={customStyles} />
-                            </FormGroup>
-                        </Col>
-                        {/* product */}
-                        <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label for="Product" className="font-bold text-ink-muted mb-1">Select Product</Label>
-                                <Select
-                                    options={ProductListOption}
-                                    placeholder="Search Product"
-                                    value={SelectedProduct}
-                                    onChange={setSelectedProduct}
-                                    isClearable={true}
-                                    styles={customStyles} />
-                            </FormGroup>
-                        </Col>
-                    </Row>
-                    <Row className='gx-3 flex items-center mt-0'>
-                        <Col md={2} className='flex mb-4 content-center flex-wrap gap-2 mt-0'>
-                            <Button disabled={customerPerformanceLoading} onClick={OnCheckClick} color="primary" className='mt-1 font-bold' style={{ height: "2.4rem", width: "100%" }}>
-                                Check
-                            </Button>
-                        </Col>
-                        {
-                            isShowFilter && <Col md={10}>
-                                <AdminBookingFilter
-                                    AllEntries={AllEntries}
-                                    ApplyFilter={ApplyFilter}
-                                    BookingList={BookingData}
-                                    avarageData={customerPerformance}
-                                />
-                            </Col>
-                        }
-                    </Row>
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+            <MainHeaderCom title="Customer Performance" subTitle="Every filter combined, one customer's bookings." />
+
+            <div className="page-fit-body relative z-10 pb-4">
+                {/* Filters -- see LastMileOperations.jsx for the reasoning:
+                    checkboxes in the dropdown replace the chip strip beside
+                    the control, and every field wraps to the next line rather
+                    than push the row past the card. */}
+                <div className="flex flex-wrap items-end gap-3 border-b border-white/8 pb-4">
+                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Select Service Center
+                        </Label>
+                        <Select
+                            options={ServiceCenterOption}
+                            placeholder="Search Service Center"
+                            value={SelectedServiceCenters}
+                            onChange={setSelectedServiceCenters}
+                            {...MULTI_SELECT_PROPS}
+                        />
+                    </div>
+
+                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Select Region
+                        </Label>
+                        <Select
+                            options={AllRegions}
+                            placeholder="Search Region"
+                            value={SelectedRegion}
+                            onChange={setSelectedRegion}
+                            {...MULTI_SELECT_PROPS}
+                        />
+                    </div>
+
+                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Select Date Range
+                        </Label>
+                        <DateRangeInput
+                            value={selectedRange}
+                            onChange={handleChange}
+                            isBorder={true}
+                        />
+                    </div>
+
+                    <div className="flex w-full flex-col gap-1.5 sm:w-52">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Select Customer
+                        </Label>
+                        <Select
+                            options={UserListOptions}
+                            placeholder="Search Customer"
+                            value={username?.value ? username : null}
+                            onChange={setUsername}
+                            isClearable={true}
+                            styles={customStyles}
+                            menuPortalTarget={document.body}
+                            menuPosition="fixed"
+                        />
+                    </div>
+
+                    <div className="flex w-full flex-col gap-1.5 sm:w-40">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Select Mode
+                        </Label>
+                        <Select
+                            options={[
+                                { label: "forward", value: "forward" },
+                                { label: "reverse", value: "reverse" }
+                            ]}
+                            placeholder="Search Mode"
+                            value={SelectedMode}
+                            onChange={setSelectedMode}
+                            isClearable={true}
+                            styles={customStyles}
+                            menuPortalTarget={document.body}
+                            menuPosition="fixed"
+                        />
+                    </div>
+
+                    <div className="flex w-full flex-col gap-1.5 sm:w-48">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Select Product
+                        </Label>
+                        <Select
+                            options={ProductListOption}
+                            placeholder="Search Product"
+                            value={SelectedProduct}
+                            onChange={setSelectedProduct}
+                            isClearable={true}
+                            styles={customStyles}
+                            menuPortalTarget={document.body}
+                            menuPosition="fixed"
+                        />
+                    </div>
+
+                    <Button
+                        disabled={customerPerformanceLoading}
+                        onClick={OnCheckClick}
+                        color="primary"
+                        className="h-9.5 shrink-0 px-6"
+                    >
+                        Check
+                    </Button>
                 </div>
 
-                <div className=''>
-                    {/* <h2>Bookings</h2> */}
-                    <div className='mt-1'>
-                        {
-                            customerPerformanceLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <LoaderMark />
-                                <p className="mt-12 h5">Loading Customer Performance ...</p>
-                            </div> :
-                                <TableContainer
-                                    columns={columns}
-                                    data={BookingData || []}
-                                    isGlobalFilter={true}
-                                    isPagination={true}
-                                    SearchPlaceholder="Search From Table"
-                                    pagination="pagination"
-                                    paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                    tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
-                                    isCustomPageSize={true}
-                                    isDownloadExcle={true}
-                                    onDownloadExcle={DownloadBookingDetails}
-                                    ExcleLoading={isExporting}
-                                    isStickyHeader={true}
-                                    stickyTop={0}
-                                    tableHeight="60vh"
-                                />
-                        }
+                {isShowFilter && (
+                    <div className="mt-4">
+                        <AdminBookingFilter
+                            AllEntries={AllEntries}
+                            ApplyFilter={ApplyFilter}
+                            BookingList={BookingData}
+                            avarageData={customerPerformance}
+                        />
                     </div>
+                )}
+
+                <div className="page-fit-body mt-4">
+                    {
+                        customerPerformanceLoading ? <Loader message="Loading Customer Performance ..." fullscreen={false} /> : (
+                            <TableContainer
+                                columns={columns}
+                                data={BookingData || []}
+                                isGlobalFilter={true}
+                                isPagination={true}
+                                SearchPlaceholder="Search From Table"
+                                pagination="pagination"
+                                paginationWrapper='dataTables_paginate paging_simple_numbers'
+                                tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                                theadClass="sticky top-0 z-10"
+                                isCustomPageSize={true}
+                                isDownloadExcle={true}
+                                onDownloadExcle={DownloadBookingDetails}
+                                ExcleLoading={isExporting}
+                                isStickyHeader={true}
+                                stickyTop={0}
+                                fillHeight
+                                tableHeight="60vh"
+                            />
+                        )
+                    }
                 </div>
             </div>
         </div>

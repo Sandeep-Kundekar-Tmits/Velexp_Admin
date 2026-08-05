@@ -1,5 +1,5 @@
 import { useMemo, useState, useEffect } from "react";
-import { Button, Col, FormGroup, Input, Label, Row, Spinner } from "@/components/ui";
+import { Button, Input, Label, Spinner } from "@/components/ui";
 import Select from "react-select";
 import { FaFileExcel, FaEye } from "react-icons/fa";
 import { customStyles } from "../../../helpers/CustomStyle";
@@ -10,7 +10,7 @@ import TableContainer from "../../../components/Table/TableContainer";
 import { GET_INTERNATIONAL_RATE_DATA, GET_INTERNATIONAL_RATE_DATA_CUSTOMER, POST_USER_API, UPLOAD_INTERNATIONAL_RATE_DATA_CUSTOMER } from "../../../api";
 import usePostApiCall from "../../../hooks/usePostApiCall";
 import { useGetApiCall } from "../../../hooks/useGetApiCall";
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import SimpleModal from "../../../components/SimpleModal";
 import MainHeaderComp from "../../../components/MainHeaderCom";
 
@@ -350,33 +350,33 @@ const InternationRateData = () => {
     }, [isViewingCustomerData]);
 
     return (
-        <div className="page-content py-0 px-0">
-            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                <MainHeaderComp
-                    title="International Rate Data"
-                    extraFields={
-                        <div className="flex items-center">
-                            <h6 className="text-black font-bold mb-0 mr-2" style={{ fontSize: "14px" }}>Template</h6>
-                            <Button
-                                color="success"
-                                outline
-                                onClick={downloadTemplate}
-                                className="flex items-center justify-center p-2"
-                                style={{ borderRadius: "7px", width: "180px", fontWeight: "500", fontSize: "12px", height: "35px" }}
-                            >
-                                {isExportingTemplate ? "Generating..." : "Download"}
-                                <FaFileExcel size={14} className="ml-2" />
-                            </Button>
-                        </div>
-                    }
-                />
-            </div>
-            <div className="container-fluid px-4">
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+            <MainHeaderComp
+                title="International Rate Data"
+                extraFields={
+                    <div className="flex items-center">
+                        <h6 className="text-ink font-bold mb-0 mr-2" style={{ fontSize: "14px" }}>Template</h6>
+                        <Button
+                            onClick={downloadTemplate}
+                            className="table-action-btn table-action-btn-solid"
+                        >
+                            {isExportingTemplate ? "Generating..." : "Download"}
+                            <FaFileExcel size={14} aria-hidden="true" />
+                        </Button>
+                    </div>
+                }
+            />
 
-                <Row className="mt-6">
-                    <Col md={4}>
-                        <FormGroup>
-                            <Label>Select Customer</Label>
+            <div className="page-fit-body relative z-10 pb-4">
+                {/* One row: view a customer's rates on the left, upload a new
+                    sheet on the right, a rule between the two. See .filter-row
+                    in layout-compat.css. */}
+                <div className="filter-row">
+                    <div className="filter-group">
+                        <div className="flex w-full flex-col gap-1.5 sm:w-52">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                Select Customer
+                            </Label>
                             <Select
                                 options={userListOptions}
                                 value={customer}
@@ -390,41 +390,53 @@ const InternationRateData = () => {
                                 placeholder="Search Customer"
                                 isClearable
                                 styles={customStyles}
+                                menuPortalTarget={document.body}
+                                menuPosition="fixed"
                             />
-                        </FormGroup>
-                    </Col>
-                    <Col md={2} className="flex items-end mb-4">
-                        <Button color="primary" className="w-full flex items-center justify-center" onClick={handleView} disabled={!customer || isFetchingData || isFetchingCustomerData}>
-                            <FaEye className="mr-2" /> View
-                        </Button>
-                    </Col>
-                </Row>
-
-                <Row className="mt-2 border-bottom pb-6">
-                    <Col md={4}>
-                        <FormGroup>
-                            <Label>Upload Rate Data</Label>
-                            <Input type="file" onChange={handleFileChange} />
-                        </FormGroup>
-                    </Col>
-                    <Col md={2} className="flex items-end mb-4">
-                        <Button color="primary" className="w-full flex items-center justify-center" disabled={!customer || !file || uploadedData.length === 0 || jsonLoading || isUploadingData} onClick={handleUpload}>
-                            {isUploadingData ? <Spinner size="sm" /> : "Upload"}
-                        </Button>
-                    </Col>
-                    {jsonLoading && <Col md={1} className="flex items-end mb-6"><Spinner size="sm" color="primary" /></Col>}
-                </Row>
-
-                <div className="mt-0">
-                    {(isFetchingData || isFetchingCustomerData) ? (
-                        <div style={{ height: "40vh" }} className="container-fluid flex flex-col justify-center items-center">
-                            <LoaderMark />
-                            <p className="mt-12 h5">Loading International Rate Data ...</p>
                         </div>
+
+                        <Button
+                            className="table-action-btn table-action-btn-solid"
+                            onClick={handleView}
+                            disabled={!customer || isFetchingData || isFetchingCustomerData}
+                        >
+                            <FaEye aria-hidden="true" /> View
+                        </Button>
+                    </div>
+
+                    <div aria-hidden="true" className="filter-divider" />
+
+                    <div className="filter-group">
+                        <div className="flex w-full flex-col gap-1.5 sm:w-52">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                Upload Rate Data
+                            </Label>
+                            <Input type="file" onChange={handleFileChange} />
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <Button
+                                className="table-action-btn table-action-btn-primary"
+                                disabled={!customer || !file || uploadedData.length === 0 || jsonLoading || isUploadingData}
+                                onClick={handleUpload}
+                            >
+                                {isUploadingData ? <Spinner size="sm" /> : "Upload"}
+                            </Button>
+                            {jsonLoading && <Spinner size="sm" color="primary" />}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="page-fit-body mt-4">
+                    {(isFetchingData || isFetchingCustomerData) ? (
+                        <Loader message="Loading International Rate Data ..." fullscreen={false} />
                     ) : (
                         <TableContainer
                             columns={columns}
-                            isCustomPageSize={10}
+                            /* Was `10`: this prop is a boolean flag for whether
+                               to show the page-size select at all -- the sizes
+                               it offers are fixed. */
+                            isCustomPageSize={true}
                             isDownloadExcle={true}
                             onDownloadExcle={onIntDonloadExcelFile}
                             data={rateData}
@@ -433,7 +445,12 @@ const InternationRateData = () => {
                             SearchPlaceholder="Search from table..."
                             pagination="pagination"
                             paginationWrapper="dataTables_paginate paging_simple_numbers"
-                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                            tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                            theadClass="sticky top-0 z-10"
+                            isStickyHeader={true}
+                            stickyTop={0}
+                            fillHeight
+                            tableHeight="65vh"
                         />
                     )}
                 </div>

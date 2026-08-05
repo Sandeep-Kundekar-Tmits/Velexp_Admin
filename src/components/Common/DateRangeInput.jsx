@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
+import { createPortal } from "react-dom";
 import { DateRange } from "react-date-range";
 import { format } from "date-fns";
 import { FaRegCalendarAlt } from "react-icons/fa";
@@ -22,6 +23,33 @@ const DateRangeInput = ({
 
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef(null);
+  const popupRef = useRef(null);
+  // Viewport coordinates for the portalled calendar; null until measured.
+  const [popupPos, setPopupPos] = useState(null);
+  /* Clicks made since the calendar opened. react-date-range reports the first
+     click as a range whose start and end are the same day, so "has an end date"
+     cannot tell the two clicks apart -- and picking one day twice is a valid
+     single-day range. Counting the clicks is what distinguishes them. */
+  const clicksSinceOpen = useRef(0);
+  const closeTimer = useRef(null);
+
+  /*
+   * Two months side by side is ~620px -- wider than any phone, so on a narrow
+   * screen the calendar was clamped to the viewport and the second month ran
+   * off the edge. One month, stacked, fits.
+   *
+   * matchMedia rather than a resize listener: it fires only when the query's
+   * answer actually changes, not on every pixel of a drag.
+   */
+  const [isNarrow, setIsNarrow] = useState(
+    () => window.matchMedia("(max-width: 639.98px)").matches
+  );
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 639.98px)");
+    const onChange = (e) => setIsNarrow(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
 
   // 🔥 Sync when parent value changes
   useEffect(() => {
@@ -41,17 +69,35 @@ const DateRangeInput = ({
       startDate: item.selection.startDate,
       endDate: item.selection.endDate,
     });
+
+    clicksSinceOpen.current += 1;
+    if (clicksSinceOpen.current >= 2) {
+      /* Short delay rather than closing on the same tick: the second click is
+         what completes the range, and dismissing instantly means you never see
+         the range you just picked highlighted. */
+      clearTimeout(closeTimer.current);
+      closeTimer.current = setTimeout(() => setOpen(false), 180);
+    }
   };
+
+  // A pending auto-close must not fire after the field has gone away.
+  useEffect(() => () => clearTimeout(closeTimer.current), []);
 
   const formatDate = (date) =>
     date ? format(date, "dd/MM/yyyy") : "DD/MM/YYYY";
 
-  // Close on outside click
+  /*
+   * Close on outside click.
+   *
+   * The calendar is portalled to <body>, so it is NOT inside wrapperRef any
+   * more -- checking only the wrapper would treat every click on a date as an
+   * outside click and shut the picker on the first selection.
+   */
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
-        setOpen(false);
-      }
+      if (wrapperRef.current?.contains(event.target)) return;
+      if (popupRef.current?.contains(event.target)) return;
+      setOpen(false);
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -59,121 +105,131 @@ const DateRangeInput = ({
       document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  /*
+   * Place the calendar against the trigger, in viewport coordinates.
+   *
+   * It used to be position:absolute inside the field, which meant any ancestor
+   * with overflow other than visible clipped it -- a modal body, the grid's
+   * scroll box, a page-fit column. Inside the Find Missing POD dialog it was
+   * cut off entirely.
+   *
+   * useLayoutEffect so the measurement lands before paint; otherwise the panel
+   * renders at 0,0 for a frame and visibly jumps into place.
+   */
+  useLayoutEffect(() => {
+    if (!open) return undefined;
+
+    const place = () => {
+      const trigger = wrapperRef.current?.getBoundingClientRect();
+      const popup = popupRef.current?.getBoundingClientRect();
+      if (!trigger) return;
+
+      const GAP = 6;
+      const width = popup?.width ?? 0;
+      const height = popup?.height ?? 0;
+
+      // Below by default; above when there is no room and there is room up top.
+      const below = trigger.bottom + GAP;
+      const fitsBelow = below + height <= window.innerHeight - 8;
+      const top = fitsBelow ? below : Math.max(8, trigger.top - GAP - height);
+
+      // Then keep it inside the right edge without ever going off the left.
+      const left = Math.max(8, Math.min(trigger.left, window.innerWidth - width - 8));
+
+      setPopupPos({ top, left });
+    };
+
+    place();
+    // Anything that moves the trigger moves the calendar with it. `true` to
+    // catch scrolling of inner containers, not just the window.
+    window.addEventListener("resize", place);
+    window.addEventListener("scroll", place, true);
+    return () => {
+      window.removeEventListener("resize", place);
+      window.removeEventListener("scroll", place, true);
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (open) {
+      // Every open starts a fresh two-click range, whatever the field already
+      // holds -- otherwise reopening would close again on the first click.
+      clicksSinceOpen.current = 0;
+      return;
+    }
+    // Discard the previous placement, so the next open measures fresh rather
+    // than flashing where the field used to be.
+    setPopupPos(null);
+    clearTimeout(closeTimer.current);
+  }, [open]);
+
+  const hasValue = Boolean(value?.startDate && value?.endDate);
+
   return (
+    /*
+     * Colours are in layout-compat.css, not inline here.
+     *
+     * They used to be inline -- #fff panel, #dcdcdc border, #6b6b6b text --
+     * which no stylesheet can reach, so this control stayed light on every one
+     * of the ~20 dark screens that render it. Inline styles are now only the
+     * things a prop actually varies (height, the optional right divider).
+     */
     <div
       ref={wrapperRef}
-      className={className}
+      className={`date-range ${className}`}
       style={{
-        position: "relative",
-        width: "100%",
-        borderRight: isBorderRight ? "solid #B0ACAC 1px" : "none",
-        height: height,
-        paddingRight: isBorderRight ? "10px" : "0px"
+        height,
+        ...(isBorderRight
+          ? { borderRight: "1px solid var(--color-line)", paddingRight: "10px" }
+          : {}),
       }}
     >
-      {/* Input Box */}
-      <div
+      {/* A real button, not a click-handled div: this opens a calendar, and it
+          was previously unreachable by keyboard. */}
+      <button
+        type="button"
         onClick={() => setOpen((p) => !p)}
-        style={{
-          border: isBorder ? "1px solid #dcdcdc" : "none",
-          borderRadius: isBorder ? "6px" : "0px",
-          padding: "5px 10px",
-          height: height,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          cursor: "pointer",
-          background: "#fff",
-        }}
+        className={`date-range-trigger${isBorder ? " date-range-trigger-bordered" : ""}`}
+        style={{ height }}
+        aria-haspopup="dialog"
+        aria-expanded={open}
       >
-        <span style={{ color: "#6b6b6b", fontSize: "14px" }}>
-          {value?.startDate ? formatDate(range[0].startDate) : "DD/MM/YYYY"} &nbsp;–&nbsp;
-          {value?.endDate ? formatDate(range[0].endDate) : "DD/MM/YYYY"}
+        <span className={hasValue ? "date-range-value" : "date-range-value date-range-placeholder"}>
+          {hasValue ? formatDate(range[0].startDate) : "DD/MM/YYYY"}
+          {" – "}
+          {hasValue ? formatDate(range[0].endDate) : "DD/MM/YYYY"}
         </span>
-        <FaRegCalendarAlt size={18} color="#8b8b8b" />
-      </div>
+        <FaRegCalendarAlt size={15} className="date-range-icon" aria-hidden="true" />
+      </button>
 
-      {open && (
+      {/* Portalled to <body> so no ancestor's overflow can clip it. Hidden
+          until the layout effect has measured it, otherwise it paints at the
+          top-left of the window for one frame and jumps. */}
+      {open && createPortal(
         <div
-          style={{
-            position: "absolute",
-            top: "110%",
-            left: "0",
-            zIndex: 1002, // Higher z-index to stay above sticky headers
-            background: "#fff",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
-            borderRadius: "8px",
-            border: "1px solid #eee",
-          }}
+          ref={popupRef}
           className="date-range-portal"
+          style={{
+            top: popupPos?.top ?? 0,
+            left: popupPos?.left ?? 0,
+            visibility: popupPos ? "visible" : "hidden",
+          }}
         >
-          <style>
-            {`
-              .rdrCalendarWrapper {
-                border-radius: 8px;
-                font-family: inherit;
-              }
-              .rdrMonthAndYearWrapper {
-                padding-top: 10px;
-                height: 50px;
-              }
-              .rdrNextPrevButton {
-                background: #f8f9fa;
-                border: 1px solid #eee;
-                border-radius: 4px;
-              }
-              .rdrMonthAndYearPickers select {
-                padding: 4px 8px;
-                border-radius: 4px;
-                border: 1px solid #eee;
-                font-weight: 500;
-                color: #495057;
-              }
-              .rdrWeekDay {
-                color: #adb5bd;
-                font-weight: 600;
-                text-transform: capitalize;
-              }
-              .rdrDayToday .rdrDayNumber span:after {
-                background: transparent;
-                border: 1px solid #ddd;
-                border-radius: 4px;
-              }
-              .rdrDayNumber span {
-                font-weight: 500;
-              }
-              .rdrSelected, .rdrInRange, .rdrStartEdge, .rdrEndEdge {
-                top: 4px;
-                bottom: 4px;
-              }
-              .rdrDayStartEdge {
-                 border-top-left-radius: 6px;
-                 border-bottom-left-radius: 6px;
-              }
-              .rdrDayEndEdge {
-                 border-top-right-radius: 6px;
-                 border-bottom-right-radius: 6px;
-              }
-              .rdrMonthPicker, .rdrYearPicker {
-                margin: 0 5px;
-              }
-              .rdrMonthsHorizontal {
-                gap: 10px;
-              }
-            `}
-          </style>
           <DateRange
             ranges={range}
             onChange={handleSelect}
             moveRangeOnFirstSelection={false}
-            months={2}
-            direction="horizontal"
+            months={isNarrow ? 1 : 2}
+            direction={isNarrow ? "vertical" : "horizontal"}
             showDateDisplay={false}
-            rangeColors={["#5b73e8"]}
+            /* Matches the accent the modernised screens use for selection,
+               rather than the old Skote indigo. */
+            rangeColors={["#3B82F6"]}
             monthDisplayFormat="MMMM yyyy"
             weekdayDisplayFormat="EE"
           />
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

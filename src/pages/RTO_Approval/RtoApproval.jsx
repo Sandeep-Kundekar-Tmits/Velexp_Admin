@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Button, Col, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Row } from "@/components/ui";
+import { Button, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Spinner } from "@/components/ui";
 import Select from "react-select";
+import { ListChecks } from "lucide-react";
 import MainHeaderComp from "../../components/MainHeaderCom";
 import TableContainer from "../../components/Table/TableContainer";
 import DateRangeInput from "../../components/Common/DateRangeInput";
@@ -397,16 +398,34 @@ const RtoApproval = () => {
     const selectedRowCount = Object.keys(rowSelection).length;
 
     return (
-        <div className='page-content py-0 px-0'>
-            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                <MainHeaderComp title="RTO Approval" />
-            </div>
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+            {/* No sticky wrapper: MainHeaderComp draws nothing inline now, it
+                hands the title and the bulk action to the layout's PageHeader,
+                which is already fixed above the scroll box. */}
+            <MainHeaderComp
+                title="RTO Approval"
+                subTitle="Approve returns to origin, or mark shipments RTS in bulk."
+                extraFields={
+                    <Button
+                        className="table-action-btn table-action-btn-ghost"
+                        onClick={() => setBulkRtsOpen(true)}
+                    >
+                        <ListChecks aria-hidden="true" size={15} />
+                        Bulk RTS Mark
+                    </Button>
+                }
+            />
 
-            <div className="container-fluid px-4">
-                <Row className="mt-4 items-end">
-                    <Col md={4} lg={3}>
-                        <FormGroup className="mb-0">
-                            <Label className="form-label font-bold">Select Customer</Label>
+            <div className="container-fluid page-fit-body relative z-10 pb-4">
+                {/* One row with the action on the fields' baseline. The Check
+                    button was carrying marginBottom:17px to fake its way past
+                    the labels above the other two. */}
+                <div className="filter-row">
+                    <div className="filter-group">
+                        <div className="flex w-full flex-col gap-1.5 sm:w-52">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                Select Customer
+                            </Label>
                             <Select
                                 options={userListOptions}
                                 placeholder="Select Customer"
@@ -414,53 +433,53 @@ const RtoApproval = () => {
                                 onChange={(val) => setSelectedCustomer(val)}
                                 isClearable={true}
                                 styles={customStyles}
+                                menuPortalTarget={document.body}
+                                menuPosition="fixed"
                             />
-                        </FormGroup>
-                    </Col>
-                    <Col md={4} lg={3}>
-                        <FormGroup className="mb-0">
-                            <Label className="form-label font-bold">Select Date Range</Label>
+                        </div>
+
+                        <div className="flex w-full flex-col gap-1.5 sm:w-56">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                Select Date Range
+                            </Label>
                             <DateRangeInput
                                 value={selectedRange}
                                 onChange={(range) => setSelectedRange(range)}
                                 isBorder={true}
                             />
-                        </FormGroup>
-                    </Col>
-                    <Col md={2}>
+                        </div>
+
                         <Button
-                            color="primary"
-                            className="w-full"
-                            style={{ height: "38px", marginBottom: "17px" }}
+                            className="table-action-btn table-action-btn-primary"
                             onClick={handleCheck}
                         >
                             {shipmentsLoading ? "Checking.." : "Check"}
                         </Button>
-                    </Col>
-                    <Col md={3} lg={3} className="ml-auto">
-                        <Button
-                            color="primary"
-                            outline
-                            className="w-full"
-                            style={{ height: "38px", marginBottom: "17px" }}
-                            onClick={() => setBulkRtsOpen(true)}
-                        >
-                            Bulk RTS Mark
-                        </Button>
-                    </Col>
-                </Row>
+                    </div>
+                </div>
 
-                <div className="mt-2" style={{ height: "75vh", overflowY: "auto", overflowX: "hidden" }}>
+                {/* fillHeight instead of a 75vh box with its own scrollbar --
+                    that put the page's bar and the grid's bar side by side,
+                    each moving a different part of the same table. */}
+                <div className="page-fit-body mt-4">
                     <TableContainer
                         columns={columns}
                         data={filteredShipments}
                         isGlobalFilter={true}
                         loading={shipmentsLoading}
                         isPagination={true}
+                        isCustomPageSize={true}
                         SearchPlaceholder="Search across all columns..."
                         pagination="pagination"
                         paginationWrapper='dataTables_paginate paging_simple_numbers'
-                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                        /* table-bordered dropped: .grid-shell draws the row
+                           rules now, and the two only fought each other. */
+                        tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                        theadClass="sticky top-0 z-10"
+                        isStickyHeader={true}
+                        stickyTop={0}
+                        fillHeight
+                        tableHeight="65vh"
                         rowSelection={rowSelection}
                         onRowSelectionChange={setRowSelection}
                     />
@@ -485,8 +504,11 @@ const RtoApproval = () => {
                         Cancel
                     </Button>
                     <Button color="danger" onClick={handleRemoveConfirm} disabled={sarLoading}>
+                        {/* .spinner-border has no definition left in the compat
+                            layer, so this rendered nothing at all while the
+                            request was in flight. */}
                         {sarLoading
-                            ? <><span className="spinner-border spinner-border-sm mr-1" role="status" />Removing…</>
+                            ? <><Spinner size="sm" /> Removing…</>
                             : "Remove"}
                     </Button>
                 </ModalFooter>
@@ -494,21 +516,27 @@ const RtoApproval = () => {
 
             {/* Bulk Action Footer */}
             {selectedRowCount > 0 && (
+                /* A floating glass bar inset from the edges, matching the rail
+                   and the panels. It was `fixed bottom-0 start-0 w-full
+                   bg-white` -- a full-bleed white strip welded across the foot
+                   of a dark screen, and it ran under the sidebar because it
+                   started at the window edge rather than the content's. */
                 <div
-                    className="fixed bottom-0 start-0 w-full flex justify-end items-center px-6 py-4 bg-white border-top shadow-lg"
-                    style={{ zIndex: 1000, gap: "15px" }}
+                    className="fixed bottom-[--sidebar-gap] right-[--sidebar-gap] z-1000 flex flex-wrap items-center justify-end gap-3 rounded-xl border border-white/10 bg-[rgba(17,24,39,0.85)] px-4 py-3 shadow-[0_24px_60px_-24px_rgba(2,6,23,0.95)] backdrop-blur-xl"
+                    style={{ left: `calc(var(--sidebar-width) + var(--sidebar-gap) * 2)` }}
                 >
+                    <span className="mr-auto text-[13px] text-ink-muted">
+                        {selectedRowCount} selected
+                    </span>
                     <Button
-                        color="danger"
                         onClick={handleCancelSelection}
-                        style={{ borderRadius: "8px", padding: "8px 25px" }}
+                        className="table-action-btn table-action-btn-ghost"
                     >
                         Cancel
                     </Button>
                     <Button
-                        color="primary"
                         onClick={handleBulkApprove}
-                        style={{ backgroundColor: "#0066b2", borderColor: "#0066b2", borderRadius: "8px", padding: "8px 25px" }}
+                        className="table-action-btn table-action-btn-primary"
                     >
                         Bulk Approval
                     </Button>

@@ -75,6 +75,12 @@
        reports with 15-25 numeric columns. */
     font-variant-numeric: tabular-nums;
     -webkit-font-smoothing: antialiased;
+    /* Native controls — <select> drop-down lists, date pickers, checkboxes,
+       scrollbars — are painted by the OS, not the page, so they come back
+       light-on-light on a dark app no matter what CSS says. This is the one
+       declaration that tells the OS which way round we are. Was set on the
+       grid toolbar only, which left every select outside it unreadable. */
+    color-scheme: dark;
   }
 
   /* Tables inherit tabular figures and compact rhythm by default. */

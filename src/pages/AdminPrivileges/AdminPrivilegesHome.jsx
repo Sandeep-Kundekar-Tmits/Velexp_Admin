@@ -17,17 +17,18 @@ const AdminPrivilegesHome = () => {
     const [activeTab, setActiveTab] = useState(TABS[0].key);
 
     return (
-        <div className="container-fluid mt-2 py-0 px-0">
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
             <MainHeaderComp title="Admin Privileges" subTitle="Manage roles, menus, role privileges, and per-user access" />
 
-            <div className="px-4 pt-4">
-                <Nav tabs>
+            <div className="page-fit-body relative z-10 pb-4">
+                <Nav tabs className="nav-tabs-custom nav-justified">
                     {TABS.map((tab) => (
                         <NavItem key={tab.key}>
                             <NavLink
-                                className={activeTab === tab.key ? "active" : ""}
+                                active={activeTab === tab.key}
                                 style={{ cursor: "pointer" }}
                                 onClick={() => setActiveTab(tab.key)}
+                                className={activeTab === tab.key ? "bg-[#3B82F6]/12 text-[15px] font-bold" : "text-[15px] font-bold"}
                             >
                                 {tab.label}
                             </NavLink>
@@ -35,9 +36,9 @@ const AdminPrivilegesHome = () => {
                     ))}
                 </Nav>
 
-                <TabContent activeTab={activeTab} className="pt-4">
+                <TabContent activeTab={activeTab} className="page-fit-body mt-3">
                     {TABS.map(({ key, Component }) => (
-                        <TabPane key={key} tabId={key}>
+                        <TabPane key={key} tabId={key} className="page-fit-body">
                             {activeTab === key && <Component />}
                         </TabPane>
                     ))}

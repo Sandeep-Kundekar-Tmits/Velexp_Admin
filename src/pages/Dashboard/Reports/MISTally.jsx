@@ -55,7 +55,7 @@ const MISTally = () => {
     }
 
     return (
-        <div className='page-content py-0 px-0' style={{ overflowX: 'hidden' }}>
+        <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
 
             {
                 ShowPasswordModel && <MisAuthModel show={true} onAuthSuccess={onAuthSuccess} onCloseClick={() => {

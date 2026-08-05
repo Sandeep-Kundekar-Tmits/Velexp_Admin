@@ -39,7 +39,9 @@ export const Modal = forwardRef(function Modal(
   return (
     <div
       className={cn(
-        "fixed inset-0 z-[1050] flex justify-center overflow-y-auto bg-black/50 p-4",
+        // Blurred, not just dimmed: the dialog is glass, and glass over a sharp
+        // screenshot of the page reads as a rendering artefact.
+        "fixed inset-0 z-[1050] flex justify-center overflow-y-auto bg-black/60 p-4 backdrop-blur-sm",
         centered ? "items-center" : "items-start pt-16"
       )}
       onMouseDown={(e) => {
@@ -51,10 +53,14 @@ export const Modal = forwardRef(function Modal(
         ref={ref}
         role="dialog"
         aria-modal="true"
+        /* Same glass as the sidebar rail, the grid panel and the drawers, so a
+           dialog reads as part of the same surface family. */
         className={cn(
-          "w-full rounded-lg bg-surface shadow-xl",
+          "w-full overflow-hidden rounded-2xl border border-white/10",
+          "bg-[rgba(17,24,39,0.85)] backdrop-blur-xl",
+          "shadow-[0_30px_80px_-30px_rgba(2,6,23,0.95)]",
           MODAL_SIZES[size] || MODAL_SIZES.md,
-          scrollable && "max-h-[85vh] overflow-y-auto",
+          scrollable && "scroll-slim max-h-[85vh] overflow-y-auto",
           className
         )}
         {...rest}
@@ -72,16 +78,21 @@ export const ModalHeader = forwardRef(function ModalHeader(
   return (
     <div
       ref={ref}
-      className={cn("flex items-center justify-between border-b border-line px-4 py-3", className)}
+      className={cn(
+        "flex shrink-0 items-center justify-between border-b border-white/10 px-5 py-3.5",
+        className
+      )}
       {...rest}
     >
-      <h5 className="font-semibold text-ink">{children}</h5>
+      <h5 className="text-[15px] font-semibold tracking-tight text-white">{children}</h5>
       {toggle && (
         <button
           type="button"
           onClick={toggle}
           aria-label="Close"
-          className="text-xl leading-none text-ink-muted hover:text-ink"
+          /* A 28px round target, matching the drawers. It was a bare &times;
+             glyph with about 10px of clickable area. */
+          className="inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-lg leading-none text-ink-muted transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
         >
           &times;
         </button>
@@ -92,7 +103,7 @@ export const ModalHeader = forwardRef(function ModalHeader(
 
 export const ModalBody = forwardRef(function ModalBody({ className, children, ...rest }, ref) {
   return (
-    <div ref={ref} className={cn("px-4 py-3", className)} {...rest}>
+    <div ref={ref} className={cn("px-5 py-4", className)} {...rest}>
       {children}
     </div>
   );
@@ -102,7 +113,7 @@ export const ModalFooter = forwardRef(function ModalFooter({ className, children
   return (
     <div
       ref={ref}
-      className={cn("flex items-center justify-end gap-2 border-t border-line px-4 py-3", className)}
+      className={cn("flex shrink-0 items-center justify-end gap-2 border-t border-white/10 px-5 py-3.5", className)}
       {...rest}
     >
       {children}
@@ -112,11 +123,15 @@ export const ModalFooter = forwardRef(function ModalFooter({ className, children
 
 /* ---------------- Offcanvas ---------------- */
 
+/* Inset by the same gutter the sidebar rail uses, so a panel floats on the
+   canvas rather than being welded to the window edge. max-* rather than a fixed
+   size: callers pass their own width (500px on the POD panels) and it must
+   still fit a small window. */
 const OFFCANVAS_POS = {
-  start: "left-0 top-0 h-full w-80 border-r",
-  end: "right-0 top-0 h-full w-80 border-l",
-  top: "left-0 top-0 w-full h-64 border-b",
-  bottom: "left-0 bottom-0 w-full h-64 border-t",
+  start: "left-[--sidebar-gap] top-[--sidebar-gap] bottom-[--sidebar-gap] w-80 max-w-[calc(100vw-2*var(--sidebar-gap))]",
+  end: "right-[--sidebar-gap] top-[--sidebar-gap] bottom-[--sidebar-gap] w-80 max-w-[calc(100vw-2*var(--sidebar-gap))]",
+  top: "left-[--sidebar-gap] right-[--sidebar-gap] top-[--sidebar-gap] h-64",
+  bottom: "left-[--sidebar-gap] right-[--sidebar-gap] bottom-[--sidebar-gap] h-64",
 };
 
 export const Offcanvas = forwardRef(function Offcanvas(
@@ -126,10 +141,20 @@ export const Offcanvas = forwardRef(function Offcanvas(
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-[1045]">
-      <div className="absolute inset-0 bg-black/50" onMouseDown={toggle} />
+      {/* Blurred, not just dimmed: the panel is glass, and glass over a sharp
+          screenshot of the page reads as a rendering artefact. */}
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onMouseDown={toggle} />
       <div
         ref={ref}
-        className={cn("absolute bg-surface border-line shadow-xl", OFFCANVAS_POS[direction], className)}
+        /* flex column so OffcanvasBody scrolls on its own and the header stays
+           put -- the body used to scroll the whole panel, header included. */
+        className={cn(
+          "absolute flex flex-col overflow-hidden rounded-2xl border border-white/10",
+          "bg-[rgba(17,24,39,0.85)] backdrop-blur-xl",
+          "shadow-[0_30px_80px_-30px_rgba(2,6,23,0.95)]",
+          OFFCANVAS_POS[direction],
+          className
+        )}
         {...rest}
       >
         {children}
@@ -145,12 +170,22 @@ export const OffcanvasHeader = forwardRef(function OffcanvasHeader(
   return (
     <div
       ref={ref}
-      className={cn("flex items-center justify-between border-b border-line px-4 py-3", className)}
+      className={cn(
+        "flex shrink-0 items-center justify-between border-b border-white/10 px-5 py-3.5",
+        className
+      )}
       {...rest}
     >
-      <h5 className="font-semibold text-ink">{children}</h5>
+      <h5 className="text-[15px] font-semibold tracking-tight text-white">{children}</h5>
       {toggle && (
-        <button type="button" onClick={toggle} aria-label="Close" className="text-xl leading-none text-ink-muted hover:text-ink">
+        <button
+          type="button"
+          onClick={toggle}
+          aria-label="Close"
+          /* A 28px round target instead of a bare &times; glyph, which was
+             about 10px of clickable area. */
+          className="inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-lg leading-none text-ink-muted transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+        >
           &times;
         </button>
       )}
@@ -160,7 +195,9 @@ export const OffcanvasHeader = forwardRef(function OffcanvasHeader(
 
 export const OffcanvasBody = forwardRef(function OffcanvasBody({ className, children, ...rest }, ref) {
   return (
-    <div ref={ref} className={cn("overflow-y-auto px-4 py-3", className)} {...rest}>
+    /* min-h-0 with flex-1: without it the body would take its content height
+       and push past the panel instead of scrolling inside it. */
+    <div ref={ref} className={cn("scroll-slim min-h-0 flex-1 overflow-y-auto px-5 py-4", className)} {...rest}>
       {children}
     </div>
   );

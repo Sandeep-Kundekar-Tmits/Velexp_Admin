@@ -12,9 +12,8 @@ import formatDateForPayload from "../../../helpers/DateHelper"
 import { downloadExcel } from "../../../helpers/downloadExcel"
 import usePostApiCall from "../../../hooks/usePostApiCall"
 import { usePDF } from "react-to-pdf"
-import { Loader } from "rsuite"
 import CorporateInvoiceGenerate from "../../../PdfComponents/CorporateInvoiceGenerate"
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import ToasterProvider from "../../../helpers/ToasterProvider"
 import YMD_DateFormate from "../../../helpers/YMD_DateFormate"
 
@@ -536,10 +535,7 @@ const CorporateInvoice = () => {
                 <div className=" mt-1">
                     <div className='mt-2'>
                         {
-                            CorporateBillingLoading ? <div style={{ height: "75vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <LoaderMark />
-                                <p className="mt-12 h5">Loading Corpotate Billing ...</p>
-                            </div>
+                            CorporateBillingLoading ? <Loader message="Loading Corpotate Billing ..." fullscreen={false} />
                                 :
                                 <>{
                                     <TableContainer

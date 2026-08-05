@@ -2,12 +2,13 @@ import React, { useEffect, useMemo, useState } from "react"
 import { Button, Card, CardBody, Col, Container, Form, FormGroup, Input, Label, Row, Spinner, Badge } from "@/components/ui"
 import MainHeaderComp from "../../components/MainHeaderCom"
 import SearchableDropdown from "../../components/Common/SearchableDropdown"
-import DateRangePicker from "../../components/Common/DateRangePicker"
+import DateRangeInput from "../../components/Common/DateRangeInput"
 import { useGetApiCall } from "../../hooks/useGetApiCall"
 import usePostApiCall from "../../hooks/usePostApiCall"
 import { CORPORATE_BILLING_GENERATE, CORPORATE_BILLING_RUNS, CORPORATE_CUSTOMERS_LIST } from "../../api"
 import TableContainer from "../../components/Table/TableContainer"
 import ToasterProvider from "../../helpers/ToasterProvider"
+import YMD_DateFormate from "../../helpers/YMD_DateFormate"
 import { MdRefresh, MdPlayArrow, MdFileDownload, MdLoop } from "react-icons/md"
 
 const BillingWorking = () => {
@@ -20,8 +21,7 @@ const BillingWorking = () => {
 
     const [customers, setCustomers] = useState([])
     const [selectedCustomer, setSelectedCustomer] = useState(null)
-    const [startDate, setStartDate] = useState("")
-    const [endDate, setEndDate] = useState("")
+    const [selectedRange, setSelectedRange] = useState({ startDate: null, endDate: null })
     const [runs, setRuns] = useState([])
     const [processingIds, setProcessingIds] = useState(new Set())
     const [reRunningIds, setReRunningIds] = useState(new Set())
@@ -94,14 +94,15 @@ const BillingWorking = () => {
     }
 
     const handleQueueRun = async () => {
-        if (!selectedCustomer || !startDate || !endDate) {
+        if (!selectedCustomer || !selectedRange.startDate || !selectedRange.endDate) {
             ErrorToaster("Please select customer and date range")
             return
         }
+        const { from_date, to_date } = YMD_DateFormate(selectedRange)
         const body = {
             user_name: selectedCustomer.customer_name,
-            start_date: startDate,
-            end_date: endDate
+            start_date: from_date,
+            end_date: to_date
         }
         const result = await queueRun(CORPORATE_BILLING_GENERATE, body)
         if (result) {
@@ -265,9 +266,9 @@ const BillingWorking = () => {
     return (
         <React.Fragment>
             <div className='page-content py-0 px-0'>
-                <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                    <MainHeaderComp title="Billing Working" />
-                </div>
+                {/* No sticky wrapper: MainHeaderComp draws nothing inline, it hands
+                    the title to the layout's PageHeader. */}
+                <MainHeaderComp title="Billing Working" />
                 <div className="container-fluid px-4 py-4">
                     <Card className="shadow-sm border-0 mb-6">
                         <CardBody>
@@ -284,11 +285,11 @@ const BillingWorking = () => {
                                     />
                                 </Col>
                                 <Col md={5} className="mb-4">
-                                    <DateRangePicker
-                                        startDate={startDate}
-                                        endDate={endDate}
-                                        onChange={(s, e) => { setStartDate(s); setEndDate(e) }}
-                                        label="Date Range"
+                                    <Label className="font-bold">Date Range</Label>
+                                    <DateRangeInput
+                                        value={selectedRange}
+                                        onChange={setSelectedRange}
+                                        isBorder={true}
                                     />
                                 </Col>
                                 <Col md={3} className="mb-4 flex items-end">

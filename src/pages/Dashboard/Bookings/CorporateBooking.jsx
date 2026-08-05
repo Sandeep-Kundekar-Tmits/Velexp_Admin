@@ -1,5 +1,6 @@
 // CorporateBookingForm.js
 import React, { useEffect, useState } from "react";
+import PropTypes from "prop-types";
 import {
     Button,
     Form,
@@ -9,12 +10,9 @@ import {
     Row,
     Col,
     FormFeedback,
-    Card,
-    CardBody,
-    CardHeader,
     Spinner,
 } from "@/components/ui";
-import { User, MapPin, Package, Calendar, Truck } from "lucide-react";
+import { User, MapPin, Package, Truck } from "lucide-react";
 import usePostApiCall from "../../../hooks/usePostApiCall";
 import { CORPORATE_BOOKING, GET_USER_API, PRODUCT_LIST } from "../../../api";
 import Select from 'react-select'
@@ -22,6 +20,29 @@ import ToasterProvider from "../../../helpers/ToasterProvider";
 import { useGetApiCall } from "../../../hooks/useGetApiCall";
 import { customStyles } from "../../../helpers/CustomStyle";
 import { useNavigate } from "react-router-dom";
+import MainHeaderComp from "../../../components/MainHeaderCom";
+
+/* One glass panel per form section, matching the grid-shell/modal/sidebar
+   look everywhere else in the app, rather than the whole form living inside
+   one flat Card the way it did before this screen had a header pattern to
+   match. */
+const Section = ({ icon: Icon, title, children }) => (
+    /* p-4 on a phone: at p-5 the card padding plus the Row/Col gutters took
+       ~56px of a 360px screen, leaving the inputs noticeably narrow. */
+    <div className="rounded-2xl border border-white/8 bg-[rgba(17,24,39,0.70)] p-4 backdrop-blur-xl sm:p-5">
+        <h5 className="mb-4 flex items-center gap-2 text-[15px] font-semibold text-white">
+            <Icon aria-hidden="true" className="size-4 text-[#3B82F6]" />
+            {title}
+        </h5>
+        {children}
+    </div>
+);
+
+Section.propTypes = {
+    icon: PropTypes.elementType.isRequired,
+    title: PropTypes.string.isRequired,
+    children: PropTypes.node,
+};
 
 const CorporateBooking = () => {
 
@@ -329,24 +350,26 @@ const CorporateBooking = () => {
     );
 
     return (
-        <div className='page-content p-0'>
-            <div className="container-fluid p-0">
-                <div className=" p-0 m-0">
-                    <Card className="p-0 m-0">
-                        <CardHeader className="bg-white flex justify-between items-center">
-                            <h4 className="mb-0"><Package className="mr-2" /> Corporate Booking </h4>
-                            <button className="btn btn-primary px-6 py-2" onClick={() => {
-                                navigate("/service-provider-booking")
-                            }} >
-                                View Bookings
-                            </button>
-                        </CardHeader>
-                        <CardBody className="p-6">
-                            <Form onSubmit={handleSubmit}>
+        <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
+            <MainHeaderComp
+                title="Corporate Booking"
+                subTitle="Create a new shipment for a corporate customer."
+                extraFields={
+                    <Button
+                        className="table-action-btn table-action-btn-solid"
+                        onClick={() => navigate("/service-provider-booking")}
+                    >
+                        View Bookings
+                    </Button>
+                }
+            />
 
-                                {/* Account Info */}
-                                <h5 className="text-brand-500 mb-1"><User className="mr-2" /> Account Information</h5>
-                                {/* <Row>
+            <div className="relative z-10 pb-4">
+                <Form onSubmit={handleSubmit} className="flex flex-col gap-4">
+
+                    {/* Account Info */}
+                    <Section icon={User} title="Account Information">
+                        {/* <Row>
                                     <Col md={6}>{renderInput("Username", "username", "text", 20)}</Col>
                                     <Col md={6}>{renderInput("Password", "password", "password", 20)}</Col>
                                 </Row>
@@ -354,59 +377,62 @@ const CorporateBooking = () => {
                                     <Col md={6}>{renderInput("Account No", "accno", "text", 20)}</Col>
                                     <Col md={6}>{renderInput("Secret Code", "secret_code", "text", 20)}</Col>
                                 </Row> */}
-                                <Row>
-                                    <Col md={4}>
-                                        {/* {renderInput("Customer Name", "CustomerName", "text", 50)} */}
-                                        <FormGroup className="mb-2">
-                                            <Label for="Customer">Customer Name</Label>
-                                            <Select
-                                                options={UserListOptions}
-                                                placeholder="Search Customer"
-                                                value={UserListOptions.find(option => option.value === formData.CustomerName) || null}
-                                                onChange={(selected) => {
-                                                    setFormData({
-                                                        ...formData,
-                                                        CustomerName: selected?.value || "",
-                                                        customer_id: selected?.id || null
-                                                    })
-                                                }}
-                                                isClearable
-                                                styles={customStyles}
-                                            />
-                                            <small className="text-danger-500 fw-2">{errors.CustomerName}</small>
-                                        </FormGroup>
-                                    </Col>
-                                    <Col md={4}>
-                                        <FormGroup className="mb-2">
-                                            <Label for="Customer">Product</Label>
-                                            <Select
-                                                options={ProductListOption}
-                                                placeholder="Search Product"
-                                                value={ProductListOption.find(option => option.value === formData.serviceType) || null}
-                                                onChange={(selected) => {
-                                                    setFormData({
-                                                        ...formData,
-                                                        serviceType: selected?.value || ""
-                                                    })
-                                                }}
-                                                isClearable
-                                                styles={customStyles}
-                                            />
-                                            <small className="text-danger-500 fw-2">{errors.serviceType}</small>
-                                        </FormGroup>
+                        <Row>
+                            <Col md={4}>
+                                {/* {renderInput("Customer Name", "CustomerName", "text", 50)} */}
+                                <FormGroup className="mb-2">
+                                    <Label for="Customer">Customer Name</Label>
+                                    <Select
+                                        options={UserListOptions}
+                                        placeholder="Search Customer"
+                                        value={UserListOptions.find(option => option.value === formData.CustomerName) || null}
+                                        onChange={(selected) => {
+                                            setFormData({
+                                                ...formData,
+                                                CustomerName: selected?.value || "",
+                                                customer_id: selected?.id || null
+                                            })
+                                        }}
+                                        isClearable
+                                        styles={customStyles}
+                                        menuPortalTarget={document.body}
+                                        menuPosition="fixed"
+                                    />
+                                    <small className="text-danger-500 fw-2">{errors.CustomerName}</small>
+                                </FormGroup>
+                            </Col>
+                            <Col md={4}>
+                                <FormGroup className="mb-2">
+                                    <Label for="Customer">Product</Label>
+                                    <Select
+                                        options={ProductListOption}
+                                        placeholder="Search Product"
+                                        value={ProductListOption.find(option => option.value === formData.serviceType) || null}
+                                        onChange={(selected) => {
+                                            setFormData({
+                                                ...formData,
+                                                serviceType: selected?.value || ""
+                                            })
+                                        }}
+                                        isClearable
+                                        styles={customStyles}
+                                        menuPortalTarget={document.body}
+                                        menuPosition="fixed"
+                                    />
+                                    <small className="text-danger-500 fw-2">{errors.serviceType}</small>
+                                </FormGroup>
 
-                                    </Col>
-                                    <Col md={4}>{renderInput("Order ID", "Order_ID", "text", 20)}</Col>
-                                </Row>
-                                {/* {renderInput("Customer Name", "CustomerName", "text", 50)}
+                            </Col>
+                            <Col md={4}>{renderInput("Order ID", "Order_ID", "text", 20)}</Col>
+                        </Row>
+                        {/* {renderInput("Customer Name", "CustomerName", "text", 50)}
                                 {renderInput("Service Type", "serviceType", "text", 20)}
                                 {renderInput("Order ID", "Order_ID", "text", 20)} */}
+                    </Section>
 
-                                {/* ---- */}
-                                {/* Pickup */}
-                                <h5 className="text-brand-500 mt-2 mb-1"><Truck className="mr-2" /> Shipper Details</h5>
-
-                                <Row>
+                    {/* Pickup */}
+                    <Section icon={Truck} title="Shipper Details">
+                        <Row>
                                     <Col md={6}>{renderInput("Pickup Name", "pickup_Name", "text", 50)}</Col>
                                     <Col md={6}>{renderInput("Pickup Phone", "pickup_Phoneno", "number", 20)}</Col>
                                 </Row>
@@ -418,19 +444,16 @@ const CorporateBooking = () => {
                                     <Col md={6}>{renderInput("Pickup Address", "pickup_Address", "textarea", 500)}</Col>
                                     <Col md={6}>{renderInput("Pickup Landmark", "pickup_Landmark", "text", 50)}</Col>
                                 </Row>
-                                <Row>
-                                    <Col md={4}>{renderInput("Pickup City", "pickup_City", "text", 30)}</Col>
-                                    <Col md={4}>{renderInput("Pickup State", "pickup_State", "text", 30)}</Col>
-                                    <Col md={4}>{renderInput("Pickup Pincode", "pickup_Pincode", "number", 10)}</Col>
-                                </Row>
+                        <Row>
+                            <Col md={4}>{renderInput("Pickup City", "pickup_City", "text", 30)}</Col>
+                            <Col md={4}>{renderInput("Pickup State", "pickup_State", "text", 30)}</Col>
+                            <Col md={4}>{renderInput("Pickup Pincode", "pickup_Pincode", "number", 10)}</Col>
+                        </Row>
+                    </Section>
 
-                                {/* ----------- */}
-
-
-                                {/* Drop */}
-                                <h5 className="text-brand-500 mt-2 mb-1"><MapPin className="mr-2" /> Consignee Details</h5>
-
-                                <Row>
+                    {/* Drop */}
+                    <Section icon={MapPin} title="Consignee Details">
+                        <Row>
                                     <Col md={6}>{renderInput("Drop Name", "drop_Name", "text", 50)}</Col>
                                     <Col md={6}>{renderInput("Drop Phone", "drop_Phoneno", "number", 20)}</Col>
                                 </Row>
@@ -442,86 +465,91 @@ const CorporateBooking = () => {
                                     <Col md={6}>{renderInput("Drop Address", "drop_Address", "textarea", 500)}</Col>
                                     <Col md={6}>{renderInput("Drop Landmark", "drop_Landmark", "text", 50)}</Col>
                                 </Row>
-                                <Row>
-                                    <Col md={4}>{renderInput("Drop City", "drop_City", "text", 30)}</Col>
-                                    <Col md={4}>{renderInput("Drop State", "drop_State", "text", 30)}</Col>
-                                    <Col md={4}>{renderInput("Drop Pincode", "drop_Pincode", "number", 10)}</Col>
-                                </Row>
+                        <Row>
+                            <Col md={4}>{renderInput("Drop City", "drop_City", "text", 30)}</Col>
+                            <Col md={4}>{renderInput("Drop State", "drop_State", "text", 30)}</Col>
+                            <Col md={4}>{renderInput("Drop Pincode", "drop_Pincode", "number", 10)}</Col>
+                        </Row>
+                    </Section>
 
-
-
-                                {/* Dimensions */}
-                                <h5 className="text-brand-500 mt-2 mb-1"><Package className="mr-2" /> Package Details</h5>
-                                <Row>
-                                    {renderInput("Product Description", "Product_Description", "textarea", 255)}
+                    {/* Dimensions */}
+                    <Section icon={Package} title="Package Details">
+                        <Row>
+                            {/* Was a bare renderInput() with no Col wrapper, so
+                                it had no width of its own inside a flex row --
+                                wrapping it gives the description its intended
+                                full row before the dimension fields below. */}
+                            <Col md={12}>{renderInput("Product Description", "Product_Description", "textarea", 255)}</Col>
                                     <Col md={4}>{renderInput("Length (cm)", "length", "number")}</Col>
                                     <Col md={4}>{renderInput("Breadth (cm)", "breadth", "number")}</Col>
                                     <Col md={4}>{renderInput("Height (cm)", "height", "number")}</Col>
                                     <Col md={4}>{renderInput("Weight (kg)", "weight", "number")}</Col>
                                     <Col md={4}>{renderInput("Quantity", "quantity", "number")}</Col>
-                                    <Col md={4}>{renderInput("Shipment Value", "Shipment_value", "number")}</Col>
-                                </Row>
+                            <Col md={4}>{renderInput("Shipment Value", "Shipment_value", "number")}</Col>
+                        </Row>
 
-                                {/* Schedule */}
-                                {/* <h5 className="text-brand-500 mt-2 mb-1"><Calendar className="mr-2" /> Schedule</h5> */}
-                                {/* <Row>
+                        {/* Schedule */}
+                        {/* <h5 className="text-brand-500 mt-2 mb-1"><Calendar className="mr-2" /> Schedule</h5> */}
+                        {/* <Row>
                                     <Col md={4}>{renderInput("Schedule Date", "schedule_date", "date")}</Col>
                                     <Col md={4}>{renderInput("From Time", "from_Time", "time")}</Col>
                                     <Col md={4}>{renderInput("To Time", "to_Time", "time")}</Col>
                                 </Row> */}
-                                <Row>
+                        <Row>
+                            <Col md={4}>{renderInput("COD Amount", "cod_amount", "number")}</Col>
+                            <Col md={4}>
+                                <FormGroup className="mb-2">
+                                    <Label for="Customer">Booking Type</Label>
+                                    <Select
+                                        options={bookingTypeOption}
+                                        placeholder="Search Booking type"
+                                        defaultValue={bookingTypeOption[1]}
+                                        value={bookingTypeOption.find(ele => ele?.value === formData?.delhivery_booking_type)}
+                                        onChange={(selected) => {
+                                            setFormData({
+                                                ...formData,
+                                                delhivery_booking_type: selected?.value
+                                            })
+                                        }}
+                                        isClearable
+                                        styles={customStyles}
+                                        menuPortalTarget={document.body}
+                                        menuPosition="fixed"
+                                    />
+                                    <small className="text-danger-500 fw-2">{errors.delhivery_booking_type}</small>
+                                </FormGroup>
+                            </Col>
+                            <Col md={4}>
+                                {/* Was <Input type="switch">, which does not
+                                    exist as an HTML input type -- browsers
+                                    fall back to type="text" for anything they
+                                    do not recognise, so this rendered as a
+                                    text box with a `checked` attribute doing
+                                    nothing: the toggle never actually worked.
+                                    A real checkbox is what the Input
+                                    component supports. */}
+                                <FormGroup className="mb-2 flex flex-col">
+                                    <Label className="font-bold mb-2 text-left" for="send_otp">
+                                        Send OTP
+                                    </Label>
+                                    <Input
+                                        type="checkbox"
+                                        id="send_otp"
+                                        name="send_otp"
+                                        className="size-5"
+                                        checked={formData.send_otp === "True"}
+                                        onChange={(e) =>
+                                            setFormData({
+                                                ...formData,
+                                                send_otp: e.target.checked ? "True" : "False",
+                                            })
+                                        }
+                                    />
+                                </FormGroup>
+                            </Col>
+                        </Row>
 
-                                    <Col md={4}>{renderInput("COD Amount", "cod_amount", "number")}</Col>
-                                    <Col md={4}>
-                                        <FormGroup className="mb-2">
-                                            <Label for="Customer">Booking Type</Label>
-                                            <Select
-                                                options={bookingTypeOption}
-                                                placeholder="Search Booking type"
-                                                defaultValue={bookingTypeOption[1]}
-                                                value={bookingTypeOption.find(ele => ele?.value === formData?.delhivery_booking_type)}
-                                                onChange={(selected) => {
-                                                    setFormData({
-                                                        ...formData,
-                                                        delhivery_booking_type: selected?.value
-                                                    })
-                                                }}
-                                                isClearable
-                                                styles={customStyles}
-                                            />
-                                            <small className="text-danger-500 fw-2">{errors.delhivery_booking_type}</small>
-                                        </FormGroup>
-                                    </Col>
-                                    <Col md={4}>
-                                        <FormGroup switch className="flex flex-col">
-                                            <Label className="font-bold mb-2 text-left" for="send_otp">
-                                                Send OTP
-                                            </Label>
-                                            <div>
-                                                <Input
-                                                    type="switch"
-                                                    id="send_otp"
-                                                    name="send_otp"
-                                                    className="mt-2 ml-2 p-2 px-4"
-                                                    checked={formData.send_otp === "True"}
-                                                    onChange={(e) =>
-                                                        setFormData({
-                                                            ...formData,
-                                                            send_otp: e.target.checked ? "True" : "False",
-                                                        })
-                                                    }
-                                                />
-                                                {/* <span className="font-semibold">
-                                                    {formData.send_otp === "True" ? "True" : "False"}
-                                                </span> */}
-                                            </div>
-                                        </FormGroup>
-
-
-                                    </Col>
-                                </Row>
-
-                                {/* <FormGroup>
+                        {/* <FormGroup>
                                     <Label className="font-bold">Payment Mode</Label>
                                     <Input
                                         type="select"
@@ -533,36 +561,41 @@ const CorporateBooking = () => {
                                         <option value="PAID">PAID</option>
                                     </Input>
                                 </FormGroup> */}
+                    </Section>
 
+                    {/* RTO */}
+                    <Section icon={MapPin} title="RTO Vendor Info">
+                        <Row>
+                            <Col md={6}>{renderInput("RTO Vendor Name", "RTO_vendorname", "text", 30)}</Col>
+                            <Col md={6}>{renderInput("RTO Vendor Contact No", "RTO_vendorcontactno", "text", 20)}</Col>
+                        </Row>
+                        <Row>
+                            <Col md={6}> {renderInput("RTO Vendor Address", "RTO_vendoraddress", "textarea", 500)}</Col>
+                            <Col md={6}>{renderInput("RTO Vendor Pincode", "RTO_vendorpincode", "text", 10)}</Col>
+                            {/* <Col md={6}>{renderInput("RTO Vendor Contact No", "RTO_vendorcontactno", "text", 20)}</Col> */}
+                        </Row>
+                    </Section>
 
-                                {/* RTO */}
-                                <h5 className="text-brand-500 mt-2 mb-1"><MapPin className="mr-2" /> RTO Vendor Info</h5>
-                                <Row>
-                                    <Col md={6}>{renderInput("RTO Vendor Name", "RTO_vendorname", "text", 30)}</Col>
-                                    <Col md={6}>{renderInput("RTO Vendor Contact No", "RTO_vendorcontactno", "text", 20)}</Col>
-                                </Row>
-                                <Row>
-                                    <Col md={6}> {renderInput("RTO Vendor Address", "RTO_vendoraddress", "textarea", 500)}</Col>
-                                    <Col md={6}>{renderInput("RTO Vendor Pincode", "RTO_vendorpincode", "text", 10)}</Col>
-                                    {/* <Col md={6}>{renderInput("RTO Vendor Contact No", "RTO_vendorcontactno", "text", 20)}</Col> */}
-                                </Row>
-
-                                <div className="text-right mt-6">
-                                    <Button color="primary" size="lg" type="submit" className="px-12 shadow-sm">
-                                        {
-                                            corporatebookingloading ?
-                                                <Spinner size="sm">loading...</Spinner>
-                                                : "Book Now"
-                                        }
-                                    </Button>
-                                </div>
-                            </Form>
-                        </CardBody>
-                    </Card>
-                </div>
+                    {/* Full width on a phone, where a right-aligned button with
+                        px-12 is a small target adrift at the end of a long
+                        form; back to its natural size from sm up. */}
+                    <div className="flex justify-end border-t border-white/8 pt-4">
+                        <Button
+                            color="primary"
+                            size="lg"
+                            type="submit"
+                            className="w-full shadow-sm sm:w-auto sm:px-12"
+                        >
+                            {
+                                corporatebookingloading ?
+                                    <Spinner size="sm">loading...</Spinner>
+                                    : "Book Now"
+                            }
+                        </Button>
+                    </div>
+                </Form>
             </div>
         </div>
-
     );
 };
 

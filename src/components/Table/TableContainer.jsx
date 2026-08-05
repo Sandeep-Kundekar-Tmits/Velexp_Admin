@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useMemo, useState } from "react";
 import { Row, Table, Button, Col, Spinner, Tooltip } from "@/components/ui";
 import { Link } from "react-router-dom";
 
@@ -112,7 +112,11 @@ const TableContainer = ({
     extraFiled = null,
     rowSelection = {},
     onRowSelectionChange,
-    defaultPageSize = 10,
+    /* 50, the largest option in the picker. Ten rows left most grids paging
+       through data that would have fitted on one screen, now that fillHeight
+       gives the row area the whole height under the chrome. Screens that pass
+       their own value keep it. */
+    defaultPageSize = 50,
     tableHeight = null,
     isStickyHeader = false,
     isStickyFooter = false,
@@ -135,6 +139,18 @@ const TableContainer = ({
      * text, and cutting a button in half helps nobody.
      */
     cellLines = null,
+    /**
+     * Let the grid absorb the height left over on the screen, so the rows are
+     * the only thing that scrolls.
+     *
+     * Only does anything if the page above it cooperates: the .page-content
+     * root needs .page-fit and every wrapper down to here needs .page-fit-body,
+     * or there is no leftover height to absorb. See layout-compat.css.
+     *
+     * `tableHeight` stays meaningful -- it is the cap below 992px, where there
+     * is no spare height to hand out.
+     */
+    fillHeight = false,
 }) => {
 
     const [columnFilters, setColumnFilters] = useState([]);
@@ -192,6 +208,17 @@ const TableContainer = ({
     const hasFooter = table
         .getAllLeafColumns()
         .some(col => col.columnDef.footer);
+
+    /* The fixed list plus whatever size is actually in effect.
+     *
+     * A screen passing a size outside the list -- ShipmentBilling asks for 100
+     * -- left the <select> with no matching <option>, so it rendered blank
+     * while the grid really was showing 100 rows. Folding the current value in
+     * means the control always states the truth. */
+    const pageSizeOptions = useMemo(() => {
+        const current = table.getState().pagination.pageSize;
+        return [...new Set([10, 20, 30, 40, 50, current])].sort((a, b) => a - b);
+    }, [table.getState().pagination.pageSize]);
     // useEffect(() => {
     //   Number(customPageSize) && setPageSize(Number(customPageSize));
     // }, [customPageSize, setPageSize]);
@@ -205,7 +232,10 @@ const TableContainer = ({
 
            `table-toolbar`, `table-search` and `table-pagination` below are the
            selector hooks it needs; nothing else targets them. */
-        <div className="grid-shell" style={{ border: "solid var(--color-line) 1px" }}>
+        <div
+            className={`grid-shell${fillHeight ? " grid-shell-fill" : ""}`}
+            style={{ border: "solid var(--color-line) 1px" }}
+        >
             {/* Export controls live in the page header, not the grid toolbar.
                 Doing it here rather than screen by screen moves them for all
                 ~81 call sites at once, and keeps every screen's actions in the
@@ -234,7 +264,7 @@ const TableContainer = ({
                                         id={`excel-btn-${index}`}
                                         disabled={item.disabled || item.loading || data.length < 1}
                                         onClick={item.onClick ?? (() => { })}
-                                        className="table-action-btn table-action-btn-ghost"
+                                        className="table-action-btn table-action-btn-export"
                                     >
                                         {item.loading ? (
                                             <>
@@ -264,10 +294,16 @@ const TableContainer = ({
             <div className="rounded-1 mt-0">
                 <div className="table-toolbar flex flex-wrap mb-0 items-center  p-0 justify-between" style={{ height: "45px" }} >
                     {/* Left section (page size + whatever the screen adds).
-                        Was w-3/4 back when the export buttons lived here; now
-                        it takes only what it needs so the search field can use
-                        the rest. */}
-                    <div className="flex items-center mb-0 p-0">
+                        Was w-3/4 back when the export buttons lived here; it
+                        now takes only what it needs so the search field can use
+                        the rest.
+
+                        min-w-0 is load-bearing: a flex item defaults to
+                        min-width:auto and will not shrink below its content, so
+                        a screen passing a wide `extraFiled` (a row of selects,
+                        a date range) pushed this section past the panel and off
+                        the side of the screen. */}
+                    <div className="flex min-w-0 items-center mb-0 p-0">
                         {isCustomPageSize && (
                             <div className=" mb-0 flex items-center" style={{ minWidth: "90px", borderRight: "solid var(--color-line) 1px", height: "45px", marginLeft: "10px", marginRight: "10px" }}>
                                 <select
@@ -278,7 +314,7 @@ const TableContainer = ({
                                         table.setPageSize(Number(e.target.value));
                                     }}
                                 >
-                                    {[10, 20, 30, 40, 50].map(pageSize => (
+                                    {pageSizeOptions.map(pageSize => (
                                         <option key={pageSize} value={pageSize}>
                                             Show {pageSize}
                                         </option>
@@ -287,7 +323,7 @@ const TableContainer = ({
                             </div>
                         )}
                         {
-                            <div style={{ marginRight: "10px" }}>
+                            <div className="min-w-0" style={{ marginRight: "10px" }}>
                                 {
                                     extraFiled && extraFiled
                                 }
@@ -306,7 +342,11 @@ const TableContainer = ({
                                 {rightExtraFiled}
                             </div>
                         )}
-                        <div className="mb-0 w-full" >
+                        {/* min-w-0 for the same reason as the left section: an
+                            <input> has a default intrinsic width of ~20
+                            characters, so without this the search box refuses
+                            to shrink and widens the toolbar instead. */}
+                        <div className="mb-0 w-full min-w-0" >
                             {isGlobalFilter && (
                                 <DebouncedInput
                                     value={globalFilter ?? ""}

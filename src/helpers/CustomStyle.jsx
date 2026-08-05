@@ -1,3 +1,8 @@
+import PropTypes from "prop-types";
+import { components } from "react-select";
+import { Check } from "lucide-react";
+import { cn } from "@/lib/cn";
+
 /**
  * react-select styling, shared by 57 screens.
  *
@@ -55,4 +60,81 @@ export const customStyles = {
     ...provided,
     color: 'var(--color-ink)',
   }),
+};
+
+/**
+ * Checkbox-style multi-select: pass as `components={{ Option: CheckboxOption,
+ * ValueContainer: SelectedCountValue }}` on an `isMulti` react-select.
+ *
+ * Together with `hideSelectedOptions={false}` and `closeMenuOnSelect={false}`
+ * on the call site, this replaces the older pattern of hiding a selected
+ * option from the list and showing it as a removable chip in a strip of its
+ * own beside the control (SelectedItemsDisplay). That strip had no width limit
+ * of its own, so on a screen with several long labels selected it ran wider
+ * than the column that held it and pushed content past the edge of the card.
+ * A checkbox in the menu carries the same information -- what is selected --
+ * without adding anything that can grow past the control's own width.
+ */
+export const CheckboxOption = (props) => {
+  const { isSelected, label } = props;
+  return (
+    <components.Option {...props}>
+      <span className="flex items-center gap-2">
+        <span
+          aria-hidden="true"
+          className={cn(
+            "flex size-4 shrink-0 items-center justify-center rounded-sm border transition-colors",
+            isSelected ? "border-white bg-white" : "border-current/40"
+          )}
+        >
+          {isSelected && (
+            <Check
+              className="size-3"
+              strokeWidth={3}
+              style={{ color: "var(--color-brand-500)" }}
+            />
+          )}
+        </span>
+        <span className="truncate">{label}</span>
+      </span>
+    </components.Option>
+  );
+};
+
+/**
+ * Shows a count ("3 Selected") in the control instead of one chip per value.
+ * Pairs with CheckboxOption -- the chips were the only place selection state
+ * was visible once picking an option removed it from view via
+ * `hideSelectedOptions`; the checkbox in the menu now does that job instead,
+ * so the control itself only needs to say how many.
+ *
+ * `getValue`/`children` are supplied by react-select's ValueContainer contract
+ * (see its own "replacing components" docs): `children` is always
+ * `[renderedValueOrPlaceholder, <Input/>]`, so swapping the first element for
+ * a count and passing the second through keeps typing-to-filter working.
+ */
+export const SelectedCountValue = ({ children, ...props }) => {
+  const [valueOrPlaceholder, input] = children;
+  const count = props.getValue().length;
+
+  return (
+    <components.ValueContainer {...props}>
+      {count > 0 ? (
+        <span className="text-[13px] text-ink">{count} Selected</span>
+      ) : (
+        valueOrPlaceholder
+      )}
+      {input}
+    </components.ValueContainer>
+  );
+};
+
+CheckboxOption.propTypes = {
+  isSelected: PropTypes.bool,
+  label: PropTypes.node,
+};
+
+SelectedCountValue.propTypes = {
+  children: PropTypes.node,
+  getValue: PropTypes.func,
 };

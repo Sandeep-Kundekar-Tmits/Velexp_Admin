@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useGetApiCall } from "../../../hooks/useGetApiCall"
 import { DELETE_FRANCHISE_RATE_DATA, GET_FRANCHISE_RATE_DATA, UPDATE_FRANCHISE_RATE_DATA, UPLOAD_FRANCHISE_RATE_DATA } from "../../../api"
 import TableContainer from "../../Table/TableContainer"
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import { Button, Col, FormGroup, FormText, Input, Label, Row, Spinner } from "@/components/ui"
 import { IoMdCloudDownload } from "react-icons/io"
 import { checkCustomerPermissions } from "../../../helpers/checkCustomerPermissions"
@@ -400,10 +400,12 @@ const FranchiseRateData = () => {
     return (
 
         <div className="p-0">
-            <div className="flex items-center justify-between gap-2 p-0 border-bottom">
-                <h4>
-                    Rate Data For Franchise
-                </h4>
+            {/* "Rate Data For Franchise" removed -- the tab it lives under
+                already says that (see CustomerRateData.jsx). justify-end, not
+                justify-between: with the heading gone this row holds only the
+                admin controls below, which now sit right rather than anchored
+                to a label that no longer exists. */}
+            <div className="flex items-center justify-end gap-2 p-0 ">
                 {/* {
                     isAdmin && <Button
                         color="primary"
@@ -455,10 +457,7 @@ const FranchiseRateData = () => {
                 {/* <h2>Bookings</h2> */}
                 <div className='mt-4'>
                     {
-                        FranchiseRataDataLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                            <LoaderMark />
-                            <p className="mt-12 h5">Loading Corporate Data Rate ...</p>
-                        </div>
+                        FranchiseRataDataLoading ? <Loader message="Loading Corporate Data Rate ..." fullscreen={false} />
                             :
                             <TableContainer
                                 columns={columns}
@@ -471,7 +470,11 @@ const FranchiseRateData = () => {
                                 SearchPlaceholder="Search From Table"
                                 pagination="pagination"
                                 paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                                tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                                theadClass="sticky top-0 z-10"
+                                isStickyHeader={true}
+                                stickyTop={0}
+                                tableHeight="65vh"
                             />
                     }
                 </div>

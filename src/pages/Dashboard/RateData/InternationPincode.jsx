@@ -1,4 +1,4 @@
-import { Badge, Button, Col, FormGroup, Input, Label, Row, Spinner } from "@/components/ui";
+import { Badge, Button, Input, Label, Spinner } from "@/components/ui";
 import { FaFileExcel } from "react-icons/fa";
 import useExcelParser from "../../../hooks/useExcelParser";
 import { useExcelExport } from "../../../hooks/useExcelExport";
@@ -9,7 +9,7 @@ import { useGetApiCall } from "../../../hooks/useGetApiCall";
 import usePostApiCall from "../../../hooks/usePostApiCall";
 import { DELETE_INTERNATIONAL_PINCODES, GET_INTERNATIONAL_PINCODES, UPLOAD_INTERNATIONAL_PINCODES } from "../../../api";
 import { useEffect, useMemo, useState } from "react";
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import Select from "react-select";
 import { customStyles } from "../../../helpers/CustomStyle";
 import MainHeaderComp from "../../../components/MainHeaderCom";
@@ -280,51 +280,47 @@ const InternationPincode = () => {
     ], [displayData, selectedPincodes]);
 
     return (
-        <div className="page-content py-0 px-0">
-            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                <MainHeaderComp
-                    title="International Pincode"
-                    extraFields={
-                        <div className="flex items-center">
-                            <h6 className="text-black font-bold mb-0 mr-2" style={{ fontSize: "14px" }}>Template</h6>
-                            <Button
-                                color="success"
-                                outline
-                                onClick={downloadTemplate}
-                                className="flex items-center justify-center p-2"
-                                style={{ borderRadius: "7px", width: "180px", fontWeight: "500", fontSize: "12px", height: "35px" }}
-                            >
-                                {isExportingTemplate ? "Generating..." : "Download"}
-                                <FaFileExcel size={14} className="ml-2" />
-                            </Button>
-                        </div>
-                    }
-                />
-            </div>
-            <div className="container-fluid px-4">
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+            <MainHeaderComp
+                title="International Pincode"
+                extraFields={
+                    <div className="flex items-center">
+                        <h6 className="text-ink font-bold mb-0 mr-2" style={{ fontSize: "14px" }}>Template</h6>
+                        <Button
+                            onClick={downloadTemplate}
+                            className="table-action-btn table-action-btn-solid"
+                        >
+                            {isExportingTemplate ? "Generating..." : "Download"}
+                            <FaFileExcel size={14} aria-hidden="true" />
+                        </Button>
+                    </div>
+                }
+            />
 
-                <Row className="mt-2 border-bottom pb-6">
-                    <Col md={4}>
-                        <FormGroup>
-                            <Label>Upload Pincode Data</Label>
-                            <Input type="file" onChange={handleFileChange} />
-                        </FormGroup>
-                    </Col>
-                    <Col md={2} className="flex items-end mb-4">
-                        <Button color="primary" className="w-full flex items-center justify-center" disabled={!file || uploadedData.length === 0 || jsonLoading || isUploadingPincodes} onClick={handleUpload}>
+            <div className="page-fit-body relative z-10 pb-4">
+                <div className="flex flex-wrap items-end gap-3 border-b border-white/8 pb-4">
+                    <div className="flex w-full flex-col gap-1.5 sm:w-64">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Upload Pincode Data
+                        </Label>
+                        <Input type="file" onChange={handleFileChange} />
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                        <Button
+                            className="table-action-btn table-action-btn-primary"
+                            disabled={!file || uploadedData.length === 0 || jsonLoading || isUploadingPincodes}
+                            onClick={handleUpload}
+                        >
                             {isUploadingPincodes ? <Spinner size="sm" /> : "Upload"}
                         </Button>
-                    </Col>
-                    {jsonLoading && <Col md={1} className="flex items-end mb-6"><Spinner size="sm" color="primary" /></Col>}
-                </Row>
+                        {jsonLoading && <Spinner size="sm" color="primary" />}
+                    </div>
+                </div>
 
-
-                <div className="mt-6">
+                <div className="page-fit-body mt-4">
                     {isFetchingPincodes ? (
-                        <div style={{ height: "40vh" }} className="container-fluid flex flex-col justify-center items-center">
-                            <LoaderMark />
-                            <p className="mt-12 h5">Loading International Pincodes ...</p>
-                        </div>
+                        <Loader message="Loading International Pincodes ..." fullscreen={false} />
                     ) : (
                         <TableContainer
                             extraFiled={
@@ -340,6 +336,8 @@ const InternationPincode = () => {
                                             isClearable
                                             placeholder="Filter by Country"
                                             styles={customStyles}
+                                            menuPortalTarget={document.body}
+                                            menuPosition="fixed"
                                         />
                                     </div>
                                     {selectedPincodes.length > 0 && (
@@ -357,7 +355,10 @@ const InternationPincode = () => {
                             isDownloadExcle={true}
                             ExcleLoading={isExportingData}
                             onDownloadExcle={onExcelDownload}
-                            isCustomPageSize={10}
+                            /* Was `10`: this prop is a boolean flag for whether
+                               to show the page-size select at all -- the sizes
+                               it offers are fixed. */
+                            isCustomPageSize={true}
                             columns={columns}
                             data={displayData}
                             isGlobalFilter={true}
@@ -365,7 +366,12 @@ const InternationPincode = () => {
                             SearchPlaceholder="Search from table..."
                             pagination="pagination"
                             paginationWrapper="dataTables_paginate paging_simple_numbers"
-                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                            tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                            theadClass="sticky top-0 z-10"
+                            isStickyHeader={true}
+                            stickyTop={0}
+                            fillHeight
+                            tableHeight="65vh"
                         />
                     )}
                 </div>

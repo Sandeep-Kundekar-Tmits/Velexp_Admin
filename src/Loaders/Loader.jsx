@@ -1,4 +1,4 @@
-import { useId } from "react";
+import { useId, useLayoutEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import { motion, useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/cn";
@@ -131,35 +131,150 @@ LoaderMark.propTypes = {
   className: PropTypes.string,
 };
 
-const Loader = ({ message = "Loading...", fullscreen = true, className }) => (
-  <div
-    role="status"
-    aria-live="polite"
-    className={cn(
-      "z-9999 flex flex-col items-center justify-center bg-[#050816]/95 px-6 backdrop-blur-sm",
-      /* min-h-full alone collapses to content height whenever the parent's
-         height is auto -- a percentage min-height needs a definite parent --
-         which left the loader stacked at the top of the page rather than
-         centred. The vh floor guarantees something to centre within. */
-      fullscreen ? "fixed inset-0" : "h-full min-h-[60vh] w-full py-10",
-      className
-    )}
-  >
-    <div className="relative rounded-2xl border border-white/8 bg-[rgba(17,24,39,0.70)] px-6 py-5 backdrop-blur-xl">
-      <LoaderMark className="h-12 w-56 text-[#7DD3FC]" />
-    </div>
+/* Never smaller than this, however little room is left below the chrome. */
+const MIN_INLINE_HEIGHT = 220;
+/* Breathing room at the foot, and cover for the pb-4 the page wrappers carry --
+   without it the loader would end flush against the viewport bottom and the
+   parent's own padding would push a scrollbar out. */
+const BOTTOM_GAP = 16;
 
-    {message && (
-      <p className="mt-4 text-[14px] font-medium tracking-tight text-slate-300">
-        {message}
-      </p>
-    )}
-  </div>
-);
+const Loader = ({ message = "Loading...", fullscreen = true, compact = false, className }) => {
+  const hostRef = useRef(null);
+  const [inlineHeight, setInlineHeight] = useState(null);
+  /* Viewport rect of the content section, when there is one to centre in. */
+  const [sectionRect, setSectionRect] = useState(null);
+
+  /*
+   * Anchor to the top of the content section, not centre in whatever is left
+   * below the chrome.
+   *
+   * Filling from this element's own top down to the bottom of the viewport --
+   * what this did before -- puts the loader half the chrome height too low,
+   * and by a different amount on every screen: a report with a filter bar sat
+   * lower than a plain list, which read as the loader jumping around as you
+   * navigated.
+   *
+   * So it takes itself out of flow and covers .page-scroll (the layout's
+   * content box) instead. Every screen then shows the loader in exactly the
+   * same place -- pinned near the top of that box -- because that box is the
+   * same box on all of them.
+   *
+   * The old measure-to-viewport-bottom path is kept as the fallback for
+   * anything rendered outside the layout -- the login screen, a modal that has
+   * not opted into `compact` -- where there is no content section to aim at.
+   *
+   * useLayoutEffect so the position lands before paint; otherwise the loader
+   * shows in the flow position for a frame and then jumps.
+   */
+  useLayoutEffect(() => {
+    if (fullscreen || compact || !hostRef.current) return undefined;
+
+    const section = hostRef.current.closest(".page-scroll");
+
+    const measure = () => {
+      if (section) {
+        const { top, left, width, height } = section.getBoundingClientRect();
+        setSectionRect({ top, left, width, height });
+        return;
+      }
+      const { top } = hostRef.current.getBoundingClientRect();
+      setInlineHeight(Math.max(MIN_INLINE_HEIGHT, window.innerHeight - top - BOTTOM_GAP));
+    };
+
+    measure();
+    window.addEventListener("resize", measure);
+    /* The rail collapsing animates .main-content's margin for 0.45s, which
+       moves the section under a loader that is already up. Re-measuring on
+       transitionend is cheaper than watching every frame. */
+    document.addEventListener("transitionend", measure);
+    return () => {
+      window.removeEventListener("resize", measure);
+      document.removeEventListener("transitionend", measure);
+    };
+  }, [fullscreen, compact]);
+
+  return (
+    <div
+      ref={hostRef}
+      role="status"
+      aria-live="polite"
+      style={
+        fullscreen
+          ? undefined
+          /* Fixed over the content section. Its own place in the flow is given
+             up entirely, so nothing above it can shift it off position. */
+          : sectionRect
+            ? {
+              position: "fixed",
+              top: sectionRect.top,
+              left: sectionRect.left,
+              width: sectionRect.width,
+              height: sectionRect.height,
+            }
+            : inlineHeight === null
+              ? undefined
+              : { height: inlineHeight }
+      }
+      className={cn(
+        /* justify-start + pt-6, not justify-center: a loader dead-centred in
+           a tall section reads as floating in empty space, especially once
+           the section is mostly whitespace below a short table. Anchoring it
+           a fixed distance from the top keeps it in the same spot regardless
+           of how much room the section has, the way a page's actual content
+           would sit. */
+        "flex flex-col items-center justify-center pb-18",
+        fullscreen
+          /* An overlay has to cover what is behind it, or it reads as a loader
+             dropped on top of a live screen rather than as the screen being
+             busy. This is the only place the scrim belongs. */
+          ? "fixed inset-0 z-9999 bg-canvas/95 backdrop-blur-sm"
+          /* Inline it stays transparent: the layout already draws the canvas
+             and the route backdrop behind it, and a second background here
+             would just hide them.
+
+             compact keeps the same loader but sizes it to its container rather
+             than to the viewport -- inside a modal or a fixed panel, filling
+             down to the bottom of the window would overflow the box it is in.
+
+             The min-height is the floor for the first paint, before the
+             measurement above replaces it, and the whole story under compact.
+             Once the section rect is known the element is out of flow and
+             sized from it, so neither w-full nor flex-1 has anything to do. */
+          : sectionRect
+            /* pointer-events-none because this covers the whole content
+               section, filter bar included. A screen that keeps its filters
+               mounted while it fetches means them to stay usable -- you should
+               be able to correct a service centre or a status without waiting
+               for the wrong query to come back. The fullscreen variant above
+               deliberately does block: there it IS the screen. */
+            ? "pointer-events-none z-20"
+            /* pb-10, not py-10: the shared pt-6 above already sets the top
+               padding, and Tailwind utilities of the same specificity resolve
+               by generation order, not by position in this string -- stacking
+               pt-6 with a py-10 here would leave which one wins undefined. */
+            : cn("w-full", compact ? "min-h-55 pb-10" : "min-h-55 flex-1"),
+        className
+      )}
+    >
+      <div className="relative rounded-2xl border border-white/8 bg-[rgba(17,24,39,0.70)] px-6 py-5 backdrop-blur-xl">
+        <LoaderMark className="h-12 w-56 text-[#7DD3FC]" />
+      </div>
+
+      {message && (
+        <p className="mt-4 text-[14px] font-medium tracking-tight text-slate-300">
+          {message}
+        </p>
+      )}
+    </div>
+  );
+};
 
 Loader.propTypes = {
   message: PropTypes.string,
   fullscreen: PropTypes.bool,
+  /* For modals and fixed-height panels: same loader, sized to its container
+     instead of stretching to the bottom of the viewport. */
+  compact: PropTypes.bool,
   className: PropTypes.string,
 };
 

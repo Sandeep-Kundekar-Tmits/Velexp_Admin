@@ -7,7 +7,7 @@ import { useDeleteApiCall } from "../../../hooks/useDeleteApiCall"
 import { DEFAULT_RATE_DATA, DEFAULT_RATE_DATA_BUILK_UPLOAD } from "../../../api"
 import { Button, FormGroup, FormText, Input, Label, Spinner } from "@/components/ui"
 import { IoMdCloudDownload } from "react-icons/io"
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import TableContainer from "../../Table/TableContainer"
 
 const INTDefaultRateData = () => {
@@ -302,10 +302,7 @@ const INTDefaultRateData = () => {
                 {/* <h2>Bookings</h2> */}
                 <div className='mt-1'>
                     {
-                        IntDefaultRateDataLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                            <LoaderMark />
-                            <p className="mt-12 h5">Loading INT Default Data Rate ...</p>
-                        </div>
+                        IntDefaultRateDataLoading ? <Loader message="Loading INT Default Data Rate ..." fullscreen={false} />
                             :
                             <TableContainer
                                 columns={columns}

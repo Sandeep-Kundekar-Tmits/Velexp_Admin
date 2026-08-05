@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input } from "@/components/ui";
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import MenuPrivilegeTree from "./MenuPrivilegeTree";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
 import usePostApiCall from "../../hooks/usePostApiCall";
@@ -84,7 +84,7 @@ const UserOverridesPanel = ({ user, onClose, onRoleChanged }) => {
     };
 
     return (
-        <Modal isOpen toggle={onClose} size="xl" centered scrollable>
+        <Modal isOpen toggle={onClose} size="lg" centered scrollable>
             <ModalHeader toggle={onClose}>
                 Manage Access — {user.username || `${user.first_name || ""} ${user.last_name || ""}`.trim()}
             </ModalHeader>
@@ -107,7 +107,7 @@ const UserOverridesPanel = ({ user, onClose, onRoleChanged }) => {
                 </div>
 
                 {overridesLoading ? (
-                    <div className="flex justify-center mt-12"><LoaderMark /></div>
+                    <Loader fullscreen={false} />
                 ) : (
                     <MenuPrivilegeTree nodes={tree} mode="user" onChange={setTree} lockedIds={lockedMenuIds} />
                 )}

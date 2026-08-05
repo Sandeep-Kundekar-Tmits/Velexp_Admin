@@ -1,4 +1,4 @@
-import { Button, Col, FormGroup, Input, Label, Row } from "@/components/ui";
+import { Button, Input, Label } from "@/components/ui";
 import MainHeaderComp from "../MainHeaderCom";
 import { useState } from "react";
 import AWBPage from "./AWBPage";
@@ -23,15 +23,34 @@ const AWBPrintPage = () => {
     }
 
     return (
-        <div className='page-content py-0 px-0'>
-            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                <MainHeaderComp title="AWB Label Print" />
-            </div>
-            <div className="container-fluid px-4">
-                <Row className="mt-4 items-end">
-                    <Col md={4}>
-                        <FormGroup className="mb-0">
-                            <Label className="form-label font-bold">AWB</Label>
+        /* No page-fit: one field and a button, far shorter than the viewport,
+           so there is no leftover height to hand out. */
+        <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
+            {/* No sticky wrapper: MainHeaderComp draws nothing inline now, it
+                hands the title to the layout's PageHeader, which is already
+                fixed above the scroll box. */}
+            <MainHeaderComp
+                title="AWB Label Print"
+                subTitle="Look up a shipment and print its label."
+            />
+
+            <div className="container-fluid relative z-10 px-4 pb-4">
+                {/* One row with the action on the field's baseline. The button
+                    was carrying marginBottom:15px to fake its way back into
+                    alignment past the label above the input; items-end does it
+                    properly, and holds once the row wraps on a phone.
+
+                    Enter submits: this screen is one field, and reaching for
+                    the mouse to print each label is the slow path. */}
+                <form
+                    className="filter-row"
+                    onSubmit={(e) => { e.preventDefault(); handlePrint(); }}
+                >
+                    <div className="filter-group">
+                        <div className="flex w-full flex-col gap-1.5 sm:w-56">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                AWB
+                            </Label>
                             <Input
                                 type="text"
                                 placeholder="Enter AWB No."
@@ -39,19 +58,16 @@ const AWBPrintPage = () => {
                                 onChange={(e) => setAwbNo(e.target.value)}
                                 style={{ height: "38px" }}
                             />
-                        </FormGroup>
-                    </Col>
-                    <Col md={2}>
+                        </div>
+
                         <Button
-                            color="primary"
-                            className="w-full"
-                            style={{ height: "38px", marginBottom: "15px" }}
-                            onClick={handlePrint}
+                            type="submit"
+                            className="table-action-btn table-action-btn-primary"
                         >
                             Print
                         </Button>
-                    </Col>
-                </Row>
+                    </div>
+                </form>
             </div>
         </div>
     );

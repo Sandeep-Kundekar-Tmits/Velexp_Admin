@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Button } from "@/components/ui";
+import { Badge, Button, Card, CardBody } from "@/components/ui";
 import { RiDeleteBinLine, RiEditLine, RiAddLine, RiArrowUpLine, RiArrowDownLine } from "react-icons/ri";
 import { IoMdAdd, IoMdRemove } from "react-icons/io";
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import DeleteModal from "../../components/Common/DeleteModal";
 import MenuFormModal from "../../components/AdminPrivileges/MenuFormModal";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
@@ -99,7 +99,7 @@ const MenusTab = () => {
                     {node.faicon && <i className={node.faicon} />}
                     <span className="font-semibold">{node.menu_name}</span>
                     <span className="text-ink-muted text-xs">{node.menu_url}</span>
-                    {node.is_active === false && <span className="badge bg-secondary">Inactive</span>}
+                    {node.is_active === false && <Badge color="secondary">Inactive</Badge>}
 
                     <div className="flex gap-1 ml-auto">
                         <Button size="sm" color="light" outline disabled={index === 0} onClick={() => handleMove(siblings, index, -1)} title="Move up">
@@ -128,17 +128,23 @@ const MenusTab = () => {
     };
 
     return (
-        <div>
-            <div className="flex justify-end mb-4">
+        <div className="page-fit-body">
+            <div className="flex justify-end mb-3">
                 <Button color="primary" onClick={() => { setSelectedMenu(null); setDefaultParent(null); setFormOpen(true); }}>+ New Menu</Button>
             </div>
 
             {loading ? (
-                <div className="flex justify-center mt-12"><LoaderMark /></div>
-            ) : tree.length ? (
-                <div>{tree.map((node, i) => renderNode(node, 0, tree, i))}</div>
+                <Loader fullscreen={false} />
             ) : (
-                <p className="text-ink-muted">No menus yet.</p>
+                <Card className="shadow-sm border-0">
+                    <CardBody className="overflow-y-auto scroll-slim" style={{ maxHeight: "65vh" }}>
+                        {tree.length ? (
+                            tree.map((node, i) => renderNode(node, 0, tree, i))
+                        ) : (
+                            <p className="text-ink-muted mb-0">No menus yet.</p>
+                        )}
+                    </CardBody>
+                </Card>
             )}
 
             <MenuFormModal

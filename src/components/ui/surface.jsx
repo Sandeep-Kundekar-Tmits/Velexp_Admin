@@ -11,9 +11,22 @@ import { cn } from "@/lib/cn";
    are what layout-compat matches on to spot a card that holds nothing but a
    grid, so it can drop its frame instead of boxing the grid's own panel. They
    also line these up with the 26 places that write className="card" by hand. */
+/* Same glass as the sidebar rail, the grid panel and the dialogs, so a card
+   reads as part of one surface family rather than a flat box drawn on top.
+
+   Expressed through the tokens rather than a literal rgba: inside a
+   [data-print-surface] root those redeclare to white, so bg-surface/70 comes
+   out white-on-white and an AWB label still prints light. */
 export const Card = forwardRef(function Card({ className, children, ...rest }, ref) {
   return (
-    <div ref={ref} className={cn("card rounded border border-line bg-surface", className)} {...rest}>
+    <div
+      ref={ref}
+      className={cn(
+        "card rounded-xl border border-line bg-surface/70 backdrop-blur-xl",
+        className
+      )}
+      {...rest}
+    >
       {children}
     </div>
   );
@@ -145,12 +158,19 @@ export const Table = forwardRef(function Table(
         "w-full border-collapse text-left align-middle",
         // 34px rows, matching the Dense Ops density target
         "[&_td]:h-[34px] [&_th]:h-[34px] [&_td]:px-2 [&_th]:px-2",
-        "[&_th]:bg-slate-50 [&_th]:font-semibold [&_th]:text-ink",
+        /* Header, stripes and hover from the tokens, not from raw slate.
+           bg-slate-50 under text-ink was light-on-light on every dark screen
+           that renders a plain <Table> rather than going through
+           TableContainer -- and unlike bg-white it has no bridge in
+           bootstrap-compat, so nothing was correcting it. Tokens also keep
+           these right inside a [data-print-surface] root, where they
+           redeclare to the light palette. */
+        "[&_th]:bg-canvas [&_th]:font-semibold [&_th]:text-ink",
         size === "sm" && "[&_td]:h-7 [&_th]:h-7 text-xs",
         bordered && "[&_td]:border [&_th]:border [&_td]:border-line [&_th]:border-line",
         !bordered && "[&_tbody_tr]:border-b [&_tbody_tr]:border-line",
-        striped && "[&_tbody_tr:nth-child(odd)]:bg-slate-50/60",
-        hover && "[&_tbody_tr:hover]:bg-brand-50/50",
+        striped && "[&_tbody_tr:nth-child(odd)]:bg-ink/3",
+        hover && "[&_tbody_tr:hover]:bg-brand-500/15",
         className
       )}
       {...rest}

@@ -4,7 +4,7 @@ import {
     MdAccessTime, MdCalendarMonth, MdCurrencyRupee, MdDateRange,
     MdHistory, MdLocalShipping, MdToday, MdTrendingDown, MdTrendingFlat, MdTrendingUp,
 } from "react-icons/md";
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import { toast } from "react-toastify";
 import TableContainer from "../../../components/Table/TableContainer";
 import MainHeaderComp from "../../../components/MainHeaderCom";
@@ -418,10 +418,7 @@ const RevenueDailyReport = () => {
                 </Row>
 
                 {loading ? (
-                    <div className="flex flex-col justify-center items-center" style={{ height: "40vh" }}>
-                        <LoaderMark />
-                        <p className="mt-6 h5">Loading Revenue Report...</p>
-                    </div>
+                    <Loader message="Loading Revenue Report..." fullscreen={false} />
                 ) : (
                     hasSearched && (
                         <>

@@ -1,11 +1,11 @@
 
 import { useEffect, useMemo, useState } from "react";
-import { Button, Col, FormGroup, Label, Row } from "@/components/ui";
+import { Button, Label } from "@/components/ui";
 import Select from "react-select";
 import DateRangeInput from "../../../components/Common/DateRangeInput";
 import TableContainer from "../../../components/Table/TableContainer";
 import MainHeaderComp from "../../../components/MainHeaderCom";
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import usePostApiCall from "../../../hooks/usePostApiCall";
 import { GET_ALL_SERVICE_PROVIDER_BOOKING, GET_DELIVARY_B2C_LABEL_GENERATION } from "../../../api";
 import ToasterProvider from "../../../helpers/ToasterProvider";
@@ -251,84 +251,83 @@ const ServiceProviderBooking = () => {
         }
     }, [ServiceProviderBookings])
     return (
-        <div className='page-content py-0 px-0'>
-            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                <MainHeaderComp
-                    title="Bookings"
-                    extraFields={
-                        <Button color="primary" className="px-6 py-2" onClick={() => {
-                            navigate("/corporate-booking")
-                        }} >
-                            New Booking
-                        </Button>
-                    }
-                />
-            </div>
-            <div className="container-fluid px-4">
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+            <MainHeaderComp
+                title="Bookings"
+                extraFields={
+                    <Button color="primary" className="table-action-btn table-action-btn-primary" onClick={() => {
+                        navigate("/corporate-booking")
+                    }} >
+                        New Booking
+                    </Button>
+                }
+            />
 
-                <Row className="mt-4">
-                    <Col md={4}>
-                        <FormGroup>
-                            <Label>Select Date Range</Label>
-                            <DateRangeInput
-                                onChange={handleDateChange}
-                                value={selectedRange}
-                                className="h-full"
-                                isBorder={true}
-                            />
-                        </FormGroup>
-                    </Col>
-                    <Col md={4}>
-                        <FormGroup>
-                            <Label>Service Provider</Label>
-                            <Select
-                                options={[
-                                    { value: "Delhivery", label: "Delhivery" }
-                                ]}
-                                placeholder="Service Provider"
-                                className="basic-select"
-                                onChange={(value) => setSelectedOption(value)}
-                                classNamePrefix="select"
-                                defaultValue={{ value: "Delhivery", label: "Delhivery" }}
-                                styles={customStyles}
-                            />
-                        </FormGroup>
-                    </Col>
-                    <Col md={2} className="flex items-end mb-4">
-                        <Button color="primary" className="w-full" style={{ height: "35px" }} onClick={OnGetBookings} >
-                            Get Data
-                        </Button>
-                    </Col>
-                </Row>
-
-                <div className=" mt-1">
-                    <div className='mt-2'>
-                        {
-                            ServiceProviderBookingloading ? <div style={{ height: "75vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <LoaderMark />
-                                <p className="mt-12 h5">Loading Bookings ...</p>
-                            </div>
-                                :
-                                <>{
-                                    <TableContainer
-                                        columns={columns}
-                                        data={ServiceProviderData || []}
-                                        isGlobalFilter={true}
-                                        isPagination={true}
-                                        isCustomPageSize={true}
-                                        isDownloadExcle={true}
-                                        onDownloadExcle={DownloadBookingDetails}
-                                        ExcleLoading={isExporting}
-                                        SearchPlaceholder="Search From Table"
-                                        pagination="pagination"
-                                        paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
-                                    />
-                                }
-                                </>
-
-                        }
+            <div className="page-fit-body relative z-10 pb-4">
+                {/* Filters -- single row that wraps rather than the fixed
+                    Bootstrap grid, same as the rest of the reworked screens. */}
+                <div className="flex flex-wrap items-end gap-3 border-b border-white/8 pb-4">
+                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Select Date Range
+                        </Label>
+                        <DateRangeInput
+                            onChange={handleDateChange}
+                            value={selectedRange}
+                            isBorder={true}
+                        />
                     </div>
+
+                    <div className="flex w-full flex-col gap-1.5 sm:w-56">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Service Provider
+                        </Label>
+                        <Select
+                            options={[
+                                { value: "Delhivery", label: "Delhivery" }
+                            ]}
+                            placeholder="Service Provider"
+                            onChange={(value) => setSelectedOption(value)}
+                            defaultValue={{ value: "Delhivery", label: "Delhivery" }}
+                            styles={customStyles}
+                            menuPortalTarget={document.body}
+                            menuPosition="fixed"
+                        />
+                    </div>
+
+                    <Button
+                        color="primary"
+                        className="h-9.5 shrink-0 px-6"
+                        onClick={OnGetBookings}
+                    >
+                        Get Data
+                    </Button>
+                </div>
+
+                <div className="page-fit-body mt-4">
+                    {
+                        ServiceProviderBookingloading ? <Loader message="Loading Bookings ..." fullscreen={false} /> : (
+                            <TableContainer
+                                columns={columns}
+                                data={ServiceProviderData || []}
+                                isGlobalFilter={true}
+                                isPagination={true}
+                                isCustomPageSize={true}
+                                isDownloadExcle={true}
+                                onDownloadExcle={DownloadBookingDetails}
+                                ExcleLoading={isExporting}
+                                SearchPlaceholder="Search From Table"
+                                pagination="pagination"
+                                paginationWrapper='dataTables_paginate paging_simple_numbers'
+                                tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                                theadClass="sticky top-0 z-10"
+                                isStickyHeader={true}
+                                stickyTop={0}
+                                fillHeight
+                                tableHeight="72vh"
+                            />
+                        )
+                    }
                 </div>
             </div>
         </div>

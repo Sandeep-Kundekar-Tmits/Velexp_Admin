@@ -56,11 +56,27 @@ export const Col = forwardRef(function Col(
     SPAN_XL[num(xl)],
   ].filter(Boolean);
 
+  /*
+   * Bootstrap's `col-md-4` is width:100% BELOW md and 4/12 from md up. This
+   * emitted only the `md:w-4/12` half, so under that breakpoint the column had
+   * no width at all and fell back to shrink-to-content -- which is why a form
+   * written as <Col md={4}> x3 squeezed three fields onto one line on a phone
+   * instead of stacking them. Nearly every screen writes columns that way.
+   *
+   * Only when the caller has not named a base size themselves: <Col xs={6}>
+   * means half width on a phone and must stay that way.
+   */
+  const needsBase = spans.length > 0 && num(xs) == null;
+
   return (
     <div
       ref={ref}
       // No breakpoint props means "fill the row", matching <Col/>.
-      className={cn("px-2", spans.length ? spans : "flex-1", className)}
+      // min-w-0: Row is a flex container, and a flex item's default
+      // min-width:auto refuses to shrink below its content's own width -- a
+      // wide table inside this Col would otherwise push it (and the row)
+      // past its assigned share instead of scrolling inside itself.
+      className={cn("px-2 min-w-0", spans.length ? [needsBase && "w-full", ...spans] : "flex-1", className)}
       {...rest}
     >
       {children}

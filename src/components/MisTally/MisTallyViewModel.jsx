@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React, { useEffect, useMemo, useState } from "react";
 import { Input, Modal, ModalBody, Spinner } from "@/components/ui";
 import TableContainer from '../Table/TableContainer';
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import { GET_MIS_TALLY_FILTER_BY_TITLE, GET_MIS_TALLY_FILTER_DATA } from '../../api';
 import { RiErrorWarningLine } from "react-icons/ri";
 import usePostApiCall from '../../hooks/usePostApiCall';
@@ -186,10 +186,7 @@ const MisTallyViewModel = ({
 
                     <h4 className="mb-4 border-bottom">MIS Tally Of The "{data?.cost_service_center}" Cost Center</h4>
                     {
-                        MISGroupedDataLoading ? <div style={{ height: "50vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                            <LoaderMark />
-                            <p className="mt-12 h5">Loading MIS Tally ...</p>
-                        </div> : MisGroupedData.length >= 1 ? <TableContainer
+                        MISGroupedDataLoading ? <Loader message="Loading MIS Tally ..." fullscreen={false} /> : MisGroupedData.length >= 1 ? <TableContainer
                             columns={columns}
                             data={MisGroupedData || []}
                             isGlobalFilter={true}

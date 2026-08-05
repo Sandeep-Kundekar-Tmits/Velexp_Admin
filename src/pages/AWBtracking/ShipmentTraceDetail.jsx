@@ -1,4 +1,5 @@
 import { Button, Spinner } from "@/components/ui"
+import Loader from "@/Loaders/Loader"
 import MainHeaderComp from "../../components/MainHeaderCom"
 import { useState, useEffect } from "react"
 import usePostApiCall from "../../hooks/usePostApiCall"
@@ -105,37 +106,37 @@ const ShipmentTraceDetail = () => {
 
     if (loading) {
         return (
-            <div className="page-content">
-                <MainHeaderComp title="Shipment Trace Details" />
-                <div className="flex justify-center items-center" style={{ height: "60vh" }}>
-                    <Spinner color="primary" />
-                </div>
+            <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
+                <MainHeaderComp title="Shipment Trace Details" subTitle={`AWB: ${awbno}`} />
+                <Loader message="Loading shipment trace…" fullscreen={false} />
             </div>
         )
     }
 
     if (!shipmentTrace) {
         return (
-            <div className="page-content">
-                <MainHeaderComp title="Shipment Trace Details" />
-                <div className="alert alert-danger m-4">
-                    No data found for AWB: {awbno}
+            <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
+                <MainHeaderComp title="Shipment Trace Details" subTitle={`AWB: ${awbno}`} />
+                <div className="container-fluid relative z-10 px-4 pb-4">
+                    <p className="m-0 rounded-xl border border-white/8 bg-white/2 px-4 py-12 text-center text-[13px] text-ink-muted">
+                        No data found for AWB: {awbno}
+                    </p>
                 </div>
             </div>
         )
     }
 
     return (
-        <div className="page-content">
+        <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
             <MainHeaderComp
                 title="Shipment Trace Details"
                 subTitle={`AWB: ${awbno}`}
                 extraFields={
                     <div className="flex gap-2">
-                        <Button color="secondary" outline onClick={() => navigate(-1)}>
+                        <Button className="table-action-btn table-action-btn-ghost" onClick={() => navigate(-1)}>
                             ← Back
                         </Button>
-                        <Button color="success" onClick={handleDownload} disabled={downloading}>
+                        <Button className="table-action-btn table-action-btn-export" onClick={handleDownload} disabled={downloading}>
                             {downloading ? (
                                 <>
                                     <Spinner size="sm" className="mr-2" />
@@ -151,10 +152,10 @@ const ShipmentTraceDetail = () => {
                 }
             />
 
-            <div className="container-fluid px-4 py-6">
+            <div className="container-fluid relative z-10 px-4 pb-4">
                 {/* Booking Info */}
-                <div className="card mb-6">
-                    <div className="card-header bg-brand-500 bg-opacity-10 border-0">
+                <div className="mb-4 overflow-hidden rounded-xl border border-white/8 bg-[rgba(17,24,39,0.70)] backdrop-blur-xl">
+                    <div className="card-header border-b border-white/8 bg-[#3B82F6]/12">
                         <h6 className="mb-0 font-bold text-ink">Booking Information</h6>
                     </div>
                     <div className="card-body">
@@ -189,15 +190,15 @@ const ShipmentTraceDetail = () => {
                             </div>
                             <div className="col-md-3">
                                 <small className="text-ink-muted">Multipiece Type</small>
-                                <p className="mb-0"><span className="badge bg-info capitalize">{shipmentTrace.booking?.multipiece_type}</span></p>
+                                <p className="mb-0"><span className="badge border border-[#3B82F6]/30 bg-[#3B82F6]/15 capitalize text-[#93C5FD]">{shipmentTrace.booking?.multipiece_type}</span></p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Shipper Details */}
-                <div className="card mb-6">
-                    <div className="card-header bg-success-500 bg-opacity-10 border-0">
+                <div className="mb-4 overflow-hidden rounded-xl border border-white/8 bg-[rgba(17,24,39,0.70)] backdrop-blur-xl">
+                    <div className="card-header border-b border-white/8 bg-success-500/12">
                         <h6 className="mb-0 font-bold text-ink">Shipper Details</h6>
                     </div>
                     <div className="card-body">
@@ -235,8 +236,8 @@ const ShipmentTraceDetail = () => {
                 </div>
 
                 {/* Consignee Details */}
-                <div className="card mb-6">
-                    <div className="card-header bg-danger-500 bg-opacity-10 border-0">
+                <div className="mb-4 overflow-hidden rounded-xl border border-white/8 bg-[rgba(17,24,39,0.70)] backdrop-blur-xl">
+                    <div className="card-header border-b border-white/8 bg-danger-500/12">
                         <h6 className="mb-0 font-bold text-ink">Consignee Details</h6>
                     </div>
                     <div className="card-body">
@@ -299,7 +300,7 @@ const ShipmentTraceDetail = () => {
                                     {shipmentTrace.pieces?.[awbno]?.map((piece, index) => (
                                         <tr key={index}>
                                             <td>
-                                                <span className="badge bg-brand-500">{piece.status}</span>
+                                                <span className="badge border border-[#3B82F6]/30 bg-[#3B82F6]/15 text-[#93C5FD]">{piece.status}</span>
                                             </td>
                                             <td style={{ fontSize: "12px", whiteSpace: "nowrap" }}>
                                                 {formatDateTime(piece.status_date)}

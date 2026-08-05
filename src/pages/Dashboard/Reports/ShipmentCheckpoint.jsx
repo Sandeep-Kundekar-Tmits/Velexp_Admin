@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { Button, Col, FormGroup, Label, Row } from "@/components/ui";
+import { Button, Label } from "@/components/ui";
 import Select from 'react-select'
-import { useGetApiCall } from "../../../hooks/useGetApiCall";
+import { useQuery } from "@tanstack/react-query";
+import { qk } from "@/lib/queryKeys";
+import { fetchServiceCenters } from "@/services/reference.service";
 import { customStyles } from "../../../helpers/CustomStyle";
-import { SERVICE_CENTER, UPLOAD_SHIPMENT_CHECKPOINTS } from "../../../api";
+import { UPLOAD_SHIPMENT_CHECKPOINTS } from "../../../api";
 import TableContainer from "../../../components/Table/TableContainer";
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import usePostApiCall from "../../../hooks/usePostApiCall";
 import ToasterProvider from "../../../helpers/ToasterProvider";
 import { useExcelExport } from "../../../hooks/useExcelExport";
@@ -66,19 +68,16 @@ const ShipmentCheckpoint = () => {
     }
 
     //  api functions
-    // definging the get service center api
-    const { apifunc: GetServiceCenter, data: ServiceCentersList, loading: ServiceCenterLoading } = useGetApiCall()
+    // service centers -- cached 30min via react-query instead of refetched on every mount
+    const { data: ServiceCentersList, isLoading: ServiceCenterLoading } = useQuery({
+        queryKey: qk.reference.serviceCenters(),
+        queryFn: fetchServiceCenters,
+        staleTime: 30 * 60_000,
+    })
     // defining the get all shipment pickups api
     const { apifunc: UploadShipmentChekpoint, loading: UploadShipmentCheckpointLoading } = usePostApiCall()
     const { exportToExcel, isExporting, exportProgress } = useExcelExport();
     // useEffects
-    useEffect(() => {
-        // calling the service Center api
-        GetServiceCenter(SERVICE_CENTER)
-    }, [])
-
-
-
     useEffect(() => {
         // service center and regoins and it should be unique
         if (ServiceCentersList) {
@@ -159,87 +158,90 @@ const ShipmentCheckpoint = () => {
         console.log(data, "data")
     }
     return (
-        <div className='page-content py-0  px-0' style={{ overflowX: 'hidden' }}>
-            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                <MainHeaderCom title="Status Update" />
-            </div>
-            <div className="container-fluid">
-                <div>
-                    <Row className='gx-3 flex items-end pt-2'>
-                        <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label className="font-bold text-ink-muted mb-1">Select Date Range</Label>
-                                <DateRangeInput
-                                    value={selectedRange}
-                                    onChange={handleChange}
-                                    isBorder={true}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label for="Region" className="font-bold text-ink-muted mb-1">Region</Label>
-                                <Select
-                                    name="region"
-                                    options={Regions}
-                                    placeholder={ServiceCenterLoading ? "loading...." : "Search Region"}
-                                    onChange={(option) => OnSelectChange("region", option)}
-                                    isClearable={true}
-                                    menuPortalTarget={document.body}
-                                    menuPosition="fixed"
-                                    styles={customStyles} />
-                            </FormGroup>
-                        </Col>
-                        <Col md={3}>
-                            <FormGroup className="mb-2">
-                                <Label for="ServiceCenter" className="font-bold text-ink-muted mb-1">Service Center</Label>
-                                <Select
-                                    value={ShipmentCheckpointPayload?.service_center}
-                                    name="service_center"
-                                    options={ServiceCenters}
-                                    placeholder={ServiceCenterLoading ? "loading...." : "Search Service Center"}
-                                    onChange={(option) => OnSelectChange("service_center", option)}
-                                    isClearable={true}
-                                    menuPortalTarget={document.body}
-                                    menuPosition="fixed"
-                                    styles={customStyles} />
-                            </FormGroup>
-                        </Col>
-                        <Col md={2}>
-                            <Button color="primary" className="font-bold mb-4" style={{ height: "38px", width: "100%" }} onClick={GetDataFunctionCall}>
-                                Get Data
-                            </Button>
-                        </Col>
-                    </Row>
-                    {/*  */}
-                    <div className=''>
-                        <div className='mt-4'>
-                            {
-                                UploadShipmentCheckpointLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                    <LoaderMark />
-                                    <p className="mt-12 h5">Loading Status Update Report ...</p>
-                                </div>
-                                    :
-                                    <TableContainer
-                                        columns={columns}
-                                        data={ShipmentCheckpoints || []}
-                                        isGlobalFilter={true}
-                                        isPagination={true}
-                                        isCustomPageSize={true}
-                                        isDownloadExcle={true}
-                                        onDownloadExcle={DownloadShipmemtCheckpointDetails}
-                                        ExcleLoading={isExporting}
-                                        SearchPlaceholder="Search From Table"
-                                        pagination="pagination"
-                                        paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
-                                        isStickyHeader={true}
-                                        stickyTop={0}
-                                        tableHeight="60vh"
-                                    />
-                            }
-                        </div>
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+            <MainHeaderCom title="Status Update" subTitle="Mobile vs. manual status-update counts by service center." />
+
+            <div className="page-fit-body relative z-10 pb-4">
+                {/* Filters -- single row that wraps rather than the fixed
+                    Bootstrap grid, same as the rest of the report screens. */}
+                <div className="flex flex-wrap items-end gap-3 border-b border-white/8 pb-4">
+                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Select Date Range
+                        </Label>
+                        <DateRangeInput
+                            value={selectedRange}
+                            onChange={handleChange}
+                            isBorder={true}
+                        />
                     </div>
+
+                    <div className="flex w-full flex-col gap-1.5 sm:w-56">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Region
+                        </Label>
+                        <Select
+                            name="region"
+                            options={Regions}
+                            placeholder={ServiceCenterLoading ? "loading...." : "Search Region"}
+                            onChange={(option) => OnSelectChange("region", option)}
+                            isClearable={true}
+                            menuPortalTarget={document.body}
+                            menuPosition="fixed"
+                            styles={customStyles}
+                        />
+                    </div>
+
+                    <div className="flex w-full flex-col gap-1.5 sm:w-56">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Service Center
+                        </Label>
+                        <Select
+                            value={ShipmentCheckpointPayload?.service_center}
+                            name="service_center"
+                            options={ServiceCenters}
+                            placeholder={ServiceCenterLoading ? "loading...." : "Search Service Center"}
+                            onChange={(option) => OnSelectChange("service_center", option)}
+                            isClearable={true}
+                            menuPortalTarget={document.body}
+                            menuPosition="fixed"
+                            styles={customStyles}
+                        />
+                    </div>
+
+                    <Button
+                        color="primary"
+                        className="h-9.5 shrink-0 px-6"
+                        onClick={GetDataFunctionCall}
+                    >
+                        Get Data
+                    </Button>
+                </div>
+
+                <div className="page-fit-body mt-4">
+                    {
+                        UploadShipmentCheckpointLoading ? <Loader message="Loading Status Update Report ..." fullscreen={false} /> : (
+                            <TableContainer
+                                columns={columns}
+                                data={ShipmentCheckpoints || []}
+                                isGlobalFilter={true}
+                                isPagination={true}
+                                isCustomPageSize={true}
+                                isDownloadExcle={true}
+                                onDownloadExcle={DownloadShipmemtCheckpointDetails}
+                                ExcleLoading={isExporting}
+                                SearchPlaceholder="Search From Table"
+                                pagination="pagination"
+                                paginationWrapper='dataTables_paginate paging_simple_numbers'
+                                tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                                theadClass="sticky top-0 z-10"
+                                isStickyHeader={true}
+                                stickyTop={0}
+                                fillHeight
+                                tableHeight="60vh"
+                            />
+                        )
+                    }
                 </div>
             </div>
         </div>

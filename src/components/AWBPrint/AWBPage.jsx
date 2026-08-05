@@ -2,6 +2,9 @@ import React, { useEffect, useState, useRef } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import AirwayBillMiniTable from "./AirwayBillMiniTable";
+import MainHeaderComp from "../MainHeaderCom";
+import { Button } from "@/components/ui";
+import Loader from "@/Loaders/Loader";
 
 import { authFetch } from "@/lib/http";
 const AWBPage = ({ awbNo = "", onBack }) => {
@@ -103,64 +106,65 @@ const AWBPage = ({ awbNo = "", onBack }) => {
   };
 
   return (
-    <div className="p-6">
-      {/* Back Button */}
-      <button className="btn btn-outline-secondary mb-4" onClick={handleBack}>
-        ← Back
-      </button>
-
-      <h2 className="text-lg font-semibold mb-6">
-        Labels for AWB: <strong>{orderId}</strong>
-      </h2>
-
-      {/* API Loading */}
-      {loading && (
-        <div className="text-center mb-4">
-          <div className="spinner-border text-brand-500" role="status"></div>
-          <p>Loading labels…</p>
-        </div>
-      )}
-
-      {/* PDF Download */}
-      {labels.length > 0 && !loading && (
-        <button
-          onClick={handleDownloadPDF}
-          className="btn btn-success mb-6"
-          disabled={pdfLoading}
-        >
-          {pdfLoading ? (
-            <>
-              <span className="spinner-border spinner-border-sm mr-2"></span>
-              Generating PDF…
-            </>
-          ) : (
-            "Download"
-          )}
-        </button>
-      )}
-
-      {labels.length === 0 && !loading && (
-        <p className="text-ink-muted">No labels found for this AWB.</p>
-      )}
-
-      {/* LABEL RENDERING */}
-      <div ref={labelsRef} className="mt-6 flex flex-col gap-6">
-        {labels.map((item) => (
-          <div className="label-item" key={item.id}>
-            <AirwayBillMiniTable
-              data={{
-                dateTime: item.scheduleddate,
-                packages: item.quantity,
-                origin: item.origin,
-                destination: item.destination,
-                mawb: item.awbno,
-                mode: item.mode,
-                consignor: item.consigner,
-                consignee: item.consignee,
-              }}
-            />
+    /* The same page shell as the lookup screen it replaces, so stepping from
+       one to the other does not change the page's frame. Only the chrome is
+       themed -- the labels below carry data-print-surface and stay light, or
+       a barcode on a dark field will not scan. */
+    <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
+      <MainHeaderComp
+        title="AWB Label Print"
+        subTitle={`Labels for AWB ${orderId}`}
+        extraFields={
+          <div className="flex items-center gap-2">
+            <Button onClick={handleBack} className="table-action-btn table-action-btn-ghost">
+              ← Back
+            </Button>
+            {labels.length > 0 && !loading && (
+              <Button
+                onClick={handleDownloadPDF}
+                disabled={pdfLoading}
+                className="table-action-btn table-action-btn-export"
+              >
+                {pdfLoading ? "Generating PDF…" : "Download PDF"}
+              </Button>
+            )}
           </div>
-        ))}
+        }
+      />
+
+      <div className="container-fluid relative z-10 px-4 pb-4">
+        {/* The shared loader, not a raw .spinner-border: that class has no
+            definition left in the compat layer, so it rendered as nothing at
+            all while the labels were fetching. */}
+        {loading && <Loader message="Loading labels…" fullscreen={false} />}
+
+        {labels.length === 0 && !loading && (
+          <p className="m-0 rounded-xl border border-white/8 bg-white/2 px-4 py-12 text-center text-[13px] text-ink-muted">
+            No labels found for this AWB.
+          </p>
+        )}
+
+        {/* LABEL RENDERING.
+            items-start so a label keeps its own printed width instead of being
+            stretched across the page by the flex column. */}
+        <div ref={labelsRef} className="mt-4 flex flex-col items-start gap-6">
+          {labels.map((item) => (
+            <div className="label-item" key={item.id}>
+              <AirwayBillMiniTable
+                data={{
+                  dateTime: item.scheduleddate,
+                  packages: item.quantity,
+                  origin: item.origin,
+                  destination: item.destination,
+                  mawb: item.awbno,
+                  mode: item.mode,
+                  consignor: item.consigner,
+                  consignee: item.consignee,
+                }}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

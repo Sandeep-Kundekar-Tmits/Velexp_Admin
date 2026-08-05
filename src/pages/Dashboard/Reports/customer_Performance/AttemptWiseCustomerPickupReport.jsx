@@ -5,11 +5,14 @@ import DateRangePicker from "@paprika/date-range-picker";
 import TableContainer from '../../../../components/Table/TableContainer';
 import Select from 'react-select'
 import { customStyles } from '../../../../helpers/CustomStyle';
+import { useQuery } from "@tanstack/react-query";
+import { qk } from "@/lib/queryKeys";
+import { fetchServiceCenters } from "@/services/reference.service";
 import { useGetApiCall } from '../../../../hooks/useGetApiCall';
-import { CUSTOMER_GET_ATTEMPT_WISE_DELIVARY_REPORT, GET_ADMIN_BOOKING_DETAILS, GET_ALL_REGION, GET_ATTEMPT_WISE_DELIVARY_REPORT, GET_CUSTOMER_SERVICE, GET_OPERATION_PERFORMANCE, GET_USER_API, PRODUCT_LIST, SERVICE_CENTER, SPD_OPERATION_PERFORMANCE } from '../../../../api';
+import { CUSTOMER_GET_ATTEMPT_WISE_DELIVARY_REPORT, GET_ADMIN_BOOKING_DETAILS, GET_ALL_REGION, GET_ATTEMPT_WISE_DELIVARY_REPORT, GET_CUSTOMER_SERVICE, GET_OPERATION_PERFORMANCE, GET_USER_API, PRODUCT_LIST, SPD_OPERATION_PERFORMANCE } from '../../../../api';
 import usePostApiCall from '../../../../hooks/usePostApiCall';
 import formatDateForPayload from '../../../../helpers/DateHelper';
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import { IoMdCloudDownload } from "react-icons/io";
 // import CustomerServiceFilter from '../../../components/CustomerService/CustomerServiceFilter';
 // import OperationPerformanceFilter from '../../../components/Report/OperationPerformanceFilter';
@@ -389,8 +392,12 @@ const AttemptWiseCustomerPickupReport = () => {
     // defining get user api
     const { apifunc: GetUserList, data: UserList } = useGetApiCall()
 
-    // definging the get service center api
-    const { apifunc: GetServiceCenter, data: ServiceCenters } = useGetApiCall()
+    // service centers -- cached 30min via react-query instead of refetched on every mount
+    const { data: ServiceCenters } = useQuery({
+        queryKey: qk.reference.serviceCenters(),
+        queryFn: fetchServiceCenters,
+        staleTime: 30 * 60_000,
+    })
 
     // selected service center
     const [SelectedServiceCenters, setSelectedServiceCenters] = useState([])
@@ -661,7 +668,6 @@ const AttemptWiseCustomerPickupReport = () => {
     //  calling user api
     useEffect(() => {
          GetUserList(`${GET_USER_API}/`)
-        GetServiceCenter(SERVICE_CENTER)
         //  calling the get product list api
         GetProductsList(PRODUCT_LIST)
         //  calling the regions api
@@ -1147,10 +1153,7 @@ const AttemptWiseCustomerPickupReport = () => {
 
                     <div className='mt-1'>
                         {
-                            bookingLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                <LoaderMark />
-                                <p className="mt-12 h5">Loading Operation Performance ...</p>
-                            </div>
+                            bookingLoading ? <Loader message="Loading Operation Performance ..." fullscreen={false} />
                                 :
                                 <>
                                     <TableContainer

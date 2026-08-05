@@ -13,7 +13,6 @@ import {
     CardBody,
     Spinner
 } from "@/components/ui";
-import classnames from "classnames";
 import MainHeaderComp from "../../components/MainHeaderCom";
 import { useMultiExcelExport } from "../../hooks/useMultiExcelExport";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
@@ -179,38 +178,37 @@ const BillMaster = () => {
     return (
         <React.Fragment>
             <div className="page-content py-0 px-0">
-                <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                    <MainHeaderComp 
-                        title="Customer Billing" 
-                        extraFields={
-                            <div className="flex items-center gap-2">
-                                <div style={{ width: "300px" }}>
-                                    <SearchableDropdown
-                                        locations={customerOptions}
-                                        value={selectedCustomer ? selectedCustomer.name : "select"}
-                                        onChange={handleCustomerChange}
-                                        placeholder={usersLoading ? "Loading..." : "Select Customer"}
-                                    />
-                                </div>
-                                <Button 
-                                    color="success" 
-                                    onClick={handleDownloadExcel} 
-                                    disabled={!selectedCustomer || isExporting || isFetching}
-                                    className="flex items-center gap-1"
-                                >
-                                    {(isExporting || isFetching) ? <Spinner size="sm" /> : <FaFileExcel />}
-                                    Download Excel
-                                </Button>
+                {/* No sticky wrapper: MainHeaderComp draws nothing inline, it hands
+                    the title and button to the layout's PageHeader. */}
+                <MainHeaderComp
+                    title="Customer Billing"
+                    extraFields={
+                        <div className="flex items-center gap-2">
+                            <div style={{ width: "300px" }}>
+                                <SearchableDropdown
+                                    locations={customerOptions}
+                                    value={selectedCustomer ? selectedCustomer.name : "select"}
+                                    onChange={handleCustomerChange}
+                                    placeholder={usersLoading ? "Loading..." : "Select Customer"}
+                                />
                             </div>
-                        }
-                    />
-                </div>
+                            <Button
+                                className="table-action-btn table-action-btn-solid"
+                                onClick={handleDownloadExcel}
+                                disabled={!selectedCustomer || isExporting || isFetching}
+                            >
+                                {(isExporting || isFetching) ? <Spinner size="sm" /> : <FaFileExcel />}
+                                Download Excel
+                            </Button>
+                        </div>
+                    }
+                />
 
                 <div className="container-fluid px-0">
                     <Nav tabs className="nav-tabs-custom nav-justified bg-canvas border-bottom">
                         <NavItem>
                             <NavLink
-                                className={classnames({ active: activeTab === "1" })}
+                                active={activeTab === "1"}
                                 onClick={() => toggleTab("1")}
                                 style={{ cursor: "pointer" }}
                             >
@@ -220,7 +218,7 @@ const BillMaster = () => {
                         </NavItem>
                         <NavItem>
                             <NavLink
-                                className={classnames({ active: activeTab === "2" })}
+                                active={activeTab === "2"}
                                 onClick={() => toggleTab("2")}
                                 style={{ cursor: "pointer" }}
                             >
@@ -230,7 +228,7 @@ const BillMaster = () => {
                         </NavItem>
                         <NavItem>
                             <NavLink
-                                className={classnames({ active: activeTab === "3" })}
+                                active={activeTab === "3"}
                                 onClick={() => toggleTab("3")}
                                 style={{ cursor: "pointer" }}
                             >
@@ -240,7 +238,7 @@ const BillMaster = () => {
                         </NavItem>
                         <NavItem>
                             <NavLink
-                                className={classnames({ active: activeTab === "4" })}
+                                active={activeTab === "4"}
                                 onClick={() => toggleTab("4")}
                                 style={{ cursor: "pointer" }}
                             >

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useGetApiCall } from "../../../hooks/useGetApiCall"
 import { DELETE_CORPORATE_DATA_RATE, GET_COPORATE_RATE_DATA, UPDATE_CORPORATE_DATA_RATE, UPLOAD_BULK_CORPORATE_DATA_RATE } from "../../../api"
 import TableContainer from "../../Table/TableContainer"
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import { Button, Col, FormGroup, FormText, Input, Label, Row, Spinner } from "@/components/ui"
 import { IoMdCloudDownload } from "react-icons/io"
 import { checkCustomerPermissions } from "../../../helpers/checkCustomerPermissions"
@@ -462,10 +462,12 @@ const CorporateDataRate = () => {
     return (
 
         <div className="p-0">
-            <div className="flex items-center justify-between gap-2  border-bottom p-0">
-                <h4>
-                    Rate Data For Corporate
-                </h4>
+            {/* "Rate Data For Corporate" removed -- the tab it lives under
+                already says that (see CustomerRateData.jsx). justify-end, not
+                justify-between: with the heading gone this row holds only the
+                admin controls below, which now sit right rather than anchored
+                to a label that no longer exists. */}
+            {/* <div className="flex items-center justify-end  p-0"> */}
                 {/* {
                     isAdmin && <Button
                         color="primary"
@@ -479,11 +481,11 @@ const CorporateDataRate = () => {
                     </Button>
                 } */}
 
-            </div>
+            {/* </div> */}
             <div>
                 {
                     (isAdmin && RateData?.length >= 1) && <div className="flex items-center">
-                        <FormGroup style={{ marginTop: "10px" }}>
+                        <FormGroup >
                             <Label for="gstUpload">Upload </Label>
                             <Input type="file" id="gstUpload" onChange={UploadCorporateRateDataOnChange} />
                             {
@@ -514,12 +516,9 @@ const CorporateDataRate = () => {
                 {/* <UpdateShippingRateModal/> */}
                 {ReturnComponent(SelectedTitle)}
                 {/* <h2>Bookings</h2> */}
-                <div className='mt-4'>
+                <div >
                     {
-                        CorporateRateDataLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                            <LoaderMark />
-                            <p className="mt-12 h5">Loading Corporate Data Rate ...</p>
-                        </div>
+                        CorporateRateDataLoading ? <Loader message="Loading Corporate Data Rate ..." fullscreen={false} />
                             :
                             <TableContainer
                                 columns={columns}
@@ -533,7 +532,11 @@ const CorporateDataRate = () => {
                                 SearchPlaceholder="Search From Table"
                                 pagination="pagination"
                                 paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                                tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                                theadClass="sticky top-0 z-10"
+                                isStickyHeader={true}
+                                stickyTop={0}
+                                tableHeight="65vh"
                             />
                     }
                 </div>

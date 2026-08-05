@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useGetApiCall } from "../../../hooks/useGetApiCall"
 import { FILTER_EDIT_ENVOICE, GET_USER_API, UPDATE_EDIT_ENVOICE } from "../../../api"
 import TableContainer from "../../../components/Table/TableContainer"
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import { IoEye } from "react-icons/io5";
 import { FaEdit } from "react-icons/fa"
 // import downloadExcel from "../../helpers/downloadExcel"
@@ -295,26 +295,35 @@ const EditInvoice = () => {
     }, [userListData])
 
     return (
-        <div className='page-content py-0 px-0'>
-            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                <MainHeaderComp title="Edit Invoice" />
-            </div>
-            <div className="container-fluid px-4">
-                <Row className="mt-4 items-end">
-                    <Col md={4} lg={3}>
-                        <FormGroup className="mb-0">
-                            <Label className="form-label font-bold">Select Customer</Label>
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+            {/* No sticky wrapper: MainHeaderComp draws nothing inline now, it
+                hands the title to the layout's PageHeader. */}
+            <MainHeaderComp
+                title="Download Invoices"
+                subTitle="Find a customer's invoices for a date range and export them."
+            />
+
+            <div className="container-fluid page-fit-body relative z-10 pb-4">
+                {/* One row of filters with the action beside them, the same
+                    shape as the pincode and rate-data screens. */}
+                <div className="filter-row">
+                    <div className="filter-group">
+                        <div className="flex w-full flex-col gap-1.5 sm:w-56">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                Select Customer
+                            </Label>
                             <SearchableDropdown
                                 onChange={setSelectedCustomer}
                                 locations={Customes}
                                 placeholder="Select Customer"
                                 height="38px"
                             />
-                        </FormGroup>
-                    </Col>
-                    <Col md={4} lg={2}>
-                        <FormGroup className="mb-0">
-                            <Label className="form-label font-bold">Start Date</Label>
+                        </div>
+
+                        <div className="flex w-full flex-col gap-1.5 sm:w-40">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                Start Date
+                            </Label>
                             <Input
                                 type="date"
                                 value={startDate}
@@ -322,11 +331,12 @@ const EditInvoice = () => {
                                 onChange={(e) => setStartDate(e.target.value)}
                                 style={{ height: "38px" }}
                             />
-                        </FormGroup>
-                    </Col>
-                    <Col md={4} lg={2}>
-                        <FormGroup className="mb-0">
-                            <Label className="form-label font-bold">End Date</Label>
+                        </div>
+
+                        <div className="flex w-full flex-col gap-1.5 sm:w-40">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                End Date
+                            </Label>
                             <Input
                                 type="date"
                                 value={endDate}
@@ -335,48 +345,44 @@ const EditInvoice = () => {
                                 onChange={(e) => setEndDate(e.target.value)}
                                 style={{ height: "38px" }}
                             />
-                        </FormGroup>
-                    </Col>
-                    <Col md={2}>
+                        </div>
+
                         <Button
-                            color="primary"
-                            className="w-full"
-                            style={{ height: "38px", marginBottom: "15px" }}
+                            className="table-action-btn table-action-btn-primary"
                             onClick={GetFilteredEditInvoiceFunc}
                         >
                             Check
                         </Button>
-                    </Col>
-                </Row>
-
-                <div className=" mt-2">
-                    <h3>Details</h3>
-                    <div className='mt-4'>
-                        {
-                            TableDataLoading ?
-                                <div style={{ height: "75vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                                    <LoaderMark />
-                                    <p className="mt-12 h5">Loading Edit Invoice Billing ...</p>
-                                </div>
-                                :
-                                <>
-                                    <TableContainer
-                                        columns={columns}
-                                        data={TableData || []}
-                                        isGlobalFilter={true}
-                                        isPagination={true}
-                                        isDownloadExcle={true}
-                                        onDownloadExcle={DownloadEditInvoiceData}
-                                        ExcleLoading={ExcleLoading}
-                                        SearchPlaceholder="Search From Table"
-                                        pagination="pagination"
-                                        paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
-                                    />
-                                </>
-
-                        }
                     </div>
+                </div>
+
+                <div className="page-fit-body mt-4">
+                    {
+                        TableDataLoading ?
+                            <Loader message="Loading Edit Invoice Billing ..." fullscreen={false} />
+                            :
+                            <TableContainer
+                                columns={columns}
+                                data={TableData || []}
+                                isGlobalFilter={true}
+                                isPagination={true}
+                                isCustomPageSize={true}
+                                isDownloadExcle={true}
+                                onDownloadExcle={DownloadEditInvoiceData}
+                                ExcleLoading={ExcleLoading}
+                                SearchPlaceholder="Search From Table"
+                                pagination="pagination"
+                                paginationWrapper='dataTables_paginate paging_simple_numbers'
+                                /* table-bordered dropped: .grid-shell draws the
+                                   row rules now, and the two only fought. */
+                                tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                                theadClass="sticky top-0 z-10"
+                                isStickyHeader={true}
+                                stickyTop={0}
+                                fillHeight
+                                tableHeight="65vh"
+                            />
+                    }
                 </div>
                 {/* components */}
                 {

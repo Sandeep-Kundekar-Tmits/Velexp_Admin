@@ -7,7 +7,7 @@ import {
 import { useGetApiCall } from "../../hooks/useGetApiCall";
 import usePostApiCall from "../../hooks/usePostApiCall";
 import { OPS_DISPUTES_BASE } from "../../api";
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import MainHeaderComp from "../../components/MainHeaderCom";
 
 const STATUS_COLOR = { OPEN: "warning", SPL: "danger", CLOSED: "success" };
@@ -41,9 +41,7 @@ const DisputeDetail = () => {
     };
 
     if (loading) return (
-        <div className="flex justify-center mt-12">
-            <LoaderMark />
-        </div>
+        <Loader fullscreen={false} />
     );
 
     if (!dispute) return (

@@ -5,15 +5,16 @@ import {
 import Select from "react-select"
 import MainHeaderComp from "../../components/MainHeaderCom"
 import TableContainer from "../../components/Table/TableContainer"
-import DateRangePicker from "../../components/Common/DateRangePicker"
+import DateRangeInput from "../../components/Common/DateRangeInput"
 import { ALL_BOOKINGS_VIEW, ALL_BOOKINGS_EXPORT, CORPORATE_CUSTOMERS_LIST } from "../../api"
 import axios from "axios"
 import ToasterProvider from "../../helpers/ToasterProvider"
 import { MdSearch, MdFileDownload } from "react-icons/md"
 import { useGetApiCall } from "../../hooks/useGetApiCall"
 import { customStyles } from "../../helpers/CustomStyle"
+import YMD_DateFormate from "../../helpers/YMD_DateFormate"
 
-// Format date from YYYY-MM-DD to DD-MM-YYYY for API
+// Format DD-MM-YYYY from a YYYY-MM-DD string for the API
 const toApiDate = (dateStr) => {
     if (!dateStr) return ""
     const parts = dateStr.split("-")
@@ -26,7 +27,6 @@ const toApiDate = (dateStr) => {
 // Get default dates: first day of current month and today
 const today = new Date()
 const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
-const fmtInput = (d) => d.toISOString().split("T")[0] // YYYY-MM-DD for <input type="date">
 
 const PAGE_SIZE = 20
 
@@ -37,8 +37,7 @@ const AllBooking = () => {
     const { apifunc: fetchCustomers, data: customerListRaw, loading: customersLoading } = useGetApiCall()
 
     const [selectedCustomer, setSelectedCustomer] = useState(ALL_OPTION)
-    const [startDate, setStartDate] = useState(fmtInput(firstOfMonth))
-    const [endDate, setEndDate] = useState(fmtInput(today))
+    const [selectedRange, setSelectedRange] = useState({ startDate: firstOfMonth, endDate: today })
     const [bookings, setBookings] = useState([])
     const [totalCount, setTotalCount] = useState(0)
     const [currentPage, setCurrentPage] = useState(1)
@@ -58,13 +57,16 @@ const AllBooking = () => {
         return [ALL_OPTION, ...corporates]
     }, [customerListRaw])
 
-    const buildPayload = (page = 1, pageSize = PAGE_SIZE) => ({
-        customer_name: selectedCustomer?.value || "All",
-        start_date: toApiDate(startDate),
-        end_date: toApiDate(endDate),
-        page,
-        page_size: pageSize,
-    })
+    const buildPayload = (page = 1, pageSize = PAGE_SIZE) => {
+        const { from_date, to_date } = YMD_DateFormate(selectedRange)
+        return {
+            customer_name: selectedCustomer?.value || "All",
+            start_date: toApiDate(from_date),
+            end_date: toApiDate(to_date),
+            page,
+            page_size: pageSize,
+        }
+    }
 
     const fetchBookings = async (page = 1) => {
         setLoading(true)
@@ -98,10 +100,11 @@ const AllBooking = () => {
                 headers: { "Content-Type": "application/json" },
                 responseType: "blob",
             })
+            const { from_date, to_date } = YMD_DateFormate(selectedRange)
             const url = window.URL.createObjectURL(new Blob([res.data]))
             const link = document.createElement("a")
             link.href = url
-            link.setAttribute("download", `bookings_${toApiDate(startDate)}_to_${toApiDate(endDate)}.xlsx`)
+            link.setAttribute("download", `bookings_${from_date}_to_${to_date}.xlsx`)
             document.body.appendChild(link)
             link.click()
             link.remove()
@@ -141,9 +144,9 @@ const AllBooking = () => {
     return (
         <React.Fragment>
             <div className="page-content py-0 px-0">
-                <div className="bg-white" style={{ position: "sticky", top: "0px", zIndex: 1001, width: "100%" }}>
-                    <MainHeaderComp title="All Bookings" />
-                </div>
+                {/* No sticky wrapper: MainHeaderComp draws nothing inline, it hands
+                    the title to the layout's PageHeader. */}
+                <MainHeaderComp title="All Bookings" />
                 <div className="container-fluid px-4 py-4">
 
                     {/* Filter Card */}
@@ -161,16 +164,18 @@ const AllBooking = () => {
                                             placeholder="All Customers"
                                             isClearable={false}
                                             styles={customStyles}
+                                            menuPortalTarget={document.body}
+                                            menuPosition="fixed"
                                         />
                                     </FormGroup>
                                 </Col>
                                 <Col md={4}>
                                     <FormGroup className="mb-0">
-                                        <DateRangePicker
-                                            startDate={startDate}
-                                            endDate={endDate}
-                                            onChange={(s, e) => { setStartDate(s); setEndDate(e) }}
-                                            label="Date Range"
+                                        <Label className="font-bold text-xs">Date Range</Label>
+                                        <DateRangeInput
+                                            value={selectedRange}
+                                            onChange={setSelectedRange}
+                                            isBorder={true}
                                         />
                                     </FormGroup>
                                 </Col>
@@ -217,10 +222,10 @@ const AllBooking = () => {
                                     </span>
                                     {totalPages > 1 && (
                                         <div className="flex gap-2">
-                                            <Button size="sm" color="outline-secondary" disabled={currentPage <= 1} onClick={() => fetchBookings(currentPage - 1)}>
+                                            <Button size="sm" color="secondary" outline disabled={currentPage <= 1} onClick={() => fetchBookings(currentPage - 1)}>
                                                 &laquo; Prev
                                             </Button>
-                                            <Button size="sm" color="outline-secondary" disabled={currentPage >= totalPages} onClick={() => fetchBookings(currentPage + 1)}>
+                                            <Button size="sm" color="secondary" outline disabled={currentPage >= totalPages} onClick={() => fetchBookings(currentPage + 1)}>
                                                 Next &raquo;
                                             </Button>
                                         </div>
@@ -230,11 +235,9 @@ const AllBooking = () => {
                                     columns={columns}
                                     data={bookings}
                                     isGlobalFilter={true}
-                                    isPagination={true}
+                                    isPagination={false}
                                     SearchPlaceholder="Search bookings..."
-                                    pagination="pagination pagination-rounded justify-content-end mb-2"
-                                    paginationWrapper="dataTables_paginate paging_simple_numbers"
-                                    tableClass="table-hover table-bordered mb-0"
+                                    tableClass="table-hover mb-0"
                                 />
                             </CardBody>
                         </Card>

@@ -1,18 +1,19 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Select, { components } from "react-select";
 import { Button, Col, FormGroup, Label, Row } from "@/components/ui";
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import TableContainer from "../../../components/Table/TableContainer";
 import MainHeaderComp from "../../../components/MainHeaderCom";
 import {
     GET_ALL_STATUSES,
     GET_OPS_PENDING_REPORT,
     DOWNLOAD_OPS_PENDING_REPORT,
-    SERVICE_CENTER,
 } from "../../../api";
 import { customStyles } from "../../../helpers/CustomStyle";
 import usePostApiCall from "../../../hooks/usePostApiCall";
-import { useGetApiCall } from "../../../hooks/useGetApiCall";
+import { useQuery } from "@tanstack/react-query";
+import { qk } from "@/lib/queryKeys";
+import { fetchServiceCenters } from "@/services/reference.service";
 import YMD_DateFormate from "../../../helpers/YMD_DateFormate";
 
 import { authFetch } from "@/lib/http";
@@ -46,14 +47,14 @@ const PendingReport = () => {
         document.title = "Pending Report";
     }, []);
 
-    // ── Service Centers (all, from API) ────────────────────────────────────
-    const { apifunc: getServiceCenters, data: serviceCenterList, loading: scLoading } = useGetApiCall();
+    // ── Service Centers (cached 30min via react-query) ──────────────────────
+    const { data: serviceCenterList, isLoading: scLoading } = useQuery({
+        queryKey: qk.reference.serviceCenters(),
+        queryFn: fetchServiceCenters,
+        staleTime: 30 * 60_000,
+    });
     const [scOptions, setScOptions] = useState([]);
     const [selectedSCs, setSelectedSCs] = useState([]);
-
-    useEffect(() => {
-        getServiceCenters(SERVICE_CENTER);
-    }, []);
 
     useEffect(() => {
         if (serviceCenterList) {
@@ -225,14 +226,21 @@ const PendingReport = () => {
     ], []);
 
     return (
-        <div className="page-content py-0 px-0">
+        /* Same shell as the customer list: page-fit pins the screen to the
+           content box and page-fit-body carries the leftover height down to the
+           grid, so the rows are the only thing that scrolls. */
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
 
-            {/* ── Sticky title bar ── */}
-            <div className="sticky bg-white" style={{ top: 0, zIndex: 100 }}>
-                <MainHeaderComp title="Pending Report" />
-            </div>
+            {/* No sticky wrapper: MainHeaderComp draws nothing inline now, it
+                hands the title to the layout's PageHeader, which is already
+                fixed above the scroll box. The wrapper was left holding nothing
+                but its own background. */}
+            <MainHeaderComp
+                title="Pending Report"
+                subTitle="Shipments still open, by service centre and status."
+            />
 
-            <div className="container-fluid px-2">
+            <div className="container-fluid page-fit-body px-2">
 
                 {/* ── Filter bar (mirrors Velocity-Ops filter layout) ── */}
                 <Row className="gx-2 items-end pt-2 border-bottom pb-2">
@@ -297,16 +305,14 @@ const PendingReport = () => {
 
                 </Row>
 
-                {/* ── Table ── */}
-                <div className="mt-1">
+                {/* ── Table ──
+                    The grid and the server-side pager are siblings inside a
+                    fragment, so both are direct flex children here: the grid
+                    takes the leftover height via fillHeight, the pager keeps
+                    its own. */}
+                <div className="page-fit-body mt-1">
                     {loading ? (
-                        <div
-                            className="flex flex-col justify-center items-center"
-                            style={{ height: "40vh" }}
-                        >
-                            <LoaderMark />
-                            <p className="mt-6 h5">Loading Pending Report...</p>
-                        </div>
+                        <Loader message="Loading Pending Report..." fullscreen={false} />
                     ) : (
                         <>
                             <TableContainer
@@ -321,13 +327,29 @@ const PendingReport = () => {
                                 SearchPlaceholder="Search from table..."
                                 pagination="pagination"
                                 paginationWrapper="dataTables_paginate paging_simple_numbers"
-                                tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                                /* table-bordered dropped: .grid-shell draws the
+                                   row rules now, and the two only fought each
+                                   other -- a boxed grid inside a glass panel. */
+                                tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                                /* The header stays put while the rows move, the
+                                   way every other themed grid behaves. */
+                                theadClass="sticky top-0 z-10"
+                                isStickyHeader={true}
+                                stickyTop={0}
+                                fillHeight
+                                /* The sub-992px cap only; fillHeight drops it
+                                   above that, where there is height to give. */
+                                tableHeight="65vh"
                                 defaultPageSize={50}
                             />
 
-                            {/* ── Server-side page navigation ── */}
+                            {/* ── Server-side page navigation ──
+                                Its own panel rather than a bare bordered strip:
+                                it sits directly under the grid's glass panel,
+                                and `border-top` alone read as a stray rule
+                                floating on the canvas. */}
                             {totalPages > 1 && (
-                                <div className="flex justify-between items-center px-1 py-2 border-top">
+                                <div className="mt-2 flex items-center justify-between rounded-xl border border-white/8 bg-[rgba(17,24,39,0.70)] px-4 py-2 backdrop-blur-xl">
                                     <span className="text-ink-muted text-xs">
                                         Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong>
                                         &nbsp;·&nbsp;{totalCount.toLocaleString()} total records

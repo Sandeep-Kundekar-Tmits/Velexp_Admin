@@ -47,12 +47,17 @@ const PageHeader = ({ isMobile, onMobileToggle, override }) => {
       {/* Two lines at most, never three: a screen's own subtitle takes the
           second line if it has one, otherwise the menu section does. Both say
           "where am I", so showing both would be saying it twice. */}
+      {/* title on both: each is one line with an ellipsis, so on a narrow
+          screen the end of a long subtitle is cut off with no other way to
+          read it. The tooltip is the fallback. */}
       <div className="page-header-titles">
         {!subTitle && fromRoute.section && (
           <p className="page-header-eyebrow">{fromRoute.section}</p>
         )}
-        <h1 className="page-header-title">{title}</h1>
-        {subTitle && <p className="page-header-subtitle">{subTitle}</p>}
+        <h1 className="page-header-title" title={title}>{title}</h1>
+        {subTitle && (
+          <p className="page-header-subtitle" title={subTitle}>{subTitle}</p>
+        )}
       </div>
 
       {/* Always rendered, even when empty: PageHeaderActions looks this up by

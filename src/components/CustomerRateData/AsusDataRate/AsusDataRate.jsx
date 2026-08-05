@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useGetApiCall } from "../../../hooks/useGetApiCall"
 import { DELETE_RATE_DATA_ASUS, GET_RATE_DATA_ASUS, UPDATE_RATE_DATA_ASUS, UPLOAD_BULK_RATE_DATA_ASUS } from "../../../api"
 import TableContainer from "../../Table/TableContainer"
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import { Button, Col, Row, Label, Input, Spinner, FormGroup, FormText } from "@/components/ui"
 import { IoMdCloudDownload } from "react-icons/io"
 import { checkCustomerPermissions } from "../../../helpers/checkCustomerPermissions"
@@ -440,10 +440,12 @@ const AsusDataRate = () => {
     return (
 
         <div className="p-0">
-            <div className="flex items-baseline justify-between gap-2 border-bottom p-0">
-                <h4>
-                    Rate Data For Asus
-                </h4>
+            {/* "Rate Data For Asus" removed -- the tab it lives under already
+                says that (see CustomerRateData.jsx). justify-end, not
+                justify-between: with the heading gone this row holds only the
+                admin upload controls, which now sit right rather than
+                anchored to a label that no longer exists. */}
+            <div className="flex items-baseline justify-end   p-0">
                 <div>
                     {
                         (isAdmin && RateData?.length >= 1) && <div className="flex ">
@@ -481,10 +483,7 @@ const AsusDataRate = () => {
                 {/* <h2>Bookings</h2> */}
                 <div className='mt-4'>
                     {
-                        RateDataLoading ? <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                            <LoaderMark />
-                            <p className="mt-12 h5">Loading Asus Data Rate ...</p>
-                        </div>
+                        RateDataLoading ? <Loader message="Loading Asus Data Rate ..." fullscreen={false} />
                             :
                             <TableContainer
                                 columns={columns}
@@ -498,7 +497,11 @@ const AsusDataRate = () => {
                                 SearchPlaceholder="Search From Table"
                                 pagination="pagination"
                                 paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                                tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                                theadClass="sticky top-0 z-10"
+                                isStickyHeader={true}
+                                stickyTop={0}
+                                tableHeight="65vh"
                             />
                     }
                 </div>

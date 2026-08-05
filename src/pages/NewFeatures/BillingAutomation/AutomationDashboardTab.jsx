@@ -9,6 +9,10 @@ import {
 } from "../../../api"
 import BatchProgressPanel from "./BatchProgressPanel"
 
+// Button/Badge `color` prop values don't line up 1:1 with theme token names
+// (there is no primary-500/info-500 token -- primary is brand, info is accent).
+const COLOR_TOKEN = { primary: "brand", info: "accent", success: "success" }
+
 const ACTIONS = [
     {
         key: "SYNC_AUDIT",
@@ -67,7 +71,7 @@ const AutomationDashboardTab = ({ period, selectedCustomers = [], batchCtl }) =>
                             <Card className="shadow-sm border-0 h-full">
                                 <CardBody className="flex flex-col">
                                     <div className="flex items-center gap-2 mb-2">
-                                        <Icon size={26} className={`text-${a.color}`} />
+                                        <Icon size={26} className={`text-${COLOR_TOKEN[a.color]}-500`} />
                                         <h5 className="mb-0 font-bold">{a.title}</h5>
                                     </div>
                                     <p className="text-ink-muted grow">{a.confirmMsg}</p>
@@ -90,7 +94,7 @@ const AutomationDashboardTab = ({ period, selectedCustomers = [], batchCtl }) =>
 
             {/* Confirmation Modal */}
             <Modal isOpen={!!pendingAction} toggle={handleCancel} centered size="md">
-                <ModalHeader toggle={handleCancel} className={`text-${pendingAction?.color} border-bottom`}>
+                <ModalHeader toggle={handleCancel} className={`text-${COLOR_TOKEN[pendingAction?.color]}-500 border-bottom`}>
                     Confirm — {pendingAction?.title}
                 </ModalHeader>
                 <ModalBody>
@@ -100,8 +104,8 @@ const AutomationDashboardTab = ({ period, selectedCustomers = [], batchCtl }) =>
                         Selected Customers ({selectedCustomers.length}):
                     </div>
                     <div
-                        className="border rounded p-2"
-                        style={{ maxHeight: 220, overflowY: "auto", backgroundColor: "#f8f9fa" }}
+                        className="border border-line rounded p-2 bg-canvas"
+                        style={{ maxHeight: 220, overflowY: "auto" }}
                     >
                         {selectedCustomers.length === 0 ? (
                             <span className="text-ink-muted text-xs">No customers selected</span>
@@ -110,8 +114,8 @@ const AutomationDashboardTab = ({ period, selectedCustomers = [], batchCtl }) =>
                                 {selectedCustomers.map((c) => (
                                     <div
                                         key={c.value}
-                                        className="border rounded px-2 py-1 text-xs truncate"
-                                        style={{ backgroundColor: "#fff", fontSize: "0.8rem" }}
+                                        className="border border-line rounded px-2 py-1 text-xs truncate bg-surface"
+                                        style={{ fontSize: "0.8rem" }}
                                         title={c.label}
                                     >
                                         {c.label}

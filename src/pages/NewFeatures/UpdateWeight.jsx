@@ -208,12 +208,19 @@ const UpdateWeight = () => {
 
     return (
         <React.Fragment>
-            <div className="page-content py-0 px-0">
-                <div className="bg-white" style={{ position: "sticky", top: 0, zIndex: 1001, width: "100%" }}>
-                    <MainHeaderComp title="Update Weight" />
-                </div>
+            {/* No page-fit: this is a form screen -- a single-AWB update and a
+                bulk upload behind tabs -- which is taller than the viewport by
+                design and should keep scrolling. */}
+            <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
+                {/* No sticky wrapper: MainHeaderComp draws nothing inline now,
+                    it hands the title to the layout's PageHeader, which is
+                    already fixed above the scroll box. */}
+                <MainHeaderComp
+                    title="Update Weight"
+                    subTitle="Correct weight and dimensions for one AWB or a sheet of them."
+                />
 
-                <div className="container-fluid px-4 py-4">
+                <div className="container-fluid relative z-10 px-4 pb-4">
 
                     <Nav tabs className="mb-4">
                         {TABS.map((t) => (
@@ -233,7 +240,7 @@ const UpdateWeight = () => {
                     <TabPane tabId="single">
 
                     {/* ── Single AWB update ── */}
-                    <Card className="shadow-sm border-0 mb-4">
+                    <Card className="mb-4">
                         <CardBody className="py-4">
                             <Row className="gap-4 items-end">
                                 <Col md={3}>
@@ -362,7 +369,7 @@ const UpdateWeight = () => {
 
                     {/* ── Session history ── */}
                     {history.length > 0 && (
-                        <Card className="shadow-sm border-0 mb-4">
+                        <Card className="mb-4">
                             <CardBody>
                                 <h6 className="font-bold mb-2 flex items-center gap-1"><MdHistory /> Recent Updates (this session)</h6>
                                 <div className="table-responsive">
@@ -407,7 +414,7 @@ const UpdateWeight = () => {
                     <TabPane tabId="bulk">
 
                     {/* ── Bulk excel update ── */}
-                    <Card className="shadow-sm border-0">
+                    <Card className="mb-0">
                         <CardBody className="py-4">
                             <Row className="gap-4 items-end">
                                 <Col md={5}>
@@ -519,7 +526,7 @@ const UpdateWeight = () => {
 
                     {/* ── Bulk submit result ── */}
                     {bulkResult && (
-                        <Card className="shadow-sm border-0 mt-4">
+                        <Card className="mt-4">
                             <CardBody>
                                 <h6 className="font-bold mb-4">Bulk Update Result</h6>
                                 <Row className="gap-2 mb-4">

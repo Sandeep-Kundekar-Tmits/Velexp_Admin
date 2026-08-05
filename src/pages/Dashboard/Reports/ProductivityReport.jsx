@@ -1,19 +1,32 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { format } from "date-fns";
-import { LoaderMark } from "@/Loaders/Loader";
-import { Button, Col, Container, FormGroup, Label, Row } from "@/components/ui";
+import Loader from "@/Loaders/Loader";
+import { Button, Label } from "@/components/ui";
 import Select from "react-select";
 import MainHeaderComp from "../../../components/MainHeaderCom";
 import TabsProvider from "../../../components/TabsProvider";
 import DateRangeInput from "../../../components/Common/DateRangeInput";
-import SelectedItemsDisplay from "../../../components/Common/SelectedItemsDisplay";
 import TableContainer from "../../../components/Table/TableContainer";
-import { customStyles } from "../../../helpers/CustomStyle";
-import { useGetApiCall } from "../../../hooks/useGetApiCall";
+import { customStyles, CheckboxOption, SelectedCountValue } from "../../../helpers/CustomStyle";
 import usePostApiCall from "../../../hooks/usePostApiCall";
 import { useMultiExcelExport } from "../../../hooks/useMultiExcelExport";
+import { useRegions, useServiceCenters } from "../../../hooks/queries/useReferenceData";
 import { FaFileExcel } from "react-icons/fa";
-import { GET_ALL_REGION, SERVICE_CENTER, PRODUCTIVITY_REPORT } from "../../../api";
+import { PRODUCTIVITY_REPORT } from "../../../api";
+
+/* Same contract as LastMileOperations.jsx: a checkbox per option instead of a
+   chip strip beside the control, and a count in the control instead of one
+   chip per value. See CustomStyle.jsx for why. */
+const MULTI_SELECT_PROPS = {
+    isMulti: true,
+    isClearable: true,
+    hideSelectedOptions: false,
+    closeMenuOnSelect: false,
+    styles: customStyles,
+    components: { Option: CheckboxOption, ValueContainer: SelectedCountValue },
+    menuPortalTarget: document.body,
+    menuPosition: "fixed",
+};
 
 const ProductivityReport = () => {
     const [filters, setFilters] = useState({
@@ -23,45 +36,22 @@ const ProductivityReport = () => {
         service_center: [],
     });
 
-    const [regions, setRegions] = useState([]);
-    const [serviceCenters, setServiceCenters] = useState([]);
+    // regions & service centers -- cached 30min, shared across every screen that asks
+    const { data: regions = [], isLoading: regionLoading } = useRegions();
+    const { data: serviceCenters = [], isLoading: scLoading } = useServiceCenters();
     const [reportData, setReportData] = useState({
         region_report: [],
         service_center_report: [],
         raw_data: [],
     });
 
-    const { apifunc: getRegions, loading: regionLoading } = useGetApiCall();
-    const { apifunc: getServiceCenters, loading: scLoading } = useGetApiCall();
     const { apifunc: getReport, loading: reportLoading } = usePostApiCall();
     const { exportMultiToExcel, isExporting: excelLoading } = useMultiExcelExport();
-
-    useEffect(() => {
-        const fetchOptions = async () => {
-            const regionRes = await getRegions(GET_ALL_REGION);
-            if (regionRes) {
-                setRegions(regionRes.map(r => ({ value: r.region, label: r.region })));
-            }
-
-            const scRes = await getServiceCenters(SERVICE_CENTER);
-            if (scRes) {
-                setServiceCenters(scRes.map(sc => ({ value: sc.ec_code, label: `${sc.ec_code}` })));
-            }
-        };
-        fetchOptions();
-    }, []);
 
     const handleFilterChange = (key, value) => {
         setFilters(prev => ({
             ...prev,
             [key]: value || []
-        }));
-    };
-
-    const handleRemoveItem = (key, itemToRemove) => {
-        setFilters(prev => ({
-            ...prev,
-            [key]: prev[key].filter(item => item.value !== itemToRemove.value)
         }));
     };
 
@@ -211,10 +201,7 @@ const ProductivityReport = () => {
             id: "region_report",
             label: "Region Report",
             component: reportLoading ? (
-                <div style={{ height: "40vh" }} className="container-fluid flex flex-col justify-center items-center">
-                    <LoaderMark />
-                    <p className="mt-12 h5">Loading Region Report ...</p>
-                </div>
+                <Loader message="Loading Region Report ..." fullscreen={false} />
             ) : (
                 <TableContainer
                     columns={regionColumns}
@@ -225,7 +212,11 @@ const ProductivityReport = () => {
                     SearchPlaceholder="Search Region Report..."
                     pagination="pagination  justify-content-end mb-2"
                     paginationWrapper="dataTables_paginate paging_simple_numbers"
-                    tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                    tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                    theadClass="sticky top-0 z-10"
+                    isStickyHeader={true}
+                    stickyTop={0}
+                    tableHeight="72vh"
                 />
             )
         },
@@ -233,10 +224,7 @@ const ProductivityReport = () => {
             id: "service_center_report",
             label: "Service Center Report",
             component: reportLoading ? (
-                <div style={{ height: "40vh" }} className="container-fluid flex flex-col justify-center items-center">
-                    <LoaderMark />
-                    <p className="mt-12 h5">Loading SC Report ...</p>
-                </div>
+                <Loader message="Loading SC Report ..." fullscreen={false} />
             ) : (
                 <TableContainer
                     columns={scColumns}
@@ -247,7 +235,11 @@ const ProductivityReport = () => {
                     SearchPlaceholder="Search SC Report..."
                     pagination="pagination justify-content-end mb-2"
                     paginationWrapper="dataTables_paginate paging_simple_numbers"
-                    tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                    tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                    theadClass="sticky top-0 z-10"
+                    isStickyHeader={true}
+                    stickyTop={0}
+                    tableHeight="72vh"
                 />
             )
         },
@@ -255,10 +247,7 @@ const ProductivityReport = () => {
             id: "raw_data",
             label: "Raw Data",
             component: reportLoading ? (
-                <div style={{ height: "40vh" }} className="container-fluid flex flex-col justify-center items-center">
-                    <LoaderMark />
-                    <p className="mt-12 h5">Loading Raw Data ...</p>
-                </div>
+                <Loader message="Loading Raw Data ..." fullscreen={false} />
             ) : (
                 <TableContainer
                     columns={rawDataColumns}
@@ -269,120 +258,88 @@ const ProductivityReport = () => {
                     SearchPlaceholder="Search Raw Data..."
                     pagination="pagination justify-content-end mb-2"
                     paginationWrapper="dataTables_paginate paging_simple_numbers"
-                    tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                    tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                    theadClass="sticky top-0 z-10"
+                    isStickyHeader={true}
+                    stickyTop={0}
+                    tableHeight="72vh"
                 />
             )
         }
     ];
 
+    const hasReport = reportData.region_report.length > 0 || reportData.service_center_report.length > 0 || reportData.raw_data.length > 0;
+
     return (
-        <div className="page-content py-0 px-0">
-            <div className="pb-0 mb-0">
-                <div style={{ position: "sticky", top: 0, zIndex: 10, paddingBottom: "0px", paddingTop: "0px", backgroundColor: "white" }}>
-                    <MainHeaderComp title="Productivity Report" />
-                </div>
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+            <MainHeaderComp title="Productivity Report" subTitle="Delivery and staffing capacity by region and service center." />
 
-                <div className="container-fluid mt-0 pb-0 mb-0">
-                    <div className="p-2">
-                        <Row className="mb-1">
-                            <Col md={6}>
-                                <FormGroup>
-                                    <Label>Region</Label>
-                                    <div className="flex items-center">
-                                        <div style={{ minWidth: "250px", flex: "0 0 250px" }}>
-                                            <Select
-                                                isMulti
-                                                options={regions}
-                                                value={filters.region}
-                                                onChange={(val) => handleFilterChange("region", val)}
-                                                placeholder={regionLoading ? "Loading..." : "Select Region"}
-                                                styles={customStyles}
-                                                components={{ MultiValue: () => null }}
-                                            />
-                                        </div>
-                                        <div className="grow">
-                                            <SelectedItemsDisplay
-                                                selectedItems={filters.region}
-                                                onRemove={(item) => handleRemoveItem("region", item)}
-                                                targetId="region-display"
-                                                placeholder="No Region Selected"
-                                            />
-                                        </div>
-                                    </div>
-                                </FormGroup>
-                            </Col>
-                            <Col md={6}>
-                                <FormGroup>
-                                    <Label>Service Center</Label>
-                                    <div className="flex items-center">
-                                        <div style={{ minWidth: "250px", flex: "0 0 250px" }}>
-                                            <Select
-                                                isMulti
-                                                options={serviceCenters}
-                                                value={filters.service_center}
-                                                onChange={(val) => handleFilterChange("service_center", val)}
-                                                placeholder={scLoading ? "Loading..." : "Select Service Center"}
-                                                styles={customStyles}
-                                                components={{ MultiValue: () => null }}
-                                            />
-                                        </div>
-                                        <div className="grow">
-                                            <SelectedItemsDisplay
-                                                selectedItems={filters.service_center}
-                                                onRemove={(item) => handleRemoveItem("service_center", item)}
-                                                targetId="sc-display"
-                                                placeholder="No Service Center Selected"
-                                            />
-                                        </div>
-                                    </div>
-                                </FormGroup>
-                            </Col>
-                        </Row>
+            <div className="page-fit-body relative z-10 pb-4">
+                {/* Filters -- see LastMileOperations.jsx for the reasoning:
+                    checkboxes in the dropdown replace the chip strip beside
+                    the control, and every field wraps to the next line rather
+                    than push the row past the card. */}
+                <div className="flex flex-wrap items-end gap-3 border-b border-white/8 pb-4">
+                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Region
+                        </Label>
+                        <Select
+                            options={regions}
+                            value={filters.region}
+                            onChange={(val) => handleFilterChange("region", val)}
+                            placeholder={regionLoading ? "Loading..." : "Select Region"}
+                            {...MULTI_SELECT_PROPS}
+                        />
+                    </div>
 
-                        <Row>
-                            <Col md={3}>
-                                <FormGroup>
-                                    <Label>Select Date Range</Label>
-                                    <DateRangeInput
-                                        value={{ startDate: filters.start_date, endDate: filters.end_date }}
-                                        onChange={handleDateChange}
-                                        isBorder={true}
-                                    />
-                                </FormGroup>
-                            </Col>
-                            <Col md={3} className="flex items-end mb-4 gap-2" style={{ marginLeft: "-14px" }}>
-                                <Button
-                                    color="primary"
-                                    onClick={handleApply}
-                                    disabled={reportLoading}
-                                    style={{ height: "35px" }}
-                                    className={(reportData.region_report.length > 0 || reportData.service_center_report.length > 0 || reportData.raw_data.length > 0) ? "w-1/2" : "w-full"}
-                                >
-                                    {reportLoading ? "Applying..." : "Apply"}
-                                </Button>
-                                {(reportData.region_report.length > 0 || reportData.service_center_report.length > 0 || reportData.raw_data.length > 0) && (
-                                    <Button
-                                        disabled={excelLoading}
-                                        onClick={handleDownloadExcel}
-                                        className="flex items-center px-2 bg-success-500 border-success text-white w-1/2"
-                                        style={{
-                                            height: "35px",
-                                            borderRadius: "4px",
-                                            fontWeight: "500",
-                                        }}
-                                    >
-                                        {
-                                            excelLoading ? <span className="mr-2">Exporting...</span> : <span className="mr-2">Download </span>
-                                        }
-                                        <FaFileExcel size={18} className="mr-2" />
-                                    </Button>
-                                )}
-                            </Col>
-                        </Row>
+                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Service Center
+                        </Label>
+                        <Select
+                            options={serviceCenters}
+                            value={filters.service_center}
+                            onChange={(val) => handleFilterChange("service_center", val)}
+                            placeholder={scLoading ? "Loading..." : "Select Service Center"}
+                            {...MULTI_SELECT_PROPS}
+                        />
+                    </div>
+
+                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                        <Label className="form-label m-0 font-bold text-ink-muted">
+                            Select Date Range
+                        </Label>
+                        <DateRangeInput
+                            value={{ startDate: filters.start_date, endDate: filters.end_date }}
+                            onChange={handleDateChange}
+                            isBorder={true}
+                        />
+                    </div>
+
+                    <div className="flex shrink-0 items-center gap-2">
+                        <Button
+                            color="primary"
+                            onClick={handleApply}
+                            disabled={reportLoading}
+                            className="h-9.5 px-6"
+                        >
+                            {reportLoading ? "Applying..." : "Apply"}
+                        </Button>
+                        {hasReport && (
+                            <Button
+                                disabled={excelLoading}
+                                onClick={handleDownloadExcel}
+                                className="table-action-btn table-action-btn-solid"
+                            >
+                                {excelLoading ? "Exporting..." : "Download"}
+                                <FaFileExcel size={15} aria-hidden="true" />
+                            </Button>
+                        )}
                     </div>
                 </div>
 
-                <div className="">
+                <div className="mt-4">
                     <TabsProvider tabs={tabs} />
                 </div>
             </div>

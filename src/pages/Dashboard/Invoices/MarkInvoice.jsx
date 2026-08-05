@@ -121,20 +121,22 @@ const MarkInvoice = () => {
         fileInputRef.current.value = "";
     }
     return (
-        <div className='page-content py-0 px-0' style={{ overflowX: 'hidden' }}>
-            <div className="bg-white sticky-top" style={{ top: '0px', zIndex: 1001, width: '100%' }}>
-                <MainHeaderComp
-                    title="Mark Invoice Numbers"
-                    extraFields={
-                        <ExcleDownloadBtn
-                            label={"Download Template"}
-                            onDownloadExcle={onDonwloadTemplate}
-                            ExcleLoading={isExporting}
-                        />
-                    }
-                />
-            </div>
-            <div className="container-fluid px-4 mt-2">
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+            {/* No sticky wrapper: MainHeaderComp draws nothing inline now, it
+                hands the title and the template button to the layout's
+                PageHeader, which is already fixed above the scroll box. */}
+            <MainHeaderComp
+                title="Mark Invoice Numbers"
+                subTitle="Attach invoice numbers to booked shipments from a sheet."
+                extraFields={
+                    <ExcleDownloadBtn
+                        label={"Download Template"}
+                        onDownloadExcle={onDonwloadTemplate}
+                        ExcleLoading={isExporting}
+                    />
+                }
+            />
+            <div className="container-fluid page-fit-body relative z-10 pb-4">
 
 
                 {/* input filed */}
@@ -149,21 +151,33 @@ const MarkInvoice = () => {
                 />
 
 
-                {/* un updated awb table on error */}
+                {/* AWBs the upload could not match. Only on the height chain
+                    when it is actually rendered -- an empty page-fit-body would
+                    otherwise claim the leftover height and push the upload
+                    field to the top of an empty screen. */}
                 {
-                    showtable && <TableContainer
-                        columns={Coloumn}
-                        data={tableData || []}
-                        isGlobalFilter={true}
-                        isPagination={true}
-                        isCustomPageSize={true}
-                        ShowClearBtn={true}
-                        OnClearClick={OnClearClick}
-                        SearchPlaceholder="Search From Table"
-                        pagination="pagination"
-                        paginationWrapper='dataTables_paginate paging_simple_numbers'
-                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
-                    />
+                    showtable && <div className="page-fit-body mt-4">
+                        <TableContainer
+                            columns={Coloumn}
+                            data={tableData || []}
+                            isGlobalFilter={true}
+                            isPagination={true}
+                            isCustomPageSize={true}
+                            ShowClearBtn={true}
+                            OnClearClick={OnClearClick}
+                            SearchPlaceholder="Search From Table"
+                            pagination="pagination"
+                            paginationWrapper='dataTables_paginate paging_simple_numbers'
+                            /* table-bordered dropped: .grid-shell draws the row
+                               rules now, and the two only fought each other. */
+                            tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                            theadClass="sticky top-0 z-10"
+                            isStickyHeader={true}
+                            stickyTop={0}
+                            fillHeight
+                            tableHeight="60vh"
+                        />
+                    </div>
                 }
 
             </div>

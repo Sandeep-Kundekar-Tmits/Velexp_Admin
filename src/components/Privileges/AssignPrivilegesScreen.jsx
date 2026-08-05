@@ -1,359 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { IoMdAdd, IoMdRemove } from "react-icons/io";
+import { Button, Card, CardBody, Col, Input, Label, Row } from "@/components/ui";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
 import { GET_ALL_MENUS, GET_ALL_ROLES, GET_ROLE_PRIVILEGES_BY_ROLE, SAVE_PRIVILEGES } from "../../api";
 import usePostApiCall from "../../hooks/usePostApiCall";
 import ToasterProvider from "../../helpers/ToasterProvider";
-
-
-// const menuData = [
-//     {
-//         "id": 10,
-//         "menu_name": "Dashboard",
-//         "menu_url": "#",
-//         "has_fullacess": true,
-//         "can_view": false,
-//         "can_save": false,
-//         "can_update": false,
-//         "can_delete": false,
-//         "children": []
-//     },
-//     {
-//         "id": 1,
-//         "menu_name": "Master",
-//         "menu_url": "#",
-//         "has_fullacess": true,
-//         "can_view": false,
-//         "can_save": false,
-//         "can_update": false,
-//         "can_delete": false,
-//         "children": [
-//             {
-//                 "id": 11,
-//                 "menu_name": "Co-loaders",
-//                 "menu_url": "/coloaders/",
-//                 "faicon": null,
-//                 "show_panel": "side",
-//                 "has_fullacess": false,
-//                 "can_view": false,
-//                 "can_save": false,
-//                 "can_update": false,
-//                 "can_delete": false,
-//                 "children": []
-//             },
-//             {
-//                 "id": 12,
-//                 "menu_name": "Vendor and Vendor Vehicle",
-//                 "menu_url": "/vendors-vendor_vahicles/",
-//                 "faicon": null,
-//                 "show_panel": "side",
-//                 "has_fullacess": false,
-//                 "can_view": false,
-//                 "can_save": false,
-//                 "can_update": false,
-//                 "can_delete": false,
-//                 "children": []
-//             },
-//             {
-//                 "id": 13,
-//                 "menu_name": "Service Centre",
-//                 "menu_url": "/service-center/",
-//                 "faicon": null,
-//                 "show_panel": "side",
-//                 "has_fullacess": false,
-//                 "can_view": false,
-//                 "can_save": false,
-//                 "can_update": false,
-//                 "can_delete": false,
-//                 "children": []
-//             },
-//             {
-//                 "id": 14,
-//                 "menu_name": "Status",
-//                 "menu_url": "/status/",
-//                 "faicon": null,
-//                 "show_panel": "side",
-//                 "has_fullacess": false,
-//                 "can_view": false,
-//                 "can_save": false,
-//                 "can_update": false,
-//                 "can_delete": false,
-//                 "children": []
-//             },
-//             {
-//                 "id": 15,
-//                 "menu_name": "Pincode",
-//                 "menu_url": "/pincode/",
-//                 "faicon": null,
-//                 "show_panel": "side",
-//                 "has_fullacess": false,
-//                 "can_view": false,
-//                 "can_save": false,
-//                 "can_update": false,
-//                 "can_delete": false,
-//                 "children": []
-//             },
-//             {
-//                 "id": 16,
-//                 "menu_name": "Package Type",
-//                 "menu_url": "/package-type/",
-//                 "faicon": null,
-//                 "show_panel": "side",
-//                 "has_fullacess": false,
-//                 "can_view": false,
-//                 "can_save": false,
-//                 "can_update": false,
-//                 "can_delete": false,
-//                 "children": []
-//             },
-//             {
-//                 "id": 17,
-//                 "menu_name": "Exceptions",
-//                 "menu_url": "/exception/",
-//                 "faicon": null,
-//                 "show_panel": "side",
-//                 "has_fullacess": false,
-//                 "can_view": false,
-//                 "can_save": false,
-//                 "can_update": false,
-//                 "can_delete": false,
-//                 "children": []
-//             },
-//             {
-//                 "id": 18,
-//                 "menu_name": "Exceptions Status",
-//                 "menu_url": "/exception-status/",
-//                 "faicon": null,
-//                 "show_panel": "side",
-//                 "has_fullacess": false,
-//                 "can_view": false,
-//                 "can_save": false,
-//                 "can_update": false,
-//                 "can_delete": false,
-//                 "children": []
-//             }
-//         ]
-//     },
-//     {
-//         "id": 2,
-//         "menu_name": "User management",
-//         "menu_url": "#",
-//         "has_fullacess": true,
-//         "can_view": false,
-//         "can_save": false,
-//         "can_update": false,
-//         "can_delete": false,
-//         "children": [
-//             {
-//                 "id": 19,
-//                 "menu_name": "Designation",
-//                 "menu_url": "/designations/",
-//                 "faicon": null,
-//                 "show_panel": "side",
-//                 "has_fullacess": false,
-//                 "can_view": false,
-//                 "can_save": false,
-//                 "can_update": false,
-//                 "can_delete": false,
-//                 "children": []
-//             },
-//             {
-//                 "id": 20,
-//                 "menu_name": "Department",
-//                 "menu_url": "/departments/",
-//                 "faicon": null,
-//                 "show_panel": "side",
-//                 "has_fullacess": false,
-//                 "can_view": false,
-//                 "can_save": false,
-//                 "can_update": false,
-//                 "can_delete": false,
-//                 "children": []
-//             },
-//             {
-//                 "id": 21,
-//                 "menu_name": "Employee",
-//                 "menu_url": "/employee/",
-//                 "faicon": null,
-//                 "show_panel": "side",
-//                 "has_fullacess": false,
-//                 "can_view": false,
-//                 "can_save": false,
-//                 "can_update": false,
-//                 "can_delete": false,
-//                 "children": []
-//             }
-//         ]
-//     },
-//     {
-//         "id": 3,
-//         "menu_name": "Pickup Requests",
-//         "menu_url": "/pickup-request/",
-//         "has_fullacess": true,
-//         "can_view": false,
-//         "can_save": false,
-//         "can_update": false,
-//         "can_delete": false,
-//         "children": []
-//     },
-//     {
-//         "id": 4,
-//         "menu_name": "Planning",
-//         "menu_url": "#",
-//         "has_fullacess": true,
-//         "can_view": false,
-//         "can_save": false,
-//         "can_update": false,
-//         "can_delete": false,
-//         "children": [
-//             {
-//                 "id": 22,
-//                 "menu_name": "Allocations",
-//                 "menu_url": "/allocations/",
-//                 "faicon": null,
-//                 "show_panel": "side",
-//                 "has_fullacess": false,
-//                 "can_view": false,
-//                 "can_save": false,
-//                 "can_update": false,
-//                 "can_delete": false,
-//                 "children": []
-//             },
-//             {
-//                 "id": 23,
-//                 "menu_name": "Manifest",
-//                 "menu_url": "/manifest/",
-//                 "faicon": null,
-//                 "show_panel": "side",
-//                 "has_fullacess": false,
-//                 "can_view": false,
-//                 "can_save": false,
-//                 "can_update": false,
-//                 "can_delete": false,
-//                 "children": []
-//             }
-//         ]
-//     },
-//     {
-//         "id": 5,
-//         "menu_name": "Shipment Arrival",
-//         "menu_url": "#",
-//         "has_fullacess": true,
-//         "can_view": false,
-//         "can_save": false,
-//         "can_update": false,
-//         "can_delete": false,
-//         "children": []
-//     },
-//     {
-//         "id": 6,
-//         "menu_name": "Bag Management",
-//         "menu_url": "#",
-//         "has_fullacess": true,
-//         "can_view": false,
-//         "can_save": false,
-//         "can_update": false,
-//         "can_delete": false,
-//         "children": [
-//             {
-//                 "id": 24,
-//                 "menu_name": "Bag Creation",
-//                 "menu_url": "/bag-creation",
-//                 "faicon": null,
-//                 "show_panel": "side",
-//                 "has_fullacess": false,
-//                 "can_view": false,
-//                 "can_save": false,
-//                 "can_update": false,
-//                 "can_delete": false,
-//                 "children": []
-//             },
-//             {
-//                 "id": 25,
-//                 "menu_name": "Create Out-Going Manifest",
-//                 "menu_url": "/create-out-going-manifest/",
-//                 "faicon": null,
-//                 "show_panel": "side",
-//                 "has_fullacess": false,
-//                 "can_view": false,
-//                 "can_save": false,
-//                 "can_update": false,
-//                 "can_delete": false,
-//                 "children": []
-//             },
-//             {
-//                 "id": 26,
-//                 "menu_name": "Bag Arrival",
-//                 "menu_url": "/bag-arrival/",
-//                 "faicon": null,
-//                 "show_panel": "side",
-//                 "has_fullacess": false,
-//                 "can_view": false,
-//                 "can_save": false,
-//                 "can_update": false,
-//                 "can_delete": false,
-//                 "children": []
-//             }
-//         ]
-//     },
-//     {
-//         "id": 7,
-//         "menu_name": "RTO Booking",
-//         "menu_url": "/rto_booking/",
-//         "has_fullacess": true,
-//         "can_view": false,
-//         "can_save": false,
-//         "can_update": false,
-//         "can_delete": false,
-//         "children": []
-//     },
-//     {
-//         "id": 8,
-//         "menu_name": "Raise Exception",
-//         "menu_url": "/raise-exception/",
-//         "has_fullacess": true,
-//         "can_view": false,
-//         "can_save": false,
-//         "can_update": false,
-//         "can_delete": false,
-//         "children": []
-//     },
-//     {
-//         "id": 9,
-//         "menu_name": "Others",
-//         "menu_url": "#",
-//         "has_fullacess": true,
-//         "can_view": false,
-//         "can_save": false,
-//         "can_update": false,
-//         "can_delete": false,
-//         "children": [
-//             {
-//                 "id": 27,
-//                 "menu_name": "Pickup Preference",
-//                 "menu_url": "/pickup-preferences/",
-//                 "has_fullacess": false,
-//                 "can_view": false,
-//                 "can_save": false,
-//                 "can_update": false,
-//                 "can_delete": false,
-//                 "children": []
-//             }
-//         ]
-//     },
-//     {
-//         "id": 28,
-//         "menu_name": "Shipment & Bag Tracking",
-//         "menu_url": "/tracking/",
-//         "has_fullacess": true,
-//         "can_view": false,
-//         "can_save": false,
-//         "can_update": false,
-//         "can_delete": false,
-//         "children": []
-//     }
-
-// ]
 
 /* ================= COMPONENT ================= */
 const AssignPrivilegesScreen = ({ callBack }) => {
@@ -651,9 +302,6 @@ const AssignPrivilegesScreen = ({ callBack }) => {
             })
         };
 
-        console.log(payload, "payload")
-
-
         // calling the api to save the privileges
         const savedPrivilegs = await SavePrivilege(SAVE_PRIVILEGES, payload)
 
@@ -661,20 +309,20 @@ const AssignPrivilegesScreen = ({ callBack }) => {
             SucceesToaster(savedPrivilegs?.message)
             callBack()
         }
-
-        console.log("FINAL BACKEND PAYLOAD 👉", savedPrivilegs);
     };
 
     /* ================= UI ================= */
     return (
-        <div className="container-fluid p-6 min-vh-100">
+        <div className="page-fit-body">
             {/* ROLE */}
-            <div className="mb-4">
-                <label className="form-label h5 font-semibold">
+            {/* Full width on a phone, capped from sm: a hard 320px is most of a
+                360px screen, so the select sat flush against the gutter. */}
+            <div className="mb-4 w-full sm:max-w-80">
+                <Label className="font-semibold">
                     Roles <span className="text-danger-500">*</span>
-                </label>
-                <select
-                    className="form-select"
+                </Label>
+                <Input
+                    type="select"
                     value={selectedRole}
                     onChange={(e) => setSelectedRole(e.target.value)}
                 >
@@ -682,19 +330,23 @@ const AssignPrivilegesScreen = ({ callBack }) => {
                     {
                         AllRolesDropdonw?.map(ele => {
                             return (
-                                <option value={ele?.id}>{ele?.name}</option>
+                                <option key={ele?.id} value={ele?.id}>{ele?.name}</option>
                             )
                         })
                     }
-                </select>
+                </Input>
             </div>
 
-            <div className="row gap-6">
+            {/* flex-col below md, side by side from md up -- a phone-width
+                screen can't fit two 70vh panels next to each other. gap-6
+                works for both: row-gap while stacked, column-gap once the
+                panels sit side by side. */}
+            <Row className="flex-col flex-nowrap md:flex-row gap-6">
                 {/* AVAILABLE */}
-                <div className="col-md-5">
-                    <div className="card shadow-sm border-0" style={{ height: "70vh", overflowY: "auto" }}>
-                        <div className="card-body">
-                            <h5>Available Privileges</h5>
+                <Col md={5}>
+                    <Card className="h-[45vh] overflow-y-auto scroll-slim md:h-[70vh]">
+                        <CardBody>
+                            <h5 className="font-bold mb-4">Available Privileges</h5>
                             {allMenus.map((menu, idx) => (
                                 <div key={menu.id} className="mb-2">
                                     <div className="flex justify-between bg-canvas p-2 rounded mb-2">
@@ -727,67 +379,74 @@ const AssignPrivilegesScreen = ({ callBack }) => {
                                         ))}
                                 </div>
                             ))}
-                        </div>
-                    </div>
-                </div>
+                        </CardBody>
+                    </Card>
+                </Col>
 
                 {/* ASSIGNED */}
-                <div className="col-md-7">
-                    <div className="card shadow-sm border-0 " style={{ height: "70vh", overflowY: "auto" }}>
-                        <div className="card-body">
-                            <div className="flex justify-between mb-4">
-                                <h5>Assigned Privileges</h5>
-                                <button
-                                    className="btn btn-primary"
+                <Col md={7}>
+                    <Card className="h-[45vh] overflow-y-auto scroll-slim md:h-[70vh]">
+                        <CardBody>
+                            <div className="flex justify-between items-center mb-4">
+                                <h5 className="font-bold mb-0">Assigned Privileges</h5>
+                                <Button
+                                    color="primary"
                                     disabled={!selectedRole}
                                     onClick={handleSave}
                                 >
                                     Save
-                                </button>
+                                </Button>
                             </div>
 
-                            {selectedMenus.map((menu, mIdx) => (
-                                <div key={menu.id} className="card mb-4 border">
-                                    <div className="card-body">
-                                        <h6>{menu.menu_name}</h6>
-                                        {console.log(menu, "menu.menu_name")}
-                                        {(menu.children.length ? menu.children : [menu]).map(
-                                            (item, cIdx) => (
-                                                <div key={item.id} className="border p-2 mb-2">
-                                                    {menu.children.length > 0 && <strong>{item.menu_name}</strong>}
-                                                    <div className="flex gap-4 flex-wrap">
-                                                        {PERMISSIONS.map(perm => (
-                                                            <div className="form-check form-switch" key={perm}>
-                                                                <input
-                                                                    className="form-check-input"
-                                                                    type="checkbox"
-                                                                    checked={item[perm]}
-                                                                    onChange={(e) =>
-                                                                        updatePermission(
-                                                                            menu.children.length ? "child" : "parent",
-                                                                            mIdx,
-                                                                            cIdx,
-                                                                            perm,
-                                                                            e.target.checked
-                                                                        )
-                                                                    }
-                                                                />
-                                                                <label className="form-check-label">
-                                                                    {perm.replaceAll("_", " ")}
-                                                                </label>
-                                                            </div>
-                                                        ))}
+                            {selectedMenus.length === 0 ? (
+                                <p className="text-ink-muted">
+                                    {selectedRole
+                                        ? "This role has no menus assigned yet. Check items on the left to add them."
+                                        : "Pick a role above, or check items on the left to build a fresh set of privileges."}
+                                </p>
+                            ) : (
+                                selectedMenus.map((menu, mIdx) => (
+                                    <Card key={menu.id} className="mb-4 border">
+                                        <CardBody>
+                                            <h6 className="font-semibold text-ink">{menu.menu_name}</h6>
+                                            {(menu.children.length ? menu.children : [menu]).map(
+                                                (item, cIdx) => (
+                                                    <div key={item.id} className="border p-2 mb-2">
+                                                        {menu.children.length > 0 && <strong className="text-ink">{item.menu_name}</strong>}
+                                                        <div className="flex gap-4 flex-wrap">
+                                                            {PERMISSIONS.map(perm => (
+                                                                <div className="flex items-center gap-1.5" key={perm}>
+                                                                    <input
+                                                                        className="form-check-input"
+                                                                        type="checkbox"
+                                                                        checked={item[perm]}
+                                                                        onChange={(e) =>
+                                                                            updatePermission(
+                                                                                menu.children.length ? "child" : "parent",
+                                                                                mIdx,
+                                                                                cIdx,
+                                                                                perm,
+                                                                                e.target.checked
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                    <label className="text-ink text-sm">
+                                                                        {perm.replaceAll("_", " ")}
+                                                                    </label>
+                                                                </div>
+                                                            ))}
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            )
-                                        )}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </div>
+                                                )
+                                            )}
+                                        </CardBody>
+                                    </Card>
+                                ))
+                            )}
+                        </CardBody>
+                    </Card>
+                </Col>
+            </Row>
         </div>
     );
 };

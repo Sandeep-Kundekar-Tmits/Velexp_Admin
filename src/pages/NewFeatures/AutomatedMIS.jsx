@@ -63,13 +63,15 @@ const AutomatedMIS = () => {
 
     return (
         <React.Fragment>
-            <div className="page-content py-0 px-0">
-                <div className="bg-white" style={{ position: "sticky", top: "0px", zIndex: 1001, width: "100%" }}>
-                    <MainHeaderComp title="Automated MIS" subTitle="Generate the billed-shipments MIS report for a date range" />
-                </div>
+            {/* No page-fit: a single form panel, shorter than the
+                viewport, so there is no leftover height to hand out. */}
+            <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
+                {/* No sticky wrapper: MainHeaderComp draws nothing inline
+                    now, it hands the title to the layout's PageHeader. */}
+                <MainHeaderComp title="Automated MIS" subTitle="Generate the billed-shipments MIS report for a date range" />
 
-                <div className="container-fluid px-4 py-4">
-                    <Card className="shadow-sm border-0">
+                <div className="container-fluid relative z-10 px-4 pb-4">
+                    <Card>
                         <CardBody className="p-6">
                             <h5 className="mb-6 font-bold">Select Date Range</h5>
                             <Row className="items-end gap-4">

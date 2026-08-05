@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import TableContainer from "../../components/Table/TableContainer";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
 import { OPS_DISPUTES_LOST } from "../../api";
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import MainHeaderComp from "../../components/MainHeaderCom";
 
 const LostDashboard = () => {
@@ -85,9 +85,7 @@ const LostDashboard = () => {
     ], [navigate]);
 
     if (loading) return (
-        <div className="flex justify-center mt-12">
-            <LoaderMark />
-        </div>
+        <Loader fullscreen={false} />
     );
 
     return (

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Button } from "@/components/ui";
+import { Badge, Button } from "@/components/ui";
 import { RiDeleteBinLine, RiEditLine } from "react-icons/ri";
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import TableContainer from "../../components/Table/TableContainer";
 import DeleteModal from "../../components/Common/DeleteModal";
 import RoleFormModal from "../../components/AdminPrivileges/RoleFormModal";
@@ -51,7 +51,7 @@ const RolesTab = () => {
         { header: "Description", accessorKey: "description", enableColumnFilter: false, cell: ({ getValue }) => getValue() || "--" },
         {
             header: "Status", accessorKey: "is_active", enableColumnFilter: false,
-            cell: ({ getValue }) => <span className={`badge bg-${getValue() ? "success" : "secondary"}`}>{getValue() ? "Active" : "Inactive"}</span>,
+            cell: ({ getValue }) => <Badge color={getValue() ? "success" : "secondary"}>{getValue() ? "Active" : "Inactive"}</Badge>,
         },
         {
             header: "Actions", accessorKey: "actions", enableSorting: false, enableColumnFilter: false,
@@ -69,13 +69,13 @@ const RolesTab = () => {
     ], []);
 
     return (
-        <div>
-            <div className="flex justify-end mb-4">
+        <div className="page-fit-body">
+            <div className="flex justify-end mb-3">
                 <Button color="primary" onClick={() => { setSelectedRole(null); setFormOpen(true); }}>+ New Role</Button>
             </div>
 
             {loading ? (
-                <div className="flex justify-center mt-12"><LoaderMark /></div>
+                <Loader fullscreen={false} />
             ) : (
                 <TableContainer
                     columns={columns}
@@ -86,7 +86,12 @@ const RolesTab = () => {
                     pagination="pagination"
                     paginationWrapper="dataTables_paginate paging_simple_numbers"
                     SearchPlaceholder="Search roles..."
-                    tableClass="table-bordered table-nowrap"
+                    tableClass="table-nowrap"
+                    theadClass="sticky top-0 z-10"
+                    isStickyHeader={true}
+                    stickyTop={0}
+                    fillHeight
+                    tableHeight="65vh"
                 />
             )}
 

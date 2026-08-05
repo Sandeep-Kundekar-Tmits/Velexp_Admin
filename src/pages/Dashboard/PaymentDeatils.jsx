@@ -8,7 +8,7 @@ import { GET_PAYMENT_DEATILS, GET_USER_API, GET_WALLET_TRASACTION_DETAILS } from
 import { useGetApiCall } from "../../hooks/useGetApiCall";
 import usePostApiCall from "../../hooks/usePostApiCall";
 import formatDateForPayload from "../../helpers/DateHelper";
-import { LoaderMark } from "@/Loaders/Loader";
+import Loader from "@/Loaders/Loader";
 import TabComponentProvider from "../../components/TabComponentProvider";
 import { useExcelExport } from "../../hooks/useExcelExport";
 import ToasterProvider from "../../helpers/ToasterProvider";
@@ -480,8 +480,8 @@ const PaymentDeatils = () => {
 
     const tabConfig = [
         {
-            id: 1, label: "Domestic", component: <div>
-                <div className='mt-1'>
+            id: 1, label: "Domestic", component: <div className="page-fit-body">
+                <div className='page-fit-body mt-1'>
                     {
 
                         <TableContainer
@@ -496,15 +496,22 @@ const PaymentDeatils = () => {
                             SearchPlaceholder="Search From Table"
                             pagination="pagination"
                             paginationWrapper='dataTables_paginate paging_simple_numbers'
-                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                            /* table-bordered dropped: .grid-shell draws the row
+                               rules now, and the two only fought each other. */
+                            tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                            theadClass="sticky top-0 z-10"
+                            isStickyHeader={true}
+                            stickyTop={0}
+                            fillHeight
+                            tableHeight="60vh"
                         />
                     }
                 </div>
             </div>
         },
         {
-            id: 2, label: "International", component: <div>
-                <div className='mt-1'>
+            id: 2, label: "International", component: <div className="page-fit-body">
+                <div className='page-fit-body mt-1'>
                     {
 
                         <TableContainer
@@ -519,15 +526,22 @@ const PaymentDeatils = () => {
                             SearchPlaceholder="Search From Table"
                             pagination="pagination"
                             paginationWrapper='dataTables_paginate paging_simple_numbers'
-                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                            /* table-bordered dropped: .grid-shell draws the row
+                               rules now, and the two only fought each other. */
+                            tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                            theadClass="sticky top-0 z-10"
+                            isStickyHeader={true}
+                            stickyTop={0}
+                            fillHeight
+                            tableHeight="60vh"
                         />
                     }
                 </div>
             </div>
         },
         {
-            id: 3, label: "Wallet Transaction", component: <div>
-                <div className='mt-1'>
+            id: 3, label: "Wallet Transaction", component: <div className="page-fit-body">
+                <div className='page-fit-body mt-1'>
                     {
 
                         <TableContainer
@@ -542,7 +556,14 @@ const PaymentDeatils = () => {
                             SearchPlaceholder="Search From Table"
                             pagination="pagination"
                             paginationWrapper='dataTables_paginate paging_simple_numbers'
-                            tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                            /* table-bordered dropped: .grid-shell draws the row
+                               rules now, and the two only fought each other. */
+                            tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                            theadClass="sticky top-0 z-10"
+                            isStickyHeader={true}
+                            stickyTop={0}
+                            fillHeight
+                            tableHeight="60vh"
                         />
                     }
                 </div>
@@ -550,54 +571,68 @@ const PaymentDeatils = () => {
         }
     ];
     return (
-        <div className='page-content py-0 px-0'>
-            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                <MainHeaderComp title="Payment Details" />
-            </div>
-            <div className="container-fluid px-4">
-                <div className=" justify-between mt-4">
-                    <Row>
-                        <Col md={4} className="">
-                            <FormGroup>
-                                <Label className="">Select Customer</Label>
-                                <SearchableDropdown
-                                    className="w-full"
-                                    onChange={handleLocationChange}
-                                    locations={Customes}
-                                // value={SelectedCustomer}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={4}>
-                            <FormGroup >
-                                <Label>Start Date and End Date</Label>
-                                <div >
-                                    <DateRangeInput
-                                        value={selectedRange}
-                                        onChange={handleDateChange}
-                                        isBorder={true}
-                                    />
-                                </div>
-                            </FormGroup>
-                        </Col>
-                        <Col md={4}>
-                            <div style={{ marginTop: "28px" }}>
-                                <Button color="primary" onClick={CheckPaymentDetails} style={{ height: "2.2rem", width: "100%" }} >
-                                    Check
-                                </Button>
+        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+            {/* No sticky wrapper: MainHeaderComp draws nothing inline now, it
+                hands the title to the layout's PageHeader. */}
+            <MainHeaderComp
+                title="Payment Details"
+                subTitle="Domestic, international and wallet payments for a customer."
+            />
 
-                            </div>
-                        </Col>
-                    </Row>
+            <div className="container-fluid page-fit-body relative z-10 pb-4">
+                {/* One row, the action beside the fields it acts on. The Check
+                    button was carrying a marginTop:28px to fake its way past
+                    the labels above the other two; the row aligns them. */}
+                <div className="filter-row">
+                    <div className="filter-group">
+                        <div className="flex w-full flex-col gap-1.5 sm:w-52">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                Select Customer
+                            </Label>
+                            <SearchableDropdown
+                                className="w-full"
+                                onChange={handleLocationChange}
+                                locations={Customes}
+                            />
+                        </div>
+
+                        <div className="flex w-full flex-col gap-1.5 sm:w-56">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                Start Date and End Date
+                            </Label>
+                            <DateRangeInput
+                                value={selectedRange}
+                                onChange={handleDateChange}
+                                isBorder={true}
+                            />
+                        </div>
+
+                        <Button
+                            className="table-action-btn table-action-btn-primary"
+                            onClick={CheckPaymentDetails}
+                        >
+                            Check
+                        </Button>
+                    </div>
                 </div>
-                {/* display table */}
-                {
-                    PaymentDeatilsLoading ?
-                        <div style={{ height: "40vh" }} className="container-fluid  flex flex-col justify-center items-center">
-                            <LoaderMark />
-                            <p className="mt-12 h5">Loading ...</p>
-                        </div> : <TabComponentProvider tabs={tabConfig} defaultActive={1} />
-                }
+
+                {/* display table.
+                    page-fit-body on the wrapper, the tab content and the active
+                    pane: tabs put two extra links between the page and the
+                    grid, and a break anywhere along the chain drops the table
+                    back to its own height. */}
+                <div className="page-fit-body mt-4">
+                    {
+                        PaymentDeatilsLoading ?
+                            <Loader message="Loading ..." fullscreen={false} />
+                            : <TabComponentProvider
+                                tabs={tabConfig}
+                                defaultActive={1}
+                                tabContentClassName="page-fit-body p-0"
+                                tabPaneClassName="page-fit-body"
+                            />
+                    }
+                </div>
                 <SimpleModal
                     isOpen={showAddressModal}
                     setIsOpen={setShowAddressModal}

@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, Row, Col, FormGroup, Label, Input, FormFeedback, Spinner } from "@/components/ui";
 import Select from 'react-select';
 import { customStyles } from '../../helpers/CustomStyle';
-import { useGetApiCall } from '../../hooks/useGetApiCall';
-import { SERVICE_CENTER } from '../../api';
+import { useServiceCenters } from '../../hooks/queries/useReferenceData';
 
 const AddWareHouseModel = ({ toggle, onSave, loading }) => {
-    // service center option dropdown
-    const [ServiceCenterOption, setServiceCenterOption] = useState([])
+    // service center options -- cached 30min, shared across every screen that asks
+    const { data: ServiceCenterOption = [] } = useServiceCenters()
     const [Errors, setErrors] = useState({})
     // selected service center
     const [SelectedServiceCenter, setSelectedServiceCenter] = useState()
@@ -28,28 +27,6 @@ const AddWareHouseModel = ({ toggle, onSave, loading }) => {
             [name]: value
         })
     }
-    // definging the get service center api
-    const { apifunc: GetServiceCenter, data: ServiceCenters } = useGetApiCall()
-
-    //  calling user api
-    useEffect(() => {
-        GetServiceCenter(SERVICE_CENTER)
-    }, [])
-
-    //  getting the service center data
-    useEffect(() => {
-        if (ServiceCenters) {
-            let updatedServiceCenters = ServiceCenters.map((ele) => {
-                return {
-                    value: ele?.ec_code,
-                    label: ele?.ec_code
-                }
-            })
-            setServiceCenterOption(updatedServiceCenters)
-        }
-    }, [ServiceCenters])
-
-
     const onAddWareHouse = () => {
         let errors = {}
 
@@ -83,10 +60,20 @@ const AddWareHouseModel = ({ toggle, onSave, loading }) => {
             <Modal isOpen={true} toggle={toggle} size="lg">
                 <ModalHeader toggle={toggle}>Create New Warehouse</ModalHeader>
                 <ModalBody>
+                    {/* Was 4/5/3 then 4/4/4 then a lone 5 -- Bootstrap wraps at
+                        12 regardless of grouping, so that left Email sitting
+                        by itself on its own row with 7/12 of empty space
+                        beside it. Three even fields per row, and Address on
+                        its own full-width row since it is the one textarea
+                        and reads better with the room. */}
                     <Row>
                         <Col md={4}>
                             <FormGroup className="mb-2">
                                 <Label for="Customer">Select Service Center</Label>
+                                {/* Portalled: Modal's own dialog box is
+                                    overflow-hidden (so a scrollable body's
+                                    corners stay rounded), which would clip an
+                                    inline dropdown menu at the modal's edge. */}
                                 <Select
                                     options={ServiceCenterOption}
                                     placeholder="Search"
@@ -94,22 +81,13 @@ const AddWareHouseModel = ({ toggle, onSave, loading }) => {
                                     onChange={setSelectedServiceCenter}
                                     isClearable={true}
                                     styles={customStyles}
+                                    menuPortalTarget={document.body}
+                                    menuPosition="fixed"
                                 />
                                 <small className='text-danger-500'>{Errors?.service_center}</small>
                             </FormGroup>
                         </Col>
-                        <Col md={5}>
-                            <FormGroup className="mb-2">
-                                <Label for="address">Address</Label>
-                                <Input type="textarea" placeholder="Address"
-                                    value={WareHouseData.address}
-                                    name='address'
-                                    onChange={OnInputChange}
-                                    invalid={!!Errors?.address} />
-                                <FormFeedback>{Errors?.address}</FormFeedback>
-                            </FormGroup>
-                        </Col>
-                        <Col md={3}>
+                        <Col md={4}>
                             <FormGroup className="mb-2">
                                 <Label for="City">City</Label>
                                 <Input type="text" placeholder="City"
@@ -117,16 +95,6 @@ const AddWareHouseModel = ({ toggle, onSave, loading }) => {
                                     name='city'
                                     onChange={OnInputChange} invalid={!!Errors?.city} />
                                 <FormFeedback>{Errors?.city}</FormFeedback>
-                            </FormGroup>
-                        </Col>
-                         <Col md={4}>
-                            <FormGroup className="mb-2">
-                                <Label for="pincode">Pincode</Label>
-                                <Input type="number" placeholder="pinocode"
-                                    value={WareHouseData?.pincode}
-                                    name='pincode'
-                                    onChange={OnInputChange} invalid={!!Errors?.pincode} />
-                                <FormFeedback>{Errors?.pincode}</FormFeedback>
                             </FormGroup>
                         </Col>
                         <Col md={4}>
@@ -139,6 +107,18 @@ const AddWareHouseModel = ({ toggle, onSave, loading }) => {
                                 <FormFeedback>{Errors?.state}</FormFeedback>
                             </FormGroup>
                         </Col>
+                    </Row>
+                    <Row>
+                        <Col md={4}>
+                            <FormGroup className="mb-2">
+                                <Label for="pincode">Pincode</Label>
+                                <Input type="number" placeholder="pinocode"
+                                    value={WareHouseData?.pincode}
+                                    name='pincode'
+                                    onChange={OnInputChange} invalid={!!Errors?.pincode} />
+                                <FormFeedback>{Errors?.pincode}</FormFeedback>
+                            </FormGroup>
+                        </Col>
                         <Col md={4}>
                             <FormGroup className="mb-2">
                                 <Label for="phone">Phone</Label>
@@ -149,13 +129,26 @@ const AddWareHouseModel = ({ toggle, onSave, loading }) => {
                                     <FormFeedback>{Errors?.phone}</FormFeedback>
                             </FormGroup>
                         </Col>
-                        <Col md={5}>
+                        <Col md={4}>
                             <FormGroup className="mb-2">
                                 <Label for="email">Email</Label>
                                 <Input type="email" placeholder="Email"
                                     value={WareHouseData?.email}
                                     name='email'
                                     onChange={OnInputChange} />
+                            </FormGroup>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col md={12}>
+                            <FormGroup className="mb-2">
+                                <Label for="address">Address</Label>
+                                <Input type="textarea" placeholder="Address"
+                                    value={WareHouseData.address}
+                                    name='address'
+                                    onChange={OnInputChange}
+                                    invalid={!!Errors?.address} />
+                                <FormFeedback>{Errors?.address}</FormFeedback>
                             </FormGroup>
                         </Col>
                     </Row>

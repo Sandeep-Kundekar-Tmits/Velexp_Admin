@@ -2,8 +2,10 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Row, Col, Card, CardBody, FormGroup, Label, CardText, CardTitle } from "@/components/ui";
 import Select from "react-select";
 import { customStyles } from "../../helpers/CustomStyle";
-import { useGetApiCall } from "../../hooks/useGetApiCall";
-import { GET_ALL_REGION, SERVICE_CENTER } from "../../api";
+import { useQuery } from "@tanstack/react-query";
+import { qk } from "@/lib/queryKeys";
+import { fetchServiceCenters } from "@/services/reference.service";
+import { useRegions } from "../../hooks/queries/useReferenceData";
 import { ReturnFilterData } from "../../helpers/ReportBookingFilter";
 
 const AdminBookingFilter = ({ AllEntries = {}, ApplyFilter, BookingList, avarageData }) => {
@@ -47,32 +49,26 @@ const AdminBookingFilter = ({ AllEntries = {}, ApplyFilter, BookingList, avarage
     const [ORGSC_Options, setORGSC_Options] = useState([]);
     const [CheckptOption, setCheckptOption] = useState([]);
     const [ServiceCenterOption, setServiceCenterOption] = useState([])
-    const [AllRegions, setAllRegions] = useState([])
     const [FilterObj, setFilterObj] = useState({ checkpt: "", Orgsc: "", serviceCenter: [], region: "" })
 
-    // definging the get service center api
-    const { apifunc: GetServiceCenter, data: ServiceCenters } = useGetApiCall()
+    // service centers -- raw shape (region field intact) needed for the
+    // region-based filtering below, cached 30min via react-query
+    const { data: ServiceCenters } = useQuery({
+        queryKey: qk.reference.serviceCenters(),
+        queryFn: fetchServiceCenters,
+        staleTime: 30 * 60_000,
+    })
 
-    // defining the get regions api
-    const { apifunc: GetAllRegions, data: Regions } = useGetApiCall()
+    // regions -- cached 30min, shared across every screen that asks
+    const { data: AllRegions = [] } = useRegions()
 
     //  is filter active
     const [isFilterActive, setIsFilterActive] = useState(false)
     const workerRef = useRef(null);
 
-
-    useEffect(() => {
-        //  calling the service center api
-        GetServiceCenter(SERVICE_CENTER)
-        //  calling the regions api
-        GetAllRegions(GET_ALL_REGION)
-    }, [])
-
-
     // getting the service center data
     useEffect(() => {
         if (ServiceCenters) {
-            console.log(FilterObj.region, "FilterObj.region", ServiceCenters)
             //  also filter as per the region
             let updatedServiceCenters = ServiceCenters
                 .filter(region => {
@@ -84,7 +80,6 @@ const AdminBookingFilter = ({ AllEntries = {}, ApplyFilter, BookingList, avarage
                     label: ele?.ec_code || '', // Provide fallback if needed
                     name: ele?.region || ''    // Provide fallback if needed
                 }));
-            console.log(updatedServiceCenters, "updatedServiceCenters")
 
             setFilterObj((obj) => {
                 return {
@@ -95,33 +90,6 @@ const AdminBookingFilter = ({ AllEntries = {}, ApplyFilter, BookingList, avarage
             setServiceCenterOption(updatedServiceCenters)
         }
     }, [ServiceCenters, FilterObj?.region])
-
-    useEffect(() => {
-        if (Regions) {
-            // Count occurrences of each region (case-insensitive)
-            const regionCounts = new Map();
-
-            Regions.forEach((ele) => {
-                const key = ele?.region?.toLowerCase();
-                if (key) {
-                    regionCounts.set(key, (regionCounts.get(key) || 0) + 1);
-                }
-            });
-
-            // Filter out regions that appear more than once
-            const updatedRegions = Regions
-                .map((ele) => ({
-                    value: ele?.region,
-                    label: ele?.region,
-                })).filter((item, index, self) =>
-                    index === self.findIndex((t) => t.value.toLowerCase() === item.value?.toLowerCase())
-                ).filter((item, index, self) =>
-                    index === self.findIndex((t) => t.value === item.value)
-                );
-
-            setAllRegions(updatedRegions);
-        }
-    }, [Regions]);
 
     useEffect(() => {
         let isMounted = true;

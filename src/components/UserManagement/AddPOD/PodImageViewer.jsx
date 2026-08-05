@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ImageOff } from 'lucide-react';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "@/components/ui";
 
 /**
@@ -11,25 +12,35 @@ import { Button, Modal, ModalHeader, ModalBody, ModalFooter } from "@/components
  * @param {Function} props.toggleModal - Function to toggle the visibility of this modal (close it).
  */
 const PodImageViewer = ({ podValue, toggleModal }) => {
+    const [failed, setFailed] = useState(false);
 
     return (
         <>
-            <Modal isOpen={true} toggle={toggleModal} centered>
+            {/* lg (max-w-3xl) rather than the default md: a POD is a scanned
+                document, and 512px is not enough of it to read. */}
+            <Modal isOpen={true} toggle={toggleModal} centered size="lg">
                 <ModalHeader toggle={toggleModal}>POD Document</ModalHeader>
-                <ModalBody className="text-center p-6">
-                    <img
-                        src={podValue}
-                        alt="POD Document"
-                        style={{
-                            maxWidth: '100%',
-                            maxHeight: '60vh',
-                            objectFit: 'contain'
-                        }}
-                        onError={(e) => {
-                            e.target.src = '/path-to-fallback-image.png';
-                            e.target.alt = 'Image not available';
-                        }}
-                    />
+                {/* flex, not text-center: Tailwind's preflight makes <img> a
+                    block element, and text-align does not centre a block --
+                    which is why the document sat against the left edge. */}
+                <ModalBody className="flex items-center justify-center p-5">
+                    {failed ? (
+                        <div className="flex flex-col items-center gap-2 py-12 text-ink-muted">
+                            <ImageOff aria-hidden="true" className="size-7" />
+                            <p className="m-0 text-[13px]">Image not available</p>
+                        </div>
+                    ) : (
+                        <img
+                            src={podValue}
+                            alt="POD Document"
+                            className="max-h-[65vh] max-w-full rounded-lg border border-white/10 bg-black/20 object-contain"
+                            /* State, not a swapped src: the old handler pointed
+                               at a placeholder path that does not exist, so the
+                               fallback itself failed to load and re-fired this
+                               same handler. */
+                            onError={() => setFailed(true)}
+                        />
+                    )}
                 </ModalBody>
                 <ModalFooter>
                     <Button color="secondary" onClick={toggleModal}>

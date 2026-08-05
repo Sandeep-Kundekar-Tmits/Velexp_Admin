@@ -243,14 +243,19 @@ const ManualInvoice = () => {
 
     }, [InvoiceAddresses])
     return <>
-        <div className='page-content py-0 px-0'>
-            <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
-                <MainHeaderComp
-                    title="Generate Manual Bills"
-                />
-            </div>
-            <div className="container-fluid mt-4 px-4">
-                <div className="mt-2">
+        <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
+            {/* No sticky wrapper: MainHeaderComp draws nothing inline now, it
+                hands the title to the layout's PageHeader. No page-fit either
+                -- this is a form, and a form is taller than the viewport by
+                design and should keep scrolling. */}
+            <MainHeaderComp
+                title="Generate Manual Bills"
+                subTitle="Raise a one-off invoice against a customer's details."
+            />
+            <div className="container-fluid relative z-10 pb-4">
+                {/* The form on the same glass panel the rest of the app uses,
+                    rather than loose fields on the canvas. */}
+                <div className="rounded-2xl border border-white/8 bg-[rgba(17,24,39,0.70)] p-4 backdrop-blur-xl sm:p-5">
                     {/*  new design */}
                     <Row>
                         {/* row 1 */}
