@@ -155,7 +155,7 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
   const {
     canCreateUser, canAddPod, canCreateReport, invoice, canSeeBooking,
     canAccessNewFeatures, isAdmin, isSuperUser, canAccessPrivileges, canTrackAWB, canApproveRTO, canAccessITrack,
-    canAccessOpsReports, canAccessAutoReconciliation, canAccessCustomerPerformance, canCancelShipments
+    canAccessOpsReports, canAccessMisRun, canAccessAutoReconciliation, canAccessCustomerPerformance, canCancelShipments
   } = checkCustomerPermissions()
 
   // Temporarily hidden for ALL users (re-enable by restoring the isAdmin gate below)
@@ -356,18 +356,22 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
 
             {/* OPS Reports */}
             {
-              (canCreateReport || canAccessOpsReports) && <li>
+              (canCreateReport || canAccessOpsReports || canAccessMisRun) && <li>
                 <Link to="/#" className="has-arrow">
                   <i className="bx bx-desktop"></i>
                   <span>{props.t("OPS Reports")}</span>
                 </Link>
                 <ul className="sub-menu" aria-expanded="false">
-                  <li>
-                    <Link to="/pending-report">{props.t("Pending Report")}</Link>
-                  </li>
-                  <li>
-                    <Link to="/mis-report">{props.t("MIS Run")}</Link>
-                  </li>
+                  {canAccessOpsReports && (
+                    <li>
+                      <Link to="/pending-report">{props.t("Pending Report")}</Link>
+                    </li>
+                  )}
+                  {(canAccessOpsReports || canAccessMisRun) && (
+                    <li>
+                      <Link to="/mis-report">{props.t("MIS Run")}</Link>
+                    </li>
+                  )}
                 </ul>
               </li>
             }

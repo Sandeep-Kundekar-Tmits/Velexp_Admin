@@ -24,6 +24,7 @@ function checkCustomerPermissions() {
     canApproveRTO: false,
     canAccessITrack: false,
     canAccessOpsReports: false,
+    canAccessMisRun: false,
     canAccessAutoReconciliation: false,
     canAccessCustomerPerformance: false,
     canCancelShipments: false,
@@ -46,6 +47,7 @@ function checkCustomerPermissions() {
       canApproveRTO: true,
       canAccessITrack: true,
       canAccessOpsReports: true,
+      canAccessMisRun: true,
       canAccessAutoReconciliation: true,
       canAccessCustomerPerformance: true,
       canCancelShipments: true,
@@ -62,6 +64,7 @@ function checkCustomerPermissions() {
       invoice: false,
       canSeeBooking: false, // sales can see bookings
       canAccessNewFeatures: false,
+      canAccessMisRun: true, // sales can run MIS, but not the rest of OPS Reports
     },
     "Customer Service": {
       canCreateUser: false,
