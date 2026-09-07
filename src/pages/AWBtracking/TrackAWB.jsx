@@ -288,7 +288,7 @@ const TrackAWB = () => {
                         <div className="d-flex flex-column flex-md-row gap-3 mt-3">
                             <div className="border" style={{ minWidth: 180 }}>
                                 <div className="bg-light px-3 py-2 border-bottom text-uppercase small fw-semibold">AWB No</div>
-                                <div className="d-flex flex-row flex-md-column overflow-auto">
+                                <div className="d-flex flex-wrap flex-md-column">
                                     {Object.keys(trackData).map((key) => {
                                         const active = key === activeAwb
                                         return (
