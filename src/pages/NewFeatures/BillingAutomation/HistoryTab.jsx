@@ -1,15 +1,20 @@
 // Tab 4 — History: recent batches. Click a row to re-open its progress panel.
 import { useEffect, useMemo, useState } from "react"
-import { Badge, Button, Card, CardBody, Spinner } from "reactstrap"
-import { MdRefresh, MdVisibility } from "react-icons/md"
+import { Badge, Button, Card, CardBody, Spinner, Modal, ModalHeader, ModalBody, ModalFooter } from "reactstrap"
+import { MdRefresh, MdVisibility, MdCancel } from "react-icons/md"
 import TableContainer from "../../../components/Table/TableContainer"
 import usePostApiCall from "../../../hooks/usePostApiCall"
-import { BILLING_BATCH_LIST } from "../../../api"
+import { BILLING_BATCH_LIST, BILLING_BATCH_CANCEL } from "../../../api"
 import { getBatchStatusColor } from "./statusBadge"
+
+const CANCELABLE_STATUSES = ["PENDING", "PROCESSING", "CREATED"]
 
 const HistoryTab = ({ onOpenBatch }) => {
     const { apifunc: fetchBatches, loading } = usePostApiCall()
+    const { apifunc: cancelBatch } = usePostApiCall()
     const [batches, setBatches] = useState([])
+    const [cancelingId, setCancelingId] = useState(null)
+    const [pendingCancelId, setPendingCancelId] = useState(null)
 
     const loadBatches = async () => {
         const res = await fetchBatches(BILLING_BATCH_LIST, { limit: 50 })
@@ -20,6 +25,19 @@ const HistoryTab = ({ onOpenBatch }) => {
     useEffect(() => {
         loadBatches()
     }, [])
+
+    const handleCancelClick = (batchId) => setPendingCancelId(batchId)
+    const handleCancelDismiss = () => setPendingCancelId(null)
+
+    const handleCancelConfirm = async () => {
+        if (!pendingCancelId) return
+        const batchId = pendingCancelId
+        setPendingCancelId(null)
+        setCancelingId(batchId)
+        const res = await cancelBatch(BILLING_BATCH_CANCEL(batchId), {})
+        setCancelingId(null)
+        if (res) loadBatches()
+    }
 
     const columns = useMemo(() => [
         { header: "Batch ID", accessorKey: "id" },
@@ -43,13 +61,31 @@ const HistoryTab = ({ onOpenBatch }) => {
         {
             header: "Action",
             id: "action",
-            cell: (cell) => (
-                <Button color="info" size="sm" outline title="View progress" onClick={() => onOpenBatch(cell.row.original.id)}>
-                    <MdVisibility size={16} />
-                </Button>
-            ),
+            cell: (cell) => {
+                const row = cell.row.original
+                const cancelable = CANCELABLE_STATUSES.includes(row.status?.toUpperCase())
+                return (
+                    <div className="d-flex gap-1">
+                        <Button color="info" size="sm" outline title="View progress" onClick={() => onOpenBatch(row.id)}>
+                            <MdVisibility size={16} />
+                        </Button>
+                        {cancelable && (
+                            <Button
+                                color="danger"
+                                size="sm"
+                                outline
+                                title="Cancel batch"
+                                onClick={() => handleCancelClick(row.id)}
+                                disabled={cancelingId === row.id}
+                            >
+                                {cancelingId === row.id ? <Spinner size="sm" /> : <MdCancel size={16} />}
+                            </Button>
+                        )}
+                    </div>
+                )
+            },
         },
-    ], [onOpenBatch])
+    ], [onOpenBatch, cancelingId])
 
     return (
         <Card className="shadow-sm border-0">
@@ -71,6 +107,23 @@ const HistoryTab = ({ onOpenBatch }) => {
                     tableClass="table-hover mb-0"
                 />
             </CardBody>
+
+            <Modal isOpen={!!pendingCancelId} toggle={handleCancelDismiss} centered>
+                <ModalHeader toggle={handleCancelDismiss} className="text-danger border-bottom">
+                    Confirm — Cancel Batch
+                </ModalHeader>
+                <ModalBody>
+                    Are you sure you want to cancel batch #{pendingCancelId}? This cannot be undone.
+                </ModalBody>
+                <ModalFooter>
+                    <Button color="secondary" outline onClick={handleCancelDismiss}>
+                        No
+                    </Button>
+                    <Button color="danger" onClick={handleCancelConfirm}>
+                        Yes, Cancel Batch
+                    </Button>
+                </ModalFooter>
+            </Modal>
         </Card>
     )
 }
