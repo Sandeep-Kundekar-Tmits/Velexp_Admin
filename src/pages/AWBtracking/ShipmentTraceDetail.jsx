@@ -21,6 +21,14 @@ const formatDate = (dateString) => {
     }
 }
 
+// Same blue/green/orange scheme as the OPS tracking screen, and the blue used for its status pills
+const OPS_COLORS = {
+    blue: { bg: "#eff6ff", text: "#2563eb" },
+    green: { bg: "#f0fdf4", text: "#16a34a" },
+    orange: { bg: "#fff7ed", text: "#ea580c" },
+}
+const OPS_BLUE_600 = "#2563eb"
+
 const formatDateTime = (dateString) => {
     if (!dateString) return "-"
     try {
@@ -46,8 +54,8 @@ const BagMovementChain = ({ bagTracking = [] }) => {
             {bagTracking.map((bag, i) => (
                 <div key={bag.id ?? i} className="d-flex align-items-stretch gap-2">
                     <div className="d-flex flex-column align-items-center">
-                        <div className="rounded-circle bg-primary" style={{ width: 10, height: 10, marginTop: 6 }} />
-                        {i < bagTracking.length - 1 && <div style={{ width: 2, flex: 1, background: "#b6d4fe" }} />}
+                        <div className="rounded-circle" style={{ width: 10, height: 10, marginTop: 6, backgroundColor: OPS_BLUE_600 }} />
+                        {i < bagTracking.length - 1 && <div style={{ width: 2, flex: 1, background: "#93c5fd" }} />}
                     </div>
                     <div className="border rounded p-2 flex-fill row row-cols-2 row-cols-md-4 g-2" style={{ fontSize: 13 }}>
                         <div><span className="fw-semibold">Bag No:</span> {bag.bag_no || "-"}</div>
@@ -196,8 +204,8 @@ const ShipmentTraceDetail = () => {
             <div className="container-fluid px-3 py-4">
                 {/* Booking Info */}
                 <div className="card mb-4">
-                    <div className="card-header bg-primary bg-opacity-10 border-0">
-                        <h6 className="mb-0 fw-bold text-dark">Booking Information</h6>
+                    <div className="card-header border-0" style={{ backgroundColor: OPS_COLORS.blue.bg }}>
+                        <h6 className="mb-0 fw-bold" style={{ color: OPS_COLORS.blue.text }}>Booking Information</h6>
                     </div>
                     <div className="card-body">
                         <div className="row g-3">
@@ -239,8 +247,8 @@ const ShipmentTraceDetail = () => {
 
                 {/* Shipper Details */}
                 <div className="card mb-4">
-                    <div className="card-header bg-success bg-opacity-10 border-0">
-                        <h6 className="mb-0 fw-bold text-dark">Shipper Details</h6>
+                    <div className="card-header border-0" style={{ backgroundColor: OPS_COLORS.green.bg }}>
+                        <h6 className="mb-0 fw-bold" style={{ color: OPS_COLORS.green.text }}>Shipper Details</h6>
                     </div>
                     <div className="card-body">
                         <div className="row g-3">
@@ -278,8 +286,8 @@ const ShipmentTraceDetail = () => {
 
                 {/* Consignee Details */}
                 <div className="card mb-4">
-                    <div className="card-header bg-danger bg-opacity-10 border-0">
-                        <h6 className="mb-0 fw-bold text-dark">Consignee Details</h6>
+                    <div className="card-header border-0" style={{ backgroundColor: OPS_COLORS.orange.bg }}>
+                        <h6 className="mb-0 fw-bold" style={{ color: OPS_COLORS.orange.text }}>Consignee Details</h6>
                     </div>
                     <div className="card-body">
                         <div className="row g-3">
@@ -333,11 +341,11 @@ const ShipmentTraceDetail = () => {
                                         <div
                                             role="button"
                                             onClick={() => setExpandedIndex(open ? -1 : index)}
-                                            className={`d-flex align-items-center justify-content-between px-3 py-2 ${open ? "bg-primary bg-opacity-10" : ""}`}
-                                            style={{ cursor: "pointer" }}
+                                            className="d-flex align-items-center justify-content-between px-3 py-2"
+                                            style={{ cursor: "pointer", backgroundColor: open ? OPS_COLORS.blue.bg : undefined }}
                                         >
                                             <div className="d-flex align-items-center gap-3 flex-wrap">
-                                                <span className="badge bg-primary">{ele.status}</span>
+                                                <span className="badge" style={{ backgroundColor: OPS_BLUE_600 }}>{ele.status}</span>
                                                 <span className="small" style={{ fontSize: 12 }}>{formatDateTime(ele.status_date)}</span>
                                                 <span className="text-muted text-break" style={{ fontSize: 12, maxWidth: 220 }}>{ele.remarks}</span>
                                                 <span className="text-muted" style={{ fontSize: 12 }}>{ele.service_center || "-"} → {ele.destination_sc || "-"}</span>

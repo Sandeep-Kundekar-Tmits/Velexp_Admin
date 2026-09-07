@@ -20,9 +20,19 @@ const formatDate = (iso) => {
 
 const formatTime = (iso) => (iso ? iso.split("T")[1]?.split(".")[0] : "-")
 
+// Same blue/green/orange scheme as the OPS tracking screen (Booking / Shipper / Consignee)
+const OPS_COLORS = {
+    blue: { bg: "#eff6ff", text: "#2563eb" },
+    green: { bg: "#f0fdf4", text: "#16a34a" },
+    orange: { bg: "#fff7ed", text: "#ea580c" },
+}
+
+// The blue used throughout the OPS timeline (status pill, dot, active AWB tab)
+const OPS_BLUE = { 100: "#dbeafe", 300: "#93c5fd", 600: "#2563eb", 700: "#1d4ed8" }
+
 const Section = ({ title, color, children }) => (
-    <div className={`border-bottom border-md-bottom-0 border-md-end p-3 bg-${color}-subtle h-100`}>
-        <p className="text-uppercase fw-bold small mb-2" style={{ fontSize: 11 }}>{title}</p>
+    <div className="border-bottom border-md-bottom-0 border-md-end p-3 h-100" style={{ backgroundColor: OPS_COLORS[color].bg }}>
+        <p className="text-uppercase fw-bold small mb-2" style={{ fontSize: 11, color: OPS_COLORS[color].text }}>{title}</p>
         <div className="row row-cols-2 g-2">{children}</div>
     </div>
 )
@@ -245,21 +255,21 @@ const TrackAWB = () => {
 
                         <div className="row g-0 border">
                             <div className="col-12 col-md-4">
-                                <Section title="Booking Info" color="primary">
+                                <Section title="Booking Info" color="blue">
                                     {Object.entries(headerInfo.booking).map(([label, value]) => (
                                         <Pair key={label} label={label} value={value} />
                                     ))}
                                 </Section>
                             </div>
                             <div className="col-12 col-md-4">
-                                <Section title="Shipper Details" color="success">
+                                <Section title="Shipper Details" color="green">
                                     {Object.entries(headerInfo.shipper).map(([label, value]) => (
                                         <Pair key={label} label={label} value={value} full={label === "Location" || label === "Address"} />
                                     ))}
                                 </Section>
                             </div>
                             <div className="col-12 col-md-4">
-                                <Section title="Consignee Details" color="warning">
+                                <Section title="Consignee Details" color="orange">
                                     {Object.entries(headerInfo.consignee).map(([label, value]) => (
                                         <Pair key={label} label={label} value={value} full={label === "Location" || label === "Address"} />
                                     ))}
@@ -272,19 +282,24 @@ const TrackAWB = () => {
                             <div className="border" style={{ minWidth: 180 }}>
                                 <div className="bg-light px-3 py-2 border-bottom text-uppercase small fw-semibold">AWB No</div>
                                 <div className="d-flex flex-row flex-md-column overflow-auto">
-                                    {Object.keys(trackData).map((key) => (
-                                        <div
-                                            key={key}
-                                            onClick={() => setActiveAwb(key)}
-                                            className={`px-3 py-2 small text-nowrap ${key === activeAwb
-                                                ? "bg-primary-subtle border-start border-primary border-4 fw-semibold text-primary"
-                                                : "border-start border-4 border-transparent"
-                                                }`}
-                                            style={{ cursor: "pointer" }}
-                                        >
-                                            {key}
-                                        </div>
-                                    ))}
+                                    {Object.keys(trackData).map((key) => {
+                                        const active = key === activeAwb
+                                        return (
+                                            <div
+                                                key={key}
+                                                onClick={() => setActiveAwb(key)}
+                                                className={`px-3 py-2 small text-nowrap border-start border-4 ${active ? "fw-semibold" : "border-transparent"}`}
+                                                style={{
+                                                    cursor: "pointer",
+                                                    backgroundColor: active ? OPS_BLUE[100] : "transparent",
+                                                    borderColor: active ? OPS_BLUE[600] : "transparent",
+                                                    color: active ? OPS_BLUE[700] : undefined,
+                                                }}
+                                            >
+                                                {key}
+                                            </div>
+                                        )
+                                    })}
                                 </div>
                             </div>
 
@@ -292,7 +307,7 @@ const TrackAWB = () => {
                                 {dataList.map((item, index) => (
                                     <div key={index} className="d-flex align-items-start gap-3 position-relative pb-4">
                                         <div className="text-center" style={{ minWidth: 110 }}>
-                                            <span className="badge bg-primary rounded-pill px-2 py-1">{item.status}</span>
+                                            <span className="badge rounded-pill px-2 py-1" style={{ backgroundColor: OPS_BLUE[600] }}>{item.status}</span>
                                             <div className="small fw-semibold mt-1">{item.date}</div>
                                             <div className="small text-muted">At {item.time}</div>
                                         </div>
@@ -302,12 +317,12 @@ const TrackAWB = () => {
                                                 className="rounded-circle border border-4 flex-shrink-0"
                                                 style={{
                                                     width: 20, height: 20,
-                                                    backgroundColor: item.active ? "#0d6efd" : "#fff",
-                                                    borderColor: "#b6d4fe",
+                                                    backgroundColor: item.active ? OPS_BLUE[600] : "#fff",
+                                                    borderColor: OPS_BLUE[300],
                                                 }}
                                             />
                                             {index < dataList.length - 1 && (
-                                                <div style={{ width: 2, flex: 1, borderRight: "2px dashed #9ec5fe", minHeight: 40 }} />
+                                                <div style={{ width: 2, flex: 1, borderRight: `2px dashed ${OPS_BLUE[300]}`, minHeight: 40 }} />
                                             )}
                                         </div>
 

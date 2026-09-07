@@ -17,6 +17,10 @@ const formatDateTime = (iso) => {
 
 const BAG_STATUS_MAP = { BO: "CREATED", BS: "SEALED", BT: "IN TRANSIT", BD: "DELIVERED" }
 
+// Same blue used throughout the OPS tracking screen's timelines/badges
+const OPS_BLUE_600 = "#2563eb"
+const OPS_BLUE_TINT = "#eff6ff"
+
 const Stat = ({ value, label }) => (
     <div>
         <div className="fw-semibold text-dark">{value ?? "-"}</div>
@@ -30,8 +34,8 @@ const BagCard = ({ bag, expanded, onClick, children }) => (
         <div
             role="button"
             onClick={onClick}
-            className={`border rounded ${expanded ? "bg-primary bg-opacity-10 border-primary" : "bg-white"}`}
-            style={{ cursor: "pointer" }}
+            className={`border rounded ${expanded ? "" : "bg-white"}`}
+            style={{ cursor: "pointer", backgroundColor: expanded ? OPS_BLUE_TINT : undefined, borderColor: expanded ? OPS_BLUE_600 : undefined }}
         >
             <div className="px-3 py-2 border-bottom fw-bold d-flex justify-content-between align-items-center">
                 {bag.bagNo || "-"}
@@ -82,8 +86,12 @@ const BagTimeline = ({ steps = [] }) => {
     return (
         <div className="d-flex flex-wrap gap-2 mb-2">
             {steps.map((s, i) => (
-                <div key={i} className={`border rounded px-3 py-2 text-center ${s.active ? "border-primary border-2" : ""}`} style={{ minWidth: 150 }}>
-                    <Badge color={s.active ? "primary" : "secondary"} className="mb-1">
+                <div
+                    key={i}
+                    className="border rounded px-3 py-2 text-center"
+                    style={{ minWidth: 150, borderColor: s.active ? OPS_BLUE_600 : undefined, borderWidth: s.active ? 2 : undefined }}
+                >
+                    <Badge className="mb-1" style={{ backgroundColor: s.active ? OPS_BLUE_600 : "#6c757d" }}>
                         {BAG_STATUS_MAP[s.status] || s.status || "-"}
                     </Badge>
                     <div className="small fw-semibold">{s.bag_manifest_no || "-"}</div>
