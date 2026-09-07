@@ -3,6 +3,11 @@ function checkCustomerPermissions() {
   const authUser = JSON.parse(localStorage.getItem("authUser"));
   const customerType = authUser?.user?.cust_type?.type_of_cust;
   const isAdmin = authUser?.user?.is_admin;
+  // Django superuser flag — strictly above is_admin, gates the most sensitive actions
+  const isSuperUser = authUser?.user?.is_superuser === true;
+  // Some Customer Service accounts carry is_superuser/is_admin true on the backend,
+  // so the most destructive actions (hard delete) must also explicitly exclude that role.
+  const canHardDeleteStatus = isSuperUser && customerType !== "Customer Service";
 
   // Default permissions (most restrictive)
   const defaultPermissions = {
@@ -13,6 +18,7 @@ function checkCustomerPermissions() {
     canSeeBooking: false,
     canAccessNewFeatures: false,
     isAdmin: false,
+    isSuperUser: false,
     canAccessPrivileges: false,
     canTrackAWB: false,
     canApproveRTO: false,
@@ -21,6 +27,7 @@ function checkCustomerPermissions() {
     canAccessAutoReconciliation: false,
     canAccessCustomerPerformance: false,
     canCancelShipments: false,
+    canHardDeleteStatus: false,
   };
 
   // Full access for admin (skip for Analyzer to keep them restricted)
@@ -33,6 +40,7 @@ function checkCustomerPermissions() {
       canSeeBooking: true,
       canAccessNewFeatures: true,
       isAdmin: true,
+      isSuperUser,
       canAccessPrivileges: true,
       canTrackAWB: true,
       canApproveRTO: true,
@@ -41,6 +49,7 @@ function checkCustomerPermissions() {
       canAccessAutoReconciliation: true,
       canAccessCustomerPerformance: true,
       canCancelShipments: true,
+      canHardDeleteStatus,
     };
   }
 
@@ -69,6 +78,7 @@ function checkCustomerPermissions() {
       canAccessAutoReconciliation: false,
       canAccessCustomerPerformance: true, // only the Customer Performance submenu under Reports
       canCancelShipments: true,
+      canHardDeleteStatus: false,
     },
     "Analyzer": {
       canCreateUser: false,
@@ -118,10 +128,10 @@ function checkCustomerPermissions() {
 
   // If Analyzer, strictly only reports, even if Admin flag is present
   if (customerType === "Analyzer") {
-    return { ...permissions, isAdmin: false };
+    return { ...permissions, isAdmin: false, isSuperUser: false, canHardDeleteStatus: false };
   }
 
-  return { ...permissions, isAdmin };
+  return { ...permissions, isAdmin, isSuperUser, canHardDeleteStatus };
 }
 
 export { checkCustomerPermissions };

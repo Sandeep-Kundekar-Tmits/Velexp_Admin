@@ -99,6 +99,9 @@ const MisReport = lazy(() => import("../pages/Dashboard/Reports/MisReport"));
 const ITrack = lazy(() => import("../pages/ITrack/ITrack"));
 const InternationalMisReport = lazy(() => import("../pages/Dashboard/Reports/InternationalMisReport"));
 const InternationalDimensionChangeLog = lazy(() => import("../pages/Dashboard/Reports/InternationalDimensionChangeLog"));
+const InternationalPasswordReset = lazy(() => import("../pages/Dashboard/InternationalPasswordReset"));
+const SpdRemove = lazy(() => import("../pages/Dashboard/SpdRemove"));
+const RtsRemove = lazy(() => import("../pages/Dashboard/RtsRemove"));
 
 // Ops Disputes (admin features)
 const OpsStaleShipments = lazy(() => import("../pages/OpsDisputes/StaleShipments"));
@@ -232,6 +235,9 @@ const getAuthProtectedRoutes = () => {
     { path: "/itrack", component: <ITrack /> },
     { path: "/international-mis-report", component: <InternationalMisReport /> },
     { path: "/international-dimension-change-log", component: <InternationalDimensionChangeLog /> },
+    { path: "/international-password-reset", component: <InternationalPasswordReset /> },
+    { path: "/spd-remove", component: <SpdRemove /> },
+    { path: "/rts-remove", component: <RtsRemove /> },
 
     // Ops Disputes
     { path: "/ops-disputes/stale", component: <OpsStaleShipments /> },

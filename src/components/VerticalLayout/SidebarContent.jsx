@@ -154,7 +154,7 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
 
   const {
     canCreateUser, canAddPod, canCreateReport, invoice, canSeeBooking,
-    canAccessNewFeatures, isAdmin, canAccessPrivileges, canTrackAWB, canApproveRTO, canAccessITrack,
+    canAccessNewFeatures, isAdmin, isSuperUser, canAccessPrivileges, canTrackAWB, canApproveRTO, canAccessITrack,
     canAccessOpsReports, canAccessAutoReconciliation, canAccessCustomerPerformance, canCancelShipments
   } = checkCustomerPermissions()
 
@@ -594,9 +594,9 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
                     <span>{props.t("Revenue")}</span>
                   </Link>
                   <ul className="sub-menu" aria-expanded="false">
-                    {/* <li>
+                    <li>
                       <Link to="/revenue-daily-report">{props.t("Revenue Report")}</Link>
-                    </li> */}
+                    </li>
                     <li>
                       <Link to="/revenue-report">{props.t("Old Revenue Report")}</Link>
                     </li>
@@ -630,6 +630,32 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
                 </ul>
               </li>
             }
+
+            {
+              isSuperUser &&
+                <li>
+                  <Link to="/international-password-reset" className="has">
+                    <i className="bx bx-key"></i>
+                    <span>{props.t("International Password Reset")}</span>
+                  </Link>
+                </li>
+            }
+
+            {/* Visible to all logged-in users for now — restrict via canHardDeleteStatus later */}
+            <li>
+              <Link to="/#" className="has-arrow">
+                <i className="bx bx-trash"></i>
+                <span>{props.t("Status Update")}</span>
+              </Link>
+              <ul className="sub-menu" aria-expanded="false">
+                <li>
+                  <Link to="/spd-remove">{props.t("SPD Remove")}</Link>
+                </li>
+                <li>
+                  <Link to="/rts-remove">{props.t("RTS Remove")}</Link>
+                </li>
+              </ul>
+            </li>
 
             {
               canAccessNewFeatures &&
