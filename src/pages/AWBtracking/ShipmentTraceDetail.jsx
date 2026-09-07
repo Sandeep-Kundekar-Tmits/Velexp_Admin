@@ -202,15 +202,20 @@ const ShipmentTraceDetail = () => {
             />
 
             <div className="container-fluid px-3 py-4">
+                {/* Same "Shipment Details - AWB : ..." sub-heading OPS shows on its detailed view */}
+                <div className="d-flex align-items-center gap-2 border-top border-bottom py-2 mb-3 fw-semibold" style={{ fontSize: 18 }}>
+                    Shipment Details - AWB : {awbno}
+                    {booking?.rto_approval === true && booking?.shipment_flag ? (
+                        <span className="badge" style={{ backgroundColor: OPS_COLORS.green.text }}>RTO Approved</span>
+                    ) : (
+                        <span className="badge bg-secondary">Not RTO Approved</span>
+                    )}
+                </div>
+
                 {/* Booking Info */}
                 <div className="card mb-4">
-                    <div className="card-header border-0 d-flex align-items-center justify-content-between" style={{ backgroundColor: OPS_COLORS.blue.bg }}>
+                    <div className="card-header border-0" style={{ backgroundColor: OPS_COLORS.blue.bg }}>
                         <h6 className="mb-0 fw-bold" style={{ color: OPS_COLORS.blue.text }}>Booking Information</h6>
-                        {booking?.rto_approval === true && booking?.shipment_flag ? (
-                            <span className="badge" style={{ backgroundColor: OPS_COLORS.green.text }}>RTO Approved</span>
-                        ) : (
-                            <span className="badge bg-secondary">Not RTO Approved</span>
-                        )}
                     </div>
                     <div className="card-body">
                         <div className="row g-3">
