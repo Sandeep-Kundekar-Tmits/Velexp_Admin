@@ -25,87 +25,14 @@ import { ClipLoader } from "react-spinners"
 import SingleLogo from "../../assets/images/vellocity-express-single-logo.png"
 
 const Login = (props) => {
-  const getPermissions = (customerType, isAdmin) => {
-    // Default permissions (safe fallback)
-    const defaultPermissions = {
-      canCreateUser: false,
-      canCreateReport: false,
-      canAddPod: false,
-      invoice: false,
-      canSeeBooking: false,
-    };
-
-    // If no customer type, assume full (or safe defaults depending on your logic)
-    if (!customerType) {
-      return {
-        canCreateUser: true,
-        canCreateReport: true,
-        canAddPod: true,
-        invoice: true,
-        canSeeBooking: true,
-      };
-    }
-
-    // Full access for admin
-    if (isAdmin) {
-      return {
-        canCreateUser: true,
-        canCreateReport: true,
-        canAddPod: true,
-        invoice: true,
-        canSeeBooking: true,
-      };
-    }
-
-    // Handle permissions based on customer type
-    if (customerType === "sales") {
-      return {
-        canCreateUser: true,
-        canCreateReport: false,
-        canAddPod: false,
-        invoice: false,
-        canSeeBooking: false, // ✅ Sales can view bookings
-      };
-    } else if (customerType === "pod") {
-      return {
-        canCreateUser: false,
-        canAddPod: true,
-        canCreateReport: false,
-        invoice: false,
-        canSeeBooking: false,
-      };
-    } else if (customerType === "accounting") {
-      return {
-        canCreateUser: false,
-        canAddPod: false,
-        canCreateReport: false,
-        invoice: true,
-        canSeeBooking: false,
-      };
-    } else if (customerType === "Retail-Franchise") {
-      return {
-        canCreateUser: false,
-        canCreateReport: false,
-        canAddPod: false,
-        invoice: false,
-        canSeeBooking: true, // ✅ Retail-Franchise can see bookings
-      };
-    }
-    else if (customerType === "operations" || customerType === "Analyzer") {
-      return {
-        canCreateUser: false,
-        canAddPod: false,
-        canCreateReport: true,
-        invoice: false,
-        canSeeBooking: false,
-      };
-    }
-
-    else {
-      console.error("Unknown customer type:", customerType);
-      return defaultPermissions;
-    }
-  };
+  // Permission gating removed — everyone lands with full access after login.
+  const getPermissions = () => ({
+    canCreateUser: true,
+    canCreateReport: true,
+    canAddPod: true,
+    invoice: true,
+    canSeeBooking: true,
+  });
 
 
 
@@ -156,9 +83,7 @@ const Login = (props) => {
         }
 
         localStorage.setItem("authUser", JSON.stringify(userData));
-        const customerType = userData?.user?.cust_type?.type_of_cust
-        const isAdmin = userData?.user?.is_admin
-        const { canCreateUser, canAddPod, canCreateReport, invoice, canSeeBooking } = getPermissions(customerType, isAdmin);
+        const { canCreateUser, canAddPod, canCreateReport, invoice, canSeeBooking } = getPermissions();
 
 
         // Determine the route based on permissions
