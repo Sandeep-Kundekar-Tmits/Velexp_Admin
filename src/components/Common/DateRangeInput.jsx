@@ -22,6 +22,9 @@ const DateRangeInput = ({
 
   const [open, setOpen] = useState(false);
   const wrapperRef = useRef(null);
+  // Tracks whether the next click picks the start or the end of the range,
+  // so the popover can auto-close once both are picked.
+  const selectionStepRef = useRef(0);
 
   // 🔥 Sync when parent value changes
   useEffect(() => {
@@ -41,6 +44,12 @@ const DateRangeInput = ({
       startDate: item.selection.startDate,
       endDate: item.selection.endDate,
     });
+
+    selectionStepRef.current += 1;
+    if (selectionStepRef.current >= 2) {
+      selectionStepRef.current = 0;
+      setOpen(false);
+    }
   };
 
   const formatDate = (date) =>
@@ -73,7 +82,13 @@ const DateRangeInput = ({
     >
       {/* Input Box */}
       <div
-        onClick={() => setOpen((p) => !p)}
+        onClick={() =>
+          setOpen((p) => {
+            const next = !p;
+            if (next) selectionStepRef.current = 0;
+            return next;
+          })
+        }
         style={{
           border: isBorder ? "1px solid #dcdcdc" : "none",
           borderRadius: isBorder ? "6px" : "0px",

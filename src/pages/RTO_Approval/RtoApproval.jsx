@@ -1,23 +1,41 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Button, Col, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Row } from "reactstrap";
+import { Button, Col, FormGroup, Input, Label, Modal, ModalBody, ModalFooter, ModalHeader, Nav, NavItem, NavLink, Row, Spinner } from "reactstrap";
 import Select from "react-select";
 import MainHeaderComp from "../../components/MainHeaderCom";
 import TableContainer from "../../components/Table/TableContainer";
 import DateRangeInput from "../../components/Common/DateRangeInput";
 import { customStyles } from "../../helpers/CustomStyle";
-import RtoApprovalModal from "../../components/RTO_Approval/RtoApprovalModal";
-import RtoBulkApprovalModal from "../../components/RTO_Approval/RtoBulkApprovalModal";
-import ViewRtoApproval from "../../components/RTO_Approval/ViewRtoApproval";
-import BulkRtsMarkModal from "../../components/RTO_Approval/BulkRtsMarkModal";
-import { UPDATE_CUSTOMER_SERVICE_REMARK, BULK_RTS_STATUS_UPDATE, GET_USER_API, GET_UNDELIVERED_SHIPMENTS, GET_DELIVERY_ATTEMPTS_REMARKS, RECORD_SAR_STATUS } from "../../api/index";
+import MarkForRtoModal from "../../components/RTO_Approval/MarkForRtoModal";
+import MarkForRtoExcelModal from "../../components/RTO_Approval/MarkForRtoExcelModal";
+import RtoBookingPanel from "../../components/RTO_Approval/RtoBookingPanel";
+import { GET_USER_API, GET_UNDELIVERED_SHIPMENTS, GET_DELIVERY_ATTEMPTS_REMARKS, BULK_SET_SHIPMENT_FLAG } from "../../api/index";
 import usePostApiCall from "../../hooks/usePostApiCall";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
 import YMD_DateFormate from "../../helpers/YMD_DateFormate";
 import { toast } from "react-toastify";
 import { checkCustomerPermissions } from "../../helpers/checkCustomerPermissions";
 
+const PAGE_TABS = [
+    { value: "attempts", label: "Delivery Attempts (RTS)" },
+    // RTO Booking tab hidden for now — re-add here to bring it back
+    // { value: "rto_booking", label: "RTO Booking" },
+];
+
+const ATTEMPTS_SUB_TABS = [
+    { value: "pending", label: "Pending" },
+    { value: "approved", label: "Approved" },
+];
+
 const RtoApproval = () => {
     const { isAdmin } = checkCustomerPermissions();
+
+    // Top-level page tab: RTS delivery-attempts flow / CS RTO flagging / Ops RTO booking
+    const [pageTab, setPageTab] = useState("attempts");
+    // Delivery Attempts sub-tab: Pending vs Approved (by shipment_flag)
+    const [attemptsSubTab, setAttemptsSubTab] = useState("pending");
+    const [markForRtoOpen, setMarkForRtoOpen] = useState(false);
+    const [markForRtoExcelOpen, setMarkForRtoExcelOpen] = useState(false);
+    const [removeRtoExcelOpen, setRemoveRtoExcelOpen] = useState(false);
 
     // State for managing date range filtering
     const [selectedRange, setSelectedRange] = useState({
@@ -25,16 +43,13 @@ const RtoApproval = () => {
         endDate: null,
     });
 
-    // SAR remove state
-    const [deleteRow, setDeleteRow] = useState(null);
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-    const [sarLoading, setSarLoading] = useState(false);
-    // State to track which modal is currently active (single_approval, bulk_approval, view_approval)
-    const [selectedModel, setSelectdModel] = useState("")
-    // Bulk RTS Mark modal (Excel upload / manual entry)
-    const [bulkRtsOpen, setBulkRtsOpen] = useState(false)
-    // State to store the currently selected row for single actions
-    const [selectedRow, setSelectedRow] = useState(null);
+    // Remove (clear shipment_flag) confirm state — holds the AWB(s) to remove,
+    // whether triggered from a single row's "Remove" button or the bulk "Remove RTO" button
+    const [removeFlagAwbs, setRemoveFlagAwbs] = useState([]);
+    const [showRemoveFlagConfirm, setShowRemoveFlagConfirm] = useState(false);
+    const [removeFlagLoading, setRemoveFlagLoading] = useState(false);
+    // AWB(s) the Mark for RTO modal was opened with (single row or bulk selection)
+    const [markForRtoAwbs, setMarkForRtoAwbs] = useState([]);
     // State for the customer filter dropdown
     const [selectedCustomer, setSelectedCustomer] = useState(null)
     // List of customer options fetched from the API
@@ -70,33 +85,30 @@ const RtoApproval = () => {
     // Table state for row selections
     const [remarks, setRemarks] = useState({});
     const [rowSelection, setRowSelection] = useState({});
-
-    // Hooks for submitting approval and status updates
-    const { apifunc: UpdateRemark } = usePostApiCall(null, "Remark Updated Successfully");
-    const { apifunc: BulkRtsUpdate } = usePostApiCall(() => {
-        if (!selectedCustomer || !selectedRange.startDate || !selectedRange.endDate) {
-            toast.error("Please select both a customer and a date range.");
-            return;
-        }
-
-        const datePayload = YMD_DateFormate(selectedRange);
-        const payload = {
-            // customer_id: selectedCustomer.value,
-            customer_name: selectedCustomer.customer_name,
-            from_date: datePayload.from_date,
-            to_date: datePayload.to_date
-        };
-        GetUndeliveredShipments(GET_UNDELIVERED_SHIPMENTS, payload);
-    }, "RTS Status Updated Successfully");
+    const [approvedRowSelection, setApprovedRowSelection] = useState({});
+    // True once "Check" has been run for the currently selected customer/date range.
+    // Reset whenever either filter changes so stale results from a previous
+    // selection aren't shown until the user re-checks.
+    const [hasSearched, setHasSearched] = useState(false);
 
     // List of shipments derived from the API response
-    // Only return data if both customer and date range are selected
+    // Only return data once the user has checked the current customer + date range
     const filteredShipments = useMemo(() => {
-        if (!selectedCustomer || !selectedRange.startDate || !selectedRange.endDate) {
+        if (!hasSearched || !selectedCustomer || !selectedRange.startDate || !selectedRange.endDate) {
             return [];
         }
         return shipmentsData?.data || [];
-    }, [shipmentsData, selectedCustomer, selectedRange.startDate, selectedRange.endDate]);
+    }, [shipmentsData, hasSearched, selectedCustomer, selectedRange.startDate, selectedRange.endDate]);
+
+    // Split by shipment_flag: not yet flagged (null) -> Pending, flagged -> Approved
+    const pendingShipments = useMemo(
+        () => filteredShipments.filter(s => !s.shipment_flag),
+        [filteredShipments]
+    );
+    const approvedShipments = useMemo(
+        () => filteredShipments.filter(s => !!s.shipment_flag),
+        [filteredShipments]
+    );
 
     /**
      * Manually fetch undelivered shipments when "Check" is clicked.
@@ -114,111 +126,71 @@ const RtoApproval = () => {
             to_date: datePayload.to_date
         };
         GetUndeliveredShipments(GET_UNDELIVERED_SHIPMENTS, payload);
+        setHasSearched(true);
     };
 
-    // Clear row selections whenever filters change
+    // Clear row selections and stale results whenever filters change
     useEffect(() => {
         setRowSelection({});
+        setApprovedRowSelection({});
+        setHasSearched(false);
     }, [selectedCustomer, selectedRange.startDate, selectedRange.endDate]);
 
-    // Triggered when clicking Approve on a single row
+    // Triggered when clicking Approve on a single row — opens the Mark for RTO modal
+    // locked to this AWB (flags shipment_flag: "RTO_APPROVAL")
     const handleApprove = (row) => {
-        console.log("Approving row:", row);
-        setSelectedRow(row);
-        setSelectdModel("single_approval")
+        setMarkForRtoAwbs([row.awbno].filter(Boolean));
+        setMarkForRtoOpen(true);
     };
 
-    /**
-     * Handles the final submission for both single and bulk approvals.
-     * Orchestrates remark updates followed by optional RTS status updates.
-     */
-    const handleApproveSubmit = async (data) => {
-        const { remark, isRts, shipments } = data;
-        const currentAwb = selectedRow?.awbno || "";
-        // Normalize AWB list for bulk or single scenario
-        const awbList = shipments ? shipments.map(s => s.awbno || "") : [currentAwb];
+    // Triggered by "Approve Selected" — same modal, locked to the checked rows
+    const handleApproveSelected = () => {
+        setMarkForRtoAwbs(selectedShipments.map(s => s.awbno).filter(Boolean));
+        setMarkForRtoOpen(true);
+    };
 
-        try {
-            // 1. Update Remark for all selected AWBs
-            const remarkPayload = {
-                awbno: awbList,
-                remark: remark
-            };
-            await UpdateRemark(UPDATE_CUSTOMER_SERVICE_REMARK, remarkPayload);
-
-            // 2. If 'Mark RTS' is selected, update the status for all AWBs
-            if (isRts) {
-                const authUser = JSON.parse(localStorage.getItem("authUser"));
-                const rtsPayload = {
-                    awbno_list: shipments
-                        ? shipments.map(s => ({
-                            awbno: s.awbno || "",
-                            employee_id: authUser?.user?.id,
-                            service_center: s.service_center
-                        }))
-                        : [{
-                            awbno: currentAwb,
-                            employee_id: authUser?.user?.id,
-                            service_center: selectedRow?.service_center
-                        }]
-                };
-                await BulkRtsUpdate(BULK_RTS_STATUS_UPDATE, rtsPayload);
-            }
-            // Close modal and clear selection on success
-            setSelectdModel("");
-            setRowSelection({});
-        } catch (error) {
-            console.error("Approval flow failed:", error);
+    // Refresh the undelivered-shipments list after a successful RTO flag, keeping the
+    // currently selected customer/date range
+    const refreshShipments = () => {
+        if (selectedCustomer && selectedRange.startDate && selectedRange.endDate) {
+            const datePayload = YMD_DateFormate(selectedRange);
+            GetUndeliveredShipments(GET_UNDELIVERED_SHIPMENTS, {
+                customer_name: selectedCustomer.customer_name,
+                from_date: datePayload.from_date,
+                to_date: datePayload.to_date,
+            });
         }
     };
 
-    // SAR remove confirm
-    const handleRemoveConfirm = async () => {
-        if (!deleteRow?.awbno) return;
-        setSarLoading(true);
+    // Remove confirm — clears the shipment_flag for one or many AWBs (same
+    // bulk-set-shipment-flag call as Approve, just with shipment_flag: null)
+    const handleRemoveFlagConfirm = async () => {
+        if (removeFlagAwbs.length === 0) return;
+        setRemoveFlagLoading(true);
         try {
-            const res = await fetch(RECORD_SAR_STATUS, {
+            const userId = JSON.parse(localStorage.getItem("authUser") || "{}")?.user?.id;
+            const res = await fetch(BULK_SET_SHIPMENT_FLAG, {
                 method: "POST",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    awbno: deleteRow.awbno,
-                    remark: "SAR",
-                    user_id: JSON.parse(localStorage.getItem("authUser") || "{}")?.user?.id,
+                    awbno_list: removeFlagAwbs,
+                    shipment_flag: null,
+                    user_id: userId,
                 }),
             });
             const json = await res.json();
-            if (!res.ok) throw new Error(json?.detail || json?.message || `Error ${res.status}`);
-            toast.success(json?.message || "Removed successfully", { position: "bottom-right", autoClose: 4000 });
-            setShowDeleteConfirm(false);
-            setDeleteRow(null);
-            if (selectedCustomer && selectedRange.startDate && selectedRange.endDate) {
-                const datePayload = YMD_DateFormate(selectedRange);
-                GetUndeliveredShipments(GET_UNDELIVERED_SHIPMENTS, {
-                    customer_name: selectedCustomer.customer_name,
-                    from_date: datePayload.from_date,
-                    to_date: datePayload.to_date,
-                });
-            }
+            if (!res.ok || json?.status === "error") throw new Error(json?.message || `Error ${res.status}`);
+            toast.success(json?.message || "Removed from Approved", { position: "bottom-right", autoClose: 4000 });
+            setShowRemoveFlagConfirm(false);
+            setRemoveFlagAwbs([]);
+            setApprovedRowSelection({});
+            refreshShipments();
         } catch (err) {
             toast.error(err.message, { position: "bottom-right", autoClose: 5000 });
         } finally {
-            setSarLoading(false);
+            setRemoveFlagLoading(false);
         }
-    };
-
-    // Triggered when clicking View on a row
-    const handleView = (row) => {
-        console.log("Viewing row:", row);
-        setSelectedRow(row);
-        setSelectdModel("view_approval");
-    };
-
-    // Triggered by the Bulk Approval floating footer button
-    const handleBulkApprove = () => {
-        const selectedIds = Object.keys(rowSelection);
-        console.log("Bulk approving IDs:", selectedIds);
-        setSelectdModel("bulk_approval")
     };
 
     // Clear all row selections
@@ -226,82 +198,28 @@ const RtoApproval = () => {
         setRowSelection({});
     };
 
+    const handleCancelApprovedSelection = () => {
+        setApprovedRowSelection({});
+    };
+
     const selectedShipments = useMemo(() => {
-        return filteredShipments.filter((item, index) => rowSelection[index]);
-    }, [rowSelection, filteredShipments]);
+        return pendingShipments.filter((item, index) => rowSelection[index]);
+    }, [rowSelection, pendingShipments]);
+
+    const selectedApprovedShipments = useMemo(() => {
+        return approvedShipments.filter((item, index) => approvedRowSelection[index]);
+    }, [approvedRowSelection, approvedShipments]);
+
+    // Triggered by the bulk "Remove RTO" button — opens the same confirm modal
+    // used for a single row, locked to the checked rows
+    const handleRemoveSelected = () => {
+        setRemoveFlagAwbs(selectedApprovedShipments.map(s => s.awbno).filter(Boolean));
+        setShowRemoveFlagConfirm(true);
+    };
 
 
-    // Configuration for modal types
-    const Components = [
-        {
-            title: "single_approval",
-            component: <RtoApprovalModal
-                isOpen={true}
-                toggle={() => setSelectdModel("")}
-                awbNumber={selectedRow?.awbno || ""}
-                onApprove={handleApproveSubmit}
-            />
-        },
-        {
-            title: "bulk_approval",
-            component: <RtoBulkApprovalModal
-                isOpen={true}
-                toggle={() => setSelectdModel("")}
-                selectedShipments={selectedShipments.map(s => ({
-                    ...s,
-                    awbno: s.awbno || ""
-                }))}
-                onApprove={handleApproveSubmit}
-            />
-        },
-        {
-            title: "view_approval",
-            component: <ViewRtoApproval
-                isOpen={true}
-                toggle={() => setSelectdModel("")}
-                awbNumber={selectedRow?.awbno || ""}
-                serviceCenter={selectedRow?.service_center}
-            />
-        }
-    ]
-
-
-    // Helper to render the currently selected modal
-    const ReturnComponent = (title) => {
-        let comp = Components.find(ele => ele.title === title)
-        if (comp) {
-            return comp.component
-        }
-        return <></>
-    }
-
-    // Table columns
-    const columns = useMemo(() => [
-        {
-            id: 'selection',
-            header: ({ table }) => (
-                <div className="d-flex justify-content-center">
-                    {selectedCustomer && (
-                        <Input
-                            type="checkbox"
-                            checked={table.getIsAllRowsSelected()}
-                            onChange={table.getToggleAllRowsSelectedHandler()}
-                        />
-                    )}
-                </div>
-            ),
-            cell: ({ row }) => (
-                <div className="d-flex justify-content-center">
-                    <Input
-                        type="checkbox"
-                        checked={row.getIsSelected()}
-                        disabled={!row.getCanSelect()}
-                        onChange={row.getToggleSelectedHandler()}
-                    />
-                </div>
-            ),
-            size: 50,
-        },
+    // Columns shared by both tables (everything except selection/action)
+    const baseColumns = useMemo(() => [
         {
             header: "AWB No.",
             accessorKey: "awbno",
@@ -346,54 +264,105 @@ const RtoApproval = () => {
             header: "Delivery Attempts",
             accessorKey: "delivery_attempts",
         },
+    ], []);
+
+    // Pending table: bulk-selectable, single action = Approve
+    const pendingColumns = useMemo(() => [
+        {
+            id: 'selection',
+            header: ({ table }) => (
+                <div className="d-flex justify-content-center">
+                    {selectedCustomer && (
+                        <Input
+                            type="checkbox"
+                            checked={table.getIsAllRowsSelected()}
+                            onChange={table.getToggleAllRowsSelectedHandler()}
+                        />
+                    )}
+                </div>
+            ),
+            cell: ({ row }) => (
+                <div className="d-flex justify-content-center">
+                    <Input
+                        type="checkbox"
+                        checked={row.getIsSelected()}
+                        disabled={!row.getCanSelect()}
+                        onChange={row.getToggleSelectedHandler()}
+                    />
+                </div>
+            ),
+            size: 50,
+        },
+        ...baseColumns,
         {
             header: "Action",
             id: "action",
             cell: ({ row }) => (
-                <div className="d-flex gap-2">
-                    <Button
-                        color="primary"
-                        size="sm"
-                        className="px-3 py-1"
-                        style={{ backgroundColor: "#0066b2", borderColor: "#0066b2", borderRadius: "8px" }}
-                        onClick={() => handleApprove(row.original)}
-                    >
-                        Approve
-                    </Button>
-                    <Button
-                        color="secondary"
-                        size="sm"
-                        className="px-3 py-1"
-                        outline
-                        style={{ borderRadius: "8px" }}
-                        onClick={() => handleView(row.original)}
-                    >
-                        View
-                    </Button>
-
-                    <Button
-                        color="danger"
-                        size="sm"
-                        className="px-3 py-1"
-                        style={{ borderRadius: "8px" }}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setDeleteRow(row.original);
-                            setShowDeleteConfirm(true);
-                        }}
-                        title="Remove (SAR)"
-                    >
-                        Remove
-                    </Button>
-
-                </div>
+                <Button
+                    color="primary"
+                    size="sm"
+                    className="px-3 py-1"
+                    style={{ backgroundColor: "#0066b2", borderColor: "#0066b2", borderRadius: "8px" }}
+                    onClick={() => handleApprove(row.original)}
+                >
+                    Approve
+                </Button>
             ),
         },
-    ], [selectedCustomer, filteredShipments]);
+    ], [selectedCustomer, baseColumns]);
+
+    // Approved table: bulk-selectable, single action = Remove (clears the flag)
+    const approvedColumns = useMemo(() => [
+        {
+            id: 'selection',
+            header: ({ table }) => (
+                <div className="d-flex justify-content-center">
+                    {selectedCustomer && (
+                        <Input
+                            type="checkbox"
+                            checked={table.getIsAllRowsSelected()}
+                            onChange={table.getToggleAllRowsSelectedHandler()}
+                        />
+                    )}
+                </div>
+            ),
+            cell: ({ row }) => (
+                <div className="d-flex justify-content-center">
+                    <Input
+                        type="checkbox"
+                        checked={row.getIsSelected()}
+                        disabled={!row.getCanSelect()}
+                        onChange={row.getToggleSelectedHandler()}
+                    />
+                </div>
+            ),
+            size: 50,
+        },
+        ...baseColumns,
+        {
+            header: "Action",
+            id: "action",
+            cell: ({ row }) => (
+                <Button
+                    color="danger"
+                    size="sm"
+                    className="px-3 py-1"
+                    style={{ borderRadius: "8px" }}
+                    onClick={() => {
+                        setRemoveFlagAwbs([row.original.awbno].filter(Boolean));
+                        setShowRemoveFlagConfirm(true);
+                    }}
+                >
+                    Remove
+                </Button>
+            ),
+        },
+    ], [selectedCustomer, baseColumns]);
 
 
 
     const selectedRowCount = Object.keys(rowSelection).length;
+    const selectedApprovedRowCount = Object.keys(approvedRowSelection).length;
 
     return (
         <div className='page-content py-0 px-0'>
@@ -402,89 +371,182 @@ const RtoApproval = () => {
             </div>
 
             <div className="container-fluid px-3">
-                <Row className="mt-3 align-items-end">
-                    <Col md={4} lg={3}>
-                        <FormGroup className="mb-0">
-                            <Label className="form-label fw-bold">Select Customer</Label>
-                            <Select
-                                options={userListOptions}
-                                placeholder="Select Customer"
-                                value={selectedCustomer}
-                                onChange={(val) => setSelectedCustomer(val)}
-                                isClearable={true}
-                                styles={customStyles}
-                            />
-                        </FormGroup>
-                    </Col>
-                    <Col md={4} lg={3}>
-                        <FormGroup className="mb-0">
-                            <Label className="form-label fw-bold">Select Date Range</Label>
-                            <DateRangeInput
-                                value={selectedRange}
-                                onChange={(range) => setSelectedRange(range)}
-                                isBorder={true}
-                            />
-                        </FormGroup>
-                    </Col>
-                    <Col md={2}>
-                        <Button
-                            color="primary"
-                            className="w-100"
-                            style={{ height: "38px", marginBottom: "17px" }}
-                            onClick={handleCheck}
-                        >
-                            {shipmentsLoading ? "Checking.." : "Check"}
-                        </Button>
-                    </Col>
-                    <Col md={3} lg={3} className="ms-auto">
-                        <Button
-                            color="primary"
-                            outline
-                            className="w-100"
-                            style={{ height: "38px", marginBottom: "17px" }}
-                            onClick={() => setBulkRtsOpen(true)}
-                        >
-                            Bulk RTS Mark
-                        </Button>
-                    </Col>
-                </Row>
+                {PAGE_TABS.length > 1 && (
+                    <Nav tabs className="mt-3 mb-2">
+                        {PAGE_TABS.map((tab) => (
+                            <NavItem key={tab.value}>
+                                <NavLink
+                                    className={pageTab === tab.value ? "active" : ""}
+                                    style={{ cursor: "pointer" }}
+                                    onClick={() => setPageTab(tab.value)}
+                                >
+                                    {tab.label}
+                                </NavLink>
+                            </NavItem>
+                        ))}
+                    </Nav>
+                )}
 
-                <div className="mt-2" style={{ height: "75vh", overflowY: "auto", overflowX: "hidden" }}>
-                    <TableContainer
-                        columns={columns}
-                        data={filteredShipments}
-                        isGlobalFilter={true}
-                        loading={shipmentsLoading}
-                        isPagination={true}
-                        SearchPlaceholder="Search across all columns..."
-                        pagination="pagination"
-                        paginationWrapper='dataTables_paginate paging_simple_numbers'
-                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
-                        rowSelection={rowSelection}
-                        onRowSelectionChange={setRowSelection}
-                    />
-                </div>
+                {pageTab === "attempts" && (
+                    <>
+                        <Row className="mt-3 align-items-end">
+                            <Col md={4} lg={3}>
+                                <FormGroup className="mb-0">
+                                    <Label className="form-label fw-bold">Select Customer</Label>
+                                    <Select
+                                        options={userListOptions}
+                                        placeholder="Select Customer"
+                                        value={selectedCustomer}
+                                        onChange={(val) => setSelectedCustomer(val)}
+                                        isClearable={true}
+                                        styles={customStyles}
+                                    />
+                                </FormGroup>
+                            </Col>
+                            <Col md={4} lg={3}>
+                                <FormGroup className="mb-0">
+                                    <Label className="form-label fw-bold">Select Date Range</Label>
+                                    <DateRangeInput
+                                        value={selectedRange}
+                                        onChange={(range) => setSelectedRange(range)}
+                                        isBorder={true}
+                                    />
+                                </FormGroup>
+                            </Col>
+                            <Col md={2}>
+                                <Button
+                                    color="primary"
+                                    className="w-100"
+                                    style={{ height: "38px", marginBottom: "17px" }}
+                                    onClick={handleCheck}
+                                >
+                                    {shipmentsLoading ? "Checking.." : "Check"}
+                                </Button>
+                            </Col>
+                            <Col md={3} lg={3} className="ms-auto">
+                                <Button
+                                    color="primary"
+                                    outline
+                                    className="w-100"
+                                    style={{ height: "38px" }}
+                                    onClick={() => setMarkForRtoExcelOpen(true)}
+                                >
+                                    Mark for RTO (Excel)
+                                </Button>
+                                <Button
+                                    color="danger"
+                                    outline
+                                    className="w-100 mt-2"
+                                    style={{ height: "38px", marginBottom: "17px" }}
+                                    onClick={() => setRemoveRtoExcelOpen(true)}
+                                >
+                                    Remove RTO (Excel)
+                                </Button>
+                            </Col>
+                        </Row>
+
+                        <Nav tabs className="mt-2 mb-2">
+                            {ATTEMPTS_SUB_TABS.map((tab) => (
+                                <NavItem key={tab.value}>
+                                    <NavLink
+                                        className={attemptsSubTab === tab.value ? "active" : ""}
+                                        style={{ cursor: "pointer" }}
+                                        onClick={() => setAttemptsSubTab(tab.value)}
+                                    >
+                                        {tab.label}{" "}
+                                        <span className="badge bg-secondary ms-1">
+                                            {tab.value === "pending" ? pendingShipments.length : approvedShipments.length}
+                                        </span>
+                                    </NavLink>
+                                </NavItem>
+                            ))}
+                        </Nav>
+
+                        <div style={{ height: "70vh", overflowY: "auto", overflowX: "hidden" }}>
+                            {shipmentsLoading ? (
+                                <div
+                                    className="d-flex flex-column justify-content-center align-items-center"
+                                    style={{ height: "40vh" }}
+                                >
+                                    <Spinner color="primary" style={{ width: "3rem", height: "3rem" }} />
+                                    <p className="mt-3 h5">Loading shipments...</p>
+                                </div>
+                            ) : attemptsSubTab === "pending" ? (
+                                <TableContainer
+                                    columns={pendingColumns}
+                                    data={pendingShipments}
+                                    isGlobalFilter={true}
+                                    isPagination={true}
+                                    SearchPlaceholder="Search across all columns..."
+                                    pagination="pagination"
+                                    paginationWrapper='dataTables_paginate paging_simple_numbers'
+                                    tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                                    rowSelection={rowSelection}
+                                    onRowSelectionChange={setRowSelection}
+                                    defaultPageSize={100}
+                                />
+                            ) : (
+                                <TableContainer
+                                    columns={approvedColumns}
+                                    data={approvedShipments}
+                                    isGlobalFilter={true}
+                                    isPagination={true}
+                                    SearchPlaceholder="Search across all columns..."
+                                    pagination="pagination"
+                                    paginationWrapper='dataTables_paginate paging_simple_numbers'
+                                    tableClass="table-bordered table-nowrap dt-responsive nowrap w-100 dataTable no-footer dtr-inline"
+                                    rowSelection={approvedRowSelection}
+                                    onRowSelectionChange={setApprovedRowSelection}
+                                    defaultPageSize={100}
+                                />
+                            )}
+                        </div>
+                    </>
+                )}
+
+                {pageTab === "rto_booking" && <RtoBookingPanel />}
             </div>
 
-            {
-                ReturnComponent(selectedModel)
-            }
+            <MarkForRtoModal
+                isOpen={markForRtoOpen}
+                toggle={() => setMarkForRtoOpen(false)}
+                initialAwbList={markForRtoAwbs}
+                onDone={() => {
+                    refreshShipments();
+                    setRowSelection({});
+                }}
+            />
 
-            <BulkRtsMarkModal isOpen={bulkRtsOpen} toggle={() => setBulkRtsOpen(false)} />
+            <MarkForRtoExcelModal
+                isOpen={markForRtoExcelOpen}
+                toggle={() => setMarkForRtoExcelOpen(false)}
+                onDone={refreshShipments}
+            />
 
-            {/* SAR remove confirmation modal */}
-            <Modal isOpen={showDeleteConfirm} toggle={() => setShowDeleteConfirm(false)} centered>
-                <ModalHeader toggle={() => setShowDeleteConfirm(false)}>Remove Shipment</ModalHeader>
+            <MarkForRtoExcelModal
+                isOpen={removeRtoExcelOpen}
+                toggle={() => setRemoveRtoExcelOpen(false)}
+                onDone={refreshShipments}
+                mode="remove"
+            />
+
+            {/* Remove (clear shipment_flag) confirmation modal */}
+            <Modal isOpen={showRemoveFlagConfirm} toggle={() => setShowRemoveFlagConfirm(false)} centered>
+                <ModalHeader toggle={() => setShowRemoveFlagConfirm(false)}>Remove from Approved</ModalHeader>
                 <ModalBody>
-                    Are you sure you want to remove AWB <strong>{deleteRow?.awbno}</strong>?
-                    This will mark it as SAR and cannot be undone.
+                    {removeFlagAwbs.length === 1 ? (
+                        <>Are you sure you want to remove the RTO approval for AWB <strong>{removeFlagAwbs[0]}</strong>?</>
+                    ) : (
+                        <>Are you sure you want to remove the RTO approval for <strong>{removeFlagAwbs.length}</strong> shipments?</>
+                    )}
+                    {" "}It will move back to Pending.
                 </ModalBody>
                 <ModalFooter>
-                    <Button color="secondary" onClick={() => setShowDeleteConfirm(false)} disabled={sarLoading}>
+                    <Button color="secondary" onClick={() => setShowRemoveFlagConfirm(false)} disabled={removeFlagLoading}>
                         Cancel
                     </Button>
-                    <Button color="danger" onClick={handleRemoveConfirm} disabled={sarLoading}>
-                        {sarLoading
+                    <Button color="danger" onClick={handleRemoveFlagConfirm} disabled={removeFlagLoading}>
+                        {removeFlagLoading
                             ? <><span className="spinner-border spinner-border-sm me-1" role="status" />Removing…</>
                             : "Remove"}
                     </Button>
@@ -492,7 +554,7 @@ const RtoApproval = () => {
             </Modal>
 
             {/* Bulk Action Footer */}
-            {selectedRowCount > 0 && (
+            {pageTab === "attempts" && attemptsSubTab === "pending" && selectedRowCount > 0 && (
                 <div
                     className="position-fixed bottom-0 start-0 w-100 d-flex justify-content-end align-items-center px-4 py-3 bg-white border-top shadow-lg"
                     style={{ zIndex: 1000, gap: "15px" }}
@@ -506,10 +568,32 @@ const RtoApproval = () => {
                     </Button>
                     <Button
                         color="primary"
-                        onClick={handleBulkApprove}
+                        onClick={handleApproveSelected}
                         style={{ backgroundColor: "#0066b2", borderColor: "#0066b2", borderRadius: "8px", padding: "8px 25px" }}
                     >
-                        Bulk Approval
+                        Approve Selected
+                    </Button>
+                </div>
+            )}
+
+            {pageTab === "attempts" && attemptsSubTab === "approved" && selectedApprovedRowCount > 0 && (
+                <div
+                    className="position-fixed bottom-0 start-0 w-100 d-flex justify-content-end align-items-center px-4 py-3 bg-white border-top shadow-lg"
+                    style={{ zIndex: 1000, gap: "15px" }}
+                >
+                    <Button
+                        color="secondary"
+                        onClick={handleCancelApprovedSelection}
+                        style={{ borderRadius: "8px", padding: "8px 25px" }}
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        color="danger"
+                        onClick={handleRemoveSelected}
+                        style={{ borderRadius: "8px", padding: "8px 25px" }}
+                    >
+                        Remove RTO
                     </Button>
                 </div>
             )}
