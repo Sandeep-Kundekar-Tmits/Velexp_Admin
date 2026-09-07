@@ -251,6 +251,13 @@ const TrackAWB = () => {
                                 style={{ cursor: "pointer" }}
                                 onClick={onTrack}
                             />
+                            {bookingData.rto_approval === true && bookingData.shipment_flag ? (
+                                <span className="badge" style={{ backgroundColor: OPS_COLORS.green.text }}>
+                                    RTO Approved
+                                </span>
+                            ) : (
+                                <span className="badge bg-secondary">Not RTO Approved</span>
+                            )}
                         </div>
 
                         <div className="row g-0 border">

@@ -204,8 +204,13 @@ const ShipmentTraceDetail = () => {
             <div className="container-fluid px-3 py-4">
                 {/* Booking Info */}
                 <div className="card mb-4">
-                    <div className="card-header border-0" style={{ backgroundColor: OPS_COLORS.blue.bg }}>
+                    <div className="card-header border-0 d-flex align-items-center justify-content-between" style={{ backgroundColor: OPS_COLORS.blue.bg }}>
                         <h6 className="mb-0 fw-bold" style={{ color: OPS_COLORS.blue.text }}>Booking Information</h6>
+                        {booking?.rto_approval === true && booking?.shipment_flag ? (
+                            <span className="badge" style={{ backgroundColor: OPS_COLORS.green.text }}>RTO Approved</span>
+                        ) : (
+                            <span className="badge bg-secondary">Not RTO Approved</span>
+                        )}
                     </div>
                     <div className="card-body">
                         <div className="row g-3">
