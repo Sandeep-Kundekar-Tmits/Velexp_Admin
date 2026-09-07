@@ -1,7 +1,7 @@
 // const BASE_URL = "http://192.168.1.151:8000"
 // const BASE_URL = "https://velexp.com"
-const BASE_URL = "http://velexp.com:8000"
-// const BASE_URL = "https://velexp.com"
+// const BASE_URL = "http://velexp.com:8000"
+const BASE_URL = "https://velexp.com"
 // const BASE_URL = "http://192.168.1.166:8000"
 // const BASE_URL = "http://103.108.57.51:8001"
 
@@ -286,6 +286,7 @@ export const BILLING_BATCH_SYNC_AUDIT = `${BASE_URL}/corporate-billing/billing/b
 export const BILLING_BATCH_GENERATE_WORKING = `${BASE_URL}/corporate-billing/billing/batch/generate-working/` // POST
 export const BILLING_BATCH_DIRECT_INVOICE = `${BASE_URL}/corporate-billing/billing/batch/direct-invoice/`    // POST (403 if disabled)
 export const BILLING_BATCH_BASE = `${BASE_URL}/corporate-billing/billing/batch/`                              // GET <id>/  (poll)
+export const BILLING_BATCH_CANCEL = (id) => `${BASE_URL}/corporate-billing/billing/batch/${id}/cancel/`        // POST
 export const BILLING_BATCH_LIST = `${BASE_URL}/corporate-billing/billing/batch/list/`                         // POST
 export const BILLING_AUDIT_REPORTS = `${BASE_URL}/corporate-billing/billing/audit-reports/`                   // GET (list / <id>/ / <id>/download/)
 export const BILLING_CONFIGURED_CUSTOMERS = `${BASE_URL}/corporate-billing/billing/configured-customers/`      // GET
@@ -580,6 +581,13 @@ export const MIS_RUN = `${BASE_URL}/api/ops-reports/mis-run/`;
 // SAR (undelivered shipment removal)
 export const RECORD_SAR_STATUS = `${BASE_URL}/undelivered-shipments/record-sar-status/`;
 
+// RTO booking flow — CS sets/clears a shipment flag (RTS_PENDING/RTO_APPROVAL/WRONG_AWB/PRIORITY)
+export const BULK_SET_SHIPMENT_FLAG = `${BASE_URL}/bulk-set-shipment-flag/` // POST { awbno_list, shipment_flag, remark, employee_id }
+// Ops: pending/booked RTO screen — response now also includes `rto_approved`
+export const PENDING_BOOKED_RTO = `${BASE_URL}/pending_booked_rto/` // POST { service_center, from_date?, to_date? }
+// Ops: book the RTO — send a single object (not array) with RTO_booking: true to distinguish from forward bulk booking
+export const CORPORATE_BULK_BOOKING = `${BASE_URL}/corporate-bulk-booking/` // POST { RTO_booking, Awbno, rto_scan_awbno, booked_by_id }
+
 // Auto Reconciliation (HO Operations)
 export const BANK_STATEMENT_UPLOAD = `${BASE_URL}/bank-statement/upload/`;
 export const BANK_STATEMENT_BASE = `${BASE_URL}/bank-statement/`; // GET list; GET {id}/; GET {id}/entries/?status=
@@ -595,3 +603,10 @@ export const INTERNATIONAL_SHIPMENTS_REPORT = `${BASE_URL}/api/admin-reports/int
 
 // International AWB dimension/weight change log — GET/POST ?awbno=&from_date=&to_date= (defaults to last 7 days)
 export const INTERNATIONAL_DIMENSION_CHANGE_LOG = `${BASE_URL}/api/admin-reports/international-awb-measurements-log/`;
+
+// International password bulk reset — POST { new_password } (admin JWT required)
+export const INTERNATIONAL_PASSWORD_BULK_UPDATE = `${BASE_URL}/international-password/bulk-update/`;
+
+// SPD / RTS hard delete — POST { awbno_list: [...], employee_id, remark, apply: true }
+export const BULK_HARD_DELETE_SPD_STATUS = `${BASE_URL}/bulk-hard-delete-spd-status/`;
+export const BULK_HARD_DELETE_RTS_STATUS = `${BASE_URL}/bulk-hard-delete-rts-status/`;
