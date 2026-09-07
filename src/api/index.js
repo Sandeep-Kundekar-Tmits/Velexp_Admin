@@ -570,6 +570,11 @@ export const OPS_DISPUTES_MARK_DIS = `${BASE_URL}/ops/disputes/mark-dis/`
 // Shipment Trace
 export const SHIPMENT_TRACE = `https://velexp.com/shipment-trace/`
 
+// Shipment & Bag Tracking (same endpoints as the Velocity-Ops "/tracking" screen)
+export const GET_AWB_TRACKING = `${BASE_URL}/awb-tracking/` // POST { awbno } -> { booking_data, track_data: { <awbno>: [...] } }
+export const GET_BAG_TRACKING = `${BASE_URL}/bag-tracking/` // POST { bag_no }
+export const GET_IN_DETAILED_TRACKING = `${BASE_URL}/detailed-tracking/` // POST { awbno } -> { booking_data, tracking: { <awbno>: { track_data: [...] } } }, each track_data entry can carry bag_data.parent_bag_data.bag_tracking
+
 // Ops pending report
 export const GET_OPS_PENDING_REPORT = `${BASE_URL}/api/admin-reports/pending-shipments/`;
 export const DOWNLOAD_OPS_PENDING_REPORT = `${BASE_URL}/api/admin-reports/pending-shipments/download/`;

@@ -1,8 +1,9 @@
 import { Button, Spinner } from "reactstrap"
+import { ChevronDown } from "lucide-react"
 import MainHeaderComp from "../../components/MainHeaderCom"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import usePostApiCall from "../../hooks/usePostApiCall"
-import { SHIPMENT_TRACE } from "../../api"
+import { SHIPMENT_TRACE, GET_IN_DETAILED_TRACKING } from "../../api"
 import ToasterProvider from "../../helpers/ToasterProvider"
 import { useParams, useNavigate } from "react-router-dom"
 import axios from 'axios'
@@ -35,14 +36,45 @@ const formatDateTime = (dateString) => {
     }
 }
 
+// Chain of bag hops (bag -> manifest -> vehicle/driver) linked to one tracking status
+const BagMovementChain = ({ bagTracking = [] }) => {
+    if (bagTracking.length === 0) {
+        return <div className="text-muted small py-2 ps-2">Bag details not available for this status</div>
+    }
+    return (
+        <div className="d-flex flex-column gap-2 ps-2 pt-2">
+            {bagTracking.map((bag, i) => (
+                <div key={bag.id ?? i} className="d-flex align-items-stretch gap-2">
+                    <div className="d-flex flex-column align-items-center">
+                        <div className="rounded-circle bg-primary" style={{ width: 10, height: 10, marginTop: 6 }} />
+                        {i < bagTracking.length - 1 && <div style={{ width: 2, flex: 1, background: "#b6d4fe" }} />}
+                    </div>
+                    <div className="border rounded p-2 flex-fill row row-cols-2 row-cols-md-4 g-2" style={{ fontSize: 13 }}>
+                        <div><span className="fw-semibold">Bag No:</span> {bag.bag_no || "-"}</div>
+                        <div><span className="fw-semibold">Manifest:</span> {bag.bag_manifest_no || "-"}</div>
+                        <div><span className="fw-semibold">Status:</span> {bag.status || "-"} {bag.remark ? `(${bag.remark})` : ""}</div>
+                        <div><span className="fw-semibold">Current SC:</span> {bag.current_service_center || "-"}</div>
+                        <div><span className="fw-semibold">Source:</span> {bag.source_service_center || "-"}</div>
+                        <div><span className="fw-semibold">Destination:</span> {bag.destination_service_center || "-"}</div>
+                        <div><span className="fw-semibold">Vehicle No:</span> {bag.vehicle_no || "-"}</div>
+                        <div><span className="fw-semibold">Driver:</span> {bag.driver_name || "-"} {bag.driver_mobile ? `(${bag.driver_mobile})` : ""}</div>
+                        <div className="col-12 text-muted"><span className="fw-semibold">Updated:</span> {formatDateTime(bag.created_at)}</div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    )
+}
+
 const ShipmentTraceDetail = () => {
     const { awbno } = useParams()
     const navigate = useNavigate()
     const [shipmentTrace, setShipmentTrace] = useState(null)
     const [loading, setLoading] = useState(true)
     const [downloading, setDownloading] = useState(false)
+    const [expandedIndex, setExpandedIndex] = useState(0)
 
-    const { apifunc: fetchShipmentTrace } = usePostApiCall()
+    const { apifunc: fetchDetailedTracking } = usePostApiCall()
     const { ErrorToaster, SucceesToaster } = ToasterProvider()
 
     useEffect(() => {
@@ -58,14 +90,15 @@ const ShipmentTraceDetail = () => {
 
         setLoading(true)
         try {
-            const res = await fetchShipmentTrace(SHIPMENT_TRACE, { awbno: awbno })
+            const res = await fetchDetailedTracking(GET_IN_DETAILED_TRACKING, { awbno })
             if (res?.status === "success") {
                 setShipmentTrace(res)
+                setExpandedIndex(0)
             } else {
                 ErrorToaster(res?.message || "Failed to fetch shipment details")
                 navigate(-1)
             }
-        } catch (error) {
+        } catch {
             ErrorToaster("Error fetching shipment details")
             navigate(-1)
         } finally {
@@ -84,7 +117,6 @@ const ShipmentTraceDetail = () => {
                 { responseType: 'blob' }
             )
 
-            // Create blob and download
             const url = window.URL.createObjectURL(new Blob([response.data]))
             const link = document.createElement('a')
             link.href = url
@@ -102,6 +134,16 @@ const ShipmentTraceDetail = () => {
             setDownloading(false)
         }
     }
+
+    const booking = shipmentTrace?.booking_data
+    const trackEvents = useMemo(() => {
+        const tracking = shipmentTrace?.tracking
+        if (!tracking) return []
+        const entry = tracking[awbno] || tracking[Object.keys(tracking)[0]]
+        return (entry?.track_data || [])
+            .slice()
+            .sort((a, b) => new Date(b.status_date) - new Date(a.status_date))
+    }, [shipmentTrace, awbno])
 
     if (loading) {
         return (
@@ -161,35 +203,35 @@ const ShipmentTraceDetail = () => {
                         <div className="row g-3">
                             <div className="col-md-3">
                                 <small className="text-muted">Order ID</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.orderid}</p>
+                                <p className="mb-0 fw-semibold">{booking?.orderid}</p>
                             </div>
                             <div className="col-md-3">
                                 <small className="text-muted">Product</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.product}</p>
+                                <p className="mb-0 fw-semibold">{booking?.product}</p>
                             </div>
                             <div className="col-md-3">
                                 <small className="text-muted">Weight</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.weight} kg</p>
+                                <p className="mb-0 fw-semibold">{booking?.weight} kg</p>
                             </div>
                             <div className="col-md-3">
                                 <small className="text-muted">Pieces</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.no_of_pieces}</p>
+                                <p className="mb-0 fw-semibold">{booking?.no_of_pieces}</p>
                             </div>
                             <div className="col-md-3">
                                 <small className="text-muted">Booked Date</small>
-                                <p className="mb-0 fw-semibold">{formatDate(shipmentTrace.booking?.booked_date)}</p>
+                                <p className="mb-0 fw-semibold">{formatDate(booking?.booked_date || booking?.booking_date)}</p>
                             </div>
                             <div className="col-md-3">
                                 <small className="text-muted">Vol. Weight</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.volumetric_weight} kg</p>
+                                <p className="mb-0 fw-semibold">{booking?.volumetric_weight} kg</p>
                             </div>
                             <div className="col-md-3">
                                 <small className="text-muted">Customer</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.customer_name}</p>
+                                <p className="mb-0 fw-semibold">{booking?.customer_name}</p>
                             </div>
                             <div className="col-md-3">
                                 <small className="text-muted">Multipiece Type</small>
-                                <p className="mb-0"><span className="badge bg-info text-capitalize">{shipmentTrace.booking?.multipiece_type}</span></p>
+                                <p className="mb-0"><span className="badge bg-info text-capitalize">{booking?.multipiece_type}</span></p>
                             </div>
                         </div>
                     </div>
@@ -204,31 +246,31 @@ const ShipmentTraceDetail = () => {
                         <div className="row g-3">
                             <div className="col-md-6">
                                 <small className="text-muted">Name</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.shipper_name}</p>
+                                <p className="mb-0 fw-semibold">{booking?.shipper_name}</p>
                             </div>
                             <div className="col-md-6">
                                 <small className="text-muted">Mobile</small>
                                 <p className="mb-0 fw-semibold">
-                                    <a href={`tel:${shipmentTrace.booking?.shipper_mobile}`} className="text-decoration-none">
-                                        {shipmentTrace.booking?.shipper_mobile}
+                                    <a href={`tel:${booking?.shipper_mobile}`} className="text-decoration-none">
+                                        {booking?.shipper_mobile}
                                     </a>
                                 </p>
                             </div>
                             <div className="col-12">
                                 <small className="text-muted">Address</small>
-                                <p className="mb-0">{shipmentTrace.booking?.shipper_address}</p>
+                                <p className="mb-0">{booking?.shipper_address}</p>
                             </div>
                             <div className="col-md-4">
                                 <small className="text-muted">City</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.shipper_city}</p>
+                                <p className="mb-0 fw-semibold">{booking?.shipper_city}</p>
                             </div>
                             <div className="col-md-4">
                                 <small className="text-muted">State</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.shipper_state}</p>
+                                <p className="mb-0 fw-semibold">{booking?.shipper_state}</p>
                             </div>
                             <div className="col-md-4">
                                 <small className="text-muted">Pincode</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.shipper_pincode}</p>
+                                <p className="mb-0 fw-semibold">{booking?.shipper_pincode}</p>
                             </div>
                         </div>
                     </div>
@@ -243,81 +285,70 @@ const ShipmentTraceDetail = () => {
                         <div className="row g-3">
                             <div className="col-md-6">
                                 <small className="text-muted">Name</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.consignee_name}</p>
+                                <p className="mb-0 fw-semibold">{booking?.consignee_name}</p>
                             </div>
                             <div className="col-md-6">
                                 <small className="text-muted">Mobile</small>
                                 <p className="mb-0 fw-semibold">
-                                    <a href={`tel:${shipmentTrace.booking?.consignee_mobile}`} className="text-decoration-none">
-                                        {shipmentTrace.booking?.consignee_mobile}
+                                    <a href={`tel:${booking?.consignee_mobile}`} className="text-decoration-none">
+                                        {booking?.consignee_mobile}
                                     </a>
                                 </p>
                             </div>
                             <div className="col-12">
                                 <small className="text-muted">Address</small>
-                                <p className="mb-0">{shipmentTrace.booking?.consignee_address}</p>
+                                <p className="mb-0">{booking?.consignee_address}</p>
                             </div>
                             <div className="col-md-4">
                                 <small className="text-muted">City</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.consignee_city}</p>
+                                <p className="mb-0 fw-semibold">{booking?.consignee_city}</p>
                             </div>
                             <div className="col-md-4">
                                 <small className="text-muted">State</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.consignee_state}</p>
+                                <p className="mb-0 fw-semibold">{booking?.consignee_state}</p>
                             </div>
                             <div className="col-md-4">
                                 <small className="text-muted">Pincode</small>
-                                <p className="mb-0 fw-semibold">{shipmentTrace.booking?.consignee_pincode}</p>
+                                <p className="mb-0 fw-semibold">{booking?.consignee_pincode}</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Tracking History */}
+                {/* Tracking History — click a status to see its bag movement chain */}
                 <div className="card">
                     <div className="card-header bg-light">
                         <h6 className="mb-0 fw-semibold">Tracking History</h6>
                     </div>
                     <div className="card-body p-0">
                         <div style={{ maxHeight: "600px", overflowY: "auto" }}>
-                            <table className="table table-bordered table-hover table-sm mb-0">
-                                <thead className="table-light sticky-top">
-                                    <tr>
-                                        <th>Status</th>
-                                        <th>Date & Time</th>
-                                        <th>Remarks</th>
-                                        <th>Service Center</th>
-                                        <th>Destination SC</th>
-                                        <th>Employee</th>
-                                        <th>Bag No</th>
-                                        <th>Manifest</th>
-                                        <th>Vehicle</th>
-                                        <th>Driver</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {shipmentTrace.pieces?.[awbno]?.map((piece, index) => (
-                                        <tr key={index}>
-                                            <td>
-                                                <span className="badge bg-primary">{piece.status}</span>
-                                            </td>
-                                            <td style={{ fontSize: "12px", whiteSpace: "nowrap" }}>
-                                                {formatDateTime(piece.status_date)}
-                                            </td>
-                                            <td style={{ fontSize: "12px", maxWidth: "150px" }} className="text-break">
-                                                {piece.remarks}
-                                            </td>
-                                            <td>{piece.service_center || "-"}</td>
-                                            <td>{piece.destination_sc || "-"}</td>
-                                            <td>{piece.employee_name || "-"}</td>
-                                            <td>{piece.bag_no || "-"}</td>
-                                            <td>{piece.manifest_no || "-"}</td>
-                                            <td>{piece.vehicle_no || "-"}</td>
-                                            <td>{piece.driver_name || "-"}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                            {trackEvents.length === 0 && (
+                                <div className="p-3 text-muted">No tracking history available</div>
+                            )}
+                            {trackEvents.map((ele, index) => {
+                                const open = expandedIndex === index
+                                const bagTracking = ele.bag_data?.parent_bag_data?.bag_tracking || []
+                                return (
+                                    <div key={ele.id ?? index} className="border-bottom">
+                                        <div
+                                            role="button"
+                                            onClick={() => setExpandedIndex(open ? -1 : index)}
+                                            className={`d-flex align-items-center justify-content-between px-3 py-2 ${open ? "bg-primary bg-opacity-10" : ""}`}
+                                            style={{ cursor: "pointer" }}
+                                        >
+                                            <div className="d-flex align-items-center gap-3 flex-wrap">
+                                                <span className="badge bg-primary">{ele.status}</span>
+                                                <span className="small" style={{ fontSize: 12 }}>{formatDateTime(ele.status_date)}</span>
+                                                <span className="text-muted text-break" style={{ fontSize: 12, maxWidth: 220 }}>{ele.remarks}</span>
+                                                <span className="text-muted" style={{ fontSize: 12 }}>{ele.service_center || "-"} → {ele.destination_sc || "-"}</span>
+                                                {ele.employee_name && <span className="text-muted" style={{ fontSize: 12 }}>{ele.employee_name}</span>}
+                                            </div>
+                                            <ChevronDown size={16} style={{ transition: "transform .15s", transform: open ? "rotate(180deg)" : "none" }} />
+                                        </div>
+                                        {open && <BagMovementChain bagTracking={bagTracking} />}
+                                    </div>
+                                )
+                            })}
                         </div>
                     </div>
                 </div>
