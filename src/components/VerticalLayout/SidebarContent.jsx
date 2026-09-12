@@ -658,6 +658,9 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
                 <li>
                   <Link to="/rts-remove">{props.t("RTS Remove")}</Link>
                 </li>
+                <li>
+                  <Link to="/tracking-correction">{props.t("Tracking Correction")}</Link>
+                </li>
               </ul>
             </li>
 
@@ -748,6 +751,7 @@ const SidebarContent = ({ onLinkClick, ...props }) => {
                   </Link>
                 </li>
             }
+
 
             {
               (canAccessNewFeatures || canCancelShipments) &&

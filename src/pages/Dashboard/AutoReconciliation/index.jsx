@@ -7,12 +7,14 @@ import {
 import { toast } from "react-toastify";
 import { Upload, FileText, CheckCircle, RefreshCw } from "lucide-react";
 import MainHeaderComp from "../../../components/MainHeaderCom";
+import UnmatchedTransactions from "./UnmatchedTransactions";
 import {
     BANK_STATEMENT_UPLOAD, BANK_STATEMENT_BASE, PENDING_MANIFESTS,
 } from "../../../api";
 
 const TAB_UPLOAD = "upload";
 const TAB_MANIFESTS = "manifests";
+const TAB_UNMATCHED = "unmatched";
 
 const fmtCurrency = (v) =>
     v == null ? "—" : `₹${Number(v).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`;
@@ -463,6 +465,7 @@ const AutoReconciliation = () => {
                     {[
                         { id: TAB_UPLOAD, label: "Upload Statement" },
                         { id: TAB_MANIFESTS, label: "Pending Manifests" },
+                        { id: TAB_UNMATCHED, label: "Unmatched Transactions" },
                     ].map(({ id, label }) => (
                         <NavItem key={id}>
                             <NavLink
@@ -716,6 +719,9 @@ const AutoReconciliation = () => {
                         </CardBody>
                     </Card>
                 )}
+
+                {/* ══ TAB 3: Unmatched Transactions ════════════════════════ */}
+                {activeTab === TAB_UNMATCHED && <UnmatchedTransactions />}
             </div>
 
             <style>{`.spin{animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}`}</style>

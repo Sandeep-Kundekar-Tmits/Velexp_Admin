@@ -1,7 +1,8 @@
 // const BASE_URL = "http://192.168.1.151:8000"
 // const BASE_URL = "https://velexp.com"
 // const BASE_URL = "http://velexp.com:8000"
-const BASE_URL = "https://velexp.com"
+// const BASE_URL = "https://velexp.com"
+const BASE_URL = "https://uat.velexp.com"
 // const BASE_URL = "http://192.168.1.166:8000"
 // const BASE_URL = "http://103.108.57.51:8001"
 
@@ -600,6 +601,15 @@ export const PENDING_MANIFESTS = `${BASE_URL}/pending-manifests/`;
 export const SC_ENTRIES = `${BASE_URL}/sc-entries/`;
 export const RECONCILED_HISTORY = `${BASE_URL}/reconciled-history/`;
 
+// Unmatched bank-statement transactions — outstanding-backlog view across all uploads.
+// Live on UAT only as of 06 Sep 2026, not yet ported to production (see Velocity-Ops
+// testing-docs/unmatched-transactions-api.md). This whole bank-statement flow runs without
+// JWT auth, so these intentionally point at the UAT host regardless of BASE_URL above.
+// Swap BANK_STATEMENT_UAT_BASE_URL to BASE_URL once the backend ships this to production.
+export const BANK_STATEMENT_UAT_BASE_URL = `https://uat.velexp.com`;
+export const GET_BANK_STATEMENT_ENTRIES = `${BANK_STATEMENT_UAT_BASE_URL}/bank-statement/entries/`; // GET ?status=&days=&page=&page_size=
+export const DOWNLOAD_BANK_STATEMENT_ENTRIES = `${BANK_STATEMENT_UAT_BASE_URL}/bank-statement/download-excel/`; // POST {status, days}
+
 export const BULK_CANCEL_BOOKING = `${BASE_URL}/bulk_cancel_booking_api/`;
 export const USER_CANCELLATION_REPORT = `${BASE_URL}/user_cancellation_report_api/`;
 
@@ -615,3 +625,8 @@ export const INTERNATIONAL_PASSWORD_BULK_UPDATE = `${BASE_URL}/international-pas
 // SPD / RTS hard delete — POST { awbno_list: [...], employee_id, remark, apply: true }
 export const BULK_HARD_DELETE_SPD_STATUS = `${BASE_URL}/bulk-hard-delete-spd-status/`;
 export const BULK_HARD_DELETE_RTS_STATUS = `${BASE_URL}/bulk-hard-delete-rts-status/`;
+
+// Manual Tracking Correction (admin JWT required) — fixes an existing tracking row's
+// status/date/service-center in place. No customer SMS/Vecom push fires from this.
+export const TRACKING_CORRECTION_INFO = `${BASE_URL}/tracking-correction/info/`; // GET ?awbno=
+export const TRACKING_CORRECTION = `${BASE_URL}/tracking-correction/`; // POST { shipment_tracking_id, remark, status?, status_date?, service_center? }

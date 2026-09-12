@@ -102,6 +102,7 @@ const InternationalDimensionChangeLog = lazy(() => import("../pages/Dashboard/Re
 const InternationalPasswordReset = lazy(() => import("../pages/Dashboard/InternationalPasswordReset"));
 const SpdRemove = lazy(() => import("../pages/Dashboard/SpdRemove"));
 const RtsRemove = lazy(() => import("../pages/Dashboard/RtsRemove"));
+const TrackingCorrection = lazy(() => import("../pages/Dashboard/TrackingCorrection"));
 
 // Ops Disputes (admin features)
 const OpsStaleShipments = lazy(() => import("../pages/OpsDisputes/StaleShipments"));
@@ -238,6 +239,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/international-password-reset", component: <InternationalPasswordReset /> },
     { path: "/spd-remove", component: <SpdRemove /> },
     { path: "/rts-remove", component: <RtsRemove /> },
+    { path: "/tracking-correction", component: <TrackingCorrection /> },
 
     // Ops Disputes
     { path: "/ops-disputes/stale", component: <OpsStaleShipments /> },
