@@ -1,16 +1,14 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Select, { components } from "react-select";
 import { Button, Col, FormGroup, Label, Row } from "@/components/ui";
 import Loader from "@/Loaders/Loader";
 import TableContainer from "../../../components/Table/TableContainer";
 import MainHeaderComp from "../../../components/MainHeaderCom";
 import {
-    GET_ALL_STATUSES,
     GET_OPS_PENDING_REPORT,
     DOWNLOAD_OPS_PENDING_REPORT,
 } from "../../../api";
 import { customStyles } from "../../../helpers/CustomStyle";
-import usePostApiCall from "../../../hooks/usePostApiCall";
 import { useQuery } from "@tanstack/react-query";
 import { qk } from "@/lib/queryKeys";
 import { fetchServiceCenters } from "@/services/reference.service";
@@ -30,16 +28,6 @@ const SCMultiValue = ({ index, getValue, ...props }) => {
             </span>
         );
     return null;
-};
-
-// Shows "N selected" badge instead of individual chips — same as Velocity-Ops
-const StatusCountValue = ({ index, getValue }) => {
-    if (index !== 0) return null;
-    return (
-        <span className="badge bg-brand-500 self-center">
-            {getValue().length} selected
-        </span>
-    );
 };
 
 const PendingReport = () => {
@@ -71,18 +59,6 @@ const PendingReport = () => {
         setSelectedSCs(chosen.some((o) => o.value === "__all__") ? scOptions : chosen);
     };
 
-    // ── Statuses (from API, same as Velocity-Ops) ──────────────────────────
-    const { apifunc: fetchStatuses } = usePostApiCall(null);
-    const [statusOptions, setStatusOptions] = useState([]);
-    const [selectedStatuses, setSelectedStatuses] = useState([]);
-
-    useEffect(() => {
-        fetchStatuses(GET_ALL_STATUSES, {}).then((res) => {
-            const list = res?.results?.results || [];
-            setStatusOptions(list.map((s) => ({ value: s.name, label: `${s.name} – ${s.description}` })));
-        });
-    }, []);
-
     // ── Date range: fixed 01-01-2025 → today (picker hidden) ──────────────
     const today = new Date().toISOString().split("T")[0];
     const [selectedRange] = useState({ startDate: "2025-01-01", endDate: today });
@@ -107,9 +83,8 @@ const PendingReport = () => {
             start_date: fmt.from_date || undefined,
             end_date: fmt.to_date || undefined,
         };
-        if (selectedStatuses.length > 0) payload.statuses = selectedStatuses.map((s) => s.value);
         return payload;
-    }, [selectedSCs, selectedRange, selectedStatuses]);
+    }, [selectedSCs, selectedRange]);
 
     const fetchReport = async (page = 1) => {
         if (selectedSCs.length === 0) { alert("Please select at least one Service Center."); return; }
@@ -134,15 +109,6 @@ const PendingReport = () => {
             setLoading(false);
         }
     };
-
-    // Auto-fetch once on page load, after service centers are loaded & pre-selected.
-    const didInitialFetch = useRef(false);
-    useEffect(() => {
-        if (!didInitialFetch.current && selectedSCs.length > 0) {
-            didInitialFetch.current = true;
-            fetchReport(1);
-        }
-    }, [selectedSCs]);
 
     const downloadExcel = async () => {
         setIsExporting(true);
@@ -243,10 +209,9 @@ const PendingReport = () => {
             <div className="container-fluid page-fit-body px-2">
 
                 {/* ── Filter bar (mirrors Velocity-Ops filter layout) ── */}
-                <Row className="gx-2 items-end pt-2 border-bottom pb-2">
+                <Row className="gx-2 items-end flex-nowrap pt-2 border-bottom pb-2">
 
-
-                    <Col md={3}>
+                    <Col xs="auto" style={{ minWidth: 320 }}>
                         <FormGroup className="mb-2">
                             <Label className="mb-1 text-xs font-semibold">Service Center</Label>
                             <Select
@@ -265,26 +230,7 @@ const PendingReport = () => {
                         </FormGroup>
                     </Col>
 
-                    <Col md={4}>
-                        <FormGroup className="mb-2">
-                            <Label className="mb-1 text-xs font-semibold">Statuses</Label>
-                            <Select
-                                isMulti
-                                placeholder="Select Statuses..."
-                                options={statusOptions}
-                                value={selectedStatuses}
-                                onChange={setSelectedStatuses}
-                                styles={customStyles}
-                                closeMenuOnSelect={false}
-                                hideSelectedOptions={false}
-                                components={{ MultiValue: StatusCountValue }}
-                                menuPortalTarget={document.body}
-                                menuPosition="fixed"
-                            />
-                        </FormGroup>
-                    </Col>
-
-                    <Col md={2} className="mb-2 flex items-center gap-2" style={{ flexWrap: "nowrap" }}>
+                    <Col xs="auto" className="mb-2 flex items-center gap-2" style={{ flexWrap: "nowrap" }}>
                         <Button
                             color="primary"
                             onClick={() => fetchReport(1)}
