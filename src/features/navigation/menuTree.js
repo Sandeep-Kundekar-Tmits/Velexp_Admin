@@ -252,6 +252,17 @@ export const MENU = [
       }
     ]
   },
+  // Visible to all logged-in users for now -- restrict with canHardDeleteStatus
+  // later, same as Master's own sidebar comment for these two screens.
+  {
+    label: "Status Update",
+    icon: "bx bx-trash",
+    children: [
+      { label: "SPD Remove", url: "/spd-remove" },
+      { label: "RTS Remove", url: "/rts-remove" },
+      { label: "Tracking Correction", url: "/tracking-correction" }
+    ]
+  },
   {
     label: "Billing",
     icon: "bx bx-receipt",

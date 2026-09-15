@@ -2,18 +2,19 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import * as XLSX from "xlsx";
 import {
     Badge, Button, Card, CardBody, Col, Row,
-    Nav, NavItem, NavLink, Spinner,
-} from "@/components/ui";
+    Nav, NavItem, NavLink, Spinner } from "@/components/ui";
 import { toast } from "react-toastify";
 import { Upload, FileText, CheckCircle, RefreshCw } from "lucide-react";
+import { FaFileExcel } from "react-icons/fa";
 import MainHeaderComp from "../../../components/MainHeaderCom";
+import UnmatchedTransactions from "./UnmatchedTransactions";
 import {
-    BANK_STATEMENT_UPLOAD, BANK_STATEMENT_BASE, PENDING_MANIFESTS,
-} from "../../../api";
+    BANK_STATEMENT_UPLOAD, BANK_STATEMENT_BASE, PENDING_MANIFESTS } from "../../../api";
 import { authFetch } from "@/lib/http";
 
 const TAB_UPLOAD = "upload";
 const TAB_MANIFESTS = "manifests";
+const TAB_UNMATCHED = "unmatched";
 
 const fmtCurrency = (v) =>
     v == null ? "—" : `₹${Number(v).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`;
@@ -27,14 +28,13 @@ const fmtDate = (v) => {
     if (isNaN(d)) return v;
     return d.toLocaleString("en-IN", {
         day: "2-digit", month: "2-digit", year: "numeric",
-        hour: "2-digit", minute: "2-digit", hour12: true,
-    });
+        hour: "2-digit", minute: "2-digit", hour12: true });
 };
 
 const StatBadge = ({ label, value, color = "primary" }) => (
-    <div className="inline-flex items-center gap-1 border rounded px-2 py-1">
-        <span className="text-xs text-ink-muted">{label}</span>
-        <Badge color={color} className="ml-1">{value ?? "—"}</Badge>
+    <div className="inline-flex min-w-0 items-center gap-1.5 rounded-lg border border-white/10 bg-white/3 px-2.5 py-1">
+        <span className="text-[11px] uppercase tracking-wider text-ink-muted">{label}</span>
+        <Badge color={color}>{value ?? "—"}</Badge>
     </div>
 );
 
@@ -73,21 +73,22 @@ const DataTable = ({ rows, emptyMsg = "No data", exportName = "export" }) => {
 
     return (
         <div className="flex min-h-0 flex-1 flex-col p-3">
-            <div className="flex shrink-0 items-center gap-2 mb-2">
+            {/* Wraps on a phone, where a 320px field and an export button do
+                not fit side by side. min-w-0 so the field gives way first. */}
+            <div className="mb-2 flex shrink-0 flex-wrap items-center gap-2">
                 <input
                     type="text"
-                    className="form-control form-control-sm"
+                    className="form-control form-control-sm min-w-0 flex-1 sm:max-w-80 sm:flex-none"
                     placeholder="Search across all columns…"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    style={{ maxWidth: 320 }}
                 />
                 <button
                     type="button"
-                    className="btn btn-success btn-sm flex items-center gap-1 shrink-0"
+                    className="table-action-btn table-action-btn-export shrink-0"
                     onClick={handleExport}
                 >
-                    <i className="bx bx-download" />
+                    <FaFileExcel size={15} aria-hidden="true" />
                     Export {q ? `(${filtered.length})` : `(${rows.length})`}
                 </button>
             </div>
@@ -148,9 +149,9 @@ const isAmt = (k) =>
     !/count|id|no\b/i.test(k);
 
 const amtClass = (k) => {
-    if (/pending|unmatched|due|outstanding|short|skipped/i.test(k)) return "text-danger fw-bold";
-    if (/received|collected|reconciled|paid|payment|credit|matched|deposit|validated/i.test(k)) return "text-success";
-    return "text-secondary";
+    if (/pending|unmatched|due|outstanding|short|skipped/i.test(k)) return "text-danger-500 font-semibold";
+    if (/received|collected|reconciled|paid|payment|credit|matched|deposit|validated/i.test(k)) return "text-success-500";
+    return "text-ink";
 };
 
 const fmtAmt = (v) =>
@@ -158,7 +159,7 @@ const fmtAmt = (v) =>
 
 const SubCell = ({ children, isLast, alignEnd = false }) => (
     <div
-        className={`d-flex align-items-center px-3${alignEnd ? " justify-content-end" : ""}${!isLast ? " border-bottom" : ""}`}
+        className={`flex items-center px-3 ${alignEnd ? "justify-end" : ""} ${!isLast ? "border-b border-white/8" : ""}`}
         style={{ height: 32, fontSize: 12, fontFamily: "monospace" }}
     >
         {children}
@@ -231,26 +232,27 @@ const ManifestTable = ({ rows, emptyMsg = "No data", exportName = "export" }) =>
 
     return (
         <div className="flex min-h-0 flex-1 flex-col p-3">
-            <div className="flex shrink-0 items-center gap-2 mb-2">
+            {/* Wraps on a phone, where a 320px field and an export button do
+                not fit side by side. min-w-0 so the field gives way first. */}
+            <div className="mb-2 flex shrink-0 flex-wrap items-center gap-2">
                 <input
                     type="text"
-                    className="form-control form-control-sm"
+                    className="form-control form-control-sm min-w-0 flex-1 sm:max-w-80 sm:flex-none"
                     placeholder="Search across all columns…"
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    style={{ maxWidth: 320 }}
                 />
                 <button
                     type="button"
-                    className="btn btn-success btn-sm flex items-center gap-1 shrink-0"
+                    className="table-action-btn table-action-btn-export shrink-0"
                     onClick={handleExport}
                 >
-                    <i className="bx bx-download" />
+                    <FaFileExcel size={15} aria-hidden="true" />
                     Export {q ? `(${filtered.length})` : `(${rows.length})`}
                 </button>
             </div>
 
-            <div style={{ overflowX: "auto", maxHeight: "60vh", overflowY: "auto" }}>
+            <div className="scroll-slim min-h-0 flex-1" style={{ overflow: "auto", maxHeight: "60vh" }}>
                 <table className="table table-sm table-hover mb-0" style={{ borderCollapse: "collapse" }}>
                     <thead className="table-light" style={{ position: "sticky", top: 0, zIndex: 1 }}>
                         <tr>
@@ -338,7 +340,7 @@ const AutoReconciliation = () => {
             setStmtList(results);
             setTotalCount(json.count ?? results.length);
         } catch (err) {
-            toast.error(err.message, { position: "bottom-right", autoClose: 5000 });
+            toast.error(err.message, { autoClose: 5000 });
         } finally {
             setListLoading(false);
         }
@@ -364,7 +366,7 @@ const AutoReconciliation = () => {
             if (!res.ok) throw new Error(json?.detail || `Error ${res.status}`);
             setStmtDetail(json);
         } catch (err) {
-            toast.error(err.message, { position: "bottom-right", autoClose: 5000 });
+            toast.error(err.message, { autoClose: 5000 });
         } finally {
             setDetailLoading(false);
         }
@@ -381,7 +383,7 @@ const AutoReconciliation = () => {
             if (!res.ok) throw new Error(json?.detail || `Error ${res.status}`);
             setEntries(Array.isArray(json) ? json : (json.entries ?? json.results ?? []));
         } catch (err) {
-            toast.error(err.message, { position: "bottom-right", autoClose: 5000 });
+            toast.error(err.message, { autoClose: 5000 });
         } finally {
             setEntriesLoading(false);
         }
@@ -410,16 +412,15 @@ const AutoReconciliation = () => {
             const res = await authFetch(BANK_STATEMENT_UPLOAD, {
                 method: "POST",
                 credentials: "include",
-                body: form,
-            });
+                body: form });
             const json = await res.json();
             if (!res.ok) throw new Error(json?.detail || json?.message || `Error ${res.status}`);
             setUploadResult(json);
-            toast.success("Statement uploaded successfully", { position: "bottom-right", autoClose: 4000 });
+            toast.success("Statement uploaded successfully", { autoClose: 4000 });
             await fetchStmtList();
             if (json.id) selectStatement(json.id);
         } catch (err) {
-            toast.error(err.message, { position: "bottom-right", autoClose: 5000 });
+            toast.error(err.message, { autoClose: 5000 });
         } finally {
             setUploading(false);
         }
@@ -445,7 +446,7 @@ const AutoReconciliation = () => {
             if (!res.ok) throw new Error(json?.detail || `Error ${res.status}`);
             setMfData(json);
         } catch (err) {
-            toast.error(err.message, { position: "bottom-right", autoClose: 5000 });
+            toast.error(err.message, { autoClose: 5000 });
         } finally {
             setMfLoading(false);
         }
@@ -473,6 +474,7 @@ const AutoReconciliation = () => {
                     {[
                         { id: TAB_UPLOAD, label: "Upload Statement" },
                         { id: TAB_MANIFESTS, label: "Pending Manifests" },
+                        { id: TAB_UNMATCHED, label: "Unmatched Transactions" },
                     ].map(({ id, label }) => (
                         <NavItem key={id}>
                             <NavLink
@@ -509,8 +511,7 @@ const AutoReconciliation = () => {
                                         style={{
                                             border: "2px dashed #ced4da",
                                             cursor: uploadFile ? "default" : "pointer",
-                                            minHeight: 44,
-                                        }}
+                                            minHeight: 44 }}
                                         onClick={() => !uploadFile && fileRef.current?.click()}
                                     >
                                         <input
@@ -699,7 +700,7 @@ const AutoReconciliation = () => {
                 {activeTab === TAB_MANIFESTS && (
                     <Card className="flex min-h-0 flex-1 flex-col">
                         <CardBody className="flex min-h-0 flex-1 flex-col p-0">
-                            <div className="px-4 py-2 border-bottom flex items-center gap-4 flex-wrap">
+                            <div className="flex shrink-0 flex-wrap items-center gap-2 border-b border-white/8 px-4 py-2.5">
                                 {mfData && (
                                     <>
                                         <StatBadge label="Total" value={mfData.total} color="primary" />
@@ -729,6 +730,9 @@ const AutoReconciliation = () => {
                         </CardBody>
                     </Card>
                 )}
+
+                {/* ══ TAB 3: Unmatched Transactions ════════════════════════ */}
+                {activeTab === TAB_UNMATCHED && <UnmatchedTransactions />}
             </div>
 
             <style>{`.spin{animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}`}</style>
