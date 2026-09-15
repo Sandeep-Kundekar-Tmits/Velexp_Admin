@@ -19,7 +19,7 @@ export const GET_FILTERED_PRODUCT_LIST = `${BASE_URL}/accounts-created-by/filter
 export const UPDATE_ACTIVE_STATUS = `${BASE_URL}/users/change-account-status/` // POST
 // updated get All User List
 export const GET_ALL_USER_LIST = `${BASE_URL}/users/created-users/`
-//post the user 
+//post the user
 export const POST_USER_API = `${BASE_URL}/users/`
 
 //  update user
@@ -283,6 +283,7 @@ export const BILLING_BATCH_SYNC_AUDIT = `${BASE_URL}/corporate-billing/billing/b
 export const BILLING_BATCH_GENERATE_WORKING = `${BASE_URL}/corporate-billing/billing/batch/generate-working/` // POST
 export const BILLING_BATCH_DIRECT_INVOICE = `${BASE_URL}/corporate-billing/billing/batch/direct-invoice/`    // POST (403 if disabled)
 export const BILLING_BATCH_BASE = `${BASE_URL}/corporate-billing/billing/batch/`                              // GET <id>/  (poll)
+export const BILLING_BATCH_CANCEL = (id) => `${BASE_URL}/corporate-billing/billing/batch/${id}/cancel/`        // POST
 export const BILLING_BATCH_LIST = `${BASE_URL}/corporate-billing/billing/batch/list/`                         // POST
 export const BILLING_AUDIT_REPORTS = `${BASE_URL}/corporate-billing/billing/audit-reports/`                   // GET (list / <id>/ / <id>/download/)
 export const BILLING_CONFIGURED_CUSTOMERS = `${BASE_URL}/corporate-billing/billing/configured-customers/`      // GET
@@ -600,6 +601,11 @@ export const OPS_DISPUTES_MARK_DIS = `${BASE_URL}/ops/disputes/mark-dis/`
 // Shipment Trace
 export const SHIPMENT_TRACE = `https://velexp.com/shipment-trace/`
 
+// Shipment & Bag Tracking (same endpoints as the Velocity-Ops "/tracking" screen)
+export const GET_AWB_TRACKING = `${BASE_URL}/awb-tracking/` // POST { awbno } -> { booking_data, track_data: { <awbno>: [...] } }
+export const GET_BAG_TRACKING = `${BASE_URL}/bag-tracking/` // POST { bag_no }
+export const GET_IN_DETAILED_TRACKING = `${BASE_URL}/detailed-tracking/` // POST { awbno } -> { booking_data, tracking: { <awbno>: { track_data: [...] } } }, each track_data entry can carry bag_data.parent_bag_data.bag_tracking
+
 // Ops pending report
 export const GET_OPS_PENDING_REPORT = `${BASE_URL}/api/admin-reports/pending-shipments/`;
 export const DOWNLOAD_OPS_PENDING_REPORT = `${BASE_URL}/api/admin-reports/pending-shipments/download/`;
@@ -611,12 +617,28 @@ export const MIS_RUN = `${BASE_URL}/api/ops-reports/mis-run/`;
 // SAR (undelivered shipment removal)
 export const RECORD_SAR_STATUS = `${BASE_URL}/undelivered-shipments/record-sar-status/`;
 
+// RTO booking flow — CS sets/clears a shipment flag (RTS_PENDING/RTO_APPROVAL/WRONG_AWB/PRIORITY)
+export const BULK_SET_SHIPMENT_FLAG = `${BASE_URL}/bulk-set-shipment-flag/` // POST { awbno_list, shipment_flag, remark, employee_id }
+// Ops: pending/booked RTO screen — response now also includes `rto_approved`
+export const PENDING_BOOKED_RTO = `${BASE_URL}/pending_booked_rto/` // POST { service_center, from_date?, to_date? }
+// Ops: book the RTO — send a single object (not array) with RTO_booking: true to distinguish from forward bulk booking
+export const CORPORATE_BULK_BOOKING = `${BASE_URL}/corporate-bulk-booking/` // POST { RTO_booking, Awbno, rto_scan_awbno, booked_by_id }
+
 // Auto Reconciliation (HO Operations)
 export const BANK_STATEMENT_UPLOAD = `${BASE_URL}/bank-statement/upload/`;
 export const BANK_STATEMENT_BASE = `${BASE_URL}/bank-statement/`; // GET list; GET {id}/; GET {id}/entries/?status=
 export const PENDING_MANIFESTS = `${BASE_URL}/pending-manifests/`;
 export const SC_ENTRIES = `${BASE_URL}/sc-entries/`;
 export const RECONCILED_HISTORY = `${BASE_URL}/reconciled-history/`;
+
+// Unmatched bank-statement transactions — outstanding-backlog view across all uploads.
+// Live on UAT only as of 06 Sep 2026, not yet ported to production (see Velocity-Ops
+// testing-docs/unmatched-transactions-api.md). This whole bank-statement flow runs without
+// JWT auth, so these intentionally point at the UAT host regardless of VITE_API_BASE_URL —
+// swap BANK_STATEMENT_UAT_BASE_URL to BASE_URL once the backend ships this to production.
+export const BANK_STATEMENT_UAT_BASE_URL = `https://uat.velexp.com`;
+export const GET_BANK_STATEMENT_ENTRIES = `${BANK_STATEMENT_UAT_BASE_URL}/bank-statement/entries/`; // GET ?status=&days=&page=&page_size=
+export const DOWNLOAD_BANK_STATEMENT_ENTRIES = `${BANK_STATEMENT_UAT_BASE_URL}/bank-statement/download-excel/`; // POST {status, days}
 
 export const BULK_CANCEL_BOOKING = `${BASE_URL}/bulk_cancel_booking_api/`;
 export const USER_CANCELLATION_REPORT = `${BASE_URL}/user_cancellation_report_api/`;
@@ -626,3 +648,12 @@ export const INTERNATIONAL_SHIPMENTS_REPORT = `${BASE_URL}/api/admin-reports/int
 
 // International AWB dimension/weight change log — GET/POST ?awbno=&from_date=&to_date= (defaults to last 7 days)
 export const INTERNATIONAL_DIMENSION_CHANGE_LOG = `${BASE_URL}/api/admin-reports/international-awb-measurements-log/`;
+
+// SPD / RTS hard delete — POST { awbno_list: [...], employee_id, remark, apply: true }
+export const BULK_HARD_DELETE_SPD_STATUS = `${BASE_URL}/bulk-hard-delete-spd-status/`;
+export const BULK_HARD_DELETE_RTS_STATUS = `${BASE_URL}/bulk-hard-delete-rts-status/`;
+
+// Manual Tracking Correction (admin JWT required) — fixes an existing tracking row's
+// status/date/service-center in place. No customer SMS/Vecom push fires from this.
+export const TRACKING_CORRECTION_INFO = `${BASE_URL}/tracking-correction/info/`; // GET ?awbno=
+export const TRACKING_CORRECTION = `${BASE_URL}/tracking-correction/`; // POST { shipment_tracking_id, remark, status?, status_date?, service_center? }
