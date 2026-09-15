@@ -1,5 +1,6 @@
 // Animated area/line chart for the last-7-days Gross vs Net trend.
 import ReactApexChart from "react-apexcharts"
+import { withChartTheme, axisLabelStyle } from "../../chartTheme"
 import { Card, CardBody } from "@/components/ui"
 import { formatINR, formatINRCompact, shortDate } from "../revenueFormat"
 
@@ -10,7 +11,7 @@ const RevenueAreaChart = ({ rows = [] }) => {
         { name: "Net", data: rows.map((r) => Number(r.net) || 0) },
     ]
 
-    const options = {
+    const options = withChartTheme({
         chart: {
             type: "area",
             height: 400,
@@ -23,7 +24,7 @@ const RevenueAreaChart = ({ rows = [] }) => {
                 dynamicAnimation: { enabled: true, speed: 450 },
             },
         },
-        colors: ["#556ee6", "#34c38f"],
+        colors: ["#3B82F6", "#22C55E"],
         dataLabels: { enabled: false },
         stroke: { curve: "smooth", width: 3 },
         fill: {
@@ -31,18 +32,18 @@ const RevenueAreaChart = ({ rows = [] }) => {
             gradient: { shadeIntensity: 1, opacityFrom: 0.45, opacityTo: 0.05, stops: [0, 90, 100] },
         },
         markers: { size: 4, hover: { size: 6 } },
-        grid: { borderColor: "#f1f1f5", strokeDashArray: 4 },
-        xaxis: { categories, labels: { style: { fontSize: "12px" } } },
-        yaxis: { labels: { formatter: (v) => formatINRCompact(v) } },
+        grid: { borderColor: "rgba(255,255,255,0.08)", strokeDashArray: 4 },
+        xaxis: { categories, labels: { style: axisLabelStyle("12px") } },
+        yaxis: { labels: { formatter: (v) => formatINRCompact(v), style: axisLabelStyle() } },
         legend: { position: "top", horizontalAlign: "right" },
         tooltip: { shared: true, y: { formatter: (v) => formatINR(v) } },
-    }
+    })
 
     return (
-        <Card className="shadow-sm border-0 mb-6 h-full">
+        <Card className="h-full">
             <CardBody className="flex flex-col">
-                <h6 className="font-bold mb-1">Last 7 Days — Gross vs Net</h6>
-                <p className="text-ink-muted text-xs mb-4">Daily gross &amp; net revenue trend</p>
+                <h6 className="m-0 text-[13px] font-semibold text-white">Last 7 Days — Gross vs Net</h6>
+                <p className="m-0 mb-3 mt-0.5 text-[11px] text-ink-muted">Daily gross &amp; net revenue trend</p>
                 <div className="mt-auto">
                     <ReactApexChart options={options} series={series} type="area" height={400} />
                 </div>

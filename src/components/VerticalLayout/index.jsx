@@ -1,8 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
 import withRouter from "../Common/withRouter";
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 import Sidebar from "./Sidebar";
 import PageHeader from "./PageHeader";
@@ -67,19 +65,6 @@ const Layout = (props) => {
           isMobile={isMobile}
           mobileSidebarOpen={mobileSidebarOpen}
           onMobileClose={closeMobileSidebar}
-        />
-
-        <ToastContainer
-          position="bottom-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick={false}
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
         />
 
         {/* bg-canvas, not bg-white: the content area is the page canvas, one

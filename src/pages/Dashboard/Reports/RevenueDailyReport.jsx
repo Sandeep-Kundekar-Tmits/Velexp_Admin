@@ -2,8 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Button, Card, CardBody, Col, FormGroup, Input, Label, Nav, NavItem, NavLink, Row, TabContent, TabPane } from "@/components/ui";
 import {
     MdAccessTime, MdCalendarMonth, MdCurrencyRupee, MdDateRange,
-    MdHistory, MdLocalShipping, MdToday, MdTrendingDown, MdTrendingFlat, MdTrendingUp,
-} from "react-icons/md";
+    MdHistory, MdLocalShipping, MdToday, MdTrendingDown, MdTrendingFlat, MdTrendingUp } from "react-icons/md";
 import Loader from "@/Loaders/Loader";
 import { toast } from "react-toastify";
 import TableContainer from "../../../components/Table/TableContainer";
@@ -55,64 +54,56 @@ const metricColumnGroups = (labels = {}) => [
         columns: [
             { id: "today_volume", header: "Volume", accessorKey: "today.volume", enableColumnFilter: false, cell: plainCell },
             { id: "today_revenue", header: "Revenue", accessorKey: "today.revenue", enableColumnFilter: false, cell: plainCell },
-        ],
-    },
+        ] },
     {
         id: "same_day_last_month",
         header: shortDate(labels.same_day_last_month) || "Same Day Last Month",
         columns: [
             { id: "sdlm_volume", header: "Volume", accessorKey: "same_day_last_month.volume", enableColumnFilter: false, cell: plainCell },
             { id: "sdlm_revenue", header: "Revenue", accessorKey: "same_day_last_month.revenue", enableColumnFilter: false, cell: plainCell },
-        ],
-    },
+        ] },
     {
         id: "day_variation",
         header: "Day Variation",
         columns: [
             { id: "dv_volume", header: "Volume", accessorKey: "day_variation.volume", enableColumnFilter: false, cell: trendVolumeCell },
             { id: "dv_revenue", header: "Revenue", accessorKey: "day_variation.revenue", enableColumnFilter: false, cell: trendRevenueCell },
-        ],
-    },
+        ] },
     {
         id: "day_variation_pct",
         header: "Day Variation %",
         columns: [
             { id: "dvp_volume", header: "Volume", accessorKey: "day_variation_pct.volume", enableColumnFilter: false, cell: trendPctCell },
             { id: "dvp_revenue", header: "Revenue", accessorKey: "day_variation_pct.revenue", enableColumnFilter: false, cell: trendPctCell },
-        ],
-    },
+        ] },
     {
         id: "mtd",
         header: labels.mtd_range || "MTD",
         columns: [
             { id: "mtd_volume", header: "Volume", accessorKey: "mtd.volume", enableColumnFilter: false, cell: plainCell },
             { id: "mtd_revenue", header: "Revenue", accessorKey: "mtd.revenue", enableColumnFilter: false, cell: plainCell },
-        ],
-    },
+        ] },
     {
         id: "same_span_last_month",
         header: labels.same_span_last_month_range || "Same Span Last Month",
         columns: [
             { id: "sslm_volume", header: "Volume", accessorKey: "same_span_last_month.volume", enableColumnFilter: false, cell: plainCell },
             { id: "sslm_revenue", header: "Revenue", accessorKey: "same_span_last_month.revenue", enableColumnFilter: false, cell: plainCell },
-        ],
-    },
+        ] },
     {
         id: "mtd_variation",
         header: "MTD Variation",
         columns: [
             { id: "mtdv_volume", header: "Volume", accessorKey: "mtd_variation.volume", enableColumnFilter: false, cell: trendVolumeCell },
             { id: "mtdv_revenue", header: "Revenue", accessorKey: "mtd_variation.revenue", enableColumnFilter: false, cell: trendRevenueCell },
-        ],
-    },
+        ] },
     {
         id: "mtd_variation_pct",
         header: "MTD Variation %",
         columns: [
             { id: "mtdvp_volume", header: "Volume", accessorKey: "mtd_variation_pct.volume", enableColumnFilter: false, cell: trendPctCell },
             { id: "mtdvp_revenue", header: "Revenue", accessorKey: "mtd_variation_pct.revenue", enableColumnFilter: false, cell: trendPctCell },
-        ],
-    },
+        ] },
 ];
 
 const COMPANY_IDENTITY_LEAVES = [
@@ -133,7 +124,7 @@ const BRANCH_IDENTITY_LEAVES = [
 const COMPANY_IDENTITY_COLUMNS = [{ id: "identity", header: "", columns: COMPANY_IDENTITY_LEAVES }];
 const BRANCH_IDENTITY_COLUMNS = [{ id: "identity", header: "", columns: BRANCH_IDENTITY_LEAVES }];
 
-// soft tinted background from a hex accent (e.g. "#556ee6" -> "rgba(85,110,230,0.12)")
+// soft tinted background from a hex accent (e.g. "#3B82F6" -> "rgba(85,110,230,0.12)")
 const tint = (hex, a = 0.12) => {
     const h = hex.replace("#", "");
     const r = parseInt(h.slice(0, 2), 16);
@@ -142,7 +133,7 @@ const tint = (hex, a = 0.12) => {
     return `rgba(${r},${g},${b},${a})`;
 };
 
-const TREND_COLOR = { up: "#34c38f", down: "#f46a6a", flat: "#74788d" };
+const TREND_COLOR = { up: "#22C55E", down: "#EF4444", flat: "#94A3B8" };
 const TREND_ICON = { up: MdTrendingUp, down: MdTrendingDown, flat: MdTrendingFlat };
 
 const StatTile = ({ title, icon: Icon, accent, value, delta, deltaValueText, comparisonLabel }) => {
@@ -150,7 +141,7 @@ const StatTile = ({ title, icon: Icon, accent, value, delta, deltaValueText, com
     const TrendIcon = TREND_ICON[trend];
     const trendColor = TREND_COLOR[trend];
     return (
-        <Card className="border-0 shadow-sm h-full" style={{ borderTop: `3px solid ${accent}` }}>
+        <Card className="h-full" style={{ borderTop: `3px solid ${accent}` }}>
             <CardBody className="px-4 py-2">
                 <div className="flex items-center justify-between mb-2">
                     <span
@@ -240,8 +231,7 @@ const RevenueDailyReport = () => {
             const res = await authFetch(`${REVENUE_DAILY_REPORT}?${params.toString()}`, {
                 method: "GET",
                 credentials: "include",
-                headers: { Accept: "application/json" },
-            });
+                headers: { Accept: "application/json" } });
             if (!res.ok) throw new Error(`Server error: ${res.status}`);
             const json = await res.json();
 
@@ -253,11 +243,11 @@ const RevenueDailyReport = () => {
             setMeta({ asOf: json?.as_of, labels: json?.labels || {} });
 
             if (!companyRows.length && !branchRows.length) {
-                toast("No revenue data found.", { position: "bottom-right", autoClose: 4000 });
+                toast("No revenue data found.", { autoClose: 4000 });
             }
         } catch (err) {
             console.error("Revenue daily report fetch error:", err);
-            toast.error(err.message || "Failed to load revenue report.", { position: "bottom-right", autoClose: 5000 });
+            toast.error(err.message || "Failed to load revenue report.", { autoClose: 5000 });
         } finally {
             setLoading(false);
             setHasSearched(true);
@@ -273,8 +263,7 @@ const RevenueDailyReport = () => {
 
             const res = await authFetch(`${REVENUE_DAILY_REPORT}${qs ? `?${qs}` : ""}`, {
                 method: "GET",
-                credentials: "include",
-            });
+                credentials: "include" });
             if (!res.ok) throw new Error(`Server error: ${res.status}`);
             const blob = await res.blob();
             const url = URL.createObjectURL(blob);
@@ -287,7 +276,7 @@ const RevenueDailyReport = () => {
             URL.revokeObjectURL(url);
         } catch (err) {
             console.error("Revenue daily report download error:", err);
-            toast.error("Failed to download report.", { position: "bottom-right", autoClose: 5000 });
+            toast.error("Failed to download report.", { autoClose: 5000 });
         } finally {
             setIsExporting(false);
         }
@@ -340,8 +329,7 @@ const RevenueDailyReport = () => {
             key: c.key,
             value: c.value - c.compareValue,
             mtdRevenue: c.value,
-            baselineRevenue: c.compareValue,
-        })),
+            baselineRevenue: c.compareValue })),
         [topCustomers]
     );
 
@@ -361,8 +349,7 @@ const RevenueDailyReport = () => {
                 key,
                 mtdRevenue: v.mtdRevenue,
                 baselineRevenue: v.baselineRevenue,
-                pctChange: v.baselineRevenue > 0 ? ((v.mtdRevenue - v.baselineRevenue) / v.baselineRevenue) * 100 : null,
-            }))
+                pctChange: v.baselineRevenue > 0 ? ((v.mtdRevenue - v.baselineRevenue) / v.baselineRevenue) * 100 : null }))
             .filter((d) => d.baselineRevenue >= AT_RISK_MIN_BASELINE && d.pctChange !== null && d.pctChange < 0)
             .sort((a, b) => a.pctChange - b.pctChange)
             .slice(0, 10);
@@ -386,16 +373,25 @@ const RevenueDailyReport = () => {
             SearchPlaceholder="Search from table..."
             pagination="pagination"
             paginationWrapper="dataTables_paginate paging_simple_numbers"
-            tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+            tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+            theadClass="sticky top-0 z-10"
+            isStickyHeader={true}
+            stickyTop={0}
+            tableHeight="62vh"
             defaultPageSize={50}
         />
     );
 
     return (
-        <div className="page-content py-0 px-0">
-            <div className="sticky bg-white" style={{ top: 0, zIndex: 100 }}>
-                <MainHeaderComp title="Revenue Report" />
-            </div>
+        /* No page-fit: a dashboard of stat tiles and stacked tables, taller
+           than the viewport by design, so it keeps scrolling. */
+        <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
+            {/* No sticky wrapper: MainHeaderComp draws nothing inline now,
+                it hands the title to the layout's PageHeader. */}
+            <MainHeaderComp
+                title="Revenue Report"
+                subTitle="Daily revenue against the previous period, by branch."
+            />
 
             <div className="container-fluid px-4">
                 <Row className="items-end pt-4 pb-2">
@@ -433,52 +429,54 @@ const RevenueDailyReport = () => {
                                             <InfoPill icon={MdAccessTime} label="Data as of" value={formatAsOf(meta.asOf)} />
                                         </div>
                                     )}
-                                    <Row className="gap-4 pb-4">
-                                        <Col lg={3} md={6}>
+                                    {/* Grid, not Row/Col: one gap value for both axes, so the four
+                                        tiles keep the same spacing when they wrap. */}
+                                    <div className="grid grid-cols-1 gap-4 pb-4 sm:grid-cols-2 lg:grid-cols-4">
+                                        <div>
                                             <StatTile
                                                 title="Today Volume"
                                                 icon={MdLocalShipping}
-                                                accent="#50a5f1"
+                                                accent="#38BDF8"
                                                 value={formatInt(summary.todayVolume)}
                                                 delta={summary.dayVarVolume}
                                                 deltaValueText={deltaText(summary.dayVarVolume, "volume")}
                                                 comparisonLabel="vs same day last month"
                                             />
-                                        </Col>
-                                        <Col lg={3} md={6}>
+                                        </div>
+                                        <div>
                                             <StatTile
                                                 title="Today Revenue"
                                                 icon={MdCurrencyRupee}
-                                                accent="#556ee6"
+                                                accent="#3B82F6"
                                                 value={formatINRCompact(summary.todayRevenue)}
                                                 delta={summary.dayVarRevenue}
                                                 deltaValueText={deltaText(summary.dayVarRevenue, "revenue")}
                                                 comparisonLabel="vs same day last month"
                                             />
-                                        </Col>
-                                        <Col lg={3} md={6}>
+                                        </div>
+                                        <div>
                                             <StatTile
                                                 title="MTD Volume"
                                                 icon={MdCalendarMonth}
-                                                accent="#f1b44c"
+                                                accent="#F59D0E"
                                                 value={formatInt(summary.mtdVolume)}
                                                 delta={summary.mtdVarVolume}
                                                 deltaValueText={deltaText(summary.mtdVarVolume, "volume")}
                                                 comparisonLabel="vs same span last month"
                                             />
-                                        </Col>
-                                        <Col lg={3} md={6}>
+                                        </div>
+                                        <div>
                                             <StatTile
                                                 title="MTD Revenue"
                                                 icon={MdCurrencyRupee}
-                                                accent="#34c38f"
+                                                accent="#22C55E"
                                                 value={formatINRCompact(summary.mtdRevenue)}
                                                 delta={summary.mtdVarRevenue}
                                                 deltaValueText={deltaText(summary.mtdVarRevenue, "revenue")}
                                                 comparisonLabel="vs same span last month"
                                             />
-                                        </Col>
-                                    </Row>
+                                        </div>
+                                    </div>
                                 </>
                             )}
 
@@ -523,40 +521,41 @@ const RevenueDailyReport = () => {
                                     <TabPane tabId="dashboard">
                                         {activeTab === "dashboard" && (
                                             <>
-                                                <Row className="gap-4 mb-4">
-                                                    <Col lg={6}>
+                                                <div className="mb-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+                                                    <div>
                                                         <RevenueBarChart
                                                             title="Top 10 Customers by MTD Revenue"
                                                             subtitle="MTD vs same span last month, company level"
                                                             data={topCustomers}
                                                             height={400}
                                                         />
-                                                    </Col>
-                                                    <Col lg={6}>
+                                                    </div>
+                                                    <div>
                                                         <TopMoversChart data={topMovers} height={400} />
-                                                    </Col>
-                                                </Row>
-                                                <Row className="gap-4 mb-4">
-                                                    <Col lg={12}>
-                                                        <AtRiskCustomersCard data={atRiskCustomers} minBaseline={AT_RISK_MIN_BASELINE} />
-                                                    </Col>
-                                                </Row>
-                                                <Row className="gap-4 mb-4">
-                                                    <Col lg={4}>
+                                                    </div>
+                                                </div>
+                                                <div className="mb-4">
+                                                    <AtRiskCustomersCard data={atRiskCustomers} minBaseline={AT_RISK_MIN_BASELINE} />
+                                                </div>
+                                                {/* Grid, not Row/Col: three w-4/12 columns come to exactly
+                                                    100%, so the Row's gap-4 pushed the third onto its own
+                                                    line. A grid takes the gap out of the track sizing. */}
+                                                <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                                    <div>
                                                         <RevenueShareDonut title="MTD Revenue by Customer Group" data={byCustomerGroup} />
-                                                    </Col>
-                                                    <Col lg={4}>
+                                                    </div>
+                                                    <div>
                                                         <RevenueShareDonut title="MTD Revenue by Product" data={byProduct} />
-                                                    </Col>
-                                                    <Col lg={4}>
+                                                    </div>
+                                                    <div>
                                                         <RevenueBarChart
                                                             title="MTD Revenue by Region"
                                                             subtitle="Branch level"
                                                             data={byRegion}
                                                             height={340}
                                                         />
-                                                    </Col>
-                                                </Row>
+                                                    </div>
+                                                </div>
                                             </>
                                         )}
                                     </TabPane>

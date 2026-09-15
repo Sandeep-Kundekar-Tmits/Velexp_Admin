@@ -3,8 +3,7 @@ import PropTypes from "prop-types";
 import * as XLSX from "xlsx";
 import {
     Upload, FileText, Download, CheckCircle, AlertTriangle,
-    X, PackageSearch,
-} from "lucide-react";
+    X, PackageSearch } from "lucide-react";
 import { Badge, Button, Spinner } from "@/components/ui";
 import { toast } from "react-toastify";
 import MainHeaderComp from "../../../components/MainHeaderCom";
@@ -28,8 +27,7 @@ const Panel = ({ className, children }) => (
 
 Panel.propTypes = {
     className: PropTypes.string,
-    children: PropTypes.node,
-};
+    children: PropTypes.node };
 
 const MisReport = () => {
     useEffect(() => { document.title = "MIS Report"; }, []);
@@ -106,8 +104,7 @@ const MisReport = () => {
                 method: "POST",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ awbnos: awbNumbers }),
-            });
+                body: JSON.stringify({ awbnos: awbNumbers }) });
             const json = await res.json();
             if (!res.ok) throw new Error(json?.detail || json?.message || `Error ${res.status}`);
 
@@ -115,8 +112,7 @@ const MisReport = () => {
             setSummary({
                 total_requested: json.total_requested ?? awbNumbers.length,
                 total_shipments: json.total_shipments ?? shipments.length,
-                not_found_count: json.not_found_count ?? 0,
-            });
+                not_found_count: json.not_found_count ?? 0 });
             setNotFound(Array.isArray(json.not_found) ? json.not_found : []);
 
             if (shipments.length > 0) {
@@ -126,13 +122,13 @@ const MisReport = () => {
                 // panel to stay put, since the message explaining why lives
                 // inside it and this is exactly where a retry happens from.
                 setUploadCollapsed(true);
-                toast.success(`${shipments.length} shipments loaded.`, { position: "bottom-right", autoClose: 4000 });
+                toast.success(`${shipments.length} shipments loaded.`, { autoClose: 4000 });
             } else {
-                toast("No shipment data returned.", { position: "bottom-right", autoClose: 4000 });
+                toast("No shipment data returned.", { autoClose: 4000 });
             }
         } catch (err) {
             setError(err.message);
-            toast.error(err.message, { position: "bottom-right", autoClose: 5000 });
+            toast.error(err.message, { autoClose: 5000 });
         } finally {
             setIsGenerating(false);
         }
@@ -171,15 +167,13 @@ const MisReport = () => {
                 id: "row_index",
                 enableColumnFilter: false,
                 enableSorting: false,
-                cell: ({ row }) => row.index + 1,
-            },
+                cell: ({ row }) => row.index + 1 },
             ...reportColumns.map((col) => ({
                 header: fmtCol(col),
                 accessorKey: col,
                 enableColumnFilter: false,
                 enableSorting: true,
-                cell: ({ getValue }) => getValue() ?? "--",
-            })),
+                cell: ({ getValue }) => getValue() ?? "--" })),
         ],
         [reportColumns]
     );
@@ -303,8 +297,7 @@ const MisReport = () => {
                             {
                                 label: "Not Found",
                                 value: summary.not_found_count,
-                                accent: summary.not_found_count > 0 ? "text-danger-500" : "text-ink-muted",
-                            },
+                                accent: summary.not_found_count > 0 ? "text-danger-500" : "text-ink-muted" },
                         ].map(({ label, value, accent }) => (
                             <Panel key={label} className="p-3 text-center">
                                 <div className={cn("text-2xl font-semibold tracking-tight", accent)}>{value}</div>

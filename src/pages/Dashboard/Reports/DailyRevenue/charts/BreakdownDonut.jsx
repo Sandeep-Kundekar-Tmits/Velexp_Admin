@@ -1,9 +1,10 @@
 // Animated donut chart for a breakdown share (top N by gross + "Others").
 import ReactApexChart from "react-apexcharts"
+import { withChartTheme } from "../../chartTheme"
 import { Card, CardBody } from "@/components/ui"
 import { formatINR } from "../revenueFormat"
 
-const PALETTE = ["#556ee6", "#34c38f", "#f1b44c", "#f46a6a", "#50a5f1", "#74788d", "#9b5de5", "#00bbf9"]
+const PALETTE = ["#3B82F6", "#22C55E", "#F59D0E", "#EF4444", "#38BDF8", "#94A3B8", "#8B5CF6", "#14B8A6"]
 
 const BreakdownDonut = ({ title, rows = [], labelKey, topN = 7, legendPosition = "bottom", height = 340 }) => {
     const sorted = [...rows].sort((a, b) => (b?.gross || 0) - (a?.gross || 0))
@@ -23,7 +24,7 @@ const BreakdownDonut = ({ title, rows = [], labelKey, topN = 7, legendPosition =
 
     const onRight = legendPosition === "right"
 
-    const options = {
+    const options = withChartTheme({
         chart: {
             type: "donut",
             height,
@@ -50,12 +51,12 @@ const BreakdownDonut = ({ title, rows = [], labelKey, topN = 7, legendPosition =
         },
         tooltip: { y: { formatter: (v) => formatINR(v) } },
         responsive: [{ breakpoint: 480, options: { legend: { position: "bottom" } } }],
-    }
+    })
 
     return (
-        <Card className="shadow-sm border-0 mb-6 h-full">
+        <Card className="h-full">
             <CardBody>
-                <h6 className="font-bold mb-4">{title}</h6>
+                <h6 className="m-0 mb-3 text-[13px] font-semibold text-white">{title}</h6>
                 {series.length === 0
                     ? <p className="text-ink-muted mb-0">No data.</p>
                     : <ReactApexChart options={options} series={series} type="donut" height={340} />}

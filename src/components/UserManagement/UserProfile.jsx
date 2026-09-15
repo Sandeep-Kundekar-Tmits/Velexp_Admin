@@ -12,9 +12,9 @@ const UserProfile = ({ user, setProfileData, userId }) => {
     })
     let isAdmin = JSON.parse(localStorage.getItem("authUser"))?.user?.is_admin || false
     return (
-        <Card className="mb-6 shadow-sm border-0 rounded" style={{ overflow: 'hidden' }}>
-            <CardHeader className="bg-brand-500 text-white py-4">
-                <CardTitle tag="h4" className="mb-0 flex items-center text-white">
+        <Card className="mb-4 overflow-hidden">
+            <CardHeader className="border-b border-white/8 bg-white/3 py-3">
+                <CardTitle tag="h4" className="m-0 flex items-center gap-2 text-[13px] font-semibold text-white">
                     <i className="fas  fa-user-circle mr-2 text-white"></i>
                     User Profile
                 </CardTitle>

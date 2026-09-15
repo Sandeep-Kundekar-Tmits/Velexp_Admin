@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui";
 import { useNavigate } from "react-router-dom";
 import TableContainer from "../../components/Table/TableContainer";
@@ -9,6 +9,7 @@ import Loader from "../../Loaders/Loader";
 import { motion } from "framer-motion";
 import { Building2, Eye, Handshake, Pencil, Store, UserPlus, Users } from "lucide-react";
 import MainHeaderCom from "../../components/MainHeaderCom";
+import Customer360Modal from "../../components/UserManagement/Customer360Modal";
 import { cn } from "@/lib/cn";
 
 const EASE = [0.22, 1, 0.36, 1];
@@ -39,6 +40,10 @@ const UserManagementList = () => {
 
     const navigate = useNavigate();
     const { apifunc: getUser, data, loading } = usePostApiCall();
+    /* Customer name of the row whose 360 view is open; null when closed.
+       The name, not the row id -- customer-360 keys on it, and one customer
+       can hold several accounts. */
+    const [detailCustomer, setDetailCustomer] = useState(null);
 
     // Memoized navigation handlers
     const handleEdit = useCallback((rowData) => {
@@ -134,7 +139,7 @@ const UserManagementList = () => {
                     <Button
                         color="success"
                         size="sm"
-                        onClick={() => handleView(row.original)}
+                        onClick={(e) => { e.stopPropagation(); handleView(row.original); }}
                         aria-label={`View ${row.original?.customer_name || "customer"}`}
                         className="shrink-0 gap-1.5 rounded-lg border border-[#3B82F6]/30 bg-[#3B82F6]/15 text-[#93C5FD] transition-all duration-200 hover:bg-[#3B82F6]/25 hover:text-white hover:shadow-[0_0_18px_-4px_rgba(59,130,246,0.9)]"
                     >
@@ -144,7 +149,7 @@ const UserManagementList = () => {
                     <Button
                         color="primary"
                         size="sm"
-                        onClick={() => handleEdit(row.original)}
+                        onClick={(e) => { e.stopPropagation(); handleEdit(row.original); }}
                         aria-label={`Edit ${row.original?.customer_name || "customer"}`}
                         className="shrink-0 gap-1.5 rounded-lg border border-[#8B5CF6]/30 bg-[#8B5CF6]/15 text-[#C4B5FD] transition-all duration-200 hover:bg-[#8B5CF6]/25 hover:text-white hover:shadow-[0_0_18px_-4px_rgba(139,92,246,0.9)]"
                     >
@@ -311,6 +316,10 @@ const UserManagementList = () => {
                         tableClass="dt-responsive w-full dataTable no-footer dtr-inline"
                         theadClass="sticky top-0 z-10"
                         isStickyHeader={true}
+                        /* Clicking anywhere else on the row opens the
+                           customer's full 360 view. The View / Edit buttons
+                           stop propagation so they keep their own jobs. */
+                        handleUserClick={(row) => setDetailCustomer(row?.customer_name)}
                         stickyTop={0}
                         /* Rows absorb the leftover height, so the grid is the
                            only thing on the screen that scrolls. */
@@ -321,6 +330,16 @@ const UserManagementList = () => {
                     />
                 </motion.div>
             </div>
+
+            {/* Mounted only while a row is selected, so each open is a fresh
+                fetch rather than a component holding the previous customer's
+                data behind a closed dialog. */}
+            {detailCustomer && (
+                <Customer360Modal
+                    customerName={detailCustomer}
+                    onClose={() => setDetailCustomer(null)}
+                />
+            )}
         </div>
     );
 };

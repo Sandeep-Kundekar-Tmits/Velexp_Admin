@@ -16,6 +16,11 @@
  * Shape:
  *   { label, icon?, url }                      leaf
  *   { label, icon?, children: [...] }          expandable group
+ *   { ..., superUserOnly: true }                leaf hidden unless
+ *                                                is_superuser === true, on top
+ *                                                of (not instead of) the
+ *                                                is_admin/privileges check
+ *                                                every leaf already gets
  */
 export const MENU = [
   {
@@ -221,6 +226,14 @@ export const MENU = [
     icon: "bx bx-file",
     children: [
       {
+        // The route has always existed and been reachable by URL, but it was
+        // the one entry with no node here at all -- so nothing in the sidebar
+        // ever led to it. Listed above "Old Revenue Report", which is what its
+        // own label says it superseded.
+        label: "Revenue Report",
+        url: "/revenue-daily-report"
+      },
+      {
         label: "Old Revenue Report",
         url: "/revenue-report"
       },
@@ -251,6 +264,15 @@ export const MENU = [
         url: "/international-dimension-change-log"
       }
     ]
+  },
+  // Bulk-resets every international account's password in one call. Gated
+  // on is_superuser specifically -- is_admin alone must not surface this,
+  // see filterMenu's superUserOnly check below.
+  {
+    label: "International Password Reset",
+    icon: "bx bx-key",
+    url: "/international-password-reset",
+    superUserOnly: true
   },
   // Visible to all logged-in users for now -- restrict with canHardDeleteStatus
   // later, same as Master's own sidebar comment for these two screens.

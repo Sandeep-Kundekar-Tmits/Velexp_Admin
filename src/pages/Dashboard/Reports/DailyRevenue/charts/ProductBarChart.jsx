@@ -1,5 +1,6 @@
 // Animated horizontal bar chart of Gross revenue by product (product on Y, amount on X).
 import ReactApexChart from "react-apexcharts"
+import { withChartTheme } from "../../chartTheme"
 import { Card, CardBody } from "@/components/ui"
 import { useState, useEffect } from "react"
 import { formatINR, formatINRCompact } from "../revenueFormat"
@@ -27,7 +28,7 @@ const ProductBarChart = ({ rows = [], topN = 7 }) => {
 
     const chartHeight = isMobile ? Math.max(sorted.length * 50, 240) : 400
 
-    const options = {
+    const options = withChartTheme({
         chart: {
             type: "bar",
             height: chartHeight,
@@ -41,19 +42,19 @@ const ProductBarChart = ({ rows = [], topN = 7 }) => {
                 dynamicAnimation: { enabled: true, speed: 450 },
             },
         },
-        colors: ["#556ee6", "#34c38f"],
+        colors: ["#3B82F6", "#22C55E"],
         fill: {
             type: "gradient",
-            gradient: { shade: "light", type: "horizontal", shadeIntensity: 0.25, gradientToColors: ["#727cf5", "#4ecfa5"], opacityFrom: 1, opacityTo: 0.9, stops: [0, 100] },
+            gradient: { shade: "light", type: "horizontal", shadeIntensity: 0.25, gradientToColors: ["#60A5FA", "#4ADE80"], opacityFrom: 1, opacityTo: 0.9, stops: [0, 100] },
         },
         plotOptions: { bar: { horizontal: true, borderRadius: 4, borderRadiusApplication: "end", barHeight: "78%" } },
         dataLabels: { enabled: false },
-        grid: { borderColor: "#f1f1f5", strokeDashArray: 4 },
+        grid: { borderColor: "rgba(255,255,255,0.08)", strokeDashArray: 4 },
         xaxis: {
             categories,
             labels: {
                 formatter: (v) => formatINRCompact(v),
-                style: { fontSize: isMobile ? "9px" : "11px", colors: "#74788d" },
+                style: { fontSize: isMobile ? "9px" : "11px", colors: "#94A3B8" },
             },
             axisBorder: { show: false },
             axisTicks: { show: false },
@@ -62,7 +63,7 @@ const ProductBarChart = ({ rows = [], topN = 7 }) => {
             labels: {
                 trim: isMobile,
                 maxWidth: isMobile ? 90 : 220,
-                style: { fontSize: isMobile ? "10px" : "12px", colors: "#495057" },
+                style: { fontSize: isMobile ? "10px" : "12px", colors: "#CBD5E1" },
             },
         },
         tooltip: { shared: true, intersect: false, y: { formatter: (v) => formatINR(v) } },
@@ -73,13 +74,13 @@ const ProductBarChart = ({ rows = [], topN = 7 }) => {
             markers: { radius: 4 },
             fontSize: isMobile ? "11px" : "13px",
         },
-    }
+    })
 
     return (
-        <Card className="shadow-sm border-0 mb-6 h-full">
+        <Card className="h-full">
             <CardBody className="flex flex-col">
-                <h6 className="font-bold mb-1">Revenue by Product</h6>
-                <p className="text-ink-muted text-xs mb-4">Top products by gross revenue</p>
+                <h6 className="m-0 text-[13px] font-semibold text-white">Revenue by Product</h6>
+                <p className="m-0 mb-3 mt-0.5 text-[11px] text-ink-muted">Top products by gross revenue</p>
                 <div className="mt-auto">
                     {sorted.length === 0
                         ? <p className="text-ink-muted mb-0">No product data.</p>

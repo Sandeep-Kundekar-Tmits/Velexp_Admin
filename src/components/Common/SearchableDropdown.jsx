@@ -1,22 +1,33 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { MdArrowDropDown, MdClose } from "react-icons/md";
 import PropTypes from 'prop-types';
 
 const SearchableDropdown = ({ onChange, className, locations = [], value = "select", placeholder = null, height = "32px"
 }) => {
     const [showInputDropdown, setShowInputDropdown] = useState(false);
-    const dropdownRef = useRef(null);
+    const wrapperRef = useRef(null);
+    const popupRef = useRef(null);
     const [searchedItem, setSearchedItem] = useState("");
     const [selectedValue, setSelectedValue] = useState(value);
-    
+    // Viewport coordinates for the portalled panel; null until measured.
+    const [popupPos, setPopupPos] = useState(null);
+
     useEffect(() => {
         setSelectedValue(value);
     }, [value]);
 
+    /*
+     * Close on outside click.
+     *
+     * The panel is portalled to <body>, so it is no longer inside wrapperRef --
+     * checking only the wrapper would treat every click inside the panel as an
+     * outside click and shut it before a selection could register.
+     */
     const handleClickOutside = (event) => {
-        if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-            setShowInputDropdown(false);
-        }
+        if (wrapperRef.current?.contains(event.target)) return;
+        if (popupRef.current?.contains(event.target)) return;
+        setShowInputDropdown(false);
     };
 
     useEffect(() => {
@@ -25,6 +36,56 @@ const SearchableDropdown = ({ onChange, className, locations = [], value = "sele
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
+
+    /*
+     * Place the panel against the trigger, in viewport coordinates.
+     *
+     * It used to be position:absolute inside the field, which meant any
+     * ancestor with its own stacking context -- a card that sits earlier in
+     * the DOM than a later .grid-shell panel (backdrop-filter creates one)
+     * -- painted over it regardless of z-index, since a z-index set inside
+     * one stacking context can never outrank a later one at the same level.
+     * Portalling to <body> sidesteps that entirely, the same fix already
+     * used for DateRangeInput.
+     *
+     * useLayoutEffect so the measurement lands before paint; otherwise the
+     * panel renders at 0,0 for a frame and visibly jumps into place.
+     */
+    useLayoutEffect(() => {
+        if (!showInputDropdown) return undefined;
+
+        const place = () => {
+            const trigger = wrapperRef.current?.getBoundingClientRect();
+            if (!trigger) return;
+
+            const GAP = 4;
+            const popupHeight = popupRef.current?.getBoundingClientRect()?.height ?? 0;
+
+            const below = trigger.bottom + GAP;
+            const fitsBelow = below + popupHeight <= window.innerHeight - 8;
+            const top = fitsBelow ? below : Math.max(8, trigger.top - GAP - popupHeight);
+
+            setPopupPos({ top, left: trigger.left, width: trigger.width });
+        };
+
+        place();
+        // Anything that moves the trigger moves the panel with it. `true` to
+        // catch scrolling of inner containers, not just the window.
+        window.addEventListener('resize', place);
+        window.addEventListener('scroll', place, true);
+        return () => {
+            window.removeEventListener('resize', place);
+            window.removeEventListener('scroll', place, true);
+        };
+    }, [showInputDropdown]);
+
+    useEffect(() => {
+        if (!showInputDropdown) {
+            // Discard the previous placement, so the next open measures
+            // fresh rather than flashing where the trigger used to be.
+            setPopupPos(null);
+        }
+    }, [showInputDropdown]);
 
     const handleCancel = () => {
         setSelectedValue("select");
@@ -45,8 +106,8 @@ const SearchableDropdown = ({ onChange, className, locations = [], value = "sele
     return (
         <div
             className={`position-relative bg-white ${className}`}
-            ref={dropdownRef}
-            style={{ width: "100%", zIndex: "999" }}
+            ref={wrapperRef}
+            style={{ width: "100%" }}
         >
             <div
                 className="flex items-center rounded px-2 border border-dark-subtle cursor-pointer"
@@ -76,10 +137,18 @@ const SearchableDropdown = ({ onChange, className, locations = [], value = "sele
                 </div>
             </div>
 
-            {showInputDropdown && (
+            {showInputDropdown && createPortal(
                 <div
-                    className="absolute w-full bg-white border shadow-lg overflow-y-hidden start-0 p-2"
-                    style={{ overflowX: "hidden", zIndex: 1000 }}
+                    ref={popupRef}
+                    className="fixed bg-white border shadow-lg overflow-y-hidden p-2"
+                    style={{
+                        top: popupPos?.top ?? 0,
+                        left: popupPos?.left ?? 0,
+                        width: popupPos?.width ?? undefined,
+                        overflowX: "hidden",
+                        zIndex: 1060,
+                        visibility: popupPos ? "visible" : "hidden",
+                    }}
                 >
                     <div className="relative">
                         <input
@@ -131,7 +200,8 @@ const SearchableDropdown = ({ onChange, className, locations = [], value = "sele
                             )}
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </div>
     );

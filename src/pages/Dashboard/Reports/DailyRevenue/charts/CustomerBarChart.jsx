@@ -1,5 +1,6 @@
 // Animated horizontal bar chart of Gross revenue by customer (sorted desc).
 import ReactApexChart from "react-apexcharts"
+import { withChartTheme } from "../../chartTheme"
 import { Card, CardBody } from "@/components/ui"
 import { useState, useEffect } from "react"
 import { formatINR, formatINRCompact } from "../revenueFormat"
@@ -30,7 +31,7 @@ const CustomerBarChart = ({ rows = [], topN }) => {
     const rowHeight = isMobile ? 42 : 52
     const height = Math.max(isMobile ? 260 : 360, data.length * rowHeight + 60)
 
-    const options = {
+    const options = withChartTheme({
         chart: {
             type: "bar",
             height,
@@ -44,19 +45,19 @@ const CustomerBarChart = ({ rows = [], topN }) => {
                 dynamicAnimation: { enabled: true, speed: 450 },
             },
         },
-        colors: ["#556ee6", "#34c38f"],
+        colors: ["#3B82F6", "#22C55E"],
         fill: {
             type: "gradient",
-            gradient: { shade: "light", type: "horizontal", shadeIntensity: 0.25, gradientToColors: ["#727cf5", "#4ecfa5"], opacityFrom: 1, opacityTo: 0.9, stops: [0, 100] },
+            gradient: { shade: "light", type: "horizontal", shadeIntensity: 0.25, gradientToColors: ["#60A5FA", "#4ADE80"], opacityFrom: 1, opacityTo: 0.9, stops: [0, 100] },
         },
         plotOptions: { bar: { horizontal: true, borderRadius: 4, borderRadiusApplication: "end", barHeight: "80%" } },
         dataLabels: { enabled: false },
-        grid: { borderColor: "#f1f1f5", strokeDashArray: 4 },
+        grid: { borderColor: "rgba(255,255,255,0.08)", strokeDashArray: 4 },
         xaxis: {
             categories,
             labels: {
                 formatter: (v) => formatINRCompact(v),
-                style: { fontSize: isMobile ? "9px" : "11px", colors: "#74788d" },
+                style: { fontSize: isMobile ? "9px" : "11px", colors: "#94A3B8" },
             },
             axisBorder: { show: false },
             axisTicks: { show: false },
@@ -65,7 +66,7 @@ const CustomerBarChart = ({ rows = [], topN }) => {
             labels: {
                 trim: isMobile,
                 maxWidth: isMobile ? 100 : 260,
-                style: { fontSize: isMobile ? "10px" : "12px", colors: "#495057" },
+                style: { fontSize: isMobile ? "10px" : "12px", colors: "#CBD5E1" },
             },
         },
         tooltip: { shared: true, intersect: false, y: { formatter: (v) => formatINR(v) } },
@@ -76,13 +77,13 @@ const CustomerBarChart = ({ rows = [], topN }) => {
             markers: { radius: 4 },
             fontSize: isMobile ? "11px" : "13px",
         },
-    }
+    })
 
     return (
-        <Card className="shadow-sm border-0 mb-6 h-full">
+        <Card className="h-full">
             <CardBody>
-                <h6 className="font-bold mb-1">Top Customers by Revenue</h6>
-                <p className="text-ink-muted text-xs mb-4">Gross &amp; Net revenue per customer (highest first)</p>
+                <h6 className="m-0 text-[13px] font-semibold text-white">Top Customers by Revenue</h6>
+                <p className="m-0 mb-3 mt-0.5 text-[11px] text-ink-muted">Gross &amp; Net revenue per customer (highest first)</p>
                 {data.length === 0
                     ? <p className="text-ink-muted mb-0">No customer data.</p>
                     : <ReactApexChart options={options} series={series} type="bar" height={height} />}

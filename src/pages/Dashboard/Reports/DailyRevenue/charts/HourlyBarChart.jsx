@@ -1,11 +1,12 @@
 // Animated column chart of Gross & Net by hour of day.
 import { useMemo } from "react"
 import ReactApexChart from "react-apexcharts"
+import { withChartTheme } from "../../chartTheme"
 import { Card, CardBody } from "@/components/ui"
 import { formatINR, formatINRCompact } from "../revenueFormat"
 
-const GROSS = "#556ee6"
-const NET = "#34c38f"
+const GROSS = "#3B82F6"
+const NET = "#22C55E"
 
 const HourlyBarChart = ({ rows = [] }) => {
     // Prefer the pre-built "14:00" label from index.jsx; fall back to the raw hour.
@@ -29,7 +30,7 @@ const HourlyBarChart = ({ rows = [] }) => {
         { name: "Net", data: rows.map((r) => Number(r.net) || 0) },
     ]
 
-    const options = {
+    const options = withChartTheme({
         chart: {
             type: "bar",
             height: 360,
@@ -50,7 +51,7 @@ const HourlyBarChart = ({ rows = [] }) => {
                 shade: "light",
                 type: "vertical",
                 shadeIntensity: 0.25,
-                gradientToColors: ["#727cf5", "#4ecfa5"],
+                gradientToColors: ["#60A5FA", "#4ADE80"],
                 inverseColors: false,
                 opacityFrom: 1,
                 opacityTo: 0.9,
@@ -70,19 +71,19 @@ const HourlyBarChart = ({ rows = [] }) => {
         },
         dataLabels: { enabled: false },
         grid: {
-            borderColor: "#f1f1f5",
+            borderColor: "rgba(255,255,255,0.08)",
             strokeDashArray: 4,
             padding: { left: 8, right: 8 },
         },
         xaxis: {
             categories,
-            title: { text: "Hour of day", style: { fontSize: "12px", fontWeight: 600, color: "#74788d" } },
+            title: { text: "Hour of day", style: { fontSize: "12px", fontWeight: 600, color: "#94A3B8" } },
             axisBorder: { show: false },
             axisTicks: { show: false },
-            labels: { rotate: -45, rotateAlways: false, hideOverlappingLabels: true, style: { fontSize: "11px", colors: "#74788d" } },
+            labels: { rotate: -45, rotateAlways: false, hideOverlappingLabels: true, style: { fontSize: "11px", colors: "#94A3B8" } },
             tooltip: { enabled: false },
         },
-        yaxis: { labels: { formatter: (v) => formatINRCompact(v), style: { fontSize: "11px", colors: "#74788d" } } },
+        yaxis: { labels: { formatter: (v) => formatINRCompact(v), style: { fontSize: "11px", colors: "#94A3B8" } } },
         legend: {
             position: "top",
             horizontalAlign: "right",
@@ -96,25 +97,25 @@ const HourlyBarChart = ({ rows = [] }) => {
             y: { formatter: (v) => formatINR(v) },
         },
         responsive: [{ breakpoint: 576, options: { plotOptions: { bar: { columnWidth: "80%" } }, xaxis: { labels: { rotate: -90 } } } }],
-    }
+    })
 
     return (
-        <Card className="shadow-sm border-0 mb-6 h-full">
+        <Card className="h-full">
             <CardBody>
                 <div className="flex flex-wrap justify-between items-start mb-4 gap-2">
                     <div>
-                        <h6 className="font-bold mb-1">Revenue by Hour</h6>
-                        <p className="text-ink-muted text-xs mb-0">Gross &amp; Net distribution across the day</p>
+                        <h6 className="m-0 text-[13px] font-semibold text-white">Revenue by Hour</h6>
+                        <p className="m-0 mt-0.5 text-[11px] text-ink-muted">Gross &amp; Net distribution across the day</p>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                        <span className="font-semibold px-2 py-1 rounded" style={{ fontSize: "12px", background: "rgba(85,110,230,0.12)", color: "#556ee6" }}>
+                        <span className="font-semibold px-2 py-1 rounded" style={{ fontSize: "12px", background: "rgba(85,110,230,0.12)", color: "#3B82F6" }}>
                             Gross {formatINRCompact(totalGross)}
                         </span>
-                        <span className="font-semibold px-2 py-1 rounded" style={{ fontSize: "12px", background: "rgba(52,195,143,0.14)", color: "#34c38f" }}>
+                        <span className="font-semibold px-2 py-1 rounded" style={{ fontSize: "12px", background: "rgba(52,195,143,0.14)", color: "#22C55E" }}>
                             Net {formatINRCompact(totalNet)}
                         </span>
                         {peak && peak.gross > 0 && (
-                            <span className="font-semibold px-2 py-1 rounded border" style={{ fontSize: "12px", background: "#f8f9fa", color: "#495057" }}>
+                            <span className="font-semibold px-2 py-1 rounded border" style={{ fontSize: "12px", background: "#f8f9fa", color: "#CBD5E1" }}>
                                 Peak {peak.label} · {formatINRCompact(peak.gross)}
                             </span>
                         )}

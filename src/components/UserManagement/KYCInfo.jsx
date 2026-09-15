@@ -2,9 +2,9 @@ import React from 'react';
 import { Badge, Button, Card, CardBody, CardFooter, CardHeader, CardTitle } from "@/components/ui";
 
 const KYCInfo = ({ kyc_document }) => (
-    <Card className="mb-6 shadow-sm" style={{ borderRadius: '12px' }}>
-    <CardHeader className="bg-warning-500 text-ink py-4">
-      <CardTitle tag="h4" className="mb-0 flex items-center">
+    <Card className="mb-4 overflow-hidden">
+    <CardHeader className="border-b border-white/8 bg-white/3 py-3">
+      <CardTitle tag="h4" className="m-0 flex items-center gap-2 text-[13px] font-semibold text-white">
         <i className="fas fa-id-card mr-2"></i>
         KYC Verification
       </CardTitle>

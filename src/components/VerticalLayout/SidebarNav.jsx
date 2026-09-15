@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { Link, useLocation } from "react-router-dom";
 import { MENU } from "@/features/navigation/menuTree";
 import { usePermissions } from "@/features/auth/usePermissions";
+import { checkCustomerPermissions } from "@/helpers/checkCustomerPermissions";
 import { useUiStore } from "@/stores/uiStore";
 
 /**
@@ -19,14 +20,19 @@ import { useUiStore } from "@/stores/uiStore";
  */
 
 /** Drop leaves the user cannot reach, then drop groups left empty. */
-function filterMenu(nodes, canAccess) {
+function filterMenu(nodes, canAccess, isSuperUser) {
   const out = [];
   for (const node of nodes) {
     // `hidden` preserves the old sidebar's hardcoded kill-switches. The route
     // still exists and stays reachable by URL — only the menu entry is gone.
     if (node.hidden) continue;
+    // `superUserOnly` is a second, stricter gate on top of canAccess: is_admin
+    // makes canAccess true for every url, but a handful of screens (bulk
+    // international password reset) must stay invisible to admins who are
+    // not also flagged is_superuser.
+    if (node.superUserOnly && !isSuperUser) continue;
     if (node.children) {
-      const children = filterMenu(node.children, canAccess);
+      const children = filterMenu(node.children, canAccess, isSuperUser);
       // A group with no reachable children would be an expander that opens
       // onto nothing, so it is removed entirely.
       if (children.length) out.push({ ...node, children });
@@ -121,9 +127,10 @@ MenuNode.propTypes = {
 const SidebarNav = ({ onLinkClick }) => {
   const { pathname } = useLocation();
   const { canAccess } = usePermissions();
+  const { isSuperUser } = checkCustomerPermissions();
   const setMenuExpanded = useUiStore((s) => s.setMenuExpanded);
 
-  const menu = useMemo(() => filterMenu(MENU, canAccess), [canAccess]);
+  const menu = useMemo(() => filterMenu(MENU, canAccess, isSuperUser), [canAccess, isSuperUser]);
 
   // Open the branch containing the current route. Replaces MetisMenu's
   // activateParentDropdown, which did the same thing by mutating classNames

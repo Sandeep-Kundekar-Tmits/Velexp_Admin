@@ -19,6 +19,10 @@ export const GET_FILTERED_PRODUCT_LIST = `${BASE_URL}/accounts-created-by/filter
 export const UPDATE_ACTIVE_STATUS = `${BASE_URL}/users/change-account-status/` // POST
 // updated get All User List
 export const GET_ALL_USER_LIST = `${BASE_URL}/users/created-users/`
+// Customer 360: every account, booking, wallet movement and dispute for one
+// customer name. Takes ?customer_name=<name>&user_id=<logged-in user>.
+// Carries the /api prefix, unlike the /users endpoints above.
+export const CUSTOMER_360 = `${BASE_URL}/api/accounts/customer-360/`
 //post the user
 export const POST_USER_API = `${BASE_URL}/users/`
 
@@ -648,6 +652,9 @@ export const INTERNATIONAL_SHIPMENTS_REPORT = `${BASE_URL}/api/admin-reports/int
 
 // International AWB dimension/weight change log — GET/POST ?awbno=&from_date=&to_date= (defaults to last 7 days)
 export const INTERNATIONAL_DIMENSION_CHANGE_LOG = `${BASE_URL}/api/admin-reports/international-awb-measurements-log/`;
+
+// International password bulk reset — POST { new_password } (admin JWT required)
+export const INTERNATIONAL_PASSWORD_BULK_UPDATE = `${BASE_URL}/international-password/bulk-update/`;
 
 // SPD / RTS hard delete — POST { awbno_list: [...], employee_id, remark, apply: true }
 export const BULK_HARD_DELETE_SPD_STATUS = `${BASE_URL}/bulk-hard-delete-spd-status/`;

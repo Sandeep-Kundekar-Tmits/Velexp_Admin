@@ -1,13 +1,14 @@
 // Daily Revenue — live, auto-refreshing dashboard for GET /reports/revenue_live/?date=YYYY-MM-DD
-import React, { useMemo } from "react"
-import { Button, Card, CardBody, Col, Collapse, Row, Spinner } from "@/components/ui"
+import React, { useMemo, useState } from "react"
+import { Button, Card, CardBody, Col, Collapse, Row, Spinner, Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from "@/components/ui"
 import { MdRefresh, MdKeyboardArrowDown } from "react-icons/md"
+import { FaFileExcel } from "react-icons/fa"
 import Loader from "@/Loaders/Loader";
-import { useState } from "react"
 import DatePicker from "react-datepicker"
 import "react-datepicker/dist/react-datepicker.css"
 import MainHeaderComp from "../../../../components/MainHeaderCom"
 import TableContainer from "../../../../components/Table/TableContainer"
+import PageHeaderActions from "../../../../components/VerticalLayout/PageHeaderActions"
 import { useExcelExport } from "../../../../hooks/useExcelExport"
 import useLiveRevenue from "./useLiveRevenue"
 import KpiCards from "./KpiCards"
@@ -29,8 +30,12 @@ const DailyRevenue = () => {
     const { exportToExcel, isExporting } = useExcelExport()
 
     // Breakdown tables are collapsed by default — expand on header click.
+    // Breakdown tables are collapsed by default — expand on header click.
     const [openTables, setOpenTables] = useState({})
     const toggleTable = (title) => setOpenTables((prev) => ({ ...prev, [title]: !prev[title] }))
+
+    const [dropdownOpen, setDropdownOpen] = useState(false)
+    const toggleDropdown = () => setDropdownOpen((prev) => !prev)
 
     const today = data?.today
     const kpis = data?.kpis
@@ -87,6 +92,40 @@ const DailyRevenue = () => {
 
     return (
         <React.Fragment>
+            <PageHeaderActions>
+                <Dropdown isOpen={dropdownOpen} toggle={toggleDropdown}>
+                    {/* No tag={Button}: Button carries its own default
+                        background/height/radius as real Tailwind classes,
+                        which stacked on top of table-action-btn's own CSS
+                        instead of being replaced by it -- two button "shells"
+                        showing through on the one element. The default plain
+                        <button> tag applies only the classes passed here. */}
+                    <DropdownToggle className="table-action-btn table-action-btn-solid flex items-center gap-1" caret>
+                        <FaFileExcel size={15} />
+                        <span>{isExporting ? "Exporting..." : "Download Excel"}</span>
+                    </DropdownToggle>
+                    <DropdownMenu right style={{ zIndex: 99999 }} container="body">
+                        <style>{`
+                            .excel-dropdown-item:hover {
+                                background-color: #f3f4f6 !important;
+                                color: #111827 !important;
+                            }
+                        `}</style>
+                        {breakdowns.map((b) => (
+                            <DropdownItem
+                                key={b.title}
+                                className="excel-dropdown-item"
+                                onClick={() =>
+                                    exportToExcel(b.data, `DailyRevenue_${b.title.replace(/\s+/g, "_")}_${date}`, (r) => exportRow(r, b.key))
+                                }
+                            >
+                                {b.title}
+                            </DropdownItem>
+                        ))}
+                    </DropdownMenu>
+                </Dropdown>
+            </PageHeaderActions>
+
             {/* No page-fit: this is a dashboard of KPI tiles and charts above
                 the grid, taller than the viewport by design, so it keeps
                 scrolling rather than being pinned. */}
@@ -127,7 +166,19 @@ const DailyRevenue = () => {
                     {!data ? (
                         <Loader message="Loading revenue…" fullscreen={false} />
                     ) : (
-                        <>
+                        /*
+                         * One gapped column, not a stack of Rows.
+                         *
+                         * <Row> only supplies horizontal gutters (-mx-2 against
+                         * the Cols' px-2) -- it has no vertical spacing of its
+                         * own, so the six chart panels sat flush against each
+                         * other with no gap between them at all. A flex column
+                         * with one gap spaces every panel the same, and the
+                         * paired rows below use a grid so their columns line up
+                         * on a shared edge instead of each Row negotiating its
+                         * own gutters.
+                         */
+                        <div className="flex flex-col gap-4">
                             <KpiCards
                                 today={today}
                                 yesterday={kpis?.yesterday}
@@ -137,67 +188,44 @@ const DailyRevenue = () => {
                             />
 
                             {/* Trend (40%) + product mix (60%) side by side */}
-                            <Row>
-                                <Col lg={5}>
+                            <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
+                                <div className="lg:col-span-5">
                                     <RevenueAreaChart rows={kpis?.last_7_days || []} />
-                                </Col>
-                                <Col lg={7}>
+                                </div>
+                                <div className="lg:col-span-7">
                                     <ProductBarChart rows={products} />
-                                </Col>
-                            </Row>
+                                </div>
+                            </div>
 
-                            {/* Composition — revenue shares grouped in one row (equal size, list on the right) */}
-                            <Row>
-                                <Col lg={6}>
-                                    <BreakdownDonut title="Revenue Share by Region" rows={regions} labelKey="region" legendPosition="right" height={340} />
-                                </Col>
-                                <Col lg={6}>
-                                    <BreakdownDonut title="Revenue Share by Payment Mode" rows={payments} labelKey="payment_mode" legendPosition="right" height={340} />
-                                </Col>
-                            </Row>
+                            {/* Composition — revenue shares, equal halves */}
+                            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+                                <BreakdownDonut title="Revenue Share by Region" rows={regions} labelKey="region" legendPosition="right" height={340} />
+                                <BreakdownDonut title="Revenue Share by Payment Mode" rows={payments} labelKey="payment_mode" legendPosition="right" height={340} />
+                            </div>
 
                             {/* Where — geographic distribution */}
-                            <Row>
-                                <Col lg={12}>
-                                    <ServiceCenterMap rows={hubs} />
-                                </Col>
-                            </Row>
+                            <ServiceCenterMap rows={hubs} />
 
                             {/* When — intraday pattern */}
-                            <Row>
-                                <Col lg={12}>
-                                    <HourlyBarChart rows={hours} />
-                                </Col>
-                            </Row>
+                            <HourlyBarChart rows={hours} />
 
                             {/* Who — top customers */}
-                            <Row>
-                                <Col lg={12}>
-                                    <CustomerBarChart rows={customers} />
-                                </Col>
-                            </Row>
+                            <CustomerBarChart rows={customers} />
 
-                            {/* Unpriced shipments (revenue leakage) + revenue by source — below top customers */}
-                            <Row>
-                                {/* <Col lg={8}> */}
-                                <UnpricedShipments unpriced={unpriced} />
-                                {/* </Col> */}
-                                {/* <Col lg={4}>
-                                    <RevenueBySource rows={bySource} />
-                                </Col> */}
-                            </Row>
+                            {/* Unpriced shipments (revenue leakage) */}
+                            <UnpricedShipments unpriced={unpriced} />
 
                             {breakdowns.map((b) => {
                                 const isOpen = !!openTables[b.title]
                                 return (
-                                    <Card key={b.title} className="shadow-sm border-0 mb-6">
+                                    <Card key={b.title}>
                                         <CardBody className="p-0">
                                             <div
                                                 role="button"
                                                 tabIndex={0}
                                                 onClick={() => toggleTable(b.title)}
                                                 onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && toggleTable(b.title)}
-                                                className="p-4 bg-canvas border-bottom flex justify-between items-center"
+                                                className="flex items-center justify-between gap-3 border-b border-white/8 p-4"
                                                 style={{ cursor: "pointer", userSelect: "none" }}
                                                 aria-expanded={isOpen}
                                             >
@@ -220,11 +248,6 @@ const DailyRevenue = () => {
                                                     isGlobalFilter={true}
                                                     isPagination={true}
                                                     SearchPlaceholder="Search..."
-                                                    isDownloadExcle={true}
-                                                    ExcleLoading={isExporting}
-                                                    onDownloadExcle={() =>
-                                                        exportToExcel(b.data, `DailyRevenue_${b.title.replace(/\s+/g, "_")}_${date}`, (r) => exportRow(r, b.key))
-                                                    }
                                                     pagination="pagination pagination-rounded justify-content-end mb-2"
                                                     paginationWrapper="dataTables_paginate paging_simple_numbers"
                                                     tableClass="table-hover mb-0"
@@ -234,7 +257,7 @@ const DailyRevenue = () => {
                                     </Card>
                                 )
                             })}
-                        </>
+                        </div>
                     )}
                 </div>
             </div>

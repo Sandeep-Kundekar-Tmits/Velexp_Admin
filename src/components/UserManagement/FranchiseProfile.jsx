@@ -1,11 +1,24 @@
 import React from 'react';
 import { Badge, Button, Card, CardBody, CardFooter, CardHeader, CardTitle, ListGroup, ListGroupItem } from "@/components/ui";
 
+/*
+ * `new Date(undefined).toLocaleDateString()` is the string "Invalid Date", so
+ * a franchise with no start date on file displayed exactly that. Guarded, and
+ * fixed to dd/MM/yyyy rather than whatever order the browser locale picks --
+ * every other date on the app is written that way.
+ */
+const fmtDate = (v) => {
+  if (!v) return "--";
+  const d = new Date(typeof v === "string" ? v.replace(" ", "T") : v);
+  if (Number.isNaN(d.getTime())) return String(v);
+  return d.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "numeric" });
+};
+
 const FranchiseProfile = ({ profile }) => (
-<Card className="mb-6 shadow-sm border-0" style={{ borderRadius: '15px' }}>
-  <CardHeader className="bg-gradient-primary text-white py-4">
+<Card className="mb-4 overflow-hidden">
+  <CardHeader className="border-b border-white/8 bg-white/3 py-3">
     <div className="flex justify-between items-center">
-      <CardTitle tag="h4" className="mb-0">
+      <CardTitle tag="h4" className="m-0 flex items-center gap-2 text-[13px] font-semibold text-white">
         <i className="fas fa-store mr-2"></i>
         Franchise Profile
       </CardTitle>
@@ -85,7 +98,7 @@ const FranchiseProfile = ({ profile }) => (
           <i className="fas fa-calendar-day text-brand-500 mr-4"></i>
           <span className="font-bold">Start Date</span>
         </div>
-        <span>{new Date(profile?.start_date).toLocaleDateString()}</span>
+        <span className="text-ink">{fmtDate(profile?.start_date)}</span>
       </ListGroupItem>
       
       <ListGroupItem className="flex justify-between items-center p-4">

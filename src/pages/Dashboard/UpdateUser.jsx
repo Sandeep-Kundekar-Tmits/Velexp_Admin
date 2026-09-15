@@ -1,15 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Container,
-    Row,
-    Col,
-    Card,
-    CardHeader,
-    CardBody,
-    Form,
-    FormGroup,
-    Label,
-    Input,
     Button,
     Alert,
     Modal,
@@ -18,7 +8,6 @@ import {
     ModalBody,
     Spinner,
     ListGroup,
-    ListGroupItem
 } from "@/components/ui";
 import EditUserInfo from '../../components/UserManagement/UpdateUser/EditUserInfo';
 import EditAddress from '../../components/UserManagement/UpdateUser/EditAddress';
@@ -28,6 +17,9 @@ import { useGetApiCall } from '../../hooks/useGetApiCall';
 import { useNavigate, useParams } from 'react-router-dom';
 import { GET_USER_API, UPDATE_USER_API } from '../../api';
 import { usePutApiCall } from '../../hooks/usePutApuCall';
+import MainHeaderComp from '../../components/MainHeaderCom';
+import Loader from '@/Loaders/Loader';
+import { ArrowLeft } from 'lucide-react';
 
 const UpdateUser = () => {
     useEffect(() => {
@@ -179,19 +171,41 @@ const UpdateUser = () => {
         }
     };
 
+    /* Rendered in both branches: the loading state was a bare fixed-position
+       spinner over an empty screen, with no title and no way back to the list
+       except the browser's own button. */
+    const header = (
+        <MainHeaderComp
+            title="Update Franchise Profile"
+            subTitle={selectedUserData?.customer_name || selectedUserData?.username || undefined}
+            extraFields={
+                <div className="flex items-center gap-2">
+                    <Button
+                        className="table-action-btn table-action-btn-ghost"
+                        onClick={() => navigate("/user-list")}
+                    >
+                        <ArrowLeft aria-hidden="true" size={15} />
+                        Back to List
+                    </Button>
+                </div>
+            }
+        />
+    );
+
     if (selectedUserLoading) {
         return (
-            <div className='fixed top-0 z-3 start-0 w-full h-full flex justify-center content-center'>
-                <Spinner>Loading...</Spinner>
+            <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
+                {header}
+                <Loader message="Loading customer…" fullscreen={false} />
             </div>
         );
     }
 
     return (
-        <div className="page-content">
-            <Row>
-                <Col>
-                    <h2 className="mb-6">Update Franchise Profile</h2>
+        <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
+            {header}
+            <div className="container-fluid relative z-10 pb-4">
+                <div>
                     <div>
                         <EditUserInfo
                             formData={updatedData}
@@ -256,8 +270,8 @@ const UpdateUser = () => {
                             </Button>
                         </div>
                     </div>
-                </Col>
-            </Row>
+                </div>
+            </div>
 
             <Modal isOpen={modal} toggle={toggle} size='lg'>
                 <ModalHeader toggle={toggle}>Confirm Changes</ModalHeader>

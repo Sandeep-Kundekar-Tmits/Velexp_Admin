@@ -1,6 +1,6 @@
 // Tab 1 — the three one-click triggers + live progress panel.
 import { useState } from "react"
-import { Button, Card, CardBody, Col, Row, Spinner, Modal, ModalHeader, ModalBody, ModalFooter, Badge } from "@/components/ui"
+import { Button, Card, CardBody, Col, Row, Spinner, Modal, ModalHeader, ModalBody, ModalFooter, Badge, Input, Label } from "@/components/ui"
 import { MdSync, MdDescription, MdReceiptLong } from "react-icons/md"
 import {
     BILLING_BATCH_SYNC_AUDIT,
@@ -40,12 +40,19 @@ const ACTIONS = [
     },
 ]
 
+const todayIso = () => new Date().toISOString().split("T")[0]
+
 const AutomationDashboardTab = ({ period, selectedCustomers = [], batchCtl }) => {
     const { batch, isPolling, isTriggering, startBatch, stopPolling } = batchCtl
     const [pendingAction, setPendingAction] = useState(null) // { url, title, confirmMsg, color }
+    // Only DIRECT_INVOICE needs this -- it's the invoice_date stamped on
+    // every invoice the batch generates, not a filter on which bookings to
+    // include, so it defaults to today rather than the shared period range.
+    const [invoiceDate, setInvoiceDate] = useState("")
 
     const handleTrigger = (action) => {
         setPendingAction(action)
+        if (action.key === "DIRECT_INVOICE") setInvoiceDate(todayIso())
     }
 
     const handleConfirm = () => {
@@ -53,12 +60,15 @@ const AutomationDashboardTab = ({ period, selectedCustomers = [], batchCtl }) =>
         const body = {}
         if (period?.startDate) body.start_date = period.startDate
         if (period?.endDate) body.end_date = period.endDate
+        if (pendingAction.key === "DIRECT_INVOICE") body.invoice_date = invoiceDate
         body.customer_ids = selectedCustomers.map((c) => c.value)
         startBatch(pendingAction.url, body)
         setPendingAction(null)
     }
 
     const handleCancel = () => setPendingAction(null)
+
+    const needsInvoiceDate = pendingAction?.key === "DIRECT_INVOICE"
 
     return (
         <div>
@@ -100,6 +110,18 @@ const AutomationDashboardTab = ({ period, selectedCustomers = [], batchCtl }) =>
                 <ModalBody>
                     <p className="text-ink-muted mb-4">{pendingAction?.confirmMsg}</p>
 
+                    {needsInvoiceDate && (
+                        <div className="mb-4">
+                            <Label className="font-semibold text-xs">Invoice Date</Label>
+                            <Input
+                                type="date"
+                                value={invoiceDate}
+                                onChange={(e) => setInvoiceDate(e.target.value)}
+                                max={todayIso()}
+                            />
+                        </div>
+                    )}
+
                     <div className="mb-2 font-semibold text-xs">
                         Selected Customers ({selectedCustomers.length}):
                     </div>
@@ -132,7 +154,7 @@ const AutomationDashboardTab = ({ period, selectedCustomers = [], batchCtl }) =>
                     <Button
                         color={pendingAction?.color}
                         onClick={handleConfirm}
-                        disabled={selectedCustomers.length === 0}
+                        disabled={selectedCustomers.length === 0 || (needsInvoiceDate && !invoiceDate)}
                     >
                         Yes, Proceed
                     </Button>

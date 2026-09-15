@@ -34,7 +34,7 @@ export function clearSessionAndRedirectToLogin(message = "Session expired, pleas
         .then(({ useAuthStore }) => useAuthStore.getState().clearSession())
         .catch(() => localStorage.removeItem("authUser"));
 
-    toast.error(message, { position: "bottom-right", autoClose: 5000, theme: "light" });
+    toast.error(message, { autoClose: 5000 });
 
     if (window.location.pathname !== "/login") {
         // Still a hard navigation rather than router.navigate(): this runs
@@ -61,8 +61,7 @@ async function performRefresh() {
         const updatedAuthUser = {
             ...currentAuthUser,
             access: data.access,
-            ...(data.refresh ? { refresh: data.refresh } : {}),
-        };
+            ...(data.refresh ? { refresh: data.refresh } : {}) };
         localStorage.setItem("authUser", JSON.stringify(updatedAuthUser));
         return data.access;
     } catch (err) {

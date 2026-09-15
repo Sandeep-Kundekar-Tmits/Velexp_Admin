@@ -134,7 +134,7 @@ const BillingAutomation = () => {
             // Default select all
             setSelectedCustomers(custList.map((c) => ({ value: c.id, label: c.customer_name })))
         } catch (err) {
-            toast.error(err.message, { position: "bottom-right", autoClose: 5000 })
+            toast.error(err.message, { autoClose: 5000 })
         } finally {
             setLoadingCustomers(false)
         }
@@ -153,8 +153,7 @@ const BillingAutomation = () => {
 
     const customerOptions = customers.map((c) => ({
         value: c.id,
-        label: c.customer_name,
-    }))
+        label: c.customer_name }))
 
     const optionsWithSelectAll = [selectAllOption, ...customerOptions]
 
@@ -223,17 +222,14 @@ const BillingAutomation = () => {
                                                 components={{
                                                     Option: makeCustomOption(isAllSelected),
                                                     MultiValue: CustomMultiValue,
-                                                    ValueContainer: makeCustomValueContainer(customerOptions.length),
-                                                }}
+                                                    ValueContainer: makeCustomValueContainer(customerOptions.length) }}
                                                 styles={{
                                                     ...customStyles,
                                                     multiValue: () => ({ display: "none" }),
                                                     valueContainer: (base) => ({
                                                         ...base,
                                                         flexWrap: "nowrap",
-                                                        overflow: "hidden",
-                                                    }),
-                                                }}
+                                                        overflow: "hidden" }) }}
                                             />
                                         </div>
                                     )}

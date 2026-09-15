@@ -37,7 +37,6 @@ const EXTRA_TITLES = {
   "/admin-booking-download": { title: "Admin Booking Download", section: "Reports" },
   "/customer-service": { title: "Customer Service", section: "Reports" },
   "/customer-service-employee": { title: "Customer Service — Employee", section: "Reports" },
-  "/revenue-daily-report": { title: "Revenue Report", section: "Reports" },
   "/operation-performance": { title: "Operation Performance", section: "Reports" },
   "/ofd-operations-performance": { title: "OFD Operations Performance", section: "Reports" },
   "/operation-attempt-wise-pickup-performance": { title: "Attempt-wise Pickup Performance", section: "Reports" },

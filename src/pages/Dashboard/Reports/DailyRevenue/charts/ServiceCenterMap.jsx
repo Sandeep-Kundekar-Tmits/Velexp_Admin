@@ -1,10 +1,11 @@
 // 2D SVG India map: states colour-coded by their total hub revenue (choropleth),
 // service-center hubs pinned by lat/lng. Hover a state or a pin to see its revenue.
 import { useMemo, useState, useEffect } from "react"
-import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps"
+import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from "react-simple-maps"
 import { feature } from "topojson-client"
-import { geoContains, geoMercator } from "d3-geo"
+import { geoContains, geoMercator, geoCentroid } from "d3-geo"
 import { Card, CardBody, Modal, ModalBody, ModalHeader } from "@/components/ui"
+import TableContainer from "@/components/Table/TableContainer"
 import { formatINR, formatINRCompact, formatInt } from "../revenueFormat"
 import indiaTopo from "./india.topo.json"
 
@@ -21,11 +22,11 @@ const hasValidCoords = (r) => {
 // --- graduated colour ranges: each revenue band gets a distinct blue shade ---
 const NO_DATA = "#eef1f6"
 const BUCKETS = [
-    { upTo: 50000, color: "#ffe08a", label: "< ₹50K" },
-    { upTo: 100000, color: "#fdae61", label: "₹50K – ₹1L" },
-    { upTo: 500000, color: "#f46d43", label: "₹1L – ₹5L" },
-    { upTo: 1000000, color: "#d7301f", label: "₹5L – ₹10L" },
-    { upTo: Infinity, color: "#7f0000", label: "≥ ₹10L" },
+    { upTo: 50000, color: "#d4dbf9", label: "< ₹50K" },
+    { upTo: 100000, color: "#a9b8f3", label: "₹50K – ₹1L" },
+    { upTo: 500000, color: "#7e94ec", label: "₹1L – ₹5L" },
+    { upTo: 1000000, color: "#556ee6", label: "₹5L – ₹10L" },
+    { upTo: Infinity, color: "#3b4d9b", label: "≥ ₹10L" },
 ]
 const colorOf = (g) => (g > 0 ? (BUCKETS.find((b) => g < b.upTo) || BUCKETS[BUCKETS.length - 1]).color : NO_DATA)
 // darken a #rrggbb by a factor for the hover state
@@ -75,6 +76,10 @@ const StateDetailModal = ({ stateName, points = [], onClose }) => {
         )
     }, [stateFeature])
 
+    const stateCenter = useMemo(() => {
+        return stateFeature ? geoCentroid(stateFeature) : [0, 0]
+    }, [stateFeature])
+
     // Label placement: always compute so pins are labelled in the modal on all screen sizes
     const labelPlacement = useMemo(() => {
         if (!projection) return {}
@@ -100,53 +105,62 @@ const StateDetailModal = ({ stateName, points = [], onClose }) => {
 
     // Shared detail panel — rendered as overlay on desktop, below map on mobile
     const detailPanel = (
-        <>
-            <div className="font-bold mb-2" style={{ fontSize: 15 }}>{stateName}</div>
-            <div className="flex justify-between mb-1" style={{ fontSize: 12.5 }}>
-                <span className="text-ink-muted">Gross</span><span className="font-bold">{formatINR(totals.gross)}</span>
+        <div className="text-white">
+            <div className="font-bold mb-3" style={{ fontSize: 18 }}>{stateName}</div>
+            <div className="flex justify-between mb-2" style={{ fontSize: 13 }}>
+                <span style={{ color: "rgba(255,255,255,0.65)" }}>Gross</span><span className="font-bold">{formatINR(totals.gross)}</span>
             </div>
-            <div className="flex justify-between mb-1" style={{ fontSize: 12.5 }}>
-                <span className="text-ink-muted">Net</span><span className="font-semibold">{formatINR(totals.net)}</span>
+            <div className="flex justify-between mb-2" style={{ fontSize: 13 }}>
+                <span style={{ color: "rgba(255,255,255,0.65)" }}>Net</span><span className="font-semibold">{formatINR(totals.net)}</span>
             </div>
-            <div className="flex justify-between mb-1" style={{ fontSize: 12.5 }}>
-                <span className="text-ink-muted">Shipments</span><span className="font-semibold">{formatInt(totals.shipments)}</span>
+            <div className="flex justify-between mb-2" style={{ fontSize: 13 }}>
+                <span style={{ color: "rgba(255,255,255,0.65)" }}>Shipments</span><span className="font-semibold">{formatInt(totals.shipments)}</span>
             </div>
-            <div className="flex justify-between pt-1 mt-1 border-top" style={{ fontSize: 12.5 }}>
-                <span className="text-ink-muted">Service Centers</span><span className="font-semibold">{centers.length}</span>
+            <div className="flex justify-between pt-2 mt-2" style={{ fontSize: 13, borderTop: "1px solid rgba(255,255,255,0.15)" }}>
+                <span style={{ color: "rgba(255,255,255,0.65)" }}>Service Centers</span><span className="font-semibold">{centers.length}</span>
             </div>
             {centers.length > 0 && (
-                <div className="mt-2 pt-2 border-top" style={{ overflowY: "auto", minHeight: 0, paddingRight: 4 }}>
-                    {centers.map((c, i) => (
-                        <div
-                            key={c.code}
-                            className="sc-row flex items-center justify-between py-1 border-bottom"
-                            style={{ fontSize: 12.5, animationDelay: `${i * 40}ms` }}
-                        >
-                            <span className="flex items-center gap-2 truncate" style={{ minWidth: 0 }}>
-                                <span style={{ width: 9, height: 9, borderRadius: 2, background: colorOf(c.gross), border: "1px solid rgba(0,0,0,0.12)", flex: "0 0 auto" }} />
-                                <span className="font-semibold truncate" title={c.code}>{c.code}</span>
-                            </span>
-                            <span className="font-semibold ml-2" style={{ whiteSpace: "nowrap" }}>{formatINR(c.gross)}</span>
-                        </div>
-                    ))}
+                <div className="mt-3">
+                    <TableContainer
+                        columns={[
+                            { header: "Hub Code", accessorKey: "code", enableSorting: true },
+                            { header: "Gross", accessorKey: "gross", enableSorting: true, cell: (c) => formatINR(c.getValue()) },
+                            { header: "Net", accessorKey: "net", enableSorting: true, cell: (c) => formatINR(c.getValue()) },
+                            { header: "Shipments", accessorKey: "shipments", enableSorting: true, cell: (c) => formatInt(c.getValue()) },
+                        ]}
+                        data={centers}
+                        isPagination={true}
+                        defaultPageSize={10}
+                        tableClass="table-sm table-hover table-dark mb-0"
+                        pagination="pagination pagination-rounded justify-content-end mb-2"
+                        paginationWrapper="dataTables_paginate paging_simple_numbers"
+                    />
                 </div>
             )}
-        </>
+        </div>
     )
 
     return (
-        <Modal isOpen={!!stateName} toggle={onClose} fullscreen modalClassName="sc-zoom-modal">
-            <ModalHeader toggle={onClose}>
+        <Modal isOpen={!!stateName} toggle={onClose} fullscreen={true} modalClassName="sc-zoom-modal">
+            <ModalHeader toggle={onClose} className="border-0 text-white">
                 {stateName}
-                <span className="text-ink-muted font-normal ml-2" style={{ fontSize: "13px" }}>
+                <span className="font-normal ml-3" style={{ fontSize: "13px", color: "rgba(255,255,255,0.7)" }}>
                     {centers.length} service center{centers.length === 1 ? "" : "s"} · {formatINR(totals.gross)}
                 </span>
             </ModalHeader>
             <ModalBody
-                className="p-2"
-                style={{ overflow: isMobile ? "auto" : "hidden", display: "flex", flexDirection: "column" }}
+                className="p-0"
+                style={{ overflow: "hidden", display: "flex", flexDirection: isMobile ? "column" : "row" }}
             >
                 <style>{`
+                    /* true fullscreen styling */
+                    .modal.sc-zoom-modal { overflow: hidden !important; }
+                    .modal.sc-zoom-modal .modal-dialog { max-width: 100% !important; margin: 0 !important; height: 100vh !important; }
+                    .modal.sc-zoom-modal .modal-content { height: 100vh !important; border: none; border-radius: 0; background: #0b0f19; display: flex; flex-direction: column; overflow: hidden; }
+                    .modal.sc-zoom-modal .modal-header { flex: 0 0 auto; background: #0b0f19; border-bottom: 1px solid rgba(255,255,255,0.08) !important; padding: 16px 24px; }
+                    .modal.sc-zoom-modal .modal-body { flex: 1 1 auto; min-height: 0; }
+                    .modal.sc-zoom-modal .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
+                    
                     /* zoom-open instead of the default slide-from-top */
                     .modal.sc-zoom-modal.fade .modal-dialog { transform: scale(.45); opacity: 0; transition: transform .4s cubic-bezier(.34,1.56,.64,1), opacity .3s ease; transform-origin: center center; }
                     .modal.sc-zoom-modal.show .modal-dialog { transform: scale(1); opacity: 1; }
@@ -166,16 +180,16 @@ const StateDetailModal = ({ stateName, points = [], onClose }) => {
                         position: "relative",
                         flex: isMobile ? "0 0 45vh" : "1 1 auto",
                         minHeight: isMobile ? "45vh" : 0,
-                        borderRadius: isMobile ? "12px 12px 0 0" : 14,
                         overflow: "hidden",
-                        background: "radial-gradient(120% 120% at 30% 10%, #f5f7ff 0%, #e8edff 45%, #d7defb 100%)",
+                        background: "#0b0f19",
                         animation: "scMapFade .45s ease both",
                     }}
                     onMouseLeave={() => setHoverCode(null)}
                 >
                     {projection ? (
                         <ComposableMap projection={projection} width={MODAL_W} height={MODAL_H} style={{ width: "100%", height: "100%", display: "block" }}>
-                            <Geographies geography={indiaTopo}>
+                            <ZoomableGroup center={stateCenter} zoom={1} maxZoom={8}>
+                                <Geographies geography={indiaTopo}>
                                 {({ geographies }) =>
                                     geographies
                                         .filter((geo) => geo.properties?.name === stateName)
@@ -183,9 +197,9 @@ const StateDetailModal = ({ stateName, points = [], onClose }) => {
                                             <Geography
                                                 key={geo.rsmKey}
                                                 geography={geo}
-                                                fill={stateColor}
-                                                stroke="#0b0f1a"
-                                                strokeWidth={0.9}
+                                                fill={stateColor === NO_DATA ? "#1f2937" : stateColor}
+                                                stroke="#ffffff"
+                                                strokeWidth={0.5}
                                                 style={{
                                                     default: { outline: "none", transition: "fill .4s ease" },
                                                     hover: { outline: "none" },
@@ -256,6 +270,7 @@ const StateDetailModal = ({ stateName, points = [], onClose }) => {
                                     </Marker>
                                 )
                             })()}
+                            </ZoomableGroup>
                         </ComposableMap>
                     ) : (
                         <p className="text-ink-muted p-6 mb-0">Map unavailable for this state.</p>
@@ -267,21 +282,7 @@ const StateDetailModal = ({ stateName, points = [], onClose }) => {
                         </div>
                     )}
 
-                    {/* Desktop: overlay panel top-right */}
-                    {!isMobile && (
-                        <div
-                            style={{
-                                position: "absolute", right: 16, top: 16, zIndex: 6, width: 280,
-                                maxHeight: "calc(100% - 32px)", display: "flex", flexDirection: "column",
-                                background: "rgba(255,255,255,0.94)", backdropFilter: "blur(6px)",
-                                border: "1px solid rgba(0,0,0,0.08)", borderRadius: 12,
-                                boxShadow: "0 8px 24px rgba(0,0,0,0.12)", padding: "14px 16px",
-                                animation: "scMapFade .5s ease both",
-                            }}
-                        >
-                            {detailPanel}
-                        </div>
-                    )}
+                    {/* Desktop: no absolute overlay, rendered side-by-side */}
 
                     {/* Revenue legend — desktop only (shown in panel on mobile) */}
                     {!isMobile && (
@@ -289,10 +290,10 @@ const StateDetailModal = ({ stateName, points = [], onClose }) => {
                             style={{
                                 position: "absolute", left: 12, bottom: 12, zIndex: 5,
                                 display: "flex", flexDirection: "column", gap: 5, padding: "9px 11px",
-                                background: "rgba(255,255,255,0.9)", backdropFilter: "blur(4px)",
-                                border: "1px solid rgba(0,0,0,0.1)", borderRadius: 8,
+                                background: "rgba(15,18,38,0.9)", backdropFilter: "blur(4px)",
+                                border: "1px solid rgba(255,255,255,0.1)", borderRadius: 8,
                                 boxShadow: "0 4px 14px rgba(0,0,0,0.12)",
-                                font: "11px/1.2 sans-serif", color: "#495057",
+                                font: "11px/1.2 sans-serif", color: "#CBD5E1",
                             }}
                         >
                             <div style={{ fontWeight: 700, marginBottom: 2 }}>Revenue</div>
@@ -306,20 +307,18 @@ const StateDetailModal = ({ stateName, points = [], onClose }) => {
                     )}
                 </div>
 
-                {/* Mobile: detail panel below the map */}
-                {isMobile && (
-                    <div
-                        style={{
-                            flex: "1 1 auto",
-                            overflowY: "auto",
-                            background: "#fff",
-                            padding: "16px",
-                            borderTop: "1px solid rgba(0,0,0,0.08)",
-                        }}
-                    >
-                        {detailPanel}
-                    </div>
-                )}
+                <div
+                    style={{
+                        flex: isMobile ? "1 1 auto" : "0 0 450px",
+                        overflowY: "auto",
+                        background: "#0b0f19",
+                        padding: "24px 32px",
+                        borderLeft: isMobile ? "none" : "1px solid rgba(255,255,255,0.08)",
+                        borderTop: isMobile ? "1px solid rgba(255,255,255,0.08)" : "none",
+                    }}
+                >
+                    {detailPanel}
+                </div>
             </ModalBody>
         </Modal>
     )
@@ -370,11 +369,11 @@ const ServiceCenterMap = ({ rows = [] }) => {
     const totalGross = useMemo(() => stateList.reduce((s, x) => s + x.gross, 0), [stateList])
 
     return (
-        <Card className="shadow-sm border-0 mb-6 h-full">
+        <Card className="h-full">
             <CardBody>
                 <div className="mb-2">
-                    <h6 className="font-bold mb-1">Service Centers</h6>
-                    <p className="text-ink-muted text-xs mb-0">
+                    <h6 className="m-0 text-[13px] font-semibold text-white">Service Centers</h6>
+                    <p className="m-0 mt-0.5 text-[11px] text-ink-muted">
                         States shaded by revenue · {points.length} hubs pinned · {isMobile ? "tap" : "click"} a state for its service centers
                         {skipped > 0 && <span className="ml-1">· {skipped} without coordinates hidden</span>}
                     </p>
@@ -391,7 +390,7 @@ const ServiceCenterMap = ({ rows = [] }) => {
                             position: "relative",
                             borderRadius: 16,
                             overflow: "hidden",
-                            background: "radial-gradient(120% 120% at 30% 10%, #f5f7ff 0%, #e8edff 45%, #d7defb 100%)",
+                            background: "transparent",
                             boxShadow: "inset 0 1px 0 rgba(255,255,255,0.6)",
                         }}
                         onMouseLeave={() => setTip(null)}
@@ -497,13 +496,13 @@ const ServiceCenterMap = ({ rows = [] }) => {
                                 flexDirection: "column",
                                 gap: isMobile ? 4 : 6,
                                 padding: isMobile ? "6px 8px" : "10px 12px",
-                                background: "rgba(255,255,255,0.88)",
+                                background: "rgba(15,18,38,0.9)",
                                 backdropFilter: "blur(4px)",
-                                border: "1px solid rgba(0,0,0,0.1)",
+                                border: "1px solid rgba(255,255,255,0.1)",
                                 borderRadius: 8,
                                 boxShadow: "0 4px 14px rgba(0,0,0,0.12)",
                                 font: `${isMobile ? 9 : 11}px/1.2 sans-serif`,
-                                color: "#495057",
+                                color: "#CBD5E1",
                             }}
                         >
                             <div style={{ fontWeight: 700, marginBottom: 2 }}>Revenue</div>

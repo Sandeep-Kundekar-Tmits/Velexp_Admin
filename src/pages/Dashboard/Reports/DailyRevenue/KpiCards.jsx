@@ -89,7 +89,7 @@ const KpiCards = ({ today, yesterday, mtd, todayLabel = "Today", yesterdayLabel 
      * spacings depending on which breakpoint wrapped.
      */
     return (
-        <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <StatCard title={todayLabel} icon={MdToday} accent={ACCENTS.today} data={today} showGst />
             <StatCard title={yesterdayLabel} icon={MdHistory} accent={ACCENTS.yesterday} data={yesterday} />
             <StatCard title="Month to Date" icon={MdCalendarMonth} accent={ACCENTS.mtd} data={mtd} />
