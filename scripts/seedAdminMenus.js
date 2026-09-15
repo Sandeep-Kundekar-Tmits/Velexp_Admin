@@ -53,6 +53,8 @@ const TOP_LEVEL = [
     { link_name: "Track AWB", link_url: "/tracking", faicon: "bx bx-search-alt-2" },
     { link_name: "ITrack", link_url: "/itrack", faicon: "bx bx-barcode" },
     { link_name: "Privileges", link_url: "#", faicon: "bx bx-shield-quarter" },
+    { link_name: "International Password Reset", link_url: "/international-password-reset", faicon: "bx bx-key" },
+    { link_name: "Status Update", link_url: "#", faicon: "bx bx-trash" },
 ];
 
 // keyed by parent's link_name (must be a name from TOP_LEVEL)
@@ -95,6 +97,7 @@ const CHILDREN = {
         { link_name: "Mark Invoice Number", link_url: "/mark-invoice-no" },
     ],
     "Revenue": [
+        { link_name: "Revenue Report", link_url: "/revenue-daily-report" },
         { link_name: "Old Revenue Report", link_url: "/revenue-report" },
         { link_name: "Daily Revenue", link_url: "/daily-revenue" },
         { link_name: "MIS Tally", link_url: "/mis-tally" },
@@ -124,6 +127,11 @@ const CHILDREN = {
     "Privileges": [
         { link_name: "OPS Privileges", link_url: "/privileges", faicon: "bx bx-shield-quarter" },
         { link_name: "Admin Privileges", link_url: "/admin-privileges", faicon: "bx bx-shield-quarter" },
+    ],
+    "Status Update": [
+        { link_name: "SPD Remove", link_url: "/spd-remove" },
+        { link_name: "RTS Remove", link_url: "/rts-remove" },
+        { link_name: "Tracking Correction", link_url: "/tracking-correction" },
     ],
 };
 
