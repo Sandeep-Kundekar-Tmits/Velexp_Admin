@@ -10,7 +10,7 @@
  * a useEffect on every screen — including the null-name filter below, which
  * appeared verbatim in 22 files.
  */
-import { GET_ALL_REGION, GET_USER_API, PRODUCT_LIST, SERVICE_CENTER } from "@/api";
+import { GET_ALL_REGION, GET_ALL_STATUSES, GET_USER_API, PRODUCT_LIST, SERVICE_CENTER } from "@/api";
 import { http } from "@/lib/http";
 
 /**
@@ -50,9 +50,47 @@ export function toRegionOptions(rows) {
   return options;
 }
 
+/**
+ * GET_ALL_STATUSES has no confirmed consumer elsewhere in the app, and this
+ * backend isn't consistent about how a "get-list" endpoint wraps its array
+ * (flat array, {data: [...]}, {results: [...]}, or the doubly-nested
+ * {results: {results: [...]}} that /designations/get-list/ uses -- the same
+ * pattern GET_ALL_STATUSES turned out to follow, see fetchTrackingStatuses)
+ * -- so every shape is tried, and each entry can be a bare code string or an
+ * object. A description, when the backend sends one under any of the common
+ * key names, is appended to the label so the dropdown reads as "OFD --
+ * Out For Delivery" instead of a bare code; the submitted value is always
+ * just the code.
+ */
+export function toStatusOptions(raw) {
+  const list = Array.isArray(raw) ? raw
+    : Array.isArray(raw?.data) ? raw.data
+    : Array.isArray(raw?.results?.results) ? raw.results.results
+    : Array.isArray(raw?.results) ? raw.results
+    : Array.isArray(raw?.statuses) ? raw.statuses
+    : [];
+
+  const seen = new Set();
+  const options = [];
+  list.forEach((item) => {
+    const code = typeof item === "string" ? item : (item?.status ?? item?.code ?? item?.value ?? item?.name);
+    if (!code || seen.has(code)) return;
+    seen.add(code);
+
+    const description = typeof item === "string" ? null
+      : item?.description ?? item?.status_description ?? item?.desc ?? item?.display_name ?? item?.remarks ?? item?.label;
+    options.push({ value: code, label: description && description !== code ? `${code} — ${description}` : code });
+  });
+  return options.sort((a, b) => a.value.localeCompare(b.value));
+}
+
 // GET_USER_API needs the trailing slash; the constant omits it because other
 // call sites append an id.
 export const fetchCustomers = () => http.get(`${GET_USER_API}/`);
 export const fetchServiceCenters = () => http.get(SERVICE_CENTER);
 export const fetchProducts = () => http.get(PRODUCT_LIST);
 export const fetchRegions = () => http.get(GET_ALL_REGION);
+// Despite the "GET_" constant name, /status/get-list/ rejects GET with 405 -- same
+// "get-list" family as /designations/get-list/ (GET_ALL_ROLES), which is also POSTed to
+// with an empty body elsewhere in the app.
+export const fetchTrackingStatuses = () => http.post(GET_ALL_STATUSES, {});

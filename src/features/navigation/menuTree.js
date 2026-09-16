@@ -285,6 +285,14 @@ export const MENU = [
       { label: "Tracking Correction", url: "/tracking-correction" }
     ]
   },
+  // Combined booking + tracking lookup/correction for one AWB. Gated the same way every
+  // other admin tool on this list is -- is_admin/privileges, via the usual canAccess check
+  // -- not superUserOnly, since the API accepts is_staff/is_admin/is_superuser alike.
+  {
+    label: "AWB Admin Lookup",
+    icon: "bx bx-search-alt",
+    url: "/awb-admin-lookup"
+  },
   {
     label: "Billing",
     icon: "bx bx-receipt",

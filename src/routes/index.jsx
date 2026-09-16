@@ -101,6 +101,7 @@ const InternationalPasswordReset = lazy(() => import("../pages/Dashboard/Interna
 const SpdRemove = lazy(() => import("../pages/Dashboard/SpdRemove"));
 const RtsRemove = lazy(() => import("../pages/Dashboard/RtsRemove"));
 const TrackingCorrection = lazy(() => import("../pages/Dashboard/TrackingCorrection"));
+const AwbAdminLookup = lazy(() => import("../pages/Dashboard/AwbAdminLookup"));
 
 // Ops Disputes (admin features)
 const OpsStaleShipments = lazy(() => import("../pages/OpsDisputes/StaleShipments"));
@@ -240,6 +241,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/spd-remove", component: <SpdRemove /> },
     { path: "/rts-remove", component: <RtsRemove /> },
     { path: "/tracking-correction", component: <TrackingCorrection /> },
+    { path: "/awb-admin-lookup", component: <AwbAdminLookup /> },
 
     // Ops Disputes
     { path: "/ops-disputes/stale", component: <OpsStaleShipments /> },

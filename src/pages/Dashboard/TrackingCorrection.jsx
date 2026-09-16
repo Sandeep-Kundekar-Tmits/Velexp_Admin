@@ -1,26 +1,22 @@
 // Admin tool: fix a mistake in an AWB's tracking history (status / date-time / service
 // center) without generating a new tracking event — no customer SMS/Vecom push fires.
-// Backed by TRACKING_CORRECTION_INFO (lookup) / TRACKING_CORRECTION (submit).
+// Backed by TRACKING_CORRECTION_INFO (lookup) / TRACKING_CORRECTION (submit, via the shared
+// TrackingRowCorrectionModal).
 import { useEffect, useMemo, useState } from "react"
 import PropTypes from "prop-types"
 import axios from "axios"
-import {
-    Alert, Badge, Button, Card, CardBody, Col, FormFeedback, Input, Label,
-    Modal, ModalBody, ModalFooter, ModalHeader, Row, Spinner, Table,
-} from "@/components/ui"
+import { Alert, Badge, Button, Card, CardBody, Input, Spinner, Table } from "@/components/ui"
 import { Pencil, Search } from "lucide-react"
 import MainHeaderComp from "../../components/MainHeaderCom"
+import TrackingRowCorrectionModal from "../../components/Common/TrackingRowCorrectionModal"
 import ToasterProvider from "../../helpers/ToasterProvider"
-import { TRACKING_CORRECTION_INFO, TRACKING_CORRECTION } from "../../api"
+import { TRACKING_CORRECTION_INFO } from "../../api"
 
 const fmtDate = (val) => {
     if (!val) return "—"
     const d = new Date(val)
     return isNaN(d.getTime()) ? val : d.toLocaleString()
 }
-
-// datetime-local gives "YYYY-MM-DDTHH:MM" — the API also accepts "YYYY-MM-DD HH:MM:SS".
-const toApiDate = (localValue) => `${localValue.replace("T", " ")}:00`
 
 // Response shapes for error bodies and correction-history entries aren't nailed down by
 // the API doc beyond a couple of examples, so extract fields defensively (same approach
@@ -70,8 +66,7 @@ FieldDiff.propTypes = {
 
 const TrackingCorrection = () => {
     useEffect(() => { document.title = "Tracking Correction" }, [])
-    const { SucceesToaster, ErrorToaster } = ToasterProvider()
-
+    const { ErrorToaster } = ToasterProvider()
     const authUser = useMemo(() => JSON.parse(localStorage.getItem("authUser") || "{}"), [])
 
     const [awbno, setAwbno] = useState("")
@@ -80,25 +75,7 @@ const TrackingCorrection = () => {
     const [loadedAwb, setLoadedAwb] = useState("")
     const [rows, setRows] = useState([])
     const [corrections, setCorrections] = useState([])
-
     const [modalRow, setModalRow] = useState(null)
-    const [status, setStatus] = useState("")
-    const [statusDate, setStatusDate] = useState("")
-    const [serviceCenter, setServiceCenter] = useState("")
-    const [remark, setRemark] = useState("")
-    const [touched, setTouched] = useState(false)
-    const [submitting, setSubmitting] = useState(false)
-    const [knownStatuses, setKnownStatuses] = useState(null)
-
-    const resetModal = () => {
-        setModalRow(null)
-        setStatus("")
-        setStatusDate("")
-        setServiceCenter("")
-        setRemark("")
-        setTouched(false)
-        setKnownStatuses(null)
-    }
 
     const handleSearch = async () => {
         const awb = awbno.trim()
@@ -121,60 +98,18 @@ const TrackingCorrection = () => {
         }
     }
 
-    const openCorrect = (row) => {
-        resetModal()
-        setModalRow(row)
-    }
-
-    const remarkError = touched && !remark.trim() ? "Remark is required" : ""
-    const noFieldChosen = !status.trim() && !statusDate && !serviceCenter.trim()
-    const fieldError = touched && noFieldChosen ? "Change at least one of status, date/time, or service center" : ""
-
-    const handleSubmit = async () => {
-        setTouched(true)
-        if (!remark.trim()) { ErrorToaster("Remark is required"); return }
-        if (noFieldChosen) { ErrorToaster("Change at least one of status, date/time, or service center"); return }
-
-        setSubmitting(true)
-        setKnownStatuses(null)
-        try {
-            const payload = { shipment_tracking_id: modalRow.id, remark: remark.trim() }
-            if (status.trim()) payload.status = status.trim().toUpperCase()
-            if (statusDate) payload.status_date = toApiDate(statusDate)
-            if (serviceCenter.trim()) payload.service_center = serviceCenter.trim().toUpperCase()
-
-            const res = await axios.post(TRACKING_CORRECTION, payload, {
-                headers: { "Content-Type": "application/json" },
-                withCredentials: true,
-            })
-            const data = res.data || {}
-
-            SucceesToaster(
-                data.message ||
-                `Tracking record corrected${data.webhook_rows_updated ? ` (${data.webhook_rows_updated} mirrored row(s) updated)` : ""}`
-            )
-
-            setRows((prev) => prev.map((r) => (r.id === modalRow.id ? { ...r, ...data.corrected } : r)))
-            setCorrections((prev) => [
-                {
-                    original: data.original,
-                    corrected: data.corrected,
-                    remark: payload.remark,
-                    corrected_by: authUser?.user?.username || authUser?.user?.name || authUser?.user?.id,
-                    corrected_at: new Date().toISOString(),
-                },
-                ...prev,
-            ])
-            resetModal()
-        } catch (err) {
-            const data = err.response?.data
-            ErrorToaster(extractErrorMessage(data) || "Failed to submit correction")
-            if (data && typeof data === "object" && Array.isArray(data.known_statuses)) {
-                setKnownStatuses(data.known_statuses)
-            }
-        } finally {
-            setSubmitting(false)
-        }
+    const handleRowCorrected = (data, payload, row) => {
+        setRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, ...data.corrected } : r)))
+        setCorrections((prev) => [
+            {
+                original: data.original,
+                corrected: data.corrected,
+                remark: payload.remark,
+                corrected_by: authUser?.user?.username || authUser?.user?.name || authUser?.user?.id,
+                corrected_at: new Date().toISOString(),
+            },
+            ...prev,
+        ])
     }
 
     return (
@@ -235,7 +170,7 @@ const TrackingCorrection = () => {
                                                         <td>{row.service_center || "—"}</td>
                                                         <td className="text-ink-muted">{row.remarks || "—"}</td>
                                                         <td>
-                                                            <Button size="sm" color="light" onClick={() => openCorrect(row)}>
+                                                            <Button size="sm" color="light" onClick={() => setModalRow(row)}>
                                                                 <Pencil size={14} className="mr-1" />Correct
                                                             </Button>
                                                         </td>
@@ -282,78 +217,7 @@ const TrackingCorrection = () => {
                 </Card>
             </div>
 
-            <Modal isOpen={!!modalRow} toggle={() => !submitting && resetModal()} centered size="md">
-                <ModalHeader toggle={() => !submitting && resetModal()}>
-                    Correct Tracking Row {modalRow?.id}
-                </ModalHeader>
-                <ModalBody>
-                    {modalRow && (
-                        <>
-                            <div className="mb-4 text-xs text-ink-muted">
-                                Current: <span className="font-semibold text-ink">{modalRow.status}</span> at{" "}
-                                <span className="font-semibold text-ink">{fmtDate(modalRow.status_date)}</span>, service center{" "}
-                                <span className="font-semibold text-ink">{modalRow.service_center || "—"}</span>.
-                                Leave a field blank to keep its current value.
-                            </div>
-
-                            <Row className="gap-4">
-                                <Col sm={6}>
-                                    <Label className="font-bold">Status</Label>
-                                    <Input
-                                        placeholder={modalRow.status}
-                                        value={status}
-                                        onChange={(e) => setStatus(e.target.value)}
-                                    />
-                                    {knownStatuses && (
-                                        <div className="mt-1 text-xs text-ink-muted">
-                                            Known statuses: {knownStatuses.join(", ")}
-                                        </div>
-                                    )}
-                                </Col>
-                                <Col sm={6}>
-                                    <Label className="font-bold">Service Center</Label>
-                                    <Input
-                                        placeholder={modalRow.service_center || "—"}
-                                        value={serviceCenter}
-                                        onChange={(e) => setServiceCenter(e.target.value)}
-                                    />
-                                </Col>
-                            </Row>
-
-                            <div className="mb-4 mt-4">
-                                <Label className="font-bold">Date/Time</Label>
-                                <Input
-                                    type="datetime-local"
-                                    value={statusDate}
-                                    onChange={(e) => setStatusDate(e.target.value)}
-                                />
-                            </div>
-
-                            {fieldError && <Alert color="warning" className="mb-4 py-2 text-xs">{fieldError}</Alert>}
-
-                            <div className="mb-2">
-                                <Label className="font-bold">Remark (required)</Label>
-                                <textarea
-                                    className={`form-control ${remarkError ? "is-invalid" : ""}`}
-                                    rows={2}
-                                    placeholder="Why is this being corrected?"
-                                    value={remark}
-                                    onChange={(e) => setRemark(e.target.value)}
-                                />
-                                {remarkError && <FormFeedback className="block">{remarkError}</FormFeedback>}
-                            </div>
-                        </>
-                    )}
-                </ModalBody>
-                <ModalFooter>
-                    <Button color="secondary" outline onClick={resetModal} disabled={submitting}>
-                        Cancel
-                    </Button>
-                    <Button color="primary" onClick={handleSubmit} disabled={submitting}>
-                        {submitting ? <Spinner size="sm" /> : "Submit Correction"}
-                    </Button>
-                </ModalFooter>
-            </Modal>
+            <TrackingRowCorrectionModal row={modalRow} onClose={() => setModalRow(null)} onCorrected={handleRowCorrected} />
         </div>
     )
 }

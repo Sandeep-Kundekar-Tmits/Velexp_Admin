@@ -55,6 +55,7 @@ const TOP_LEVEL = [
     { link_name: "Privileges", link_url: "#", faicon: "bx bx-shield-quarter" },
     { link_name: "International Password Reset", link_url: "/international-password-reset", faicon: "bx bx-key" },
     { link_name: "Status Update", link_url: "#", faicon: "bx bx-trash" },
+    { link_name: "AWB Admin Lookup", link_url: "/awb-admin-lookup", faicon: "bx bx-search-alt" },
 ];
 
 // keyed by parent's link_name (must be a name from TOP_LEVEL)

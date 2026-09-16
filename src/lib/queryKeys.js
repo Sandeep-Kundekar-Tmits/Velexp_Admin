@@ -17,6 +17,7 @@ export const qk = {
     serviceCenters: () => ["reference", "service-centers"],
     products: () => ["reference", "products"],
     regions: () => ["reference", "regions"],
+    trackingStatuses: () => ["reference", "tracking-statuses"],
   },
 
   /** Current user's resolved menu privileges (Phase 2). */

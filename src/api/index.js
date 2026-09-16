@@ -664,3 +664,10 @@ export const BULK_HARD_DELETE_RTS_STATUS = `${BASE_URL}/bulk-hard-delete-rts-sta
 // status/date/service-center in place. No customer SMS/Vecom push fires from this.
 export const TRACKING_CORRECTION_INFO = `${BASE_URL}/tracking-correction/info/`; // GET ?awbno=
 export const TRACKING_CORRECTION = `${BASE_URL}/tracking-correction/`; // POST { shipment_tracking_id, remark, status?, status_date?, service_center? }
+
+// AWB Admin lookup/correction (admin JWT required) — combined Booking + full tracking
+// history for one AWB, plus a booking-field correction endpoint. Same host/path style as
+// TRACKING_CORRECTION above (no /ops-tracking/ prefix, unlike the API doc) since that's the
+// convention this deployment actually answers on for the sibling tracking-correction routes.
+export const AWB_ADMIN_LOOKUP = `${BASE_URL}/awb-admin-lookup/`; // GET ?awbno=
+export const AWB_ADMIN_BOOKING_CORRECTION = `${BASE_URL}/awb-admin-lookup/booking-correction/`; // POST { awbno, remark, fields: {...} }

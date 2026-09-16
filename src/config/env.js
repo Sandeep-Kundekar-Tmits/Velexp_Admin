@@ -28,6 +28,13 @@ export const BASE_URL = stripTrailingSlash(
  */
 export const SECRET_KEY = import.meta.env.VITE_SECRET_KEY ?? "Velexp.admin";
 
+/**
+ * Divisor used to derive volumetric weight from L x B x H (cm) -- kept env-driven since
+ * couriers vary this figure (5000 is the common air/surface default here).
+ * @type {number}
+ */
+export const VOLUMETRIC_WEIGHT_DIVISOR = Number(import.meta.env.VITE_VOLUMETRIC_WEIGHT_DIVISOR ?? 5000);
+
 /** @param {string} value */
 function stripTrailingSlash(value) {
   return String(value).replace(/\/+$/, "");

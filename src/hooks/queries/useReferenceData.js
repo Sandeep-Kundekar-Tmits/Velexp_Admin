@@ -17,10 +17,12 @@ import {
   fetchProducts,
   fetchRegions,
   fetchServiceCenters,
+  fetchTrackingStatuses,
   toCustomerOptions,
   toProductOptions,
   toRegionOptions,
   toServiceCenterOptions,
+  toStatusOptions,
 } from "@/services/reference.service";
 
 /** Reference lists change rarely; a stale read is fine, a refetch storm is not. */
@@ -62,6 +64,23 @@ export function useRegions(options = {}) {
     queryFn: fetchRegions,
     select: toRegionOptions,
     staleTime: REFERENCE_STALE_TIME,
+    ...options,
+  });
+}
+
+/**
+ * Known tracking-status codes, for the Correct Tracking Row dropdown. Backed
+ * by an endpoint with no confirmed prior consumer in this app -- callers
+ * should treat an empty result as "list unavailable" and fall back to a free
+ * text field rather than rendering an empty, unusable <select>.
+ */
+export function useTrackingStatuses(options = {}) {
+  return useQuery({
+    queryKey: qk.reference.trackingStatuses(),
+    queryFn: fetchTrackingStatuses,
+    select: toStatusOptions,
+    staleTime: REFERENCE_STALE_TIME,
+    retry: 1,
     ...options,
   });
 }

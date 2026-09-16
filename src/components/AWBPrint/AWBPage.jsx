@@ -158,7 +158,7 @@ const AWBPage = ({ awbNo = "", onBack }) => {
                   destination: item.destination,
                   mawb: item.awbno,
                   mode: item.mode,
-                  consignor: item.consigner,
+                  Shipper: item.consigner,
                   consignee: item.consignee,
                 }}
               />

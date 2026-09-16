@@ -13,7 +13,7 @@ const AirwayBillMiniTable = React.forwardRef(({ data }, ref) => {
     destination = "",
     mawb = "",
     mode = "",
-    consignor = "",
+    Shipper = "",
     consignee = "",
   } = data;
 
@@ -114,7 +114,7 @@ const AirwayBillMiniTable = React.forwardRef(({ data }, ref) => {
           {/* Hidden headings */}
           <div className="flex justify-between">
             <div style={{ width: "25mm", visibility: "hidden", height: "4mm" }}>
-              Consignor
+              Shipper
             </div>
             <div style={{ width: "25mm", visibility: "hidden", height: "4mm" }}>
               Consignee
@@ -125,7 +125,7 @@ const AirwayBillMiniTable = React.forwardRef(({ data }, ref) => {
         {/* Row 4 */}
         <div className="flex justify-between" style={{ marginTop: "2mm" }}>
           <div style={{ width: "25mm", fontWeight: "bold", padding: "2px" }}>
-            {consignor}
+            {Shipper}
           </div>
           <div style={{ width: "25mm", fontWeight: "bold", padding: "2px" }}>
             {consignee}
