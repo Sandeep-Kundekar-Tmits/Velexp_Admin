@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { ArrowLeft } from "lucide-react"
 import { Alert, Button, Modal, ModalBody, ModalFooter } from "@/components/ui"
 import usePostApiCall from "../../hooks/usePostApiCall"
 import { ADD_SERVICE_CENTRE } from "../../api"
@@ -36,7 +37,18 @@ const AddServiceCentre = () => {
 
     return (
         <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
-            <MainHeaderComp title="Add Service Centre" />
+            <MainHeaderComp
+                title="Add Service Centre"
+                extraFields={
+                    <Button
+                        className="table-action-btn table-action-btn-ghost"
+                        onClick={() => navigate("/service-centres")}
+                    >
+                        <ArrowLeft aria-hidden="true" size={15} />
+                        Back to List
+                    </Button>
+                }
+            />
             <div className="container-fluid relative z-10 px-4 pb-4">
                 <ServiceCentreForm
                     formData={formData}

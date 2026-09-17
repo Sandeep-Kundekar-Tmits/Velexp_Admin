@@ -498,7 +498,11 @@ export const POP_RECONCILATION_PAYMENT_CONFIRMATION = `${BASE_URL}/pop_reconcila
 export const GET_ALL_EMPLOYEE_LIST = `${BASE_URL}/api/employee/employees/`
 
 // employee master CRUD
-export const EMPLOYEE_LIST = `${BASE_URL}/api/employee/employees/get-list/` // POST {}
+// POST body: {page: "1", search: "..."}. Response: {count, next, previous,
+// results: {message, results: [...]}} -- note results is double-nested,
+// an object carrying `message` alongside the actual array, not the array
+// itself like most other list endpoints in this file.
+export const EMPLOYEE_LIST = `${BASE_URL}/api/employee/employees/get-list/`
 export const GET_EMPLOYEE_DETAIL = `${BASE_URL}/api/employee/employees/get-detail/` // POST {id}
 export const ADD_EMPLOYEE = `${BASE_URL}/employees/` // POST
 export const UPDATE_EMPLOYEE = `${BASE_URL}/employees/` // PUT {id}/

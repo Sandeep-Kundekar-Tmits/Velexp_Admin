@@ -46,6 +46,15 @@ function filterMenu(nodes, canAccess, isSuperUser) {
 /** Stable key for a node — url for leaves, path-qualified label for groups. */
 const keyOf = (node, path) => node.url ?? `${path}/${node.label}`;
 
+/**
+ * A leaf is "active" for its own url and any route nested under it, so a
+ * detail/add/edit screen (e.g. /service-centres/add, /employees/edit/:id)
+ * still highlights its list-page menu entry instead of leaving nothing
+ * highlighted, or auto-collapsing the group it lives in, while there.
+ */
+const isActivePath = (nodeUrl, pathname) =>
+  !!nodeUrl && nodeUrl !== "#" && (pathname === nodeUrl || pathname.startsWith(`${nodeUrl}/`));
+
 /** Every group key on the branch containing `pathname`, so it can be opened. */
 function branchFor(nodes, pathname, path = "") {
   for (const node of nodes) {
@@ -53,7 +62,7 @@ function branchFor(nodes, pathname, path = "") {
     if (node.children) {
       const inner = branchFor(node.children, pathname, key);
       if (inner) return [key, ...inner];
-    } else if (node.url === pathname) {
+    } else if (isActivePath(node.url, pathname)) {
       return [];
     }
   }
@@ -67,7 +76,7 @@ function MenuNode({ node, path, depth, onNavigate }) {
   const key = keyOf(node, path);
 
   if (!node.children) {
-    const active = pathname === node.url;
+    const active = isActivePath(node.url, pathname);
     return (
       <li>
         {/* aria-label carries the item name for screen readers when the rail is

@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { ArrowLeft } from "lucide-react"
+import { Button } from "@/components/ui"
 import TabProvider from "../../components/Table/TabProvider"
 import usePostFileApicall from "../../hooks/usePostFileApicall"
 import { ADD_EMPLOYEE } from "../../api"
 import ToasterProvider from "../../helpers/ToasterProvider"
+import MainHeaderComp from "../../components/MainHeaderCom"
 import EmployeeInfoStep from "../../components/Employee/AddEmployeeSteps/EmployeeInfoStep"
 import KycStep from "../../components/Employee/AddEmployeeSteps/KycStep"
 import BankDetailsStep from "../../components/Employee/AddEmployeeSteps/BankDetailsStep"
@@ -111,7 +114,23 @@ const AddEmployee = () => {
         },
     ]
 
-    return <TabProvider tabs={tabs} toggle={toggle} activeTab={activeTab} />
+    return (
+        <>
+            <MainHeaderComp
+                title="Add Employee"
+                extraFields={
+                    <Button
+                        className="table-action-btn table-action-btn-ghost"
+                        onClick={() => navigate("/employees")}
+                    >
+                        <ArrowLeft aria-hidden="true" size={15} />
+                        Back to List
+                    </Button>
+                }
+            />
+            <TabProvider tabs={tabs} toggle={toggle} activeTab={activeTab} />
+        </>
+    )
 }
 
 export default AddEmployee

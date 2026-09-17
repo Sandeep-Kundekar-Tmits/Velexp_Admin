@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
+import { ArrowLeft } from "lucide-react"
 import { Badge, Button, Card, CardBody, CardHeader, CardTitle, ListGroup, ListGroupItem } from "@/components/ui"
 import usePostApiCall from "../../hooks/usePostApiCall"
 import { GET_EMPLOYEE_DETAIL } from "../../api"
@@ -25,10 +26,19 @@ const ViewEmployee = () => {
             <MainHeaderComp
                 title="Employee Profile"
                 extraFields={
-                    <Button color="primary" className="flex items-center gap-2" onClick={() => navigate(`/employees/edit/${id}`)}>
-                        Edit Employee
-                        <FaUserEdit size={16} />
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            className="table-action-btn table-action-btn-ghost"
+                            onClick={() => navigate("/employees")}
+                        >
+                            <ArrowLeft aria-hidden="true" size={15} />
+                            Back to List
+                        </Button>
+                        <Button color="primary" className="flex items-center gap-2" onClick={() => navigate(`/employees/edit/${id}`)}>
+                            Edit Employee
+                            <FaUserEdit size={16} />
+                        </Button>
+                    </div>
                 }
             />
 

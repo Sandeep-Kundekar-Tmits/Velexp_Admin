@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Badge, Button } from "@/components/ui"
+import { Badge, Button, Input, Pagination, PaginationItem, PaginationLink } from "@/components/ui"
 import TableContainer from "../../components/Table/TableContainer"
 import usePostApiCall from "../../hooks/usePostApiCall"
 import { useDeleteApiCall } from "../../hooks/useDeleteApiCall"
@@ -19,12 +19,46 @@ const EmployeeList = () => {
     const [employees, setEmployees] = useState([])
     const [selectedInfo, setSelectedInfo] = useState(null)
     const [showDelete, setShowDelete] = useState(false)
+    const [page, setPage] = useState(1)
+    const [searchInput, setSearchInput] = useState("")
+    const [search, setSearch] = useState("")
 
-    useEffect(() => { getEmployees(EMPLOYEE_LIST, { page: "1" }) }, [getEmployees])
+    const load = useCallback((targetPage, targetSearch) => {
+        getEmployees(EMPLOYEE_LIST, { page: String(targetPage), search: targetSearch })
+    }, [getEmployees])
+
+    useEffect(() => { load(1, "") }, [load])
+
+    // Debounced so typing doesn't fire a request per keystroke -- 500ms
+    // matches TableContainer's own search box elsewhere in the app. A new
+    // search always restarts at page 1, since the previous page number may
+    // not exist in the filtered result set.
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            if (searchInput !== search) {
+                setSearch(searchInput)
+                setPage(1)
+                load(1, searchInput)
+            }
+        }, 500)
+        return () => clearTimeout(timeout)
+    }, [searchInput, search, load])
+
+    const goToPage = (targetPage) => {
+        if (targetPage < 1) return
+        setPage(targetPage)
+        load(targetPage, search)
+    }
 
     useEffect(() => {
+        // Response shape: {count, next, previous, results: {message, results: [...]}}
+        // -- results is an object carrying the array, not the array itself.
         if (data) setEmployees(data?.results?.results || data?.results || data || [])
     }, [data])
+
+    const total = data?.count ?? employees.length
+    const hasNext = !!data?.next
+    const hasPrevious = !!data?.previous
 
     const handleView = useCallback((rowData) => navigate(`/employees/${rowData?.id}`), [navigate])
     const handleEdit = useCallback((rowData) => navigate(`/employees/edit/${rowData?.id}`), [navigate])
@@ -74,26 +108,55 @@ const EmployeeList = () => {
                     extraFields={<Button color="primary" onClick={handleAdd}>+ Add Employee</Button>}
                 />
 
+                {/* Kept outside the loading branch below so the input never
+                    unmounts (and loses focus) while a search request is in flight. */}
+                <div className="flex justify-end mt-3" style={{ maxWidth: 320, marginLeft: "auto" }}>
+                    <Input
+                        type="text"
+                        placeholder="Search employees…"
+                        value={searchInput}
+                        onChange={(e) => setSearchInput(e.target.value)}
+                    />
+                </div>
+
                 {loading ? (
                     <Loader message="Loading Employees…" fullscreen={false} />
                 ) : (
-                    <div className="page-fit-body mt-4">
+                    <div className="page-fit-body mt-3">
                         <TableContainer
                             columns={columns}
                             data={employees}
-                            isGlobalFilter={true}
-                            isPagination={true}
-                            isCustomPageSize={true}
-                            SearchPlaceholder="Search From Table"
-                            pagination="pagination"
-                            paginationWrapper="dataTables_paginate paging_simple_numbers"
+                            isGlobalFilter={false}
+                            isPagination={false}
+                            isCustomPageSize={false}
                             tableClass="table-nowrap dt-responsive w-full dataTable no-footer"
                             theadClass="sticky top-0 z-10"
                             isStickyHeader={true}
                             stickyTop={0}
                             fillHeight
-                            tableHeight="72vh"
+                            tableHeight="68vh"
                         />
+
+                        {/* Server-driven, not TableContainer's own client-side pagination --
+                            the API returns one page's worth of rows at a time (count/next/
+                            previous), so paging through the in-memory array would only ever
+                            show what happened to be on the current page. */}
+                        <div className="flex justify-between items-center mt-3">
+                            <span className="text-ink-muted text-sm">
+                                {total} employee{total === 1 ? "" : "s"}{search ? ` matching "${search}"` : ""} — page {page}
+                            </span>
+                            <Pagination>
+                                <PaginationItem disabled={!hasPrevious}>
+                                    <PaginationLink previous onClick={() => goToPage(page - 1)} />
+                                </PaginationItem>
+                                <PaginationItem active>
+                                    <PaginationLink>{page}</PaginationLink>
+                                </PaginationItem>
+                                <PaginationItem disabled={!hasNext}>
+                                    <PaginationLink next onClick={() => goToPage(page + 1)} />
+                                </PaginationItem>
+                            </Pagination>
+                        </div>
                     </div>
                 )}
             </div>
