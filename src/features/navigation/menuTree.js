@@ -5,11 +5,14 @@
  * commented-out entries were excluded, so the rendered menu is unchanged.
  *
  * Why this is a data file rather than being read from the privileges tree:
- * checkMenuAccess lets `is_admin` bypass privileges entirely, so an admin's
- * privileges array can be empty. A purely tree-driven sidebar would render
- * nothing for them. Structure therefore lives here and is FILTERED by
- * privileges at render time -- admins see everything, staff see what they are
- * granted, which is exactly the previous behaviour.
+ * the backend Menu tree carries access grants (has_fullacess/can_view/etc.
+ * per node) but the sidebar also needs presentation concerns -- icon,
+ * nesting, ordering, one-off kill-switches (`hidden`), the `superUserOnly`
+ * gate -- that don't belong in an access-control payload. Structure
+ * therefore lives here and is FILTERED by privileges at render time: a
+ * superuser sees everything, an admin sees everything except the
+ * Privileges group, everyone else sees exactly what their privileges tree
+ * grants (see permissions.js for the exact bypass rules).
  *
  * scripts/menuDiff.js verifies this stays in sync with the routes (65/65).
  *
@@ -46,6 +49,18 @@ export const MENU = [
           {
             label: "Attempt-wise Delivery Performance",
             url: "/attempt-wise-delivery-performance"
+          },
+          {
+            label: "Operation Performance Report",
+            url: "/operation-performance"
+          },
+          {
+            label: "OFD Performance (FASR)",
+            url: "/ofd-operations-performance"
+          },
+          {
+            label: "Attempt Wise Pickup Performance",
+            url: "/operation-attempt-wise-pickup-performance"
           }
         ]
       },
@@ -63,6 +78,14 @@ export const MENU = [
           {
             label: "Attempt-wise Delivery Performance",
             url: "/customer-attempt-wise-delivery-performance"
+          },
+          {
+            label: "OFD Performance (FASR)",
+            url: "/ofd-customer-operations-performance"
+          },
+          {
+            label: "Attempt Wise Pickup Performance",
+            url: "/customer-attempt-wise-pickup-performance"
           }
         ]
       },
@@ -112,6 +135,18 @@ export const MENU = [
       {
         label: "MIS Run",
         url: "/mis-report"
+      },
+      {
+        label: "Admin Booking",
+        url: "/admin-booking-download"
+      },
+      {
+        label: "Customer Service",
+        url: "/customer-service"
+      },
+      {
+        label: "Customer Service Employee",
+        url: "/customer-service-employee"
       }
     ]
   },
@@ -122,6 +157,14 @@ export const MENU = [
       {
         label: "Customer List",
         url: "/user-list"
+      },
+      {
+        label: "Add User",
+        url: "/add-user"
+      },
+      {
+        label: "Add Franchisee",
+        url: "/add-franchisee"
       },
       {
         label: "Rate Data",
@@ -144,6 +187,14 @@ export const MENU = [
         url: "/corporate-rate-data"
       },
       {
+        label: "Corporate Pincode Upload",
+        url: "/corporate-pincode-upload"
+      },
+      {
+        label: "Corporate Rate Upload",
+        url: "/corporate-rate-upload"
+      },
+      {
         label: "Retail Rate Data",
         url: "/retail-rate-data"
       },
@@ -156,8 +207,20 @@ export const MENU = [
         url: "/intl-rate-data"
       },
       {
+        label: "International Rate Data",
+        url: "/int-rate-data"
+      },
+      {
         label: "International Pincodes",
         url: "/intl-pincode"
+      },
+      {
+        label: "Customer Product Config",
+        url: "/customer-product-config"
+      },
+      {
+        label: "VAS Configuration",
+        url: "/vas-config"
       }
     ]
   },
@@ -182,6 +245,14 @@ export const MENU = [
       {
         label: "Service Provider Booking",
         url: "/service-provider-booking"
+      },
+      {
+        label: "Corporate Booking",
+        url: "/corporate-booking"
+      },
+      {
+        label: "Sales Booking",
+        url: "/sales-booking"
       }
     ]
   },
@@ -192,6 +263,10 @@ export const MENU = [
       {
         label: "Franchise Billing",
         url: "/franchise_invoice"
+      },
+      {
+        label: "Corporate Invoice",
+        url: "/corporate_invoice"
       },
       {
         label: "Manual Billing",
@@ -420,6 +495,15 @@ export const MENU = [
     label: "ITrack",
     icon: "bx bx-barcode",
     url: "/itrack"
+  },
+  {
+    label: "Ops Master",
+    icon: "bx bx-buildings",
+    children: [
+      { label: "Service Centres", url: "/service-centres" },
+      { label: "Employee", url: "/employees" },
+      { label: "Add Employee", url: "/employees/add" }
+    ]
   },
   {
     label: "Privileges",

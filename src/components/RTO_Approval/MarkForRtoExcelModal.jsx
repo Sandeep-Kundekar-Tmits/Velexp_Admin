@@ -187,16 +187,12 @@ const MarkForRtoExcelModal = ({ isOpen, toggle, onDone, mode = "mark" }) => {
                                 onDragOver={(e) => { e.preventDefault(); setDragOver(true) }}
                                 onDragLeave={() => setDragOver(false)}
                                 onDrop={onDrop}
-                                className="text-center p-6 rounded"
-                                style={{
-                                    cursor: "pointer",
-                                    border: `2px dashed ${dragOver ? "#556ee6" : "#ced4da"}`,
-                                    background: dragOver ? "rgba(85,110,230,0.06)" : "#fbfbfd",
-                                    transition: "all .15s ease",
-                                }}
+                                className={`cursor-pointer rounded-lg border-2 border-dashed p-6 text-center transition-colors ${
+                                    dragOver ? "border-brand-500 bg-brand-500/10" : "border-white/15 bg-white/2 hover:border-white/25"
+                                }`}
                             >
                                 <Upload size={34} className="text-brand-500 mb-2" />
-                                <div className="font-semibold">{fileName || "Drag & drop or click to select"}</div>
+                                <div className="font-semibold text-ink">{fileName || "Drag & drop or click to select"}</div>
                                 <div className="text-ink-muted text-xs">Accepts .xlsx or .csv, one AWB per row</div>
                                 <input
                                     ref={fileInputRef}

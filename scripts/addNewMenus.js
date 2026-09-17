@@ -1,10 +1,9 @@
 // Targeted, re-runnable addition of every menu record present in menuTree.js but missing
-// from the live privileges backend: International Password Reset, the Status Update group
-// (SPD Remove / RTS Remove / Tracking Correction), and Revenue Report (a child of the
-// existing Revenue group). Unlike seedAdminMenus.js (a one-off, NOT idempotent full-sidebar
-// seed), this checks the live menu tree first and only creates what's actually missing, so
-// it's safe to run more than once -- re-run it after adding new screens to menuTree.js and
-// it will pick up whatever is new.
+// from the live privileges backend. Checks the live menu tree first and only creates
+// what's actually missing (matched by link_url for children/grandchildren, by name+url
+// for new top-level nodes), so it's safe to run more than once -- re-run it after adding
+// new screens to menuTree.js, updating the lists below to match, and it will pick up
+// whatever is new while skipping anything already created.
 //
 // Usage (credentials via env vars only -- never pass them as CLI args,
 // they'd end up in shell history):
@@ -29,10 +28,12 @@ if (!USERNAME || !PASSWORD) {
 const NEW_TOP_LEVEL = [
     { link_name: "International Password Reset", link_url: "/international-password-reset", faicon: "bx bx-key" },
     { link_name: "Status Update", link_url: "#", faicon: "bx bx-trash" },
+    { link_name: "Ops Master", link_url: "#", faicon: "bx bx-buildings" },
 ];
 
-// Children to ensure exist under a parent group, matched by link_url. The parent may be
-// one of NEW_TOP_LEVEL above (created in this run) or an existing top-level group.
+// Children to ensure exist under a parent, matched by link_url. The parent is looked
+// up by name anywhere in the live tree (not just top-level), so this also covers
+// nested parents like "Operation Performance" (itself a child of "Reports").
 const CHILDREN_OF = {
     "Status Update": [
         { link_name: "SPD Remove", link_url: "/spd-remove" },
@@ -41,6 +42,47 @@ const CHILDREN_OF = {
     ],
     "Revenue": [
         { link_name: "Revenue Report", link_url: "/revenue-daily-report" },
+    ],
+    "OPS Reports": [
+        { link_name: "Admin Booking", link_url: "/admin-booking-download" },
+        { link_name: "Customer Service", link_url: "/customer-service" },
+        { link_name: "Customer Service Employee", link_url: "/customer-service-employee" },
+    ],
+    "Customers": [
+        { link_name: "Corporate Pincode Upload", link_url: "/corporate-pincode-upload" },
+        { link_name: "Corporate Rate Upload", link_url: "/corporate-rate-upload" },
+        { link_name: "International Rate Data", link_url: "/int-rate-data" },
+        { link_name: "Customer Product Config", link_url: "/customer-product-config" },
+        { link_name: "VAS Configuration", link_url: "/vas-config" },
+        { link_name: "Add User", link_url: "/add-user" },
+        { link_name: "Add Franchisee", link_url: "/add-franchisee" },
+    ],
+    // "Ops Master" itself is a new top-level entry (see NEW_TOP_LEVEL above), so
+    // none of its children exist live yet either. "Add Service Centre" is
+    // deliberately NOT listed here -- adding a service centre stays reachable
+    // via the "+ Add Service Centre" button on the Service Centres list page
+    // (src/pages/Masters/ServiceCentreList.jsx) rather than a separate menu.
+    "Ops Master": [
+        { link_name: "Service Centres", link_url: "/service-centres" },
+        { link_name: "Employee", link_url: "/employees" },
+        { link_name: "Add Employee", link_url: "/employees/add" },
+    ],
+    "Booking": [
+        { link_name: "Corporate Booking", link_url: "/corporate-booking" },
+        { link_name: "Sales Booking", link_url: "/sales-booking" },
+    ],
+    "Invoices": [
+        { link_name: "Corporate Invoice", link_url: "/corporate_invoice" },
+    ],
+    // Nested under Reports -> Operation Performance / Reports -> Customer Performance.
+    "Operation Performance": [
+        { link_name: "Operation Performance Report", link_url: "/operation-performance" },
+        { link_name: "OFD Performance (FASR)", link_url: "/ofd-operations-performance" },
+        { link_name: "Attempt Wise Pickup Performance", link_url: "/operation-attempt-wise-pickup-performance" },
+    ],
+    "Customer Performance": [
+        { link_name: "OFD Performance (FASR)", link_url: "/ofd-customer-operations-performance" },
+        { link_name: "Attempt Wise Pickup Performance", link_url: "/customer-attempt-wise-pickup-performance" },
     ],
 };
 
@@ -77,8 +119,20 @@ async function createMenu(token, payload) {
     return data;
 }
 
+// Depth-first search by name, anywhere in the tree -- covers both top-level
+// parents (e.g. "Customers") and nested ones (e.g. "Operation Performance",
+// which lives under "Reports").
+function findNodeByName(nodes, name) {
+    for (const node of nodes) {
+        if (node.menu_name === name) return node;
+        const found = findNodeByName(node.children || [], name);
+        if (found) return found;
+    }
+    return null;
+}
+
 async function ensureChildren(token, tree, parentName, children) {
-    const parentNode = tree.find((n) => n.menu_name === parentName);
+    const parentNode = findNodeByName(tree, parentName);
     if (!parentNode) {
         console.warn(`Skipping children of "${parentName}" -- parent not found in the live tree.`);
         return;
@@ -101,6 +155,8 @@ async function ensureChildren(token, tree, parentName, children) {
             faicon: item.faicon || "",
         });
         console.log(`  ✓ Created "${item.link_name}" (id=${created.id ?? created.menu_id}) [${parentName}]`);
+        parentNode.children = parentNode.children || [];
+        parentNode.children.push({ menu_id: created.id ?? created.menu_id, menu_name: item.link_name, menu_url: item.link_url, children: [] });
     }
 }
 

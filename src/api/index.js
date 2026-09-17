@@ -59,6 +59,15 @@ export const SERVICE_CENTER = `${BASE_URL}/unique-service-centers/`
 // full service center directory, paginated, for search-driven pickers (post {})
 export const SERVICE_CENTER_LIST = `${BASE_URL}/service-centers/get-list/`
 
+// service centre master CRUD
+export const ADD_SERVICE_CENTRE = `${BASE_URL}/service-centers/` // POST
+export const UPDATE_SERVICE_CENTRE = `${BASE_URL}/service-centers/` // PUT {id}/
+export const DELETE_SERVICE_CENTRE = `${BASE_URL}/service-centers/` // DELETE {id}/
+export const GET_SERVICE_CENTRE_DETAIL = `${BASE_URL}/service-centers/get-detail/` // POST {id}
+
+// department master (dropdown source for Employee Management)
+export const DEPARTMENT_LIST = `${BASE_URL}/departments/get-list/` // POST {}
+
 // get all regions (get)
 export const GET_ALL_REGION = `${BASE_URL}/regions/`
 
@@ -487,6 +496,13 @@ export const POP_RECONCILATION_PAYMENT_CONFIRMATION = `${BASE_URL}/pop_reconcila
 
 //  get all employees
 export const GET_ALL_EMPLOYEE_LIST = `${BASE_URL}/api/employee/employees/`
+
+// employee master CRUD
+export const EMPLOYEE_LIST = `${BASE_URL}/api/employee/employees/get-list/` // POST {}
+export const GET_EMPLOYEE_DETAIL = `${BASE_URL}/api/employee/employees/get-detail/` // POST {id}
+export const ADD_EMPLOYEE = `${BASE_URL}/employees/` // POST
+export const UPDATE_EMPLOYEE = `${BASE_URL}/employees/` // PUT {id}/
+export const DELETE_EMPLOYEE = `${BASE_URL}/employee/` // DELETE {id}/ -- singular path per backend API doc
 
 
 // Ops Trip Management

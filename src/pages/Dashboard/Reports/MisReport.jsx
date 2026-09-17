@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import * as XLSX from "xlsx";
 import {
     Upload, FileText, Download, CheckCircle, AlertTriangle,
-    X, PackageSearch } from "lucide-react";
+    X, PackageSearch, ClipboardPaste } from "lucide-react";
 import { Badge, Button, Spinner } from "@/components/ui";
 import { toast } from "react-toastify";
 import MainHeaderComp from "../../../components/MainHeaderCom";
@@ -29,11 +29,25 @@ Panel.propTypes = {
     className: PropTypes.string,
     children: PropTypes.node };
 
+// "Marked for RTO" comes back from the backend as a boolean/boolean-ish flag
+// — show "Yes" when set, and leave it blank (not "false") when not.
+const isMarkedForRtoColumn = (col) =>
+    col.toLowerCase().replace(/[^a-z]/g, "") === "markedforrto";
+
+const isTruthyFlag = (value) => {
+    if (typeof value === "boolean") return value;
+    if (typeof value === "number") return value === 1;
+    if (typeof value === "string") return ["true", "1", "yes", "y"].includes(value.trim().toLowerCase());
+    return false;
+};
+
 const MisReport = () => {
     useEffect(() => { document.title = "MIS Report"; }, []);
 
     const fileRef = useRef();
+    const [tab,            setTab]          = useState("excel"); // "excel" | "manual"
     const [file,          setFile]          = useState(null);
+    const [awbText,       setAwbText]       = useState("");
     const [awbNumbers,    setAwbNumbers]    = useState([]);
     const [isGenerating,  setIsGenerating]  = useState(false);
     const [error,         setError]         = useState("");
@@ -88,10 +102,37 @@ const MisReport = () => {
     };
 
     const handleReset = () => {
-        setFile(null); setAwbNumbers([]); setError("");
+        setFile(null); setAwbText(""); setAwbNumbers([]); setError("");
         setReportData([]); setReportColumns([]);
         setSummary(null); setNotFound([]);
         setUploadCollapsed(false);
+        if (fileRef.current) fileRef.current.value = "";
+    };
+
+    // Pasted AWBs — one per line, or comma-separated (both are common when
+    // copying a column straight out of Excel/Sheets).
+    const handleAwbTextChange = (text) => {
+        setAwbText(text);
+        setError(""); setReportData([]); setReportColumns([]);
+        setSummary(null); setNotFound([]);
+
+        const seen = new Set();
+        const awbs = text
+            .split(/[\n,]+/)
+            .map((s) => s.trim())
+            .filter((awb) => {
+                if (!awb || seen.has(awb)) return false;
+                seen.add(awb);
+                return true;
+            });
+
+        setAwbNumbers(awbs);
+    };
+
+    const switchTab = (newTab) => {
+        if (newTab === tab) return;
+        setTab(newTab);
+        setError(""); setAwbNumbers([]); setAwbText(""); setFile(null);
         if (fileRef.current) fileRef.current.value = "";
     };
 
@@ -145,8 +186,12 @@ const MisReport = () => {
     // ── Export result ──────────────────────────────────────────────────────
     const handleExport = () => {
         if (!reportData.length) return;
+        const rtoCol = reportColumns.find(isMarkedForRtoColumn);
+        const exportData = rtoCol
+            ? reportData.map((row) => ({ ...row, [rtoCol]: isTruthyFlag(row[rtoCol]) ? "Yes" : "" }))
+            : reportData;
         const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.json_to_sheet(reportData);
+        const ws = XLSX.utils.json_to_sheet(exportData);
         XLSX.utils.book_append_sheet(wb, ws, "MIS Report");
         const ts = new Date().toISOString().slice(0, 16).replace(/[T:]/g, "-");
         XLSX.writeFile(wb, `MIS_Report_${ts}.xlsx`);
@@ -173,7 +218,11 @@ const MisReport = () => {
                 accessorKey: col,
                 enableColumnFilter: false,
                 enableSorting: true,
-                cell: ({ getValue }) => getValue() ?? "--" })),
+                cell: ({ getValue }) => {
+                    const value = getValue();
+                    if (isMarkedForRtoColumn(col)) return isTruthyFlag(value) ? "Yes" : "";
+                    return value ?? "--";
+                } })),
         ],
         [reportColumns]
     );
@@ -202,10 +251,35 @@ const MisReport = () => {
                 <Panel>
                     <div className="mb-2.5 flex items-center gap-2">
                         <FileText aria-hidden="true" size={18} className="text-[#3B82F6]" />
-                        <h6 className="m-0 text-[15px] font-semibold text-white">Upload AWB Excel File</h6>
+                        <h6 className="m-0 text-[15px] font-semibold text-white">AWB Numbers</h6>
                     </div>
 
-                    {/* Drop zone + generate row */}
+                    {/* Tabs */}
+                    <div className="mb-3 flex gap-1 border-b border-white/10">
+                        <button
+                            type="button"
+                            onClick={() => switchTab("excel")}
+                            className={cn(
+                                "flex items-center gap-1.5 border-b-2 px-3 py-2 text-[13px] font-medium transition-colors -mb-px",
+                                tab === "excel" ? "border-[#3B82F6] text-[#3B82F6]" : "border-transparent text-ink-muted hover:text-white"
+                            )}
+                        >
+                            <FileText aria-hidden="true" size={14} /> Excel Upload
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => switchTab("manual")}
+                            className={cn(
+                                "flex items-center gap-1.5 border-b-2 px-3 py-2 text-[13px] font-medium transition-colors -mb-px",
+                                tab === "manual" ? "border-[#3B82F6] text-[#3B82F6]" : "border-transparent text-ink-muted hover:text-white"
+                            )}
+                        >
+                            <ClipboardPaste aria-hidden="true" size={14} /> Paste AWBs
+                        </button>
+                    </div>
+
+                    {tab === "excel" ? (
+                    /* Drop zone + generate row */
                     <div className="mb-2 flex flex-wrap items-stretch gap-3">
                         {/* border-white/15, not the old #ced4da: a light-grey
                             dashed line was nearly invisible against this
@@ -268,8 +342,42 @@ const MisReport = () => {
                             )}
                         </Button>
                     </div>
+                    ) : (
+                    <div className="mb-2 flex flex-col gap-2">
+                        <textarea
+                            value={awbText}
+                            onChange={(e) => handleAwbTextChange(e.target.value)}
+                            placeholder={"VE2136764\nVE2136722\nVE2136700"}
+                            rows={5}
+                            className="w-full resize-none rounded-lg border-2 border-white/15 bg-transparent px-3 py-2 font-mono text-[13px] text-white placeholder:text-ink-muted focus:border-[#3B82F6]/50 focus:outline-none"
+                        />
+                        <div className="flex items-center justify-between gap-3">
+                            <span className="text-[12px] text-ink-muted">
+                                {awbNumbers.length > 0
+                                    ? `${awbNumbers.length} AWB(s) entered`
+                                    : "Paste AWB numbers one per line or comma-separated"}
+                            </span>
+                            <Button
+                                color="primary"
+                                className="shrink-0 whitespace-nowrap"
+                                onClick={handleGenerate}
+                                disabled={!awbNumbers.length || isGenerating}
+                            >
+                                {isGenerating ? (
+                                    <>
+                                        <Spinner size="sm" />
+                                        Generating...
+                                    </>
+                                ) : (
+                                    <><Download aria-hidden="true" size={14} />Generate MIS Report</>
+                                )}
+                            </Button>
+                        </div>
+                    </div>
+                    )}
 
                     {/* Template link */}
+                    {tab === "excel" && (
                     <button
                         type="button"
                         className="inline-flex items-center gap-1 text-[13px] font-medium text-[#3B82F6] hover:text-[#60A5FA]"
@@ -277,6 +385,7 @@ const MisReport = () => {
                     >
                         <Download aria-hidden="true" size={12} />Download Template
                     </button>
+                    )}
 
                     {/* Error banner */}
                     {error && (

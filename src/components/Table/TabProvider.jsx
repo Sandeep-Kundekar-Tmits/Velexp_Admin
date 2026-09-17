@@ -1,21 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
     Nav,
     NavItem,
     NavLink,
     TabContent,
     TabPane,
-    Row,
-    Col,
-    Card,
-    CardTitle,
-    CardText,
-    Button
 } from "@/components/ui";
-import classnames from 'classnames';
 
-const TabProvider = ({ tabs,toggle,activeTab}) => {
-  
+const TabProvider = ({ tabs, toggle, activeTab }) => {
+
 
     return (
         <div className='page-content'>
@@ -24,9 +17,11 @@ const TabProvider = ({ tabs,toggle,activeTab}) => {
                     {tabs.map(tab => (
                         <NavItem key={tab.id}>
                             <NavLink
-                            style={{fontSize:"14px",borderBottom:"solid rgb(214, 214, 214) 1px"}}
-                                className={classnames({ active: activeTab === tab.id })}
-                                // onClick={() => toggle(tab.id)}
+                                active={activeTab === tab.id}
+                                // No onClick: each step's own Next/Previous button is what
+                                // validates and calls toggle(). A free-click tab header would
+                                // let a step be skipped past without its required-field check
+                                // (the final submit doesn't re-validate earlier steps).
                             >
                                 {tab.title}
                             </NavLink>

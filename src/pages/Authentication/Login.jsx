@@ -24,7 +24,7 @@ import {
   useMotionValue,
   useMotionTemplate,
 } from "framer-motion";
-import { AlertCircle, ArrowRight, Lock, User } from "lucide-react";
+import { AlertCircle, ArrowRight, Eye, EyeOff, Lock, User } from "lucide-react";
 import { cn } from "@/lib/cn";
 
 /* Auth surface only. The palette lives in arbitrary values rather than in the
@@ -78,6 +78,7 @@ const Login = (props) => {
   })
 
   const [error, setErrors] = useState({})
+  const [showPassword, setShowPassword] = useState(false)
   const onInputChnage = (e) => {
     const { value, name } = e.target
 
@@ -133,6 +134,15 @@ const Login = (props) => {
       }
 
     }
+  };
+
+  // Enter in either field submits like a normal form. The fields sit in a
+  // real <form> now specifically so this works without a keydown handler
+  // on each input -- native submit-on-Enter, guarded against a second
+  // submit firing while the first is still in flight.
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!loading) onSubmitForm();
   };
 
   const reduceMotion = useReducedMotion();
@@ -218,7 +228,7 @@ const Login = (props) => {
               </motion.div>
 
               <div className="mt-6">
-                <div className="form-horizontal">
+                <form className="form-horizontal" onSubmit={handleSubmit}>
                   <motion.div variants={itemVariants} className="mb-4">
                     <Label for="username" className="mb-2 text-[13px] font-medium text-[#94A3B8]">
                       User
@@ -233,7 +243,7 @@ const Login = (props) => {
                         name="username"
                         className={fieldClasses(!!error?.username)}
                         placeholder="Enter User"
-                        type="email"
+                        type="text"
                         value={loginInfo.username}
                         invalid={!!error?.username}
                         onChange={onInputChnage}
@@ -275,8 +285,8 @@ const Login = (props) => {
                         id="password"
                         name="password"
                         autoComplete="off"
-                        type="password"
-                        className={fieldClasses(!!error?.password)}
+                        type={showPassword ? "text" : "password"}
+                        className={cn(fieldClasses(!!error?.password), "pr-11")}
                         placeholder="Enter Password"
                         value={loginInfo.password}
                         invalid={!!error?.password}
@@ -284,6 +294,16 @@ const Login = (props) => {
                         aria-invalid={!!error?.password}
                         aria-describedby={error?.password ? "password-error" : undefined}
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-[#94A3B8] transition-colors duration-200 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#38BDF8]"
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        aria-pressed={showPassword}
+                        tabIndex={-1}
+                      >
+                        {showPassword ? <EyeOff aria-hidden="true" className="size-4" /> : <Eye aria-hidden="true" className="size-4" />}
+                      </button>
                     </div>
                     <AnimatePresence initial={false}>
                       {error?.password && (
@@ -309,8 +329,7 @@ const Login = (props) => {
                   <motion.div variants={itemVariants} className="mt-6 grid">
                     <motion.button
                       className="group relative flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-linear-to-r from-[#3B82F6] to-[#8B5CF6] text-[14px] font-semibold text-white shadow-[0_10px_30px_-10px_rgba(59,130,246,0.7)] transition-shadow duration-200 hover:shadow-[0_16px_40px_-10px_rgba(139,92,246,0.8)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#38BDF8] disabled:cursor-not-allowed disabled:opacity-70 disabled:shadow-none"
-                      type="button"
-                      onClick={!loading && onSubmitForm}
+                      type="submit"
                       disabled={loading}
                       aria-busy={loading}
                       whileHover={reduceMotion || loading ? undefined : { scale: 1.01 }}
@@ -345,7 +364,7 @@ const Login = (props) => {
                       }
                     </AnimatePresence>
                   </motion.div>
-                </div>
+                </form>
               </div>
               {/* <Link to="/forgot-password" className="mt-6 block text-center text-[13px] text-[#94A3B8] transition-colors duration-200 hover:text-[#38BDF8] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#38BDF8]"> Forgot password</Link> */}
             </motion.div>

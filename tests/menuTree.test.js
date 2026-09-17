@@ -20,12 +20,17 @@ function filterMenu(nodes, canAccess) {
 const leaves = (nodes) =>
   nodes.flatMap((n) => (n.children ? leaves(n.children) : [n.url]));
 
-const admin = resolvePermissions({ is_admin: true }, []);
 const staff = (urls) =>
   resolvePermissions(
     { is_admin: false, is_staff: true },
     urls.map((u) => ({ link_url: u, can_view: true, children: [] }))
   );
+
+// is_admin no longer bypasses privileges, so "every leaf granted" is just a
+// fully-privileged account -- built from every leaf url in MENU itself
+// (including the two hidden/kill-switched ones) so the hidden-flag tests
+// below prove suppression comes from `hidden`, not from a missing grant.
+const fullAccess = staff(leaves(MENU));
 
 describe("menu tree data", () => {
   it("every leaf has a url and a label", () => {
@@ -51,17 +56,21 @@ describe("menu tree data", () => {
 
   it("keeps the two kill-switched entries hidden", () => {
     // showCodReconciliation / showPopReconciliation were hardcoded false.
-    const visible = leaves(filterMenu(MENU, admin.canAccess));
+    // Uses fullAccess (every leaf granted, is_admin irrelevant) to prove
+    // suppression comes from `hidden`, not from a missing privilege.
+    const visible = leaves(filterMenu(MENU, fullAccess.canAccess));
     expect(visible).not.toContain("/cod-reconciliation");
     expect(visible).not.toContain("/pop-reconcilation");
   });
 });
 
 describe("filterMenu", () => {
-  it("shows an admin every non-hidden leaf", () => {
-    const visible = leaves(filterMenu(MENU, admin.canAccess));
-    // 65 distinct urls in the old sidebar, minus the 2 kill-switched ones.
-    expect(new Set(visible).size).toBe(63);
+  it("shows a fully-privileged account every non-hidden leaf", () => {
+    const visible = leaves(filterMenu(MENU, fullAccess.canAccess));
+    const allLeaves = new Set(leaves(MENU));
+    allLeaves.delete("/cod-reconciliation");
+    allLeaves.delete("/pop-reconcilation");
+    expect(new Set(visible)).toEqual(allLeaves);
   });
 
   it("shows staff only what their privileges grant", () => {

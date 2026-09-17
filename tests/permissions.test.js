@@ -44,17 +44,59 @@ describe("flattenPrivilegeUrls", () => {
   });
 });
 
-describe("resolvePermissions — admin", () => {
-  const admin = { is_admin: true };
+describe("resolvePermissions — superuser", () => {
+  const superUser = { is_admin: false, is_superuser: true };
 
-  it("grants every url regardless of the tree", () => {
-    const p = resolvePermissions(admin, []);
+  it("grants every url regardless of the tree, including Privileges screens", () => {
+    const p = resolvePermissions(superUser, []);
     expect(p.canAccess("/anything")).toBe(true);
+    expect(p.canAccess("/privileges")).toBe(true);
+    expect(p.canAccess("/admin-privileges")).toBe(true);
     expect(p.canAccessAny(["/nope"])).toBe(true);
   });
 
   it("always lands on /user-list", () => {
+    expect(resolvePermissions(superUser, []).defaultRoute).toBe("/user-list");
+  });
+});
+
+describe("resolvePermissions — admin", () => {
+  const admin = { is_admin: true, is_superuser: false };
+
+  it("grants every url except the Privileges screens, regardless of the tree", () => {
+    const p = resolvePermissions(admin, []);
+    expect(p.canAccess("/anything")).toBe(true);
+    expect(p.canAccess("/privileges")).toBe(false);
+    expect(p.canAccess("/admin-privileges")).toBe(false);
+  });
+
+  it("canAccessAny is false when every url in the list is excluded", () => {
+    const p = resolvePermissions(admin, []);
+    expect(p.canAccessAny(["/privileges", "/admin-privileges"])).toBe(false);
+    expect(p.canAccessAny(["/privileges", "/anything-else"])).toBe(true);
+  });
+
+  // Unlike is_superuser, is_admin does not hardcode the default route first
+  // -- it's derived from the tree like a non-admin account, but with a
+  // "/user-list" fallback (not /no_role) once the tree has nothing usable,
+  // since an admin's canAccess bypass means they're never truly stranded.
+  it("falls back to /user-list when the tree grants nothing usable", () => {
     expect(resolvePermissions(admin, []).defaultRoute).toBe("/user-list");
+  });
+
+  it("lands on whatever the tree actually grants", () => {
+    const p = resolvePermissions(admin, [node("/cod-report", { can_view: true })]);
+    expect(p.defaultRoute).toBe("/cod-report");
+  });
+
+  it("an explicit grant for a Privileges screen overrides the default exclusion", () => {
+    const p = resolvePermissions(admin, [node("/admin-privileges", { can_view: true })]);
+    expect(p.canAccess("/admin-privileges")).toBe(true);
+    expect(p.canAccess("/privileges")).toBe(false);
+  });
+
+  it("still reports isAdmin:true for non-access-control consumers", () => {
+    expect(resolvePermissions(admin, []).isAdmin).toBe(true);
   });
 });
 

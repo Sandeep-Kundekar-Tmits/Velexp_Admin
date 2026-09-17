@@ -3,6 +3,25 @@
 // per menu node, so the flag-toggle/payload-building logic is written once
 // here instead of duplicated per screen.
 
+// Non-superuser admins can reach Role Privileges / User Overrides (granted
+// via the privileges tree like any other screen), but must not be able to
+// grant the Privileges group itself to a role or user -- doing so would let
+// them create a backdoor to Admin Privileges for anyone. That used to mean
+// filtering the node out of the tree entirely for them; it's now kept
+// visible (so what exists isn't hidden) but locked read-only -- see
+// collectPrivilegesGroupIds, whose result MenuPrivilegeTree disables.
+export function collectPrivilegesGroupIds(nodes, acc = new Set()) {
+    const collectAll = (node) => {
+        acc.add(node.id);
+        (node.children || []).forEach(collectAll);
+    };
+    (nodes || []).forEach((node) => {
+        if (node.link_name === "Privileges") collectAll(node);
+        else if (node.children?.length) collectPrivilegesGroupIds(node.children, acc);
+    });
+    return acc;
+}
+
 const PERMISSION_KEYS = ["has_fullacess", "can_view", "can_save", "can_update", "can_delete"];
 const GRANULAR_KEYS = ["can_view", "can_save", "can_update", "can_delete"];
 
@@ -68,6 +87,63 @@ export function updateNodeById(nodes, id, updater) {
         if (node.children?.length) return { ...node, children: updateNodeById(node.children, id, updater) };
         return node;
     });
+}
+
+// Checking (or unchecking) a group applies the same state to every menu
+// underneath it, the way a real-world "grant this whole section" click is
+// expected to behave -- without this a parent's own checkbox meant nothing
+// beyond itself, and every sub-menu still had to be ticked one at a time.
+// A locked node (mode="user", granted by role) is left alone, same as
+// clicking it directly would be.
+function setCheckedRecursive(node, checked, lockedIds) {
+    const locked = !!lockedIds?.has(node.id);
+    return {
+        ...node,
+        checked: locked ? node.checked : checked,
+        flags: locked ? node.flags : applyFlagChange(node.flags, "has_fullacess", checked),
+        children: (node.children || []).map((child) => setCheckedRecursive(child, checked, lockedIds)),
+    };
+}
+
+// A checked sub-menu is unreachable if its parent group grants nothing, so
+// checking one also marks every ancestor at least viewable (can_view) --
+// not full access, since asking for the leaf doesn't imply the group
+// itself should be save/update/delete-able too.
+function ensureViewable(node) {
+    if (node.checked) return node;
+    return { ...node, checked: true, flags: applyFlagChange(node.flags, "can_view", true) };
+}
+
+// The single entry point MenuPrivilegeTree calls on every checkbox click.
+// Combines both cascade directions:
+//  - down: checking/unchecking a group stamps every descendant (setCheckedRecursive)
+//  - up: checking a leaf/group also ensures every ancestor is at least
+//    viewable, so a granted screen is always reachable through the menu
+// The up-cascade only runs when checking, not unchecking -- a sibling under
+// the same parent may still be granted, so clearing one leaf must not touch
+// its ancestors (which would, via their own down-cascade, wipe that sibling too).
+function walkAndToggle(node, id, checked, lockedIds) {
+    if (node.id === id) {
+        return { node: setCheckedRecursive(node, checked, lockedIds), matched: true };
+    }
+    if (!node.children?.length) {
+        return { node, matched: false };
+    }
+    let matchedInChildren = false;
+    const children = node.children.map((child) => {
+        const result = walkAndToggle(child, id, checked, lockedIds);
+        if (result.matched) matchedInChildren = true;
+        return result.node;
+    });
+    let updated = { ...node, children };
+    if (matchedInChildren && checked && !lockedIds?.has(node.id)) {
+        updated = ensureViewable(updated);
+    }
+    return { node: updated, matched: matchedInChildren };
+}
+
+export function toggleNodeChecked(nodes, id, checked, lockedIds) {
+    return nodes.map((node) => walkAndToggle(node, id, checked, lockedIds).node);
 }
 
 // Builds the nested {menu_id, ...flags, children} payload the save/

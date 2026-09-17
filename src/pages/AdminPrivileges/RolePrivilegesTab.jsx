@@ -6,7 +6,8 @@ import DeleteModal from "../../components/Common/DeleteModal";
 import MenuPrivilegeTree from "../../components/AdminPrivileges/MenuPrivilegeTree";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
 import usePostApiCall from "../../hooks/usePostApiCall";
-import { normalizeForEditing, buildPrivilegePayload } from "../../utils/privilegeTree";
+import { usePermissions } from "@/features/auth/usePermissions";
+import { normalizeForEditing, buildPrivilegePayload, collectPrivilegesGroupIds } from "../../utils/privilegeTree";
 import {
     ADMIN_ROLES_API,
     ADMIN_ROLE_PRIVILEGES_API,
@@ -15,7 +16,37 @@ import {
     ADMIN_ROLE_PRIVILEGES_DELETE_ALL_API,
 } from "../../api";
 
+// The overview lists a role's granted menus at whatever depth they were
+// granted -- some are top-level leaves, some sit two levels down (e.g.
+// Reports > Operation Performance > Delivery Strike Rate (FDSR)). A group
+// whose own children are themselves groups renders as a nested heading; a
+// group whose children are leaves renders them as badges, same as before.
+const RoleMenuNode = ({ menu, depth = 0 }) => {
+    const children = menu.children || [];
+    const hasNestedGroups = children.some((c) => (c.children || []).length > 0);
+
+    return (
+        <div className="mb-2" style={{ marginLeft: depth * 16 }}>
+            <h6 className="text-ink" style={{ fontWeight: "normal" }}>{menu.link_name || menu.menu_name}</h6>
+            {hasNestedGroups ? (
+                children.map((child) => <RoleMenuNode key={child.menu_id} menu={child} depth={depth + 1} />)
+            ) : (
+                <div className="flex flex-wrap gap-2">
+                    {children.length ? children.map((child) => (
+                        <span key={child.menu_id} className="badge rounded-full text-success-500 bg-success-500/10 border border-success-500/25 px-4 py-2">
+                            {child.link_name || child.menu_name}
+                        </span>
+                    )) : (
+                        <span className="badge rounded-full text-ink-muted border px-4 py-2">No sub-menus</span>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+};
+
 const RolePrivilegesTab = () => {
+    const { isSuperUser } = usePermissions();
     const { apifunc: fetchOverview, data: overviewData, loading: overviewLoading } = useGetApiCall();
     const { apifunc: fetchRoles, data: rolesData } = useGetApiCall();
     const { apifunc: fetchByRole, data: byRoleData, loading: treeLoading } = useGetApiCall();
@@ -41,6 +72,13 @@ const RolePrivilegesTab = () => {
             setTree(menus.map((m) => normalizeForEditing(m, "role")));
         }
     }, [byRoleData]);
+
+    // The Privileges group stays visible even for a non-superuser editor --
+    // no longer hidden -- but MenuPrivilegeTree locks it read-only for them.
+    const restrictedIds = useMemo(
+        () => (isSuperUser ? new Set() : collectPrivilegesGroupIds(tree)),
+        [tree, isSuperUser]
+    );
 
     const closeEditorAndReload = () => { setEditingRoleId(null); loadOverview(); };
     const { apifunc: saveRolePrivileges, loading: saving } = usePostApiCall(closeEditorAndReload, "Role privileges saved successfully");
@@ -83,7 +121,7 @@ const RolePrivilegesTab = () => {
                 ) : (
                     <Card className="shadow-sm border-0">
                         <CardBody className="overflow-y-auto scroll-slim" style={{ maxHeight: "65vh" }}>
-                            <MenuPrivilegeTree nodes={tree} mode="role" onChange={setTree} />
+                            <MenuPrivilegeTree nodes={tree} mode="role" onChange={setTree} restrictedIds={restrictedIds} />
                         </CardBody>
                     </Card>
                 )}
@@ -121,18 +159,7 @@ const RolePrivilegesTab = () => {
                                         </Button>
                                     </div>
                                     {(role.menus || []).map((menu) => (
-                                        <div key={menu.menu_id} className="mb-2">
-                                            <h6 className="text-ink" style={{ fontWeight: "normal" }}>{menu.link_name || menu.menu_name}</h6>
-                                            <div className="flex flex-wrap gap-2">
-                                                {(menu.children || []).length ? menu.children.map((child) => (
-                                                    <span key={child.menu_id} className="badge rounded-full text-success-500 bg-success-500/10 border border-success-500/25 px-4 py-2">
-                                                        {child.link_name || child.menu_name}
-                                                    </span>
-                                                )) : (
-                                                    <span className="badge rounded-full text-ink-muted border px-4 py-2">No sub-menus</span>
-                                                )}
-                                            </div>
-                                        </div>
+                                        <RoleMenuNode key={menu.menu_id} menu={menu} />
                                     ))}
                                 </div>
                             </CardBody>

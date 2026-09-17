@@ -14,14 +14,18 @@ import { useQuery } from "@tanstack/react-query";
 import { qk } from "@/lib/queryKeys";
 import {
   fetchCustomers,
+  fetchDepartments,
   fetchProducts,
   fetchRegions,
   fetchServiceCenters,
+  fetchServiceCentreDirectory,
   fetchTrackingStatuses,
   toCustomerOptions,
+  toDepartmentOptions,
   toProductOptions,
   toRegionOptions,
   toServiceCenterOptions,
+  toServiceCentreDirectoryOptions,
   toStatusOptions,
 } from "@/services/reference.service";
 
@@ -81,6 +85,28 @@ export function useTrackingStatuses(options = {}) {
     select: toStatusOptions,
     staleTime: REFERENCE_STALE_TIME,
     retry: 1,
+    ...options,
+  });
+}
+
+/** Service centre directory (id + code + company name), for pickers that submit an id -- see Employee Management. */
+export function useServiceCentreDirectory(options = {}) {
+  return useQuery({
+    queryKey: qk.reference.serviceCentreDirectory(),
+    queryFn: fetchServiceCentreDirectory,
+    select: toServiceCentreDirectoryOptions,
+    staleTime: REFERENCE_STALE_TIME,
+    ...options,
+  });
+}
+
+/** Department master, for the Employee Management dropdown. */
+export function useDepartments(options = {}) {
+  return useQuery({
+    queryKey: qk.reference.departments(),
+    queryFn: fetchDepartments,
+    select: toDepartmentOptions,
+    staleTime: REFERENCE_STALE_TIME,
     ...options,
   });
 }

@@ -11,7 +11,7 @@ import { NO_ROLE_ROUTE } from "@/features/auth/permissions";
 const Authmiddleware = ({ path, children }) => {
   const location = useLocation();
   const isAuthenticated = useAuthStore((s) => !!s.access || !!s.user);
-  const { isAdmin, canAccess, defaultRoute } = usePermissions();
+  const { canAccess, defaultRoute } = usePermissions();
 
   if (!isAuthenticated) {
     // Previously used the React Router v5 object form,
@@ -35,8 +35,12 @@ const Authmiddleware = ({ path, children }) => {
   // gating is UX, not security, since anyone can edit localStorage. The fix
   // belongs in the Django API, which must authorize each detail endpoint.
   // Tracked as a backend item rather than papered over in the router.
+  //
+  // canAccess itself (permissions.js) carries the bypass rules: a superuser
+  // passes every check, an admin passes every check except the Privileges
+  // screens, everyone else is gated by their resolved privileges tree.
   const isGuardedRoute = path && path !== "/" && path !== "*" && !path.includes(":");
-  if (isGuardedRoute && !isAdmin && !canAccess(path)) {
+  if (isGuardedRoute && !canAccess(path)) {
     return <Navigate to={defaultRoute || NO_ROLE_ROUTE} replace />;
   }
 

@@ -10,6 +10,13 @@
  * and a successful refetch is written back to the store — which persists it to
  * localStorage, so the legacy consumers that read the key directly
  * (route.jsx, SidebarContent, checkMenuAccess) see the update too.
+ *
+ * refetchOnWindowFocus/refetchInterval are overridden here, opting back in
+ * over the app-wide default (queryClient.js disables both globally, tuned
+ * for heavy report queries). This is a small GET, and an admin granting or
+ * revoking access for a signed-in user needs to actually reach that user in
+ * a reasonable time, not sit stale in cache for up to 5 minutes with no
+ * trigger to re-check it at all.
  */
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -37,7 +44,9 @@ export function usePrivilegesQuery(options = {}) {
       const stored = useAuthStore.getState().privileges;
       return stored?.length ? stored : undefined;
     },
-    staleTime: 5 * 60_000,
+    staleTime: 30_000,
+    refetchOnWindowFocus: true,
+    refetchInterval: 60_000,
     ...options,
   });
 

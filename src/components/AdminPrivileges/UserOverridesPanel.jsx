@@ -4,7 +4,8 @@ import Loader from "@/Loaders/Loader";
 import MenuPrivilegeTree from "./MenuPrivilegeTree";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
 import usePostApiCall from "../../hooks/usePostApiCall";
-import { normalizeForEditing, buildPrivilegePayload } from "../../utils/privilegeTree";
+import { usePermissions } from "@/features/auth/usePermissions";
+import { normalizeForEditing, buildPrivilegePayload, collectPrivilegesGroupIds } from "../../utils/privilegeTree";
 import {
     ADMIN_ROLES_API,
     ADMIN_ROLE_PRIVILEGES_BY_ROLE_API,
@@ -26,6 +27,7 @@ const collectAssignedMenuIds = (menus, acc = new Set()) => {
 };
 
 const UserOverridesPanel = ({ user, onClose, onRoleChanged }) => {
+    const { isSuperUser } = usePermissions();
     const { apifunc: fetchRoles, data: rolesData } = useGetApiCall();
     const { apifunc: fetchOverrides, data: overridesData, loading: overridesLoading } = useGetApiCall();
     const { apifunc: fetchRolePrivileges, data: rolePrivilegesData } = useGetApiCall();
@@ -46,6 +48,13 @@ const UserOverridesPanel = ({ user, onClose, onRoleChanged }) => {
             setTree(menus.map((m) => normalizeForEditing(m, "user")));
         }
     }, [overridesData]);
+
+    // The Privileges group stays visible even for a non-superuser editor --
+    // no longer hidden -- but MenuPrivilegeTree locks it read-only for them.
+    const restrictedIds = useMemo(
+        () => (isSuperUser ? new Set() : collectPrivilegesGroupIds(tree)),
+        [tree, isSuperUser]
+    );
 
     // Whenever the role changes -- the user's default one on open, or a
     // different one picked from the dropdown -- pull that role's assigned
@@ -86,7 +95,15 @@ const UserOverridesPanel = ({ user, onClose, onRoleChanged }) => {
     return (
         <Modal isOpen toggle={onClose} size="lg" centered scrollable>
             <ModalHeader toggle={onClose}>
-                Manage Access — {user.username || `${user.first_name || ""} ${user.last_name || ""}`.trim()}
+                <div>
+                    <div>Manage Access — {user.username || `${user.first_name || ""} ${user.last_name || ""}`.trim()}</div>
+                    {(user.customer_name || user.type_of_cust || user.cust_type?.type_of_cust) && (
+                        <div className="text-ink-muted font-normal flex items-center gap-1.5">
+                            <span style={{ fontSize: 14 }}>{user.customer_name || "--"}</span>
+                            <span style={{ fontSize: 10 }}>· {user.type_of_cust || user.cust_type?.type_of_cust || "--"}</span>
+                        </div>
+                    )}
+                </div>
             </ModalHeader>
             <ModalBody>
                 <div className="flex items-end gap-2 mb-6">
@@ -109,7 +126,7 @@ const UserOverridesPanel = ({ user, onClose, onRoleChanged }) => {
                 {overridesLoading ? (
                     <Loader fullscreen={false} />
                 ) : (
-                    <MenuPrivilegeTree nodes={tree} mode="user" onChange={setTree} lockedIds={lockedMenuIds} />
+                    <MenuPrivilegeTree nodes={tree} mode="user" onChange={setTree} lockedIds={lockedMenuIds} restrictedIds={restrictedIds} />
                 )}
             </ModalBody>
             <ModalFooter>

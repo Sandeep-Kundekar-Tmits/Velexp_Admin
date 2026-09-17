@@ -18,6 +18,8 @@ export const qk = {
     products: () => ["reference", "products"],
     regions: () => ["reference", "regions"],
     trackingStatuses: () => ["reference", "tracking-statuses"],
+    serviceCentreDirectory: () => ["reference", "service-centre-directory"],
+    departments: () => ["reference", "departments"],
   },
 
   /** Current user's resolved menu privileges (Phase 2). */

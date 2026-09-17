@@ -4,9 +4,15 @@ import { Container, Alert, Button } from "@/components/ui";
 
 const RoleNotDefinedScreen = () => {
   const navigate = useNavigate()
+  // Routes to the dedicated /logout screen rather than clearing the session
+  // here directly -- this used to only remove the localStorage key, leaving
+  // the in-memory Zustand auth store populated. PublicOnlyRoute (wrapping
+  // /login) checks that in-memory store, saw the user as still
+  // authenticated, and bounced them straight back to /no_role -- Logout
+  // looked like it did nothing. /logout clears both the store and the
+  // query cache before navigating, so reuse it instead of duplicating that.
   const onLogout = () => {
-    localStorage.removeItem("authUser")
-    navigate("/login")
+    navigate("/logout")
   }
   return (
     <Container className="flex flex-col items-center justify-center" style={{ minHeight: '100vh' }}>

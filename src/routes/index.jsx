@@ -20,6 +20,15 @@ const UserManagementList = lazy(() => import("../pages/Dashboard/UserManagementL
 const ViewUser = lazy(() => import("../pages/Dashboard/ViewUser"));
 const AddUser = lazy(() => import("../pages/Dashboard/AddUser"));
 const UpdateUser = lazy(() => import("../pages/Dashboard/UpdateUser"));
+// Masters - Service Centres
+const ServiceCentreList = lazy(() => import("../pages/Masters/ServiceCentreList"));
+const AddServiceCentre = lazy(() => import("../pages/Masters/AddServiceCentre"));
+const EditServiceCentre = lazy(() => import("../pages/Masters/EditServiceCentre"));
+// User Management - Employee Management
+const EmployeeList = lazy(() => import("../pages/UserManagement/EmployeeList"));
+const AddEmployee = lazy(() => import("../pages/UserManagement/AddEmployee"));
+const EditEmployee = lazy(() => import("../pages/UserManagement/EditEmployee"));
+const ViewEmployee = lazy(() => import("../pages/UserManagement/ViewEmployee"));
 const CustomerService = lazy(() => import("../pages/Dashboard/Reports/CustomerService"));
 const CustomerServiceEmployee = lazy(() => import("../pages/Dashboard/Reports/CustomerServiceEmployee"));
 const CustomerInvoice = lazy(() => import("../pages/Dashboard/Invoices/CustomerInvoice"));
@@ -175,6 +184,15 @@ const getAuthProtectedRoutes = () => {
     { path: "/add-user", component: <AddUser /> },
     { path: "/user/:id", component: <ViewUser /> },
     { path: "/edit-user/:id", component: <UpdateUser /> },
+    // Masters - Service Centres
+    { path: "/service-centres", component: <ServiceCentreList /> },
+    { path: "/service-centres/add", component: <AddServiceCentre /> },
+    { path: "/service-centres/edit/:id", component: <EditServiceCentre /> },
+    // User Management - Employee Management
+    { path: "/employees", component: <EmployeeList /> },
+    { path: "/employees/add", component: <AddEmployee /> },
+    { path: "/employees/edit/:id", component: <EditEmployee /> },
+    { path: "/employees/:id", component: <ViewEmployee /> },
     { path: "/customer-rate-data", component: <CustomerRateData /> },
     { path: "/int-rate-data", component: <INTLRateData /> },
     { path: "/retail-pincode", component: <RetailPincode /> },

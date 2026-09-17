@@ -137,7 +137,7 @@ const PendingReport = () => {
         }
     };
 
-    // ── Columns (same 39 fields as Velocity-Ops, admin TanStack format) ───
+    // ── Columns (same 40 fields as Velocity-Ops, admin TanStack format) ───
     const columns = useMemo(() => [
         { header: "#", accessorKey: "serial_no", enableColumnFilter: false, enableSorting: false },
         { header: "AWB No", accessorKey: "awbno", enableColumnFilter: false, enableSorting: true },
@@ -183,6 +183,7 @@ const PendingReport = () => {
         { header: "CNote No", accessorKey: "cnotno", enableColumnFilter: false, enableSorting: false },
         { header: "Box No", accessorKey: "boxno", enableColumnFilter: false, enableSorting: false },
         { header: "Mode", accessorKey: "mode", enableColumnFilter: false, enableSorting: true },
+        { header: "Service Provider", accessorKey: "service_provider", enableColumnFilter: false, enableSorting: true },
         { header: "Transport Rem", accessorKey: "transportrem", enableColumnFilter: false, enableSorting: false },
         { header: "Arrival Time", accessorKey: "arrivaltime", enableColumnFilter: false, enableSorting: true },
         { header: "Promise Date", accessorKey: "customer_promise_date", enableColumnFilter: false, enableSorting: true },

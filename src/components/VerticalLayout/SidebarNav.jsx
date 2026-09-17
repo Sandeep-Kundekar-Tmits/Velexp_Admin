@@ -14,9 +14,9 @@ import { useUiStore } from "@/stores/uiStore";
  * mm-active / mm-show classes by hand. Here the open branch is derived from
  * the current route, so it cannot drift out of sync with what is rendered.
  *
- * Menu STRUCTURE comes from menuTree.js; VISIBILITY comes from privileges.
- * They are separate because is_admin bypasses privileges entirely, so an
- * admin's privileges array may be empty.
+ * Menu STRUCTURE comes from menuTree.js; VISIBILITY comes from privileges
+ * (see permissions.js: superuser bypasses fully, admin bypasses everything
+ * except the Privileges group, everyone else follows their granted tree).
  */
 
 /** Drop leaves the user cannot reach, then drop groups left empty. */
@@ -26,10 +26,10 @@ function filterMenu(nodes, canAccess, isSuperUser) {
     // `hidden` preserves the old sidebar's hardcoded kill-switches. The route
     // still exists and stays reachable by URL — only the menu entry is gone.
     if (node.hidden) continue;
-    // `superUserOnly` is a second, stricter gate on top of canAccess: is_admin
-    // makes canAccess true for every url, but a handful of screens (bulk
-    // international password reset) must stay invisible to admins who are
-    // not also flagged is_superuser.
+    // `superUserOnly` is a second, stricter gate on top of canAccess: a
+    // handful of screens (bulk international password reset) must stay
+    // invisible to anyone not flagged is_superuser, even if canAccess
+    // already grants the url.
     if (node.superUserOnly && !isSuperUser) continue;
     if (node.children) {
       const children = filterMenu(node.children, canAccess, isSuperUser);

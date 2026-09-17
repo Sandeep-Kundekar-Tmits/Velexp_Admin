@@ -39,6 +39,14 @@ const UserAccessTab = () => {
             header: "Name", accessorKey: "first_name", enableColumnFilter: false,
             cell: ({ row }) => `${row.original.first_name || ""} ${row.original.last_name || ""}`.trim() || "--",
         },
+        {
+            header: "Customer Name", accessorKey: "customer_name", enableColumnFilter: false,
+            cell: ({ getValue }) => getValue() || "--",
+        },
+        {
+            header: "Customer Type", accessorKey: "type_of_cust", enableColumnFilter: false,
+            cell: ({ row }) => row.original.type_of_cust || row.original.cust_type?.type_of_cust || "--",
+        },
         { header: "Email", accessorKey: "email", enableColumnFilter: false, cell: ({ getValue }) => getValue() || "--" },
         {
             header: "Role", accessorKey: "role_name", enableColumnFilter: false,

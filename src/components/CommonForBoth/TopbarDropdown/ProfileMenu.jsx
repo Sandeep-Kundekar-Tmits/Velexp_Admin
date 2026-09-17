@@ -26,6 +26,8 @@ const ProfileMenu = (props) => {
   const authUser = JSON.parse(localStorage.getItem("authUser"));
   const userType = authUser?.user?.cust_type?.type_of_cust;
   const isAdmin = authUser?.user?.is_admin;
+  const isSuperUser = authUser?.user?.is_superuser;
+  const username = authUser?.user?.username || "";
 
   const getUserIcon = () => {
     if (isAdmin) return <FaCrown className="text-warning-500" />;
@@ -37,21 +39,16 @@ const ProfileMenu = (props) => {
     return <FaUser className="text-ink-muted" />;
   };
 
-  const displayText = isAdmin ? "ADMIN" : (userType || "USER").toUpperCase();
+  // Admin/Super Admin marker rides next to the username, not the customer
+  // type line below -- superuser wins over plain admin since it's the
+  // stronger of the two. Neither applies -> no parenthetical at all.
+  const adminLabel = isSuperUser ? "Super Admin" : isAdmin ? "Admin" : "";
+  const displayText = adminLabel ? `${username.toUpperCase()} (${adminLabel})` : username.toUpperCase();
 
-  const roleLabel = isAdmin
-    ? "Full Access"
-    : userType === "sales"
-      ? "Sales Team"
-      : userType === "pod"
-        ? "POD Manager"
-        : userType === "accounting"
-          ? "Accounts Team"
-          : userType === "Retail-Franchise"
-            ? "Retail-Franchise Team"
-            : userType === "operations"
-              ? "Operations"
-              : "Standard User";
+  // Second line: customer type only, and only for a plain account -- an
+  // admin/super admin already carries their designation next to the
+  // username above, so the type line would be redundant clutter for them.
+  const roleLabel = adminLabel ? "" : userType || "";
 
   return (
     <React.Fragment>
@@ -63,7 +60,7 @@ const ProfileMenu = (props) => {
               the DOM and hovering the widened rail showed a nameless icon. */}
           <div className="user-info">
             <div className="font-bold text-white">{displayText}</div>
-            <small>{roleLabel}</small>
+            {roleLabel && <small>{roleLabel}</small>}
           </div>
         </div>
 

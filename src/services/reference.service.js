@@ -10,8 +10,15 @@
  * a useEffect on every screen — including the null-name filter below, which
  * appeared verbatim in 22 files.
  */
-import { GET_ALL_REGION, GET_ALL_STATUSES, GET_USER_API, PRODUCT_LIST, SERVICE_CENTER } from "@/api";
+import { DEPARTMENT_LIST, GET_ALL_REGION, GET_ALL_STATUSES, GET_USER_API, PRODUCT_LIST, SERVICE_CENTER, SERVICE_CENTER_LIST } from "@/api";
 import { http } from "@/lib/http";
+
+/** Same "get-list" envelope every sibling endpoint in this family uses -- see toStatusOptions. */
+const unwrapGetList = (raw) => Array.isArray(raw) ? raw
+  : Array.isArray(raw?.results?.results) ? raw.results.results
+  : Array.isArray(raw?.results) ? raw.results
+  : Array.isArray(raw?.data) ? raw.data
+  : [];
 
 /**
  * The customer list contains rows whose name is genuinely missing and rows
@@ -84,6 +91,23 @@ export function toStatusOptions(raw) {
   return options.sort((a, b) => a.value.localeCompare(b.value));
 }
 
+/**
+ * Full service-centre directory (id, code, company name, ...) -- distinct from
+ * toServiceCenterOptions above, which is the lighter `unique-service-centers/` list keyed
+ * only by ec_code with no id. Used wherever a form needs to submit a service centre's id
+ * (Employee Management) rather than just filter by its code.
+ */
+export function toServiceCentreDirectoryOptions(raw) {
+  return unwrapGetList(raw).map((sc) => ({
+    value: sc?.id,
+    label: `${sc?.service_center_code || ""} — ${sc?.company_name || ""}`,
+  }));
+}
+
+export function toDepartmentOptions(raw) {
+  return unwrapGetList(raw).map((dept) => ({ value: dept?.id, label: dept?.name }));
+}
+
 // GET_USER_API needs the trailing slash; the constant omits it because other
 // call sites append an id.
 export const fetchCustomers = () => http.get(`${GET_USER_API}/`);
@@ -94,3 +118,5 @@ export const fetchRegions = () => http.get(GET_ALL_REGION);
 // "get-list" family as /designations/get-list/ (GET_ALL_ROLES), which is also POSTed to
 // with an empty body elsewhere in the app.
 export const fetchTrackingStatuses = () => http.post(GET_ALL_STATUSES, {});
+export const fetchServiceCentreDirectory = () => http.post(SERVICE_CENTER_LIST, {});
+export const fetchDepartments = () => http.post(DEPARTMENT_LIST, {});

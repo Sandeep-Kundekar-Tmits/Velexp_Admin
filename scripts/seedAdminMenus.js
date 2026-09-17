@@ -56,6 +56,7 @@ const TOP_LEVEL = [
     { link_name: "International Password Reset", link_url: "/international-password-reset", faicon: "bx bx-key" },
     { link_name: "Status Update", link_url: "#", faicon: "bx bx-trash" },
     { link_name: "AWB Admin Lookup", link_url: "/awb-admin-lookup", faicon: "bx bx-search-alt" },
+    { link_name: "Ops Master", link_url: "#", faicon: "bx bx-buildings" },
 ];
 
 // keyed by parent's link_name (must be a name from TOP_LEVEL)
@@ -70,18 +71,28 @@ const CHILDREN = {
     "OPS Reports": [
         { link_name: "Pending Report", link_url: "/pending-report" },
         { link_name: "MIS Run", link_url: "/mis-report" },
+        { link_name: "Admin Booking", link_url: "/admin-booking-download" },
+        { link_name: "Customer Service", link_url: "/customer-service" },
+        { link_name: "Customer Service Employee", link_url: "/customer-service-employee" },
     ],
     "Customers": [
         { link_name: "Customer List", link_url: "/user-list" },
+        { link_name: "Add User", link_url: "/add-user" },
+        { link_name: "Add Franchisee", link_url: "/add-franchisee" },
         { link_name: "Rate Data", link_url: "/customer-rate-data" },
         { link_name: "Retail Pincode", link_url: "/retail-pincode" },
         { link_name: "Franchise Pincode", link_url: "/franchise-pincode" },
         { link_name: "Corporate Pincode", link_url: "/corporate-pincode" },
         { link_name: "Corporate Rate Data", link_url: "/corporate-rate-data" },
+        { link_name: "Corporate Pincode Upload", link_url: "/corporate-pincode-upload" },
+        { link_name: "Corporate Rate Upload", link_url: "/corporate-rate-upload" },
         { link_name: "Retail Rate Data", link_url: "/retail-rate-data" },
         { link_name: "Franchise Rate Data", link_url: "/franchise-rate-data" },
         { link_name: "International Rates", link_url: "/intl-rate-data" },
+        { link_name: "International Rate Data", link_url: "/int-rate-data" },
         { link_name: "International Pincodes", link_url: "/intl-pincode" },
+        { link_name: "Customer Product Config", link_url: "/customer-product-config" },
+        { link_name: "VAS Configuration", link_url: "/vas-config" },
     ],
     "International Billing": [
         { link_name: "International Rates", link_url: "/intl-rate-data" },
@@ -89,9 +100,12 @@ const CHILDREN = {
     ],
     "Booking": [
         { link_name: "Service Provider Booking", link_url: "/service-provider-booking" },
+        { link_name: "Corporate Booking", link_url: "/corporate-booking" },
+        { link_name: "Sales Booking", link_url: "/sales-booking" },
     ],
     "Invoices": [
         { link_name: "Franchise Billing", link_url: "/franchise_invoice" },
+        { link_name: "Corporate Invoice", link_url: "/corporate_invoice" },
         { link_name: "Manual Billing", link_url: "/manual_invoice" },
         { link_name: "Corporate Bills", link_url: "/corporate-billing" },
         { link_name: "Download Invoices", link_url: "/edit_invoice" },
@@ -134,6 +148,11 @@ const CHILDREN = {
         { link_name: "RTS Remove", link_url: "/rts-remove" },
         { link_name: "Tracking Correction", link_url: "/tracking-correction" },
     ],
+    "Ops Master": [
+        { link_name: "Service Centres", link_url: "/service-centres" },
+        { link_name: "Employee", link_url: "/employees" },
+        { link_name: "Add Employee", link_url: "/employees/add" },
+    ],
 };
 
 // keyed by parent's link_name (must be one of the "#" sub-parents created under "Reports" above)
@@ -142,11 +161,16 @@ const GRANDCHILDREN = {
         { link_name: "Delivery Strike Rate (FDSR)", link_url: "/last-mile-operation" },
         { link_name: "Pickup Strike Rate (FPSR)", link_url: "/first-mile-operation" },
         { link_name: "Attempt-wise Delivery Performance", link_url: "/attempt-wise-delivery-performance" },
+        { link_name: "Operation Performance Report", link_url: "/operation-performance" },
+        { link_name: "OFD Performance (FASR)", link_url: "/ofd-operations-performance" },
+        { link_name: "Attempt Wise Pickup Performance", link_url: "/operation-attempt-wise-pickup-performance" },
     ],
     "Customer Performance": [
         { link_name: "Delivery Strike Rate (FDSR)", link_url: "/last-mile-customer-performance" },
         { link_name: "Pickup Strike Rate (FPSR)", link_url: "/first-mile-customer-performance" },
         { link_name: "Attempt-wise Delivery Performance", link_url: "/customer-attempt-wise-delivery-performance" },
+        { link_name: "OFD Performance (FASR)", link_url: "/ofd-customer-operations-performance" },
+        { link_name: "Attempt Wise Pickup Performance", link_url: "/customer-attempt-wise-pickup-performance" },
     ],
     "Others": [
         { link_name: "Pickup Performance", link_url: "/pickup-performance" },

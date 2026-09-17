@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { IoMdAdd, IoMdRemove } from "react-icons/io";
 import { MdClose } from "react-icons/md";
-import { applyFlagChange, updateNodeById } from "../../utils/privilegeTree";
+import { toggleNodeChecked } from "../../utils/privilegeTree";
 
 const roleDefaultSummary = (roleDefault) => {
     const active = Object.entries(roleDefault || {})
@@ -12,7 +12,11 @@ const roleDefaultSummary = (roleDefault) => {
 
 // Recursive checkbox tree, shared by Role Privileges (mode="role") and
 // User Overrides (mode="user") editors. Checking a menu grants full access.
-const MenuPrivilegeTree = ({ nodes, mode = "role", onChange, onRemoveNode, lockedIds }) => {
+// restrictedIds (typically the Privileges group, for a non-superuser editor)
+// stays visible but locked read-only, at whatever checked state it actually
+// has -- unlike lockedIds/mode="user" below, it must NOT force the checkbox
+// to show checked, since a restricted node may genuinely not be granted.
+const MenuPrivilegeTree = ({ nodes, mode = "role", onChange, onRemoveNode, lockedIds, restrictedIds }) => {
     const [collapsedIds, setCollapsedIds] = useState(() => new Set());
 
     const toggleCollapse = (id) => {
@@ -24,18 +28,24 @@ const MenuPrivilegeTree = ({ nodes, mode = "role", onChange, onRemoveNode, locke
         });
     };
 
+    // Checking (or unchecking) a group also stamps every menu nested under
+    // it, and checking any menu also ensures every one of its ancestor
+    // groups is at least viewable -- see toggleNodeChecked. Both lock
+    // reasons are merged in so the cascade never touches a locked node.
     const handleCheck = (id, checked) => {
-        onChange(updateNodeById(nodes, id, (node) => ({
-            ...node,
-            checked,
-            flags: applyFlagChange(node.flags, "has_fullacess", checked),
-        })));
+        const locked = new Set([
+            ...(mode === "user" && lockedIds ? lockedIds : []),
+            ...(restrictedIds || []),
+        ]);
+        onChange(toggleNodeChecked(nodes, id, checked, locked));
     };
 
     const renderNode = (node, depth) => {
         const hasChildren = node.children?.length > 0;
         const collapsed = collapsedIds.has(node.id);
-        const locked = mode === "user" && !!lockedIds?.has(node.id);
+        const roleLocked = mode === "user" && !!lockedIds?.has(node.id);
+        const restricted = !!restrictedIds?.has(node.id);
+        const locked = roleLocked || restricted;
 
         return (
             <div key={node.id} style={{ marginLeft: depth * 24 }} className="mb-2">
@@ -51,15 +61,22 @@ const MenuPrivilegeTree = ({ nodes, mode = "role", onChange, onRemoveNode, locke
                     <input
                         className="form-check-input mt-0"
                         type="checkbox"
-                        checked={locked || node.checked}
+                        checked={roleLocked || node.checked}
                         disabled={locked}
-                        title={locked ? "Granted by role -- can't be unchecked here" : undefined}
+                        title={
+                            roleLocked ? "Granted by role -- can't be unchecked here"
+                                : restricted ? "Only a superuser can grant Admin Privileges access"
+                                    : undefined
+                        }
                         onChange={(e) => handleCheck(node.id, e.target.checked)}
                     />
 
                     <span className="font-semibold">{node.link_name}</span>
                     {node.link_url && node.link_url !== "#" && (
                         <span className="text-ink-muted text-xs">{node.link_url}</span>
+                    )}
+                    {restricted && (
+                        <span className="badge rounded-full text-ink-muted border px-2 py-0.5 text-xs">Superuser only</span>
                     )}
 
                     {mode === "user" && (
