@@ -151,7 +151,6 @@ const CHILDREN = {
     "Ops Master": [
         { link_name: "Service Centres", link_url: "/service-centres" },
         { link_name: "Employee", link_url: "/employees" },
-        { link_name: "Add Employee", link_url: "/employees/add" },
     ],
 };
 

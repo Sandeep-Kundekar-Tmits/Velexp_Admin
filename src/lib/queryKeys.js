@@ -20,6 +20,7 @@ export const qk = {
     trackingStatuses: () => ["reference", "tracking-statuses"],
     serviceCentreDirectory: () => ["reference", "service-centre-directory"],
     departments: () => ["reference", "departments"],
+    designations: () => ["reference", "designations"],
   },
 
   /** Current user's resolved menu privileges (Phase 2). */

@@ -15,6 +15,7 @@ import { qk } from "@/lib/queryKeys";
 import {
   fetchCustomers,
   fetchDepartments,
+  fetchDesignations,
   fetchProducts,
   fetchRegions,
   fetchServiceCenters,
@@ -22,6 +23,7 @@ import {
   fetchTrackingStatuses,
   toCustomerOptions,
   toDepartmentOptions,
+  toDesignationOptions,
   toProductOptions,
   toRegionOptions,
   toServiceCenterOptions,
@@ -106,6 +108,17 @@ export function useDepartments(options = {}) {
     queryKey: qk.reference.departments(),
     queryFn: fetchDepartments,
     select: toDepartmentOptions,
+    staleTime: REFERENCE_STALE_TIME,
+    ...options,
+  });
+}
+
+/** Designation master, for the Employee Info tab's Designation dropdown. */
+export function useDesignations(options = {}) {
+  return useQuery({
+    queryKey: qk.reference.designations(),
+    queryFn: fetchDesignations,
+    select: toDesignationOptions,
     staleTime: REFERENCE_STALE_TIME,
     ...options,
   });

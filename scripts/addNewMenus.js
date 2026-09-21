@@ -58,14 +58,13 @@ const CHILDREN_OF = {
         { link_name: "Add Franchisee", link_url: "/add-franchisee" },
     ],
     // "Ops Master" itself is a new top-level entry (see NEW_TOP_LEVEL above), so
-    // none of its children exist live yet either. "Add Service Centre" is
-    // deliberately NOT listed here -- adding a service centre stays reachable
-    // via the "+ Add Service Centre" button on the Service Centres list page
-    // (src/pages/Masters/ServiceCentreList.jsx) rather than a separate menu.
+    // none of its children exist live yet either. Neither "Add Service Centre"
+    // nor "Add Employee" is listed here -- both stay reachable via their own
+    // list page's "+ Add" button (ServiceCentreList.jsx / EmployeeList.jsx)
+    // rather than a separate menu.
     "Ops Master": [
         { link_name: "Service Centres", link_url: "/service-centres" },
         { link_name: "Employee", link_url: "/employees" },
-        { link_name: "Add Employee", link_url: "/employees/add" },
     ],
     "Booking": [
         { link_name: "Corporate Booking", link_url: "/corporate-booking" },

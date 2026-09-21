@@ -502,11 +502,21 @@ export const GET_ALL_EMPLOYEE_LIST = `${BASE_URL}/api/employee/employees/`
 // results: {message, results: [...]}} -- note results is double-nested,
 // an object carrying `message` alongside the actual array, not the array
 // itself like most other list endpoints in this file.
-export const EMPLOYEE_LIST = `${BASE_URL}/api/employee/employees/get-list/`
-export const GET_EMPLOYEE_DETAIL = `${BASE_URL}/api/employee/employees/get-detail/` // POST {id}
-export const ADD_EMPLOYEE = `${BASE_URL}/employees/` // POST
-export const UPDATE_EMPLOYEE = `${BASE_URL}/employees/` // PUT {id}/
-export const DELETE_EMPLOYEE = `${BASE_URL}/employee/` // DELETE {id}/ -- singular path per backend API doc
+// All 5 endpoints below confirmed against the reference implementation
+// (Velocity-Ops, src/Api/Index.js) -- several of this file's own previous
+// values were wrong (missing the /api/employee/ prefix, or singular
+// "employee" instead of "employees").
+export const EMPLOYEE_LIST = `${BASE_URL}/api/employee/employees/get-list/` // POST {page, search}
+export const GET_EMPLOYEE_DETAIL = `${BASE_URL}/api/employee/employees/get-detail/` // POST {id} -> {result: {...}}
+export const ADD_EMPLOYEE = `${BASE_URL}/api/employee/employees/` // POST
+export const UPDATE_EMPLOYEE = `${BASE_URL}/api/employee/employees/` // PATCH {id}/
+export const DELETE_EMPLOYEE = `${BASE_URL}/api/employee/employees/` // DELETE {id}/
+
+// Designation master, for the Employee Info tab's Designation dropdown. Same
+// underlying table as the legacy Privileges screen's role list
+// (GET_ALL_ROLES = /designations/get-list/), named separately here since the
+// two features use it for unrelated purposes.
+export const GET_DESIGNATION_LIST = `${BASE_URL}/designations/get-list/` // POST {}
 
 
 // Ops Trip Management

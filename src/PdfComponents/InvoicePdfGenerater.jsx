@@ -50,7 +50,11 @@ const InvoicePdfGenerater = React.forwardRef(({ invoiceData }, ref) => {
   };
 
   return (
-    <Container className="my-2" style={{ position: 'absolute', left: '-9999px' }} >
+    // Physical/printable output, same as AWB labels and InvoiceGenerator.jsx:
+    // opts this subtree out of the app's dark theme so token-based classes
+    // (e.g. the shared Table component's th background) render light even
+    // though this is captured off-screen, not shown in a visible preview.
+    <Container className="my-2" style={{ position: 'absolute', left: '-9999px' }} data-print-surface="">
       <div className="invoice-container text-black" style={{ fontSize: "16px" }} ref={ref} >
         <div>
           {/* Header Section */}

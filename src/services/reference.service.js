@@ -10,7 +10,7 @@
  * a useEffect on every screen — including the null-name filter below, which
  * appeared verbatim in 22 files.
  */
-import { DEPARTMENT_LIST, GET_ALL_REGION, GET_ALL_STATUSES, GET_USER_API, PRODUCT_LIST, SERVICE_CENTER, SERVICE_CENTER_LIST } from "@/api";
+import { DEPARTMENT_LIST, GET_ALL_REGION, GET_ALL_STATUSES, GET_DESIGNATION_LIST, GET_USER_API, PRODUCT_LIST, SERVICE_CENTER, SERVICE_CENTER_LIST } from "@/api";
 import { http } from "@/lib/http";
 
 /** Same "get-list" envelope every sibling endpoint in this family uses -- see toStatusOptions. */
@@ -108,6 +108,10 @@ export function toDepartmentOptions(raw) {
   return unwrapGetList(raw).map((dept) => ({ value: dept?.id, label: dept?.name }));
 }
 
+export function toDesignationOptions(raw) {
+  return unwrapGetList(raw).map((d) => ({ value: d?.id, label: d?.name || d?.designation_name || d?.title }));
+}
+
 // GET_USER_API needs the trailing slash; the constant omits it because other
 // call sites append an id.
 export const fetchCustomers = () => http.get(`${GET_USER_API}/`);
@@ -120,3 +124,4 @@ export const fetchRegions = () => http.get(GET_ALL_REGION);
 export const fetchTrackingStatuses = () => http.post(GET_ALL_STATUSES, {});
 export const fetchServiceCentreDirectory = () => http.post(SERVICE_CENTER_LIST, {});
 export const fetchDepartments = () => http.post(DEPARTMENT_LIST, {});
+export const fetchDesignations = () => http.post(GET_DESIGNATION_LIST, {});

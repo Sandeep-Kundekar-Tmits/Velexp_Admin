@@ -79,10 +79,19 @@ const EmployeeList = () => {
 
     const columns = useMemo(() => [
         { header: "Employee Code", accessorKey: "employee_code", enableSorting: true, cell: ({ getValue }) => getValue() || "—" },
-        { header: "Name", accessorKey: "name", enableSorting: true, cell: ({ getValue }) => getValue() || "—" },
+        {
+            header: "Name", id: "name", enableSorting: true,
+            cell: ({ row }) => row.original.name || [row.original.first_name, row.original.last_name].filter(Boolean).join(" ") || "—",
+        },
         { header: "Email", accessorKey: "email", enableSorting: true, cell: ({ getValue }) => getValue() || "—" },
-        { header: "Phone", accessorKey: "phone", enableSorting: true, cell: ({ getValue }) => getValue() || "—" },
-        { header: "Designation", accessorKey: "designation", enableSorting: true, cell: ({ getValue }) => getValue() || "—" },
+        {
+            header: "Phone", id: "phone", enableSorting: true,
+            cell: ({ row }) => row.original.mobile_no || row.original.phone || "—",
+        },
+        {
+            header: "Designation", id: "designation", enableSorting: true,
+            cell: ({ row }) => row.original.designation_name || row.original.designation || "—",
+        },
         {
             header: "Status", accessorKey: "is_active", enableSorting: true,
             cell: ({ getValue }) => <Badge color={getValue() ? "success" : "secondary"} pill>{getValue() ? "Active" : "Inactive"}</Badge>,

@@ -218,7 +218,11 @@ const InvoiceGenerator = ({ invoiceData, downloadUrl }) => {
     setUserType(CheckInvoice(invoiceData))
   }, [CheckInvoice(invoiceData)])
   return (
-    <Container className="my-2">
+    // Physical/printable output, same as AWB labels: opts this subtree out of
+    // the app's dark theme so token-based classes elsewhere in it (e.g. the
+    // shared Table component's th background) resolve to the light palette
+    // instead of the dark one, wherever this component is rendered.
+    <Container className="my-2" data-print-surface="">
       <div className="invoice-container text-black" style={{ fontSize: "16px" }} ref={targetRef}>
         <div>
           <Row className="mb-6">

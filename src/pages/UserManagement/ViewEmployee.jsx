@@ -19,7 +19,7 @@ const ViewEmployee = () => {
 
     useEffect(() => { getDetail(GET_EMPLOYEE_DETAIL, { id }) }, [getDetail, id])
 
-    useEffect(() => { setEmployee(extractApiRecord(data, ["employee_code", "name"])) }, [data])
+    useEffect(() => { setEmployee(extractApiRecord(data, ["employee_code", "name", "first_name"])) }, [data])
 
     return (
         <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
@@ -61,7 +61,7 @@ const ViewEmployee = () => {
                                 </ListGroupItem>
                                 <ListGroupItem className="flex justify-between items-center p-4">
                                     <span className="font-bold text-ink-muted">Name</span>
-                                    <span className="text-ink">{employee?.name || "—"}</span>
+                                    <span className="text-ink">{employee?.name || [employee?.first_name, employee?.last_name].filter(Boolean).join(" ") || "—"}</span>
                                 </ListGroupItem>
                                 <ListGroupItem className="flex justify-between items-center p-4">
                                     <span className="font-bold text-ink-muted">Email</span>
@@ -69,11 +69,11 @@ const ViewEmployee = () => {
                                 </ListGroupItem>
                                 <ListGroupItem className="flex justify-between items-center p-4">
                                     <span className="font-bold text-ink-muted">Phone</span>
-                                    <span className="text-ink">{employee?.phone || "—"}</span>
+                                    <span className="text-ink">{employee?.mobile_no || employee?.phone || "—"}</span>
                                 </ListGroupItem>
                                 <ListGroupItem className="flex justify-between items-center p-4">
                                     <span className="font-bold text-ink-muted">Designation</span>
-                                    <span className="text-ink">{employee?.designation || "—"}</span>
+                                    <span className="text-ink">{employee?.designation_name || employee?.designation || "—"}</span>
                                 </ListGroupItem>
                                 <ListGroupItem className="flex justify-between items-center p-4">
                                     <span className="font-bold text-ink-muted">Department</span>

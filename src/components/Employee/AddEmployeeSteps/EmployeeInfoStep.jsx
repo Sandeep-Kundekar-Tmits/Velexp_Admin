@@ -1,34 +1,64 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import PropTypes from "prop-types"
 import { Row, Col, FormGroup, Label, Input, FormFeedback, Button } from "@/components/ui"
 import Select from "react-select"
 import { customStyles } from "../../../helpers/CustomStyle"
-import { useDepartments, useServiceCentreDirectory } from "../../../hooks/queries/useReferenceData"
+import { useDepartments, useDesignations, useServiceCentreDirectory } from "../../../hooks/queries/useReferenceData"
+import { STATUS_OPTIONS, GENDER_OPTIONS } from "../employeeFormOptions"
 
 const RequiredMark = () => <span className="text-danger-500"> *</span>
 
-const EmployeeInfoStep = ({ formData, setFormData, onNextButtonClick }) => {
+const EmployeeInfoStep = ({ formData, setFormData, onNextButtonClick, isEdit = false }) => {
     const [errors, setErrors] = useState({})
 
     const { data: departmentOptions = [] } = useDepartments()
+    const { data: designationOptions = [] } = useDesignations()
     const { data: serviceCentreOptions = [] } = useServiceCentreDirectory()
 
+    // The Select's `value` prop can display a name-matched fallback (below),
+    // but that alone never touches formData.designation -- so an edit
+    // submitted without the user re-picking a designation would silently
+    // send whatever id (possibly none) the detail response happened to
+    // carry. Backfill the real id once options are loaded and a name match
+    // is found, same as the visible fallback resolves to.
+    useEffect(() => {
+        if (formData.designation || !formData.designation_name || !designationOptions.length) return
+        const match = designationOptions.find((opt) => opt.label === formData.designation_name)
+        if (match) setFormData((prev) => ({ ...prev, designation: match.value }))
+    }, [designationOptions, formData.designation, formData.designation_name, setFormData])
+
     const handleChange = (e) => {
-        const { name, value, type, checked } = e.target
-        setFormData((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }))
+        const { name, value, type, checked, files } = e.target
+        if (type === "checkbox") setFormData((prev) => ({ ...prev, [name]: checked }))
+        else if (type === "file") setFormData((prev) => ({ ...prev, [name]: files[0] }))
+        else setFormData((prev) => ({ ...prev, [name]: value }))
     }
 
     const handleSelectChange = (name, option) => {
         setFormData((prev) => ({ ...prev, [name]: option?.value ?? null }))
     }
 
+    // service_center is multi-select -- an employee can belong to more than
+    // one centre -- so it's stored as an array of ids, unlike the single-value
+    // selects above.
+    const handleServiceCentreChange = (options) => {
+        setFormData((prev) => ({ ...prev, service_center: (options || []).map((opt) => opt.value) }))
+    }
+
     const handleSubmit = () => {
         const newErrors = {}
         if (!formData?.employee_code) newErrors.employee_code = "Employee code is required"
-        if (!formData?.name) newErrors.name = "Name is required"
-        if (!formData?.phone) newErrors.phone = "Phone is required"
-        if (!formData?.user_name) newErrors.user_name = "Username is required"
-        if (!formData?.password) newErrors.password = "Password is required"
+        if (!formData?.first_name) newErrors.first_name = "First name is required"
+        if (!formData?.email) newErrors.email = "Email is required"
+        if (!formData?.status) newErrors.status = "Status is required"
+        if (!formData?.designation) newErrors.designation = "Designation is required"
+        if (!formData?.service_center?.length) newErrors.service_center = "At least one service centre is required"
+        // Credentials are set once at creation, not re-required on every edit --
+        // matches the account-details section's own required rule at creation.
+        if (!isEdit) {
+            if (!formData?.user_name) newErrors.user_name = "Username is required"
+            if (!formData?.password) newErrors.password = "Password is required"
+        }
         setErrors(newErrors)
         if (Object.keys(newErrors).length === 0) {
             onNextButtonClick(2)
@@ -39,53 +69,165 @@ const EmployeeInfoStep = ({ formData, setFormData, onNextButtonClick }) => {
         <div className="mt-4">
             <h4>Employee Info</h4>
             <div>
+                <h6 className="text-ink-muted mt-3 mb-2">Account Details</h6>
                 <Row>
-                    <Col md={4}>
+                    <Col md={3}>
                         <FormGroup>
                             <Label>Employee Code<RequiredMark /></Label>
                             <Input type="text" name="employee_code" value={formData.employee_code || ""} onChange={handleChange} invalid={!!errors?.employee_code} />
                             <FormFeedback>{errors?.employee_code}</FormFeedback>
                         </FormGroup>
                     </Col>
+                    <Col md={3}>
+                        <FormGroup>
+                            <Label>Status<RequiredMark /></Label>
+                            <Select
+                                options={STATUS_OPTIONS}
+                                onChange={(option) => handleSelectChange("status", option)}
+                                value={STATUS_OPTIONS.find((opt) => opt.value === formData.status) || null}
+                                placeholder="Select Status"
+                                isClearable
+                                styles={customStyles}
+                            />
+                            {errors?.status && <div className="text-danger-500 text-sm mt-1">{errors.status}</div>}
+                        </FormGroup>
+                    </Col>
+                    <Col md={3}>
+                        <FormGroup>
+                            <Label>Username{!isEdit && <RequiredMark />}</Label>
+                            <Input type="text" name="user_name" value={formData.user_name || ""} onChange={handleChange} invalid={!!errors?.user_name} />
+                            <FormFeedback>{errors?.user_name}</FormFeedback>
+                        </FormGroup>
+                    </Col>
+                    <Col md={3}>
+                        <FormGroup>
+                            <Label>Password{!isEdit && <RequiredMark />}</Label>
+                            <Input
+                                type="password"
+                                name="password"
+                                value={formData.password || ""}
+                                onChange={handleChange}
+                                invalid={!!errors?.password}
+                                placeholder={isEdit ? "Leave blank to keep current password" : undefined}
+                            />
+                            <FormFeedback>{errors?.password}</FormFeedback>
+                        </FormGroup>
+                    </Col>
+                </Row>
+
+                <h6 className="text-ink-muted mt-3 mb-2">Personal Details</h6>
+                <Row>
                     <Col md={4}>
                         <FormGroup>
-                            <Label>Name<RequiredMark /></Label>
-                            <Input type="text" name="name" value={formData.name || ""} onChange={handleChange} invalid={!!errors?.name} />
-                            <FormFeedback>{errors?.name}</FormFeedback>
+                            <Label>First Name<RequiredMark /></Label>
+                            <Input type="text" name="first_name" value={formData.first_name || ""} onChange={handleChange} invalid={!!errors?.first_name} />
+                            <FormFeedback>{errors?.first_name}</FormFeedback>
                         </FormGroup>
                     </Col>
                     <Col md={4}>
                         <FormGroup>
-                            <Label>Designation</Label>
-                            <Input type="text" name="designation" value={formData.designation || ""} onChange={handleChange} />
+                            <Label>Last Name</Label>
+                            <Input type="text" name="last_name" value={formData.last_name || ""} onChange={handleChange} />
+                        </FormGroup>
+                    </Col>
+                    <Col md={4}>
+                        <FormGroup>
+                            <Label>Gender</Label>
+                            <Select
+                                options={GENDER_OPTIONS}
+                                onChange={(option) => handleSelectChange("gender", option)}
+                                value={GENDER_OPTIONS.find((opt) => opt.value === formData.gender) || null}
+                                placeholder="Select Gender"
+                                isClearable
+                                styles={customStyles}
+                            />
                         </FormGroup>
                     </Col>
                 </Row>
                 <Row>
                     <Col md={4}>
                         <FormGroup>
-                            <Label>Email</Label>
-                            <Input type="email" name="email" value={formData.email || ""} onChange={handleChange} />
+                            <Label>Date of Birth</Label>
+                            <Input type="date" name="date_of_birth" value={formData.date_of_birth || ""} onChange={handleChange} />
                         </FormGroup>
                     </Col>
                     <Col md={4}>
                         <FormGroup>
-                            <Label>Phone<RequiredMark /></Label>
-                            <Input type="text" name="phone" value={formData.phone || ""} onChange={handleChange} invalid={!!errors?.phone} />
-                            <FormFeedback>{errors?.phone}</FormFeedback>
+                            <Label>Qualification</Label>
+                            <Input type="text" name="qualification" value={formData.qualification || ""} onChange={handleChange} />
                         </FormGroup>
                     </Col>
                     <Col md={4}>
-                        <FormGroup check className="mt-4">
-                            <Label check>
-                                <Input type="checkbox" name="is_active" checked={!!formData.is_active} onChange={handleChange} />
-                                Active
-                            </Label>
+                        <FormGroup>
+                            <Label>Profile Photo</Label>
+                            <Input type="file" name="photo_url" onChange={handleChange} />
                         </FormGroup>
                     </Col>
                 </Row>
+
+                <h6 className="text-ink-muted mt-3 mb-2">Contact Details</h6>
                 <Row>
                     <Col md={6}>
+                        <FormGroup>
+                            <Label>Email<RequiredMark /></Label>
+                            <Input type="email" name="email" value={formData.email || ""} onChange={handleChange} invalid={!!errors?.email} />
+                            <FormFeedback>{errors?.email}</FormFeedback>
+                        </FormGroup>
+                    </Col>
+                    <Col md={6}>
+                        <FormGroup>
+                            <Label>Mobile No</Label>
+                            <Input type="text" name="mobile_no" value={formData.mobile_no || ""} onChange={handleChange} />
+                        </FormGroup>
+                    </Col>
+                </Row>
+
+                <h6 className="text-ink-muted mt-3 mb-2">Organization Details</h6>
+                <Row>
+                    <Col md={4}>
+                        <FormGroup>
+                            <Label>Designation<RequiredMark /></Label>
+                            <Select
+                                options={designationOptions}
+                                onChange={(option) => handleSelectChange("designation", option)}
+                                // Falls back to a label match on designation_name -- GET_EMPLOYEE_DETAIL
+                                // (reference-confirmed) returns designation_name on the record, not
+                                // necessarily the id this Select's options are keyed by.
+                                value={
+                                    designationOptions.find((opt) => opt.value === formData.designation) ||
+                                    (formData.designation_name && designationOptions.find((opt) => opt.label === formData.designation_name)) ||
+                                    null
+                                }
+                                placeholder="Select Designation"
+                                isClearable
+                                styles={customStyles}
+                            />
+                            {errors?.designation && <div className="text-danger-500 text-sm mt-1">{errors.designation}</div>}
+                        </FormGroup>
+                    </Col>
+                    <Col md={4}>
+                        <FormGroup>
+                            <Label>Service Centre<RequiredMark /></Label>
+                            <Select
+                                isMulti
+                                options={serviceCentreOptions}
+                                onChange={handleServiceCentreChange}
+                                value={serviceCentreOptions.filter((opt) => (formData.service_center || []).includes(opt.value))}
+                                placeholder="Select Service Centre(s)"
+                                styles={customStyles}
+                            />
+                            {errors?.service_center && <div className="text-danger-500 text-sm mt-1">{errors.service_center}</div>}
+                        </FormGroup>
+                    </Col>
+                    <Col md={4}>
+                        <FormGroup>
+                            <Label>Job Title</Label>
+                            <Input type="text" name="job_title" value={formData.job_title || ""} onChange={handleChange} />
+                        </FormGroup>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col md={4}>
                         <FormGroup>
                             <Label>Department</Label>
                             <Select
@@ -98,33 +240,49 @@ const EmployeeInfoStep = ({ formData, setFormData, onNextButtonClick }) => {
                             />
                         </FormGroup>
                     </Col>
-                    <Col md={6}>
+                    <Col md={4}>
                         <FormGroup>
-                            <Label>Service Centre</Label>
-                            <Select
-                                options={serviceCentreOptions}
-                                onChange={(option) => handleSelectChange("service_center", option)}
-                                value={serviceCentreOptions.find((opt) => opt.value === formData.service_center) || null}
-                                placeholder="Select Service Centre"
-                                isClearable
-                                styles={customStyles}
-                            />
+                            <Label>Reporting Centre</Label>
+                            <Input type="text" name="reporting_centre" value={formData.reporting_centre || ""} onChange={handleChange} />
+                        </FormGroup>
+                    </Col>
+                    <Col md={4}>
+                        <FormGroup>
+                            <Label>Access</Label>
+                            <Input type="text" name="access" value={formData.access || ""} onChange={handleChange} />
                         </FormGroup>
                     </Col>
                 </Row>
                 <Row>
-                    <Col md={6}>
+                    <Col md={4}>
                         <FormGroup>
-                            <Label>Username<RequiredMark /></Label>
-                            <Input type="text" name="user_name" value={formData.user_name || ""} onChange={handleChange} invalid={!!errors?.user_name} />
-                            <FormFeedback>{errors?.user_name}</FormFeedback>
+                            <Label>Date of Joining</Label>
+                            <Input type="date" name="date_of_joining" value={formData.date_of_joining || ""} onChange={handleChange} />
                         </FormGroup>
                     </Col>
-                    <Col md={6}>
+                    <Col md={4}>
+                        <FormGroup check className="mt-4">
+                            <Label check>
+                                <Input type="checkbox" name="is_active" checked={!!formData.is_active} onChange={handleChange} />
+                                Active
+                            </Label>
+                        </FormGroup>
+                    </Col>
+                    <Col md={4}>
+                        <FormGroup check className="mt-4">
+                            <Label check>
+                                <Input type="checkbox" name="ai_flag" checked={!!formData.ai_flag} onChange={handleChange} />
+                                AI Flag
+                            </Label>
+                        </FormGroup>
+                    </Col>
+                </Row>
+
+                <h6 className="text-ink-muted mt-3 mb-2">Remarks</h6>
+                <Row>
+                    <Col md={12}>
                         <FormGroup>
-                            <Label>Password<RequiredMark /></Label>
-                            <Input type="password" name="password" value={formData.password || ""} onChange={handleChange} invalid={!!errors?.password} />
-                            <FormFeedback>{errors?.password}</FormFeedback>
+                            <Input type="textarea" name="remark" value={formData.remark || ""} onChange={handleChange} />
                         </FormGroup>
                     </Col>
                 </Row>
@@ -140,6 +298,7 @@ EmployeeInfoStep.propTypes = {
     formData: PropTypes.object.isRequired,
     setFormData: PropTypes.func.isRequired,
     onNextButtonClick: PropTypes.func.isRequired,
+    isEdit: PropTypes.bool,
 }
 
 export default EmployeeInfoStep
