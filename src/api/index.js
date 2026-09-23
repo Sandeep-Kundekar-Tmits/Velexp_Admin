@@ -69,8 +69,15 @@ export const GET_SERVICE_CENTRE_DETAIL = `${BASE_URL}/service-centers/get-detail
 // /api/admin-panel/ -- unlike every endpoint above, which is a bespoke
 // "get-list"/POST-envelope action -- so callers read the {ok} flag from
 // rawRequest directly instead of relying on a {status:1}/{msg} body shape.
-export const SERVICE_CENTRE_PINCODE_LIST = `${BASE_URL}/admin-panel/service-center-pincodes/` // GET ?service_center=&active=
+export const SERVICE_CENTRE_PINCODE_LIST = `${BASE_URL}/api/admin-panel/service-center-pincodes/` // GET ?service_center=&active=
 export const BULK_ASSIGN_SERVICE_CENTRE_PINCODES = `${BASE_URL}/api/admin-panel/service-center-pincodes/bulk-assign/` // POST {service_center, pincodes, mode, region?, state?}
+
+// Rider -> Store delivery routes (dark store to local store sequencing).
+// Same plain DRF REST shape as the pincode mappings above -- {id}/ for a
+// single route's PATCH/DELETE, plus a bulk-assign action for a rider's
+// whole route in one call.
+export const RIDER_STORE_ROUTES = `${BASE_URL}/api/admin-panel/rider-store-routes/` // GET ?employee=&darkstore=&store=&is_active= | POST {employee, darkstore, store, sequence}
+export const BULK_ASSIGN_RIDER_STORE_ROUTES = `${BASE_URL}/api/admin-panel/rider-store-routes/bulk-assign/` // POST {employee, darkstore, stores:[{store,sequence}], mode}
 
 // department master (dropdown source for Employee Management)
 export const DEPARTMENT_LIST = `${BASE_URL}/departments/get-list/` // POST {}
