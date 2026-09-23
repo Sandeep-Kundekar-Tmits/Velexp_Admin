@@ -35,7 +35,12 @@ export const buildEmployeeFormData = (data) => {
     // the reference implementation (Velocity-Ops EmployeeInfo.jsx). Sending
     // it as "password" meant the backend never saw it at all, so it reported
     // the field missing/required regardless of what was typed.
-    if (data.password) fd.append("user_password", data.password)
+    //
+    // trim() before checking: a field left blank on Edit must never reach the
+    // backend at all (blank means "keep the current password"), and a value
+    // of only whitespace is exactly as blank as an empty string -- checking
+    // `data.password` alone would let it through as truthy.
+    if (data.password && data.password.trim()) fd.append("user_password", data.password.trim())
     if (data.photo_url) fd.append("photo_url", data.photo_url)
 
     fd.append("service_center", JSON.stringify(data.service_center || []))
