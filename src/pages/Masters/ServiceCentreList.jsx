@@ -32,6 +32,10 @@ const ServiceCentreList = () => {
 
     const handleAdd = useCallback(() => navigate("/service-centres/add"), [navigate])
 
+    const handlePincodes = useCallback((rowData) => {
+        navigate(`/service-centres/pincodes?sc=${encodeURIComponent(rowData?.service_center_code || "")}`)
+    }, [navigate])
+
     const handleDeleteClick = useCallback((rowData) => {
         setSelectedInfo(rowData)
         setShowDelete(true)
@@ -60,11 +64,12 @@ const ServiceCentreList = () => {
             cell: ({ row }) => (
                 <div className="flex gap-2">
                     <Button color="primary" size="sm" onClick={() => handleEdit(row.original)}>Edit</Button>
+                    <Button color="secondary" size="sm" onClick={() => handlePincodes(row.original)}>Pincodes</Button>
                     <Button color="danger" size="sm" onClick={() => handleDeleteClick(row.original)}>Delete</Button>
                 </div>
             ),
         },
-    ], [handleEdit, handleDeleteClick])
+    ], [handleEdit, handlePincodes, handleDeleteClick])
 
     return (
         <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">

@@ -65,6 +65,13 @@ export const UPDATE_SERVICE_CENTRE = `${BASE_URL}/service-centers/` // PUT {id}/
 export const DELETE_SERVICE_CENTRE = `${BASE_URL}/service-centers/` // DELETE {id}/
 export const GET_SERVICE_CENTRE_DETAIL = `${BASE_URL}/service-centers/get-detail/` // POST {id}
 
+// Service Centre <-> Pincode mappings. A plain DRF REST resource under
+// /api/admin-panel/ -- unlike every endpoint above, which is a bespoke
+// "get-list"/POST-envelope action -- so callers read the {ok} flag from
+// rawRequest directly instead of relying on a {status:1}/{msg} body shape.
+export const SERVICE_CENTRE_PINCODE_LIST = `${BASE_URL}/admin-panel/service-center-pincodes/` // GET ?service_center=&active=
+export const BULK_ASSIGN_SERVICE_CENTRE_PINCODES = `${BASE_URL}/api/admin-panel/service-center-pincodes/bulk-assign/` // POST {service_center, pincodes, mode, region?, state?}
+
 // department master (dropdown source for Employee Management)
 export const DEPARTMENT_LIST = `${BASE_URL}/departments/get-list/` // POST {}
 
