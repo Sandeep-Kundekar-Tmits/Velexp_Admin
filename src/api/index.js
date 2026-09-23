@@ -684,6 +684,15 @@ export const PENDING_MANIFESTS = `${BASE_URL}/pending-manifests/`;
 export const SC_ENTRIES = `${BASE_URL}/sc-entries/`;
 export const RECONCILED_HISTORY = `${BASE_URL}/reconciled-history/`;
 
+// COD Pending Report — same admin-reports family as the pickup/pending
+// shipment reports elsewhere in this file: needs both Bearer auth and an
+// explicit user_id in the body. `search` finds a specific AWB, UTR or
+// manifest number regardless of when it was delivered; without it, narrows
+// the current 30-day/service-centre browse view by service_center and/or
+// employee.
+export const COD_PENDING_REPORT = `${BASE_URL}/api/admin-reports/cod-pending/`; // POST {user_id, search?, service_center?, employee?}
+export const DOWNLOAD_COD_PENDING_REPORT = `${BASE_URL}/api/admin-reports/cod-pending/download/`; // POST same body -> xlsx blob
+
 // Unmatched bank-statement transactions — outstanding-backlog view across all uploads.
 // Live on UAT only as of 06 Sep 2026, not yet ported to production (see Velocity-Ops
 // testing-docs/unmatched-transactions-api.md). This whole bank-statement flow runs without
