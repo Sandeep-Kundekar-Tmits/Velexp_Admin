@@ -501,7 +501,8 @@ export const MENU = [
     icon: "bx bx-buildings",
     children: [
       { label: "Service Centres", url: "/service-centres" },
-      { label: "Employee", url: "/employees" }
+      { label: "Employee", url: "/employees" },
+      { label: "Rider Store Routes", url: "/rider-store-routes" }
     ]
   },
   {
