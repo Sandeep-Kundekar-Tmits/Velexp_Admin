@@ -15,6 +15,7 @@ import { customStyles } from "../../../helpers/CustomStyle";
 import { useQuery } from "@tanstack/react-query";
 import { qk } from "@/lib/queryKeys";
 import { fetchServiceCenters } from "@/services/reference.service";
+import { useRegions } from "../../../hooks/queries/useReferenceData";
 import YMD_DateFormate from "../../../helpers/YMD_DateFormate";
 import ToasterProvider from "../../../helpers/ToasterProvider";
 import { usePermissions } from "../../../features/auth/usePermissions";
@@ -49,47 +50,32 @@ const PickupPendingReport = () => {
     // token -- no user_id needed, and the backend doesn't paginate it).
     const useAdmin = isAdmin || isSuperUser;
 
-    // ── Service Centers ──────────────────────────────────────────────────
-    // Admins get the full directory (they cover all-India). Everyone else is
-    // limited to the service centres actually assigned to them, read off
-    // their own stored login response -- the same
-    // authUser.user.service_center_code field/pattern the reference
-    // Velocity-Ops build of this same report uses -- rather than every
-    // service centre in the system. The full directory doubles as a fallback
-    // for the rare case that field is missing from the login response.
+    // ── Service Centers (cached 30min via react-query) ──────────────────────
     const { data: serviceCenterList, isLoading: scLoading } = useQuery({
         queryKey: qk.reference.serviceCenters(),
         queryFn: fetchServiceCenters,
         staleTime: 30 * 60_000,
     });
-
-    const ownSCOptions = useMemo(() => {
-        const authUser = JSON.parse(localStorage.getItem("authUser") || "{}");
-        const raw = authUser?.user?.service_center_code;
-        const codes = Array.isArray(raw) ? raw : raw ? [raw] : [];
-        return codes.map((code) => ({ value: code, label: code }));
-    }, []);
-
     const [scOptions, setScOptions] = useState([]);
     const [selectedSCs, setSelectedSCs] = useState([]);
 
     useEffect(() => {
-        const fullDirectoryOptions = () => (serviceCenterList || [])
-            .map((e) => ({ value: e.ec_code, label: e.ec_code }))
-            .filter((item, idx, self) => idx === self.findIndex((t) => t.value === item.value));
-
-        if (useAdmin) {
-            if (serviceCenterList) setScOptions(fullDirectoryOptions());
-            return;
+        if (serviceCenterList) {
+            const opts = serviceCenterList
+                .map((e) => ({ value: e.ec_code, label: e.ec_code }))
+                .filter((item, idx, self) => idx === self.findIndex((t) => t.value === item.value));
+            setScOptions(opts);
         }
-        if (ownSCOptions.length) setScOptions(ownSCOptions);
-        else if (serviceCenterList) setScOptions(fullDirectoryOptions());
-    }, [useAdmin, ownSCOptions, serviceCenterList]);
+    }, [serviceCenterList]);
 
     const handleSCChange = (chosen) => {
         if (!chosen) { setSelectedSCs([]); return; }
         setSelectedSCs(chosen.some((o) => o.value === "__all__") ? scOptions : chosen);
     };
+
+    // ── Region (admin only -- narrows all-India results instead of by SC) ──
+    const { data: regionOptions = [] } = useRegions({ enabled: useAdmin });
+    const [selectedRegion, setSelectedRegion] = useState(null);
 
     // ── Include WAB (ops only, per this endpoint's own spec) ────────────────
     const [includeWab, setIncludeWab] = useState(false);
@@ -121,11 +107,12 @@ const PickupPendingReport = () => {
             payload.user_id = authUser?.user?.id;
             payload.page = page;
             payload.page_size = page_size;
+            if (selectedRegion?.value) payload.region = selectedRegion.value;
         } else if (includeWab) {
             payload.include_wab = true;
         }
         return payload;
-    }, [selectedSCs, selectedRange, useAdmin, includeWab]);
+    }, [selectedSCs, selectedRange, useAdmin, selectedRegion, includeWab]);
 
     // Mirrors the server's own 60-day cap and start/end pairing rule, so a bad
     // range is caught before a round trip instead of only after a 400.
@@ -270,6 +257,24 @@ const PickupPendingReport = () => {
                             />
                         </FormGroup>
                     </Col>
+
+                    {useAdmin && (
+                        <Col xs="auto" style={{ minWidth: 200 }}>
+                            <FormGroup className="mb-2">
+                                <Label className="mb-1 text-xs font-semibold">Region</Label>
+                                <Select
+                                    isClearable
+                                    placeholder="All Regions"
+                                    options={regionOptions}
+                                    value={selectedRegion}
+                                    onChange={setSelectedRegion}
+                                    styles={customStyles}
+                                    menuPortalTarget={document.body}
+                                    menuPosition="fixed"
+                                />
+                            </FormGroup>
+                        </Col>
+                    )}
 
                     {!useAdmin && (
                         <Col xs="auto" className="mb-2">
