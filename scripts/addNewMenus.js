@@ -47,6 +47,7 @@ const CHILDREN_OF = {
         { link_name: "Admin Booking", link_url: "/admin-booking-download" },
         { link_name: "Customer Service", link_url: "/customer-service" },
         { link_name: "Customer Service Employee", link_url: "/customer-service-employee" },
+        { link_name: "Pickup Pending Report", link_url: "/pickup-pending-report" },
     ],
     "Customers": [
         { link_name: "Corporate Pincode Upload", link_url: "/corporate-pincode-upload" },

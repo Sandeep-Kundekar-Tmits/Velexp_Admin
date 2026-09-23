@@ -70,6 +70,7 @@ const CHILDREN = {
     ],
     "OPS Reports": [
         { link_name: "Pending Report", link_url: "/pending-report" },
+        { link_name: "Pickup Pending Report", link_url: "/pickup-pending-report" },
         { link_name: "MIS Run", link_url: "/mis-report" },
         { link_name: "Admin Booking", link_url: "/admin-booking-download" },
         { link_name: "Customer Service", link_url: "/customer-service" },

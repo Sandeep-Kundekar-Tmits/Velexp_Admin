@@ -650,6 +650,18 @@ export const GET_IN_DETAILED_TRACKING = `${BASE_URL}/detailed-tracking/` // POST
 // Ops pending report
 export const GET_OPS_PENDING_REPORT = `${BASE_URL}/api/admin-reports/pending-shipments/`;
 export const DOWNLOAD_OPS_PENDING_REPORT = `${BASE_URL}/api/admin-reports/pending-shipments/download/`;
+
+// Pickup Pending Report -- genuinely split by role, unlike the pending-shipments
+// pair above (both of which hit /api/admin-reports/ regardless of caller).
+// ops-reports is Bearer-scoped to the caller's own mapped service centres (no
+// user_id, not paginated); admin-reports is all-India, paginated, and needs an
+// explicit user_id. Both enforce a 60-day start_date/end_date span server-side
+// and reject end_date without start_date.
+export const OPS_PICKUP_PENDING_REPORT = `${BASE_URL}/api/ops-reports/pickup-pending-shipments/`; // POST {service_center?, start_date, end_date, include_wab?}
+export const DOWNLOAD_OPS_PICKUP_PENDING_REPORT = `${BASE_URL}/api/ops-reports/pickup-pending-shipments/download/`; // POST same body -> xlsx blob
+export const ADMIN_PICKUP_PENDING_REPORT = `${BASE_URL}/api/admin-reports/pickup-pending-shipments/`; // POST {user_id, service_center?, region?, start_date, end_date, page, page_size}
+export const DOWNLOAD_ADMIN_PICKUP_PENDING_REPORT = `${BASE_URL}/api/admin-reports/pickup-pending-shipments/download/`; // POST {user_id, start_date, end_date, ...filters} -> xlsx blob
+
 export const GET_ALL_STATUSES = `${BASE_URL}/status/get-list/`;
 
 // MIS Run

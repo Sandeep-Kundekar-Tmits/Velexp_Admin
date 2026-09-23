@@ -133,6 +133,10 @@ export const MENU = [
         url: "/pending-report"
       },
       {
+        label: "Pickup Pending Report",
+        url: "/pickup-pending-report"
+      },
+      {
         label: "MIS Run",
         url: "/mis-report"
       },
