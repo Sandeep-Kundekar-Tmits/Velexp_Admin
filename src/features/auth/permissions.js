@@ -20,8 +20,11 @@
  *                      in which case the explicit grant wins. The default
  *                      stays hidden; an actual grant in the tree overrides it.
  *   - everyone else -> exactly what their resolved privileges tree grants,
- *                      no bypass at all.
+ *                      no bypass at all, plus collectGapFillGrants' narrow
+ *                      backfill for a granted-but-empty branch (see there).
  */
+
+import { MENU } from "@/features/navigation/menuTree";
 
 /** Menu nodes use "#" for non-navigable grouping entries. */
 const GROUP_URL = "#";
@@ -51,6 +54,55 @@ export function flattenPrivilegeUrls(nodes, urls = new Set()) {
   return urls;
 }
 
+/** menuTree.js's own children for the group whose label matches this
+ *  privileges node -- a group's link_url is always "#", so label is the
+ *  only reliable key to line the two trees up by. */
+function findMenuChildren(menuNodes, label) {
+  return (menuNodes || []).find((n) => n.label === label)?.children || null;
+}
+
+/** Every real (non-"#") url anywhere under a menuTree.js subtree. */
+function collectMenuLeafUrls(menuNodes, out = []) {
+  (menuNodes || []).forEach((node) => {
+    if (node.children) collectMenuLeafUrls(node.children, out);
+    else if (node.url && node.url !== GROUP_URL) out.push(node.url);
+  });
+  return out;
+}
+
+/**
+ * Gap-filler, not the primary grant mechanism -- flattenPrivilegeUrls above
+ * is that, and this only ever adds to what it already found.
+ *
+ * A role is sometimes granted a mid-level group (has_fullacess/can_view true
+ * on it) but the backend's own `children` for that node comes back empty --
+ * the real pages underneath were never individually granted. Left alone,
+ * flattenPrivilegeUrls finds no leaf url in that branch at all, so the whole
+ * group silently disappears from the sidebar with nothing reachable under
+ * it (see e.g. "Reports > Customer Performance" granted with children: []).
+ * Rather than requiring every such gap to be fixed by hand in Admin
+ * Privileges before the group shows at all, this walks the matching branch
+ * in menuTree.js's own static structure -- the app's own definition of what
+ * belongs there -- and grants every real url it finds, wherever the
+ * privileges tree runs out early.
+ */
+function collectGapFillGrants(privilegeNodes, menuNodes, urls = new Set()) {
+  (privilegeNodes || []).forEach((privNode) => {
+    const menuChildren = findMenuChildren(menuNodes, privNode?.link_name);
+    if (!menuChildren) return; // no matching branch in menuTree.js at all
+
+    const granted = !!(privNode.has_fullacess || privNode.can_view);
+    const backendChildren = privNode.children || [];
+
+    if (granted && !backendChildren.length && menuChildren.length) {
+      collectMenuLeafUrls(menuChildren).forEach((url) => urls.add(url));
+    } else if (backendChildren.length) {
+      collectGapFillGrants(backendChildren, menuChildren, urls);
+    }
+  });
+  return urls;
+}
+
 /** Preferred landing pages after login, in priority order. */
 export const LANDING_PRIORITY = [
   "/user-list",
@@ -75,6 +127,7 @@ export function resolvePermissions(user, privileges) {
   const isSuperUser = !!user?.is_superuser;
   const isStaff = !!user?.is_staff;
   const accessibleUrls = flattenPrivilegeUrls(privileges);
+  collectGapFillGrants(privileges, MENU).forEach((url) => accessibleUrls.add(url));
 
   const canAccess = (url) => {
     if (ALWAYS_ACCESSIBLE_URLS.includes(url)) return true;
