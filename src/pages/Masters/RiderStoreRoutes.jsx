@@ -67,10 +67,12 @@ const RiderStoreRoutes = () => {
     // flag directly rather than going through usePostApiCall/useGetApiCall.
     const [routeRows, setRouteRows] = useState([])
     const [routesLoading, setRoutesLoading] = useState(false)
+    const [hasLoadedRoutes, setHasLoadedRoutes] = useState(false)
 
     const loadRoutes = useCallback(async (employeeCode, darkstoreCode) => {
         if (!employeeCode && !darkstoreCode) { setRouteRows([]); return }
         setRoutesLoading(true)
+        setHasLoadedRoutes(true)
         try {
             const params = new URLSearchParams()
             if (employeeCode) params.set("employee", employeeCode)
@@ -89,7 +91,13 @@ const RiderStoreRoutes = () => {
         }
     }, [])
 
-    useEffect(() => { loadRoutes(selectedRider?.value, selectedDarkstore?.value) }, [selectedRider, selectedDarkstore, loadRoutes])
+    // Submit-triggered rather than firing on every dropdown change, so
+    // picking through rider/dark-store search results doesn't fire a
+    // request per intermediate selection.
+    const handleViewRoute = () => {
+        if (!selectedRider && !selectedDarkstore) { ErrorToaster("Select a rider and/or dark store first"); return }
+        loadRoutes(selectedRider?.value, selectedDarkstore?.value)
+    }
 
     // route builder -- an ordered list of {store, sequence} rows, submitted
     // as one call to bulk-assign
@@ -104,6 +112,9 @@ const RiderStoreRoutes = () => {
     }
     const updateStoreRow = (key, field, value) => {
         setStoreRows((prev) => prev.map((r) => (r.key === key ? { ...r, [field]: value } : r)))
+    }
+    const clearBuilder = () => {
+        setStoreRows([{ key: storeRowKeySeq++, storeOption: null, sequence: 1 }])
     }
 
     // Prefills the builder from what's currently assigned, so "Replace" can
@@ -243,6 +254,10 @@ const RiderStoreRoutes = () => {
                             </label>
                         </div>
                     </div>
+
+                    <Button color="primary" onClick={handleViewRoute} disabled={routesLoading} style={{ height: "2.25rem" }}>
+                        {routesLoading ? "Loading..." : "View Route"}
+                    </Button>
                 </div>
 
                 <p className="mt-2 text-xs text-ink-muted">
@@ -258,6 +273,7 @@ const RiderStoreRoutes = () => {
                                 Load Current Route
                             </Button>
                             <Button color="secondary" size="sm" onClick={addStoreRow}>+ Add Store</Button>
+                            <Button color="secondary" size="sm" onClick={clearBuilder}>Clear</Button>
                             <Button color="primary" size="sm" onClick={handleAssignClick} disabled={assignLoading}>
                                 {assignLoading ? "Assigning..." : "Assign Route"}
                             </Button>
@@ -294,8 +310,8 @@ const RiderStoreRoutes = () => {
                 </div>
 
                 <div className="page-fit-body mt-4">
-                    {!selectedRider && !selectedDarkstore ? (
-                        <p className="text-ink-muted">Select a rider and/or dark store to view its routes.</p>
+                    {!hasLoadedRoutes ? (
+                        <p className="text-ink-muted">Select a rider and/or dark store, then click View Route to load its routes.</p>
                     ) : routesLoading ? (
                         <Loader message="Loading Routes…" fullscreen={false} />
                     ) : (
