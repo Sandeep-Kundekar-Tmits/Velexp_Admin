@@ -7,6 +7,9 @@
  * Set from scratch after re-parsing JSON.
  *
  * Bypass rules, by design (not derived from the privileges tree):
+ *   - ALWAYS_ACCESSIBLE_URLS below -> reachable by every signed-in user,
+ *                      checked before every other rule, no grant needed and
+ *                      nothing can hide it -- currently just AWB tracking.
  *   - is_superuser  -> full bypass, every url, no exceptions.
  *   - is_admin      -> bypass every url EXCEPT the Privileges screens
  *                      (ADMIN_EXCLUDED_URLS below), so an admin can't grant
@@ -26,6 +29,11 @@ const GROUP_URL = "#";
 /** Privileges-management screens, hidden from admins who aren't also superusers,
  *  unless explicitly granted to that admin (see canAccess below). */
 const ADMIN_EXCLUDED_URLS = ["/privileges", "/admin-privileges"];
+
+/** Reachable by every signed-in user regardless of role or privileges tree --
+ *  no grant needed, and nothing (not even ADMIN_EXCLUDED_URLS) can hide it.
+ *  AWB tracking is a basic lookup every role needs, not a privileged action. */
+const ALWAYS_ACCESSIBLE_URLS = ["/tracking"];
 
 /**
  * A node grants access to its link_url when either has_fullacess or can_view
@@ -69,6 +77,7 @@ export function resolvePermissions(user, privileges) {
   const accessibleUrls = flattenPrivilegeUrls(privileges);
 
   const canAccess = (url) => {
+    if (ALWAYS_ACCESSIBLE_URLS.includes(url)) return true;
     if (isSuperUser) return true;
     if (isAdmin) return !ADMIN_EXCLUDED_URLS.includes(url) || accessibleUrls.has(url);
     return accessibleUrls.has(url);
