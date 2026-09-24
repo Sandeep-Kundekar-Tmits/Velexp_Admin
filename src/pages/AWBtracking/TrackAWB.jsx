@@ -143,6 +143,11 @@ const TrackAWB = () => {
 
     const headerInfo = useMemo(() => {
         if (!bookingData) return null
+        // EDD isn't on booking_data at all -- it rides along on every
+        // checkpoint event instead (same value on each one, in this API), so
+        // it's read off the first event in track_data for the active AWB
+        // rather than a booking-level field.
+        const firstEventEdd = trackData?.[activeAwb]?.[0]?.EDD
         return {
             booking: {
                 "AWB No": bookingData.awbno,
@@ -155,7 +160,11 @@ const TrackAWB = () => {
                 Pieces: bookingData.no_of_pieces,
                 Attempts: bookingData.attempt_count,
                 "RTO AWB No": bookingData.RTO_awbno,
-                EDD: bookingData.edd ? bookingData.edd.slice(0, 10) : null,
+                // Omitted entirely (not just a blank Pair) when there's no EDD
+                // yet, rather than a row that always shows and falls back to
+                // "-" like every other field here -- Object.entries below never
+                // sees the key at all, so nothing renders for it.
+                ...(firstEventEdd ? { EDD: formatDate(firstEventEdd) } : {}),
             },
             shipper: {
                 Name: bookingData.shipper_name,
@@ -168,13 +177,18 @@ const TrackAWB = () => {
             consignee: {
                 Name: bookingData.consignee_name,
                 Mobile: bookingData.consignee_mobile,
+                // Location and Destination SC are both half-width (not `full`
+                // below) and adjacent here, so the 2-col grid places them side
+                // by side in the same row; Address comes after so it doesn't
+                // land in that row's second slot instead.
                 Location: (bookingData.consignee_city && bookingData.consignee_state)
                     ? `${bookingData.consignee_city}, ${bookingData.consignee_state} (${bookingData.consignee_pincode || ""})`
                     : null,
+                "Destination SC": bookingData.destination_sc,
                 Address: bookingData.consignee_address,
             },
         }
-    }, [bookingData])
+    }, [bookingData, trackData, activeAwb])
 
     const handleDetailView = () => {
         if (!activeAwb) {
@@ -298,7 +312,7 @@ const TrackAWB = () => {
                             <div className="col-12 col-lg-4">
                                 <Section title="Consignee Details" accent="red">
                                     {Object.entries(headerInfo.consignee).map(([label, value]) => (
-                                        <Pair key={label} label={label} value={value} full={label === "Location" || label === "Address"} />
+                                        <Pair key={label} label={label} value={value} full={label === "Address"} />
                                     ))}
                                 </Section>
                             </div>
@@ -419,7 +433,16 @@ const TrackAWB = () => {
                 isOpen={activeComponent === "edit_edd"}
                 toggle={() => setActiveComponent("")}
                 onSuccess={(newEdd) => {
-                    setBookingData((prev) => (prev ? { ...prev, edd: newEdd } : prev))
+                    // Patches the first track_data event's EDD, matching what
+                    // headerInfo now reads the displayed EDD from -- updating
+                    // bookingData.edd here would no longer be reflected on screen.
+                    setTrackData((prev) => {
+                        const events = prev?.[activeAwb]
+                        if (!activeAwb || !Array.isArray(events) || !events.length) return prev
+                        const updated = [...events]
+                        updated[0] = { ...updated[0], EDD: newEdd }
+                        return { ...prev, [activeAwb]: updated }
+                    })
                 }}
             />
 
