@@ -33,3 +33,14 @@ unused_report.json
 
 # Vite writes these while resolving the config
 vite.config.js.timestamp-*
+
+# One-off scripts with real UAT/production credentials hardcoded into them
+# during local use -- never to be committed. Kept locally as working files;
+# add the equivalent env-var-only version under scripts/ instead if this
+# needs to be shared.
+scripts/addNewMenus.js
+scripts/createKochiEmployees.js
+scripts/createKochiServiceCentres.js
+scripts/createKochiServiceCentresProd.js
+scripts/createTestServiceCentreAndEmployee.js
+scripts/updateKochiServiceCentresGeo.js

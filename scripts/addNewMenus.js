@@ -13,7 +13,7 @@
 // in src/api/index.js):
 //   BASE_URL=http://192.168.1.151:8000 VELEXP_USER=... VELEXP_PASS=... node scripts/addNewMenus.js
 
-const BASE_URL = process.env.BASE_URL || "http://velexp.com:8000";
+const BASE_URL = process.env.BASE_URL || "https://velexp.com";
 const USERNAME = process.env.VELEXP_USER;
 const PASSWORD = process.env.VELEXP_PASS;
 
