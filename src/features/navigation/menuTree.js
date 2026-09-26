@@ -463,7 +463,8 @@ export const MENU = [
     children: [
       {
         label: "Stale Shipments",
-        url: "/ops-disputes/stale"
+        url: "/ops-disputes/stale",
+        hidden: true
       },
       {
         label: "Disputes",
@@ -471,7 +472,8 @@ export const MENU = [
       },
       {
         label: "Lost Dashboard",
-        url: "/ops-disputes/lost"
+        url: "/ops-disputes/lost",
+        hidden: true
       }
     ]
   },
