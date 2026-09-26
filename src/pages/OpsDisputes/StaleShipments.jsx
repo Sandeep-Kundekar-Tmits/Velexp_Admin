@@ -10,10 +10,12 @@ import { OPS_DISPUTES_STALE, OPS_DISPUTES_MARK_DIS, SERVICE_CENTER_LIST } from "
 import Loader from "@/Loaders/Loader";
 import MainHeaderComp from "../../components/MainHeaderCom";
 import { customStyles } from "../../helpers/CustomStyle";
+import ToasterProvider from "../../helpers/ToasterProvider";
 
 const StaleShipments = () => {
     useEffect(() => { document.title = "Stale Shipments"; }, []);
 
+    const { ErrorToaster } = ToasterProvider();
     const userId = useMemo(() => JSON.parse(localStorage.getItem("authUser"))?.user?.id, []);
     const { apifunc: fetchStale, data: staleData, loading } = useGetApiCall();
     const { apifunc: fetchSCs, data: scData } = usePostApiCall();
@@ -59,6 +61,12 @@ const StaleShipments = () => {
         if (res?.status === "success") {
             setModal(false);
             loadStale(page);
+        } else {
+            // This endpoint answers 200 OK with {status:"error", message}
+            // for a logical rejection (e.g. "AWB has a terminal status and
+            // cannot be disputed") -- usePostApiCall's own error toast only
+            // fires on a non-2xx HTTP status, so it never sees this.
+            ErrorToaster(res?.message || "Failed to mark AWB as disputed");
         }
     };
 

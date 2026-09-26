@@ -1,11 +1,18 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Button, Nav, NavItem, NavLink } from "@/components/ui";
+import {
+    Button, Nav, NavItem, NavLink,
+    Modal, ModalHeader, ModalBody, ModalFooter, FormGroup, Label, Input, FormFeedback
+} from "@/components/ui";
+import Select from "react-select";
 import { useNavigate } from "react-router-dom";
 import TableContainer from "../../components/Table/TableContainer";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
-import { OPS_DISPUTES_BASE } from "../../api";
+import usePostApiCall from "../../hooks/usePostApiCall";
+import { OPS_DISPUTES_BASE, OPS_DISPUTES_MARK_DIS, SERVICE_CENTER_LIST } from "../../api";
 import Loader from "@/Loaders/Loader";
 import MainHeaderComp from "../../components/MainHeaderCom";
+import { customStyles } from "../../helpers/CustomStyle";
+import ToasterProvider from "../../helpers/ToasterProvider";
 
 const STATUS_TABS = [
     { label: "Open", value: "OPEN" },
@@ -20,6 +27,7 @@ const DisputeList = () => {
     useEffect(() => { document.title = "Disputes"; }, []);
 
     const navigate = useNavigate();
+    const { ErrorToaster } = ToasterProvider();
     const userId = useMemo(() => JSON.parse(localStorage.getItem("authUser"))?.user?.id, []);
     const { apifunc: fetchDisputes, data, loading } = useGetApiCall();
 
@@ -33,6 +41,64 @@ const DisputeList = () => {
     }, [fetchDisputes, userId, pageSize]);
 
     useEffect(() => { load(activeTab, 1, pageSize); }, []);
+
+    // Mark Disputed -- standalone version of StaleShipments.jsx's per-row
+    // action: that one already knows the AWB from the row it's on, so its
+    // modal only asks for Service Centers. Raised from here with no row to
+    // start from, so the AWB is its own field, plus a Remark this page's
+    // action captures that the stale-shipments flow currently doesn't.
+    const { apifunc: fetchSCs, data: scData } = usePostApiCall();
+    const { apifunc: markDis, loading: markLoading } = usePostApiCall(null, "AWB marked as Disputed");
+
+    useEffect(() => { fetchSCs(SERVICE_CENTER_LIST, {}); }, []);
+
+    const scOptions = useMemo(() => {
+        const list = scData?.results?.results || [];
+        return list.map(sc => ({
+            value: sc.id,
+            label: `${sc.service_center_code} — ${sc.company_name}${sc.city ? ` (${sc.city})` : ""}`
+        }));
+    }, [scData]);
+
+    const [markModal, setMarkModal] = useState(false);
+    const [markAwb, setMarkAwb] = useState("");
+    const [markSCs, setMarkSCs] = useState([]);
+    const [markRemark, setMarkRemark] = useState("");
+    const [markErrors, setMarkErrors] = useState({});
+
+    const openMarkModal = () => {
+        setMarkAwb("");
+        setMarkSCs([]);
+        setMarkRemark("");
+        setMarkErrors({});
+        setMarkModal(true);
+    };
+
+    const handleMarkDis = async () => {
+        const errors = {};
+        if (!markAwb.trim()) errors.awbno = "AWB number is required";
+        if (!markSCs.length) errors.service_centers = "Select at least one service centre";
+        if (!markRemark.trim()) errors.remark = "Remark is required";
+        setMarkErrors(errors);
+        if (Object.keys(errors).length) return;
+
+        const res = await markDis(OPS_DISPUTES_MARK_DIS, {
+            user_id: userId,
+            awbno: markAwb.trim(),
+            service_center_ids: markSCs.map(s => s.value),
+            remark: markRemark.trim(),
+        });
+        if (res?.status === "success") {
+            setMarkModal(false);
+            load(activeTab, page, pageSize);
+        } else {
+            // This endpoint answers 200 OK with {status:"error", message}
+            // for a logical rejection (e.g. "AWB has a terminal status and
+            // cannot be disputed") -- usePostApiCall's own error toast only
+            // fires on a non-2xx HTTP status, so it never sees this.
+            ErrorToaster(res?.message || "Failed to mark AWB as disputed");
+        }
+    };
 
     const handleTabChange = (tabValue) => {
         setActiveTab(tabValue);
@@ -103,6 +169,11 @@ const DisputeList = () => {
             <MainHeaderComp
                 title="Disputes"
                 subTitle={`Total: ${total}`}
+                extraFields={
+                    <Button color="warning" onClick={openMarkModal}>
+                        Mark Disputed
+                    </Button>
+                }
             />
 
             <Nav tabs className="mt-4 mb-2">
@@ -208,6 +279,62 @@ const DisputeList = () => {
                     </div>
                 </>
             )}
+
+            <Modal isOpen={markModal} toggle={() => setMarkModal(false)}>
+                <ModalHeader toggle={() => setMarkModal(false)}>
+                    Mark AWB as Disputed
+                </ModalHeader>
+                <ModalBody>
+                    <FormGroup>
+                        <Label>AWB No <span className="text-danger-500">*</span></Label>
+                        <Input
+                            type="text"
+                            value={markAwb}
+                            onChange={(e) => setMarkAwb(e.target.value ? e.target.value.toUpperCase() : "")}
+                            invalid={!!markErrors.awbno}
+                            placeholder="Enter AWB number"
+                        />
+                        {markErrors.awbno && <FormFeedback>{markErrors.awbno}</FormFeedback>}
+                    </FormGroup>
+                    <FormGroup>
+                        <Label>Service Centers <span className="text-danger-500">*</span></Label>
+                        <Select
+                            isMulti
+                            isSearchable
+                            options={scOptions}
+                            value={markSCs}
+                            onChange={setMarkSCs}
+                            placeholder="Search by code, company or city..."
+                            styles={customStyles}
+                            menuPortalTarget={document.body}
+                            menuPosition="fixed"
+                        />
+                        {markErrors.service_centers && (
+                            <div className="text-danger-500 text-xs mt-1">{markErrors.service_centers}</div>
+                        )}
+                        <small className="text-ink-muted mt-1 block">
+                            Managers at these SCs will see this dispute.
+                        </small>
+                    </FormGroup>
+                    <FormGroup className="mb-0">
+                        <Label>Remark <span className="text-danger-500">*</span></Label>
+                        <Input
+                            type="textarea"
+                            value={markRemark}
+                            onChange={(e) => setMarkRemark(e.target.value)}
+                            invalid={!!markErrors.remark}
+                            placeholder="Reason for raising this dispute"
+                        />
+                        {markErrors.remark && <FormFeedback>{markErrors.remark}</FormFeedback>}
+                    </FormGroup>
+                </ModalBody>
+                <ModalFooter>
+                    <Button color="secondary" onClick={() => setMarkModal(false)}>Cancel</Button>
+                    <Button color="warning" disabled={markLoading} onClick={handleMarkDis}>
+                        {markLoading ? "Marking..." : "Confirm"}
+                    </Button>
+                </ModalFooter>
+            </Modal>
         </div>
     );
 };
