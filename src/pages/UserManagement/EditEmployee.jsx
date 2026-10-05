@@ -38,6 +38,7 @@ function flattenEmployeeRecord(record) {
     return {
         // Employee Info -- flat on the record.
         employee_code: record.employee_code || "",
+        type: record.type || "",
         // Username pre-fills so the field isn't blank on open; password never
         // does -- the API doesn't return it, and it shouldn't be guessable
         // from a blank-looking field either way. Leaving password blank on

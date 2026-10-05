@@ -26,6 +26,7 @@ const AddServiceCentre = lazy(() => import("../pages/Masters/AddServiceCentre"))
 const EditServiceCentre = lazy(() => import("../pages/Masters/EditServiceCentre"));
 const ServiceCentrePincodes = lazy(() => import("../pages/Masters/ServiceCentrePincodes"));
 const RiderStoreRoutes = lazy(() => import("../pages/Masters/RiderStoreRoutes"));
+const PincodeMasterHome = lazy(() => import("../pages/Masters/PincodeMasterHome"));
 // User Management - Employee Management
 const EmployeeList = lazy(() => import("../pages/UserManagement/EmployeeList"));
 const AddEmployee = lazy(() => import("../pages/UserManagement/AddEmployee"));
@@ -46,6 +47,7 @@ const DailyRevenue = lazy(() => import("../pages/Dashboard/Reports/DailyRevenue"
 const CODReport = lazy(() => import("../pages/Dashboard/Reports/CODReport"));
 const PendingReport = lazy(() => import("../pages/Dashboard/Reports/PendingReport"));
 const PickupPendingReport = lazy(() => import("../pages/Dashboard/Reports/PickupPendingReport"));
+const MobileAppReport = lazy(() => import("../pages/Dashboard/Reports/MobileAppReport"));
 const CustomerPerformance = lazy(() => import("../pages/Dashboard/Reports/CustomerPerformance"));
 const OperationPerformance = lazy(() => import("../pages/Dashboard/Reports/OperationPerformance"));
 const PickupPerformance = lazy(() => import("../pages/Dashboard/Reports/PickupPeformance"));
@@ -113,6 +115,7 @@ const InternationalPasswordReset = lazy(() => import("../pages/Dashboard/Interna
 const SpdRemove = lazy(() => import("../pages/Dashboard/SpdRemove"));
 const RtsRemove = lazy(() => import("../pages/Dashboard/RtsRemove"));
 const TrackingCorrection = lazy(() => import("../pages/Dashboard/TrackingCorrection"));
+const WrongAwb = lazy(() => import("../pages/Dashboard/WrongAwb"));
 const AwbAdminLookup = lazy(() => import("../pages/Dashboard/AwbAdminLookup"));
 
 // Ops Disputes (admin features)
@@ -163,6 +166,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/cod-report", component: <CODReport /> },
     { path: "/pending-report", component: <PendingReport /> },
     { path: "/pickup-pending-report", component: <PickupPendingReport /> },
+    { path: "/mobile-app-report", component: <MobileAppReport /> },
     { path: "/customer-performance", component: <CustomerPerformance /> },
     { path: "/operation-performance", component: <OperationPerformance /> },
     { path: "/pickup-performance", component: <PickupPerformance /> },
@@ -194,6 +198,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/service-centres/edit/:id", component: <EditServiceCentre /> },
     { path: "/service-centres/pincodes", component: <ServiceCentrePincodes /> },
     { path: "/rider-store-routes", component: <RiderStoreRoutes /> },
+    { path: "/pincode-master", component: <PincodeMasterHome /> },
     // User Management - Employee Management
     { path: "/employees", component: <EmployeeList /> },
     { path: "/employees/add", component: <AddEmployee /> },
@@ -265,6 +270,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/spd-remove", component: <SpdRemove /> },
     { path: "/rts-remove", component: <RtsRemove /> },
     { path: "/tracking-correction", component: <TrackingCorrection /> },
+    { path: "/wrong-awb", component: <WrongAwb /> },
     { path: "/awb-admin-lookup", component: <AwbAdminLookup /> },
 
     // Ops Disputes

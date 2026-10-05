@@ -137,6 +137,10 @@ export const MENU = [
         url: "/pickup-pending-report"
       },
       {
+        label: "Mobile App Report",
+        url: "/mobile-app-report"
+      },
+      {
         label: "MIS Run",
         url: "/mis-report"
       },
@@ -361,7 +365,8 @@ export const MENU = [
     children: [
       { label: "SPD Remove", url: "/spd-remove" },
       { label: "RTS Remove", url: "/rts-remove" },
-      { label: "Tracking Correction", url: "/tracking-correction" }
+      { label: "Tracking Correction", url: "/tracking-correction" },
+      { label: "Wrong AWB", url: "/wrong-awb" }
     ]
   },
   // Combined booking + tracking lookup/correction for one AWB. Gated the same way every
@@ -508,7 +513,8 @@ export const MENU = [
     children: [
       { label: "Service Centres", url: "/service-centres" },
       { label: "Employee", url: "/employees" },
-      { label: "Rider Store Routes", url: "/rider-store-routes" }
+      { label: "Rider Store Routes", url: "/rider-store-routes" },
+      { label: "Pincode Master", url: "/pincode-master" }
     ]
   },
   {

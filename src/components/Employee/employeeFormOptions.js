@@ -8,6 +8,16 @@ export const STATUS_OPTIONS = [
     { value: "suspended", label: "Suspended" },
 ]
 
+// Maps to the backend's `type` field on create (POST /api/employee/employees/),
+// required there to pick which active code series the server generates
+// employee_code from.
+export const EMPLOYEE_TYPE_OPTIONS = [
+    { value: "V", label: "V" },
+    { value: "DV", label: "DV" },
+    { value: "C", label: "C" },
+    { value: "D", label: "D" },
+]
+
 export const GENDER_OPTIONS = [
     { value: "male", label: "Male" },
     { value: "female", label: "Female" },

@@ -29,6 +29,11 @@ export const qk = {
     me: () => ["privileges", "me"],
   },
 
+  /** Facts about the logged-in session not carried on the login response itself. */
+  session: {
+    currentEmployeeId: (username) => ["session", "current-employee-id", username],
+  },
+
   /**
    * Report results, keyed by the exact filter payload sent to the backend.
    * Two different filter sets are two different cache entries, which is what

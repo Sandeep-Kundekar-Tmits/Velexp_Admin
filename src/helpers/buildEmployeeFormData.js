@@ -12,7 +12,14 @@ export const buildEmployeeFormData = (data) => {
     const fd = new FormData()
 
     // employee info
+    // employee_code is read_only on the backend now (server always generates
+    // it from the `type` series) -- sent anyway since the backend just
+    // ignores it, so a stale/edited value here can never do harm.
     fd.append("employee_code", data.employee_code || "")
+    // Required on create only (picks the code series); PATCH doesn't need it
+    // and older records may not have one, so it's omitted rather than sent
+    // blank when absent.
+    if (data.type) fd.append("type", data.type)
     fd.append("first_name", data.first_name || "")
     fd.append("last_name", data.last_name || "")
     fd.append("email", data.email || "")

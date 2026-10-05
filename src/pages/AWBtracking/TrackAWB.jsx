@@ -5,7 +5,8 @@ import { AlertCircle, CalendarClock, FileSearch, RefreshCcw } from "lucide-react
 import MainHeaderComp from "../../components/MainHeaderCom"
 import Loader from "@/Loaders/Loader"
 import usePostApiCall from "../../hooks/usePostApiCall"
-import { GET_AWB_TRACKING, GET_BAG_TRACKING } from "../../api"
+import { rawRequest } from "@/lib/http"
+import { GET_AWB_TRACKING, GET_BAG_TRACKING, ITRACK_SCANS } from "../../api"
 import ToasterProvider from "../../helpers/ToasterProvider"
 import EditEDD from "../../components/AWBTracking/EditEDD"
 import BagTrackingResult from "../../components/AWBTracking/BagTrackingResult"
@@ -20,6 +21,31 @@ const formatDate = (iso) => {
 }
 
 const formatTime = (iso) => (iso ? iso.split("T")[1]?.split(".")[0] : "-")
+
+// Fire-and-forget audit trail: every lookup here is logged to /itrack/scans/
+// the same way the reference app (Velocity-Ops) does on its Tracking page --
+// so a search showing up in this screen never has to be inferred, it's
+// recorded explicitly, by whoever searched it. Never blocks or surfaces an
+// error to the user; a missed audit row isn't worth failing the lookup over.
+const logTrackScan = async (awb, screenName) => {
+    try {
+        const authUser = JSON.parse(localStorage.getItem("authUser") || "null")
+        const user = authUser?.user || {}
+        const scannedBy = user.first_name || user.username || ""
+        await rawRequest(ITRACK_SCANS, {
+            method: "POST",
+            body: {
+                awb,
+                employee_code: user.employee_code || "",
+                scanned_by: scannedBy,
+                service_center: user.service_center_code?.[0] || "",
+                screen_name: scannedBy ? `${screenName} by ${scannedBy}` : screenName,
+            },
+        })
+    } catch {
+        // best-effort only
+    }
+}
 
 // The accent blue the modernised tracking screens use throughout (see ShipmentTraceDetail)
 const ACCENT = { border: "rgba(59,130,246,0.3)", tint: "rgba(59,130,246,0.15)", text: "#93C5FD", solid: "#3B82F6" }
@@ -87,6 +113,7 @@ const TrackAWB = () => {
             setHasSearched(true)
             if (res?.parent_bag_data) {
                 setBagInfo(res)
+                logTrackScan(trackingNo, "Bag Tracking")
             } else {
                 setBagInfo(null)
                 ErrorToaster(res?.message || "Bag not found")
@@ -102,6 +129,7 @@ const TrackAWB = () => {
                 setTrackData(res.track_data)
                 const keys = Object.keys(res.track_data)
                 setActiveAwb(keys.includes(trackingNo) ? trackingNo : keys[0])
+                logTrackScan(trackingNo, "Shipment Tracking")
             } else {
                 setBookingData(null)
                 setTrackData({})
@@ -131,6 +159,7 @@ const TrackAWB = () => {
                 remark: ele.remarks || "-",
                 bag_no: ele.bag_no,
                 manifest_no: ele.manifest_no,
+                manifest_destination: ele.manifest_destination,
                 employee_id: ele.employee_id,
                 employee_name: ele.employee_name,
                 active: index === 0,
@@ -154,6 +183,10 @@ const TrackAWB = () => {
                 "Order ID": bookingData.orderid,
                 Customer: bookingData.customer_name,
                 "Booking Date": formatDate(bookingData.booking_date || bookingData.booked_date),
+                // Same two source fields as Booking Date, opposite fallback
+                // order -- a distinct label for data that's often (but not
+                // always) the same value, matching the reference app.
+                "Airway Bill Date": formatDate(bookingData.booked_date || bookingData.booking_date),
                 Product: bookingData.product,
                 Weight: bookingData.weight != null ? `${bookingData.weight} Kg` : null,
                 "Vol. Weight": bookingData.volumetric_weight != null ? `${bookingData.volumetric_weight} Kg` : null,
@@ -165,6 +198,22 @@ const TrackAWB = () => {
                 // "-" like every other field here -- Object.entries below never
                 // sees the key at all, so nothing renders for it.
                 ...(firstEventEdd ? { EDD: formatDate(firstEventEdd) } : {}),
+                ...(bookingData.payment_mode ? { "Payment Mode": bookingData.payment_mode } : {}),
+                ...(bookingData.cod_amount != null && Number(bookingData.cod_amount) > 0
+                    ? { "COD Amount": `₹ ${Number(bookingData.cod_amount).toFixed(2)}` }
+                    : {}),
+                // otp_verified is a real false, not an absence -- shown whenever
+                // the backend sends it at all (not just when truthy, which is
+                // why this checks !== undefined/null rather than the usual
+                // `? :` guard every other optional field here uses).
+                ...(bookingData.otp_verified !== undefined && bookingData.otp_verified !== null
+                    ? { "OTP Verified": bookingData.otp_verified ? "Yes" : "No" }
+                    : {}),
+                // The backend sometimes sends the literal string "null" instead
+                // of a real null, so a plain truthy check isn't enough.
+                ...(bookingData.shipment_flag && bookingData.shipment_flag !== "null"
+                    ? { "Shipment Flag": bookingData.shipment_flag }
+                    : {}),
             },
             shipper: {
                 Name: bookingData.shipper_name,
@@ -294,6 +343,14 @@ const TrackAWB = () => {
                             )}
                         </div>
 
+                        {/* The backend sometimes sends the literal string "null" instead of a real null. */}
+                        {bookingData.rto_approval === true && bookingData.shipment_flag && bookingData.shipment_flag !== "null" && (
+                            <div className="mb-3 flex items-center gap-2 rounded-lg border border-danger-500/30 bg-danger-500/10 px-3 py-2 text-[13px] font-semibold text-danger-500">
+                                <AlertCircle size={16} className="shrink-0" />
+                                RTO Approved — {bookingData.shipment_flag}
+                            </div>
+                        )}
+
                         <div className="row gap-y-3">
                             <div className="col-12 col-lg-4">
                                 <Section title="Booking Info" accent="blue">
@@ -394,6 +451,12 @@ const TrackAWB = () => {
                                                 <div>
                                                     <div className="text-[12px] font-semibold text-ink">Manifest No</div>
                                                     <div className="text-[12px] text-ink-muted">{item.manifest_no}</div>
+                                                </div>
+                                            )}
+                                            {item.manifest_destination?.trim?.() && (
+                                                <div>
+                                                    <div className="text-[12px] font-semibold text-ink">Manifest Destination</div>
+                                                    <div className="text-[12px] text-ink-muted">{item.manifest_destination}</div>
                                                 </div>
                                             )}
                                             {String(item.employee_id ?? "").trim() && (

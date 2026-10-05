@@ -71,6 +71,7 @@ const CHILDREN = {
     "OPS Reports": [
         { link_name: "Pending Report", link_url: "/pending-report" },
         { link_name: "Pickup Pending Report", link_url: "/pickup-pending-report" },
+        { link_name: "Mobile App Report", link_url: "/mobile-app-report" },
         { link_name: "MIS Run", link_url: "/mis-report" },
         { link_name: "Admin Booking", link_url: "/admin-booking-download" },
         { link_name: "Customer Service", link_url: "/customer-service" },
@@ -148,11 +149,13 @@ const CHILDREN = {
         { link_name: "SPD Remove", link_url: "/spd-remove" },
         { link_name: "RTS Remove", link_url: "/rts-remove" },
         { link_name: "Tracking Correction", link_url: "/tracking-correction" },
+        { link_name: "Wrong AWB", link_url: "/wrong-awb" },
     ],
     "Ops Master": [
         { link_name: "Service Centres", link_url: "/service-centres" },
         { link_name: "Employee", link_url: "/employees" },
         { link_name: "Rider Store Routes", link_url: "/rider-store-routes" },
+        { link_name: "Pincode Master", link_url: "/pincode-master" },
     ],
 };
 

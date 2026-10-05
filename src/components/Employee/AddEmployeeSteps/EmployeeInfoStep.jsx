@@ -4,7 +4,7 @@ import { Row, Col, FormGroup, Label, Input, FormFeedback, Button } from "@/compo
 import Select from "react-select"
 import { customStyles } from "../../../helpers/CustomStyle"
 import { useDepartments, useDesignations, useServiceCentreDirectory } from "../../../hooks/queries/useReferenceData"
-import { STATUS_OPTIONS, GENDER_OPTIONS } from "../employeeFormOptions"
+import { STATUS_OPTIONS, GENDER_OPTIONS, EMPLOYEE_TYPE_OPTIONS } from "../employeeFormOptions"
 
 const RequiredMark = () => <span className="text-danger-500"> *</span>
 
@@ -47,7 +47,6 @@ const EmployeeInfoStep = ({ formData, setFormData, onNextButtonClick, isEdit = f
 
     const handleSubmit = () => {
         const newErrors = {}
-        if (!formData?.employee_code) newErrors.employee_code = "Employee code is required"
         if (!formData?.first_name) newErrors.first_name = "First name is required"
         if (!formData?.email) newErrors.email = "Email is required"
         if (!formData?.status) newErrors.status = "Status is required"
@@ -55,9 +54,12 @@ const EmployeeInfoStep = ({ formData, setFormData, onNextButtonClick, isEdit = f
         if (!formData?.service_center?.length) newErrors.service_center = "At least one service centre is required"
         // Credentials are set once at creation, not re-required on every edit --
         // matches the account-details section's own required rule at creation.
+        // `type` picks the code series the server generates employee_code from,
+        // so it's only meaningful (and only enforced by the backend) on create.
         if (!isEdit) {
             if (!formData?.user_name) newErrors.user_name = "Username is required"
             if (!formData?.password) newErrors.password = "Password is required"
+            if (!formData?.type) newErrors.type = "Type is required"
         }
         setErrors(newErrors)
         if (Object.keys(newErrors).length === 0) {
@@ -73,9 +75,17 @@ const EmployeeInfoStep = ({ formData, setFormData, onNextButtonClick, isEdit = f
                 <Row>
                     <Col md={3}>
                         <FormGroup>
-                            <Label>Employee Code<RequiredMark /></Label>
-                            <Input type="text" name="employee_code" value={formData.employee_code || ""} onChange={handleChange} invalid={!!errors?.employee_code} />
-                            <FormFeedback>{errors?.employee_code}</FormFeedback>
+                            <Label>Type<RequiredMark /></Label>
+                            <Select
+                                options={EMPLOYEE_TYPE_OPTIONS}
+                                onChange={(option) => handleSelectChange("type", option)}
+                                value={EMPLOYEE_TYPE_OPTIONS.find((opt) => opt.value === formData.type) || null}
+                                placeholder="Select Type"
+                                isClearable
+                                isDisabled={isEdit}
+                                styles={customStyles}
+                            />
+                            {errors?.type && <div className="text-danger-500 text-sm mt-1">{errors.type}</div>}
                         </FormGroup>
                     </Col>
                     <Col md={3}>
@@ -113,6 +123,14 @@ const EmployeeInfoStep = ({ formData, setFormData, onNextButtonClick, isEdit = f
                             <FormFeedback>{errors?.password}</FormFeedback>
                         </FormGroup>
                     </Col>
+                    {isEdit && (
+                        <Col md={3}>
+                            <FormGroup>
+                                <Label>Employee Code</Label>
+                                <Input type="text" value={formData.employee_code || ""} disabled readOnly />
+                            </FormGroup>
+                        </Col>
+                    )}
                 </Row>
 
                 <h6 className="text-ink-muted mt-3 mb-2">Personal Details</h6>

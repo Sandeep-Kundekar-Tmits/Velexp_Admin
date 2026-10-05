@@ -44,3 +44,6 @@ scripts/createKochiServiceCentres.js
 scripts/createKochiServiceCentresProd.js
 scripts/createTestServiceCentreAndEmployee.js
 scripts/updateKochiServiceCentresGeo.js
+scripts/checkAndFixEmployeeServiceCentre.js
+scripts/createEmployeesFromExcel.js
+scripts/updateCreatedEmployeesDesignation.js

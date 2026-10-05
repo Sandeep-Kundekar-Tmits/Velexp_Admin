@@ -54,13 +54,16 @@ describe("menu tree data", () => {
     walk(MENU);
   });
 
-  it("keeps the two kill-switched entries hidden", () => {
-    // showCodReconciliation / showPopReconciliation were hardcoded false.
+  it("keeps the kill-switched entries hidden", () => {
+    // showCodReconciliation / showPopReconciliation were hardcoded false;
+    // Stale Shipments / Lost Dashboard (Ops Disputes) are hidden the same way.
     // Uses fullAccess (every leaf granted, is_admin irrelevant) to prove
     // suppression comes from `hidden`, not from a missing privilege.
     const visible = leaves(filterMenu(MENU, fullAccess.canAccess));
     expect(visible).not.toContain("/cod-reconciliation");
     expect(visible).not.toContain("/pop-reconcilation");
+    expect(visible).not.toContain("/ops-disputes/stale");
+    expect(visible).not.toContain("/ops-disputes/lost");
   });
 });
 
@@ -70,6 +73,8 @@ describe("filterMenu", () => {
     const allLeaves = new Set(leaves(MENU));
     allLeaves.delete("/cod-reconciliation");
     allLeaves.delete("/pop-reconcilation");
+    allLeaves.delete("/ops-disputes/stale");
+    allLeaves.delete("/ops-disputes/lost");
     expect(new Set(visible)).toEqual(allLeaves);
   });
 
@@ -83,20 +88,23 @@ describe("filterMenu", () => {
     const perms = staff(["/add-pod"]);
     const filtered = filterMenu(MENU, perms.canAccess);
     // "Reports", "Customers" etc. must not survive as empty expanders.
+    // "Track AWB" survives regardless -- /tracking is in ALWAYS_ACCESSIBLE_URLS.
     expect(filtered.every((n) => !n.children || n.children.length > 0)).toBe(true);
-    expect(filtered.map((n) => n.label)).toEqual(["Add POD"]);
+    expect(filtered.map((n) => n.label)).toEqual(["Add POD", "Track AWB"]);
   });
 
   it("keeps a group when only one deep descendant is granted", () => {
     const perms = staff(["/last-mile-operation"]);
     const filtered = filterMenu(MENU, perms.canAccess);
-    expect(leaves(filtered)).toEqual(["/last-mile-operation"]);
+    // /tracking rides along too -- it's always-accessible, not privilege-gated.
+    expect(leaves(filtered)).toEqual(["/last-mile-operation", "/tracking"]);
     // Reports > Operation Performance > leaf — nesting preserved.
     expect(filtered[0].label).toBe("Reports");
     expect(filtered[0].children[0].label).toBe("Operation Performance");
   });
 
-  it("returns nothing for a user with no privileges", () => {
-    expect(filterMenu(MENU, staff([]).canAccess)).toEqual([]);
+  it("shows only the always-accessible entries for a user with no privileges", () => {
+    // /tracking (Track AWB) is in ALWAYS_ACCESSIBLE_URLS, so it's never truly empty.
+    expect(leaves(filterMenu(MENU, staff([]).canAccess))).toEqual(["/tracking"]);
   });
 });

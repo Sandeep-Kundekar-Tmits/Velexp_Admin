@@ -315,6 +315,25 @@ export const BILLING_BATCH_LIST = `${BASE_URL}/corporate-billing/billing/batch/l
 export const BILLING_AUDIT_REPORTS = `${BASE_URL}/corporate-billing/billing/audit-reports/`                   // GET (list / <id>/ / <id>/download/)
 export const BILLING_CONFIGURED_CUSTOMERS = `${BASE_URL}/corporate-billing/billing/configured-customers/`      // GET
 
+// Main Pincode Master — canonical pincode/state/city/alias reference data.
+// Plain DRF REST resource (not the legacy "get-list"/{status:1} envelope):
+// GET list (?q=&state=&city=&zone=&kind=&is_active=&is_metro=&page=&page_size=),
+// POST create, `${PINCODE_MASTER_API}<pincode>/` for GET/PATCH/PUT/DELETE
+// (?hard=true for a hard delete). State/city are given by NAME on write and
+// resolved through aliases server-side (e.g. "Orissa" -> "Odisha"); an
+// unknown city is rejected unless create_city=true is also sent.
+export const PINCODE_MASTER_API = `${BASE_URL}/corporate-billing/main-pincode-master/`
+export const PINCODE_MASTER_BULK_CREATE = `${BASE_URL}/corporate-billing/main-pincode-master/bulk-create/`   // POST {rows:[...], atomic, dry_run, create_city} or a bare list
+export const PINCODE_MASTER_BULK_UPDATE = `${BASE_URL}/corporate-billing/main-pincode-master/bulk-update/`   // POST {rows:[{pincode, ...fields}]}
+export const PINCODE_MASTER_BULK_UPSERT = `${BASE_URL}/corporate-billing/main-pincode-master/bulk-upsert/`   // POST {rows:[...], atomic, dry_run, create_city} (JSON) or multipart {file, atomic, create_city} (xlsx/csv, max 50,000 rows)
+export const PINCODE_MASTER_BULK_DELETE = `${BASE_URL}/corporate-billing/main-pincode-master/bulk-delete/`   // POST {pincodes:[...], hard} -> {affected, not_found, invalid}
+export const PINCODE_MASTER_LOOKUP = `${BASE_URL}/corporate-billing/main-pincode-master/lookup/`             // GET ?pincodes=1,2,3 (in-memory cache) or POST {pincodes:[...]} for up to 20,000
+
+export const PINCODE_MASTER_STATES_API = `${BASE_URL}/corporate-billing/main-pincode-master-states/`         // GET list, POST create, `${id}/` for PATCH/DELETE — renaming also updates the copied state name on its pincode rows
+export const PINCODE_MASTER_CITIES_API = `${BASE_URL}/corporate-billing/main-pincode-master-cities/`         // GET list ?state=&q=, POST create {state|state_name, name, is_metro}, `${id}/` for PATCH/DELETE
+export const PINCODE_MASTER_CITIES_BULK_UPSERT = `${BASE_URL}/corporate-billing/main-pincode-master-cities/bulk-upsert/` // POST {rows:[{state, name, is_metro}], atomic, dry_run}
+export const PINCODE_MASTER_ALIASES_API = `${BASE_URL}/corporate-billing/main-pincode-master-aliases/`       // GET list ?alias_type=STATE|CITY, POST create {alias_type, alias, state|city}, `${id}/` for DELETE
+
 // Automated MIS — billed shipments Excel (backend generates the file)
 export const BILLED_SHIPMENTS_EXCEL = `${BASE_URL}/corporate-billing/billing/billed-shipments-excel/`          // POST { start_date, end_date } -> Excel blob
 
@@ -679,6 +698,18 @@ export const RECORD_SAR_STATUS = `${BASE_URL}/undelivered-shipments/record-sar-s
 
 // RTO booking flow — CS sets/clears a shipment flag (RTS_PENDING/RTO_APPROVAL/WRONG_AWB/PRIORITY)
 export const BULK_SET_SHIPMENT_FLAG = `${BASE_URL}/bulk-set-shipment-flag/` // POST { awbno_list, shipment_flag, remark, employee_id }
+
+// Wrong AWB workflow — CS flags AWB(s) WRONG_AWB (or clears it) via BULK_SET_SHIPMENT_FLAG
+// above; these three round it out: a read-only pre-check, the list of what's currently
+// flagged, and recording the real correction once ops has fixed the AWB. The last one only
+// succeeds once the AWB is flagged WRONG_AWB, and needs `employee_id`
+// (ops_accounts.Employee.id) -- NOT the `user_id` (accounts.User.id) the other three use.
+// Different tables; there's no field for Employee.id on the login response, so it's resolved
+// via useCurrentEmployeeId (matches the Employee record whose user_name equals the username).
+export const CHECK_WRONG_AWB_ELIGIBILITY = `${BASE_URL}/check-wrong-awb-eligibility/` // POST { awbno_list } -> read-only
+export const WRONG_AWB_FLAGGED_LIST = `${BASE_URL}/wrong-awb-flagged-list/` // POST {} or { service_center: [ec_code,...] }
+export const MANUAL_STATUS_UPDATE = `${BASE_URL}/manual-status-update/` // POST { awbno, status, remark, employee_id }
+
 // Ops: pending/booked RTO screen — response now also includes `rto_approved`
 export const PENDING_BOOKED_RTO = `${BASE_URL}/pending_booked_rto/` // POST { service_center, from_date?, to_date? }
 // Ops: book the RTO — send a single object (not array) with RTO_booking: true to distinguish from forward bulk booking
@@ -700,14 +731,22 @@ export const RECONCILED_HISTORY = `${BASE_URL}/reconciled-history/`;
 export const COD_PENDING_REPORT = `${BASE_URL}/api/admin-reports/cod-pending/`; // POST {user_id, search?, service_center?, employee?}
 export const DOWNLOAD_COD_PENDING_REPORT = `${BASE_URL}/api/admin-reports/cod-pending/download/`; // POST same body -> xlsx blob
 
+// Mobile App Report (status-source-hourly) — same admin-reports family as
+// COD Pending above: Bearer auth plus an explicit user_id in the body.
+// Hourly breakdown of status updates by source (mobile/desktop/system),
+// all-India, filterable by date, service_center (comma list) and region.
+// scope: "all" includes every non-OFD status; omitted = post-OFD only.
+export const STATUS_SOURCE_HOURLY_REPORT = `${BASE_URL}/api/admin-reports/status-source-hourly/`; // POST {user_id, date?, service_center?, region?, scope?}
+export const DOWNLOAD_STATUS_SOURCE_HOURLY_REPORT = `${BASE_URL}/api/admin-reports/status-source-hourly/download/`; // POST same body -> xlsx blob
+
 // Unmatched bank-statement transactions — outstanding-backlog view across all uploads.
 // Live on UAT only as of 06 Sep 2026, not yet ported to production (see Velocity-Ops
 // testing-docs/unmatched-transactions-api.md). This whole bank-statement flow runs without
 // JWT auth, so these intentionally point at the UAT host regardless of VITE_API_BASE_URL —
 // swap BANK_STATEMENT_UAT_BASE_URL to BASE_URL once the backend ships this to production.
-export const BANK_STATEMENT_UAT_BASE_URL = `https://uat.velexp.com`;
-export const GET_BANK_STATEMENT_ENTRIES = `${BANK_STATEMENT_UAT_BASE_URL}/bank-statement/entries/`; // GET ?status=&days=&page=&page_size=
-export const DOWNLOAD_BANK_STATEMENT_ENTRIES = `${BANK_STATEMENT_UAT_BASE_URL}/bank-statement/download-excel/`; // POST {status, days}
+
+export const GET_BANK_STATEMENT_ENTRIES = `${BASE_URL}/bank-statement/entries/`; // GET ?status=&days=&page=&page_size=
+export const DOWNLOAD_BANK_STATEMENT_ENTRIES = `${BASE_URL}/bank-statement/download-excel/`; // POST {status, days}
 
 export const BULK_CANCEL_BOOKING = `${BASE_URL}/bulk_cancel_booking_api/`;
 export const USER_CANCELLATION_REPORT = `${BASE_URL}/user_cancellation_report_api/`;
