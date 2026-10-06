@@ -17,9 +17,11 @@ import {
 } from "../../api"
 import TableContainer from "../../components/Table/TableContainer"
 import ToasterProvider from "../../helpers/ToasterProvider"
+import Loader from "@/Loaders/Loader"
 import { MdFileUpload, MdVisibility, MdFileDownload, MdEdit, MdDelete, MdSave } from "react-icons/md"
 import axios from "axios"
 import ViewInvoice from "../../components/Invoices/ViewInVoice"
+import InvoiceGenerator from "../../PdfComponents/InvoiceGenerator"
 
 const InvoiceFlow = () => {
     const { SuccessToaster, ErrorToaster } = ToasterProvider()
@@ -47,7 +49,15 @@ const InvoiceFlow = () => {
     const [pdfData, setPdfData] = useState(null)
     const [currentInvoice, setCurrentInvoice] = useState(null)
     const [editLoading, setEditLoading] = useState(false)
-    
+    // Set only for the Actions-column Download button: rendered off-screen
+    // (see the bottom of this component), never inside the visible preview
+    // modal, so clicking Download never shows a preview.
+    const [downloadOnlyInvoice, setDownloadOnlyInvoice] = useState(null)
+    // Covers the whole round trip -- fetching the invoice detail, the 400ms
+    // render settle in InvoiceGenerator, and toPDF() itself -- so the user
+    // sees a loader rather than nothing happening for however long that takes.
+    const [downloading, setDownloading] = useState(false)
+
     // Override states
     const [invoiceDate, setInvoiceDate] = useState("")
     const [toGstNo, setToGstNo] = useState("")
@@ -245,8 +255,21 @@ const InvoiceFlow = () => {
         }
     }
 
-    const handleDownloadPDF = (id) => {
-        window.open(`${CORPORATE_INVOICE_BASE}${id}/download-pdf/`, '_blank')
+    // Used to hit /download-pdf/ directly via window.open, which errored --
+    // the View action's own Download button is the one that actually works
+    // (client-side PDF render, no backend download endpoint involved -- see
+    // InvoiceGenerator). This reuses that exact rendering path but off-screen
+    // (see the <InvoiceGenerator> instance at the bottom of this component's
+    // JSX) instead of inside the visible ViewInvoice modal, so no preview
+    // ever shows -- just the file.
+    const handleDownloadPDF = async (invoice) => {
+        setDownloading(true)
+        const result = await apiGet(`${CORPORATE_INVOICE_BASE}${invoice.id}/`)
+        if (result) {
+            setDownloadOnlyInvoice(result)
+        } else {
+            setDownloading(false)
+        }
     }
 
     const historyColumns = useMemo(() => [
@@ -278,14 +301,14 @@ const InvoiceFlow = () => {
                         <Button color="primary" size="sm" onClick={() => handleViewInvoice(inv)}>
                             <MdVisibility size={18} />
                         </Button>
-                        <Button color="success" size="sm" onClick={() => handleDownloadPDF(inv.id)}>
+                        <Button color="success" size="sm" onClick={() => handleDownloadPDF(inv)} disabled={downloading}>
                             <MdFileDownload size={18} />
                         </Button>
                     </div>
                 )
             }
         }
-    ], [])
+    ], [downloading])
 
     const formatDate = (dateStr) => {
         if (!dateStr) return "N/A"
@@ -1078,6 +1101,26 @@ const InvoiceFlow = () => {
                 toggle={() => setIsPdfModalOpen(false)}
                 invoiceData={pdfData}
             />
+
+            {/* Actions-column Download: renders the same invoice markup
+                off-screen (not inside the visible modal above) purely so
+                react-to-pdf's toPDF() has real, laid-out DOM to capture --
+                the user never sees this, it unmounts itself once the
+                download fires via onDownloaded. */}
+            {downloadOnlyInvoice && (
+                <div style={{ position: "fixed", top: 0, left: "-10000px", zIndex: -1 }} aria-hidden="true">
+                    <InvoiceGenerator
+                        invoiceData={downloadOnlyInvoice}
+                        autoDownload={true}
+                        onDownloaded={() => {
+                            setDownloadOnlyInvoice(null)
+                            setDownloading(false)
+                        }}
+                    />
+                </div>
+            )}
+
+            {downloading && <Loader message="Downloading Invoice" fullscreen />}
         </React.Fragment>
     )
 }

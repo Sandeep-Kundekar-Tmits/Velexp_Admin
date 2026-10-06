@@ -31,7 +31,7 @@ const CheckInvoice = (invoice) => {
     return "franchise"
   }
 }
-const InvoiceGenerator = ({ invoiceData, downloadUrl }) => {
+const InvoiceGenerator = ({ invoiceData, downloadUrl, autoDownload, onDownloaded }) => {
   if (!invoiceData) return <div className="p-6 text-center">No invoice data available.</div>;
 
 
@@ -50,6 +50,7 @@ const InvoiceGenerator = ({ invoiceData, downloadUrl }) => {
     if (downloadUrl) {
       window.open(downloadUrl, '_blank');
       setIsGenerating(false);
+      onDownloaded?.();
       return;
     }
 
@@ -61,8 +62,34 @@ const InvoiceGenerator = ({ invoiceData, downloadUrl }) => {
       window.print();
     } finally {
       setIsGenerating(false);
+      onDownloaded?.();
     }
   };
+
+  // The Invoice History table's own Download action used to hit a separate
+  // /download-pdf/ backend endpoint directly (window.open), which errored --
+  // this view's own Download button is the one that actually works (it
+  // renders the invoice client-side and captures it with toPDF(), same as
+  // above). autoDownload lets that table action reuse this exact code path
+  // without a preview: InvoiceFlow.jsx mounts this component off-screen
+  // (not inside the visible ViewInvoice modal) with autoDownload set, so it
+  // renders long enough for toPDF() to capture it, fires the download, then
+  // onDownloaded() tells the parent to unmount it -- no preview ever shows.
+  // A ref (not state) guards the one-shot trigger so it survives this
+  // component re-rendering (e.g. isGenerating flipping) without firing
+  // twice, but still re-arms if it's reused for a different invoiceData.
+  const autoDownloadFiredFor = useRef(null);
+  useEffect(() => {
+    if (!autoDownload || !invoiceData) return;
+    const key = invoiceData?.id ?? invoiceData?.invoice_no;
+    if (autoDownloadFiredFor.current === key) return;
+    autoDownloadFiredFor.current = key;
+    // Let the invoice DOM (and its logo/signature images) actually paint
+    // before toPDF() captures it -- an immediate call can race the layout.
+    const timer = setTimeout(() => { handleDownload(); }, 400);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoDownload, invoiceData]);
 
   const totalsAmounts = (invoiceData?.items || []).reduce(
     (acc, item) => ({
