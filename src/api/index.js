@@ -88,6 +88,7 @@ export const DOMESTIC_MIS_REPORT = `${BASE_URL}/api/admin-panel/domestic-mis/` /
 // manual credits for that customer.
 export const WALLET_MANUAL_CREDITS = `${BASE_URL}/api/admin-panel/wallet/manual-credits/` // GET ?user_id=&limit=
 export const WALLET_MANUAL_CREDIT_CREATE = `${BASE_URL}/api/admin-panel/wallet/manual-credit/` // POST {user_id, amount, reference, remarks}
+export const WALLET_TRANSACTIONS = `${BASE_URL}/api/admin-panel/wallet/transactions/` // GET ?user_id=&start_date=&end_date= -- full wallet ledger (all movements), not just manual credits
 
 // department master (dropdown source for Employee Management)
 export const DEPARTMENT_LIST = `${BASE_URL}/departments/get-list/` // POST {}

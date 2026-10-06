@@ -1,30 +1,35 @@
-// Wallet Manual Credit -- an ops/finance admin crediting a customer's wallet
-// directly (e.g. reconciling an offline NEFT/UTR payment against their
-// account), plus the history of past manual credits for that customer.
+// Wallet -- a customer's full wallet transaction ledger, plus the ability
+// for an ops/finance admin to manually credit it (e.g. reconciling an
+// offline NEFT/UTR payment) and review past manual credits specifically.
 //
-// Both endpoints are plain DRF REST (/api/admin-panel/), so this calls
+// All three endpoints are plain DRF REST (/api/admin-panel/), so this calls
 // rawRequest directly rather than the generic use*ApiCall hooks -- same
 // reasoning as RiderStoreRoutes.jsx/PincodeMaster*/DomesticMisReport.jsx.
-// The GET /manual-credits/ response shape wasn't documented beyond the
-// request, so the history table's columns are built dynamically from
-// whatever keys the response actually returns (same approach as
-// DomesticMisReport.jsx and the Mobile App Report fix).
+// Both /transactions/ and /manual-credits/ return the same row shape
+// (confirmed live: id, user_id, customer, amount, reference, remarks,
+// balance_after, added_by_id, added_by, created, transaction_type, status,
+// method, payment_id) -- manual-credits is simply a filtered view of the
+// same ledger, so both tables share TRANSACTION_COLUMNS. /transactions/
+// additionally returns current_balance/total_credited alongside the rows.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import AsyncSelect from "react-select/async"
-import { Button, FormGroup, Input, Label } from "@/components/ui"
+import { Badge, Button, FormGroup, Input, Label, Nav, NavItem, NavLink, TabContent, TabPane } from "@/components/ui"
 import { rawRequest } from "@/lib/http"
 import { customStyles } from "../../helpers/CustomStyle"
+import DateRangeInput from "../../components/Common/DateRangeInput"
 import TableContainer from "../../components/Table/TableContainer"
 import SimpleModal from "../../components/SimpleModal"
 import MainHeaderComp from "../../components/MainHeaderCom"
 import Loader from "@/Loaders/Loader"
 import ToasterProvider from "../../helpers/ToasterProvider"
-import { isIsoDateLike, formatDisplayDate } from "../../helpers/formatDisplayDate"
-import { DOMESTIC_MIS_CUSTOMERS, WALLET_MANUAL_CREDITS, WALLET_MANUAL_CREDIT_CREATE } from "../../api"
-
-const humanize = (key) => key
-    .replace(/_/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase())
+import { formatDisplayDate } from "../../helpers/formatDisplayDate"
+import YMD_DateFormate from "../../helpers/YMD_DateFormate"
+import {
+    DOMESTIC_MIS_CUSTOMERS,
+    WALLET_MANUAL_CREDITS,
+    WALLET_MANUAL_CREDIT_CREATE,
+    WALLET_TRANSACTIONS,
+} from "../../api"
 
 const unwrapRows = (res) => {
     if (Array.isArray(res)) return res
@@ -33,24 +38,48 @@ const unwrapRows = (res) => {
     return []
 }
 
-const formatCell = (value) => {
-    if (value === null || value === undefined || value === "") return "-"
-    if (isIsoDateLike(value)) return formatDisplayDate(value)
-    if (typeof value === "number") return value.toLocaleString("en-IN")
-    return String(value)
-}
+const orDash = (v) => (v === null || v === undefined || v === "" ? "-" : v)
+const fmtCurrency = (v) =>
+    v === null || v === undefined ? "-" : `₹${Number(v).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+
+const TRANSACTION_COLUMNS = [
+    { header: "Date", accessorKey: "created", enableSorting: true, cell: ({ getValue }) => formatDisplayDate(getValue()) },
+    { header: "Amount", accessorKey: "amount", enableSorting: true, cell: ({ getValue }) => fmtCurrency(getValue()) },
+    {
+        header: "Type", accessorKey: "transaction_type", enableSorting: true,
+        cell: ({ getValue }) => <Badge color="info">{orDash(getValue())}</Badge>,
+    },
+    {
+        header: "Status", accessorKey: "status", enableSorting: true,
+        cell: ({ getValue }) => <Badge color={getValue() === "Success" ? "success" : "secondary"}>{orDash(getValue())}</Badge>,
+    },
+    { header: "Method", accessorKey: "method", cell: ({ getValue }) => orDash(getValue()) },
+    { header: "Reference", accessorKey: "reference", cell: ({ getValue }) => orDash(getValue()) },
+    { header: "Remarks", accessorKey: "remarks", cell: ({ getValue }) => orDash(getValue()) },
+    { header: "Balance After", accessorKey: "balance_after", enableSorting: true, cell: ({ getValue }) => fmtCurrency(getValue()) },
+    { header: "Added By", accessorKey: "added_by", cell: ({ getValue }) => orDash(getValue()) },
+]
+
+const StatBadge = ({ label, value, color = "primary" }) => (
+    <div className="inline-flex min-w-0 items-center gap-1.5 rounded-lg border border-white/10 bg-white/3 px-2.5 py-1">
+        <span className="text-[11px] uppercase tracking-wider text-ink-muted">{label}</span>
+        <Badge color={color}>{value ?? "—"}</Badge>
+    </div>
+)
 
 const EMPTY_FORM = { amount: "", reference: "", remarks: "" }
+const TABS = [
+    { key: "transactions", label: "Transactions" },
+    { key: "manual-credits", label: "Manual Credits" },
+]
 
 const WalletManualCredit = () => {
-    useEffect(() => { document.title = "Wallet Manual Credit" }, [])
+    useEffect(() => { document.title = "Wallet" }, [])
 
     const { SucceesToaster, ErrorToaster } = ToasterProvider()
 
     const [selectedCustomer, setSelectedCustomer] = useState(null)
-    const [rows, setRows] = useState([])
-    const [loading, setLoading] = useState(false)
-    const [hasLoaded, setHasLoaded] = useState(false)
+    const [activeTab, setActiveTab] = useState(TABS[0].key)
 
     const customerSearchTimeout = useRef(null)
     const loadCustomerOptions = useCallback((inputValue, callback) => {
@@ -62,29 +91,83 @@ const WalletManualCredit = () => {
         }, 400)
     }, [])
 
-    const loadHistory = useCallback(async (userId) => {
-        if (!userId) { setRows([]); setHasLoaded(false); return }
-        setLoading(true)
-        setHasLoaded(true)
+    // ── All transactions (full ledger), date-range scoped ─────────────────
+    const [txnRange, setTxnRange] = useState({ startDate: null, endDate: null })
+    const [txnRows, setTxnRows] = useState([])
+    const [txnBalance, setTxnBalance] = useState(null)
+    const [txnLoading, setTxnLoading] = useState(false)
+    const [txnLoaded, setTxnLoaded] = useState(false)
+
+    useEffect(() => {
+        const today = new Date()
+        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1)
+        setTxnRange({ startDate: firstDay, endDate: today })
+    }, [])
+
+    const loadTransactions = useCallback(async () => {
+        if (!selectedCustomer || !txnRange.startDate || !txnRange.endDate) return
+        setTxnLoading(true)
+        setTxnLoaded(true)
+        try {
+            const { from_date, to_date } = YMD_DateFormate(txnRange)
+            const { ok, data } = await rawRequest(
+                `${WALLET_TRANSACTIONS}?user_id=${selectedCustomer.value}&start_date=${from_date}&end_date=${to_date}`,
+                { method: "GET" }
+            )
+            if (ok) {
+                setTxnRows(unwrapRows(data))
+                setTxnBalance({ current: data?.current_balance, totalCredited: data?.total_credited })
+            } else {
+                setTxnRows([])
+                setTxnBalance(null)
+                ErrorToaster(data?.detail || data?.error || data?.message || "Failed to load transactions")
+            }
+        } catch {
+            setTxnRows([])
+            setTxnBalance(null)
+            ErrorToaster("Failed to load transactions — network error")
+        } finally {
+            setTxnLoading(false)
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedCustomer, txnRange])
+
+    // Auto-load on customer change (default date range already set); the
+    // "Search" button re-runs it after the user picks a different range.
+    useEffect(() => {
+        if (selectedCustomer) loadTransactions()
+        else { setTxnRows([]); setTxnLoaded(false) }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedCustomer])
+
+    // ── Manual credits (subset: only the manually-added ones) ─────────────
+    const [creditRows, setCreditRows] = useState([])
+    const [creditLoading, setCreditLoading] = useState(false)
+    const [creditLoaded, setCreditLoaded] = useState(false)
+
+    const loadCreditHistory = useCallback(async (userId) => {
+        if (!userId) { setCreditRows([]); setCreditLoaded(false); return }
+        setCreditLoading(true)
+        setCreditLoaded(true)
         try {
             const { ok, data } = await rawRequest(`${WALLET_MANUAL_CREDITS}?user_id=${userId}&limit=50`, { method: "GET" })
             if (ok) {
-                setRows(unwrapRows(data))
+                setCreditRows(unwrapRows(data))
             } else {
-                setRows([])
+                setCreditRows([])
                 ErrorToaster(data?.detail || data?.error || data?.message || "Failed to load credit history")
             }
         } catch {
-            setRows([])
+            setCreditRows([])
             ErrorToaster("Failed to load credit history — network error")
         } finally {
-            setLoading(false)
+            setCreditLoading(false)
         }
     }, [])
 
-    useEffect(() => { loadHistory(selectedCustomer?.value) }, [selectedCustomer, loadHistory])
+    useEffect(() => { loadCreditHistory(selectedCustomer?.value) }, [selectedCustomer, loadCreditHistory])
 
-    // add-credit modal
+    // ── Add-credit modal ────────────────────────────────────────────────
     const [formOpen, setFormOpen] = useState(false)
     const [form, setForm] = useState(EMPTY_FORM)
     const [saving, setSaving] = useState(false)
@@ -110,7 +193,8 @@ const WalletManualCredit = () => {
             if (ok) {
                 SucceesToaster(`Credited ₹${amount.toLocaleString("en-IN")} to ${selectedCustomer.label}`)
                 setFormOpen(false)
-                loadHistory(selectedCustomer.value)
+                loadCreditHistory(selectedCustomer.value)
+                loadTransactions()
             } else {
                 ErrorToaster(data?.detail || data?.error || data?.message || "Failed to add credit")
             }
@@ -121,21 +205,11 @@ const WalletManualCredit = () => {
         }
     }
 
-    const columns = useMemo(() => {
-        if (!rows.length) return []
-        return Object.keys(rows[0]).map((key) => ({
-            header: humanize(key),
-            accessorKey: key,
-            enableSorting: true,
-            cell: ({ getValue }) => formatCell(getValue()),
-        }))
-    }, [rows])
-
     return (
         <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
             <MainHeaderComp
-                title="Wallet Manual Credit"
-                subTitle="Credit a customer's wallet for an offline payment, and review past manual credits."
+                title="Wallet"
+                subTitle="A customer's full wallet transaction history, plus manual credits for offline payments."
                 extraFields={
                     selectedCustomer && (
                         <Button color="primary" onClick={openForm}>+ Add Credit</Button>
@@ -161,34 +235,107 @@ const WalletManualCredit = () => {
                     </div>
                 </div>
 
-                <div className="page-fit-body mt-4">
-                    {!selectedCustomer ? (
-                        <p className="text-ink-muted py-6 text-center text-xs">Select a customer to view their wallet credit history</p>
-                    ) : loading ? (
-                        <Loader message="Loading credit history…" fullscreen={false} />
-                    ) : (
-                        <TableContainer
-                            columns={columns}
-                            data={rows}
-                            isGlobalFilter={true}
-                            isPagination={true}
-                            isCustomPageSize={true}
-                            defaultPageSize={20}
-                            SearchPlaceholder="Search within results..."
-                            pagination="pagination"
-                            paginationWrapper="dataTables_paginate paging_simple_numbers"
-                            tableClass="table-nowrap"
-                            theadClass="sticky top-0 z-10"
-                            isStickyHeader={true}
-                            stickyTop={0}
-                            fillHeight
-                            tableHeight="68vh"
-                        />
-                    )}
-                    {hasLoaded && !loading && rows.length === 0 && (
-                        <p className="text-ink-muted py-6 text-center text-xs">No manual credits found for this customer</p>
-                    )}
-                </div>
+                {!selectedCustomer ? (
+                    <p className="text-ink-muted py-6 text-center text-xs">Select a customer to view their wallet</p>
+                ) : (
+                    <>
+                        <Nav tabs className="nav-tabs-custom nav-justified mt-3">
+                            {TABS.map((tab) => (
+                                <NavItem key={tab.key}>
+                                    <NavLink
+                                        active={activeTab === tab.key}
+                                        style={{ cursor: "pointer" }}
+                                        onClick={() => setActiveTab(tab.key)}
+                                        className={activeTab === tab.key ? "bg-[#3B82F6]/12 text-[15px] font-bold" : "text-[15px] font-bold"}
+                                    >
+                                        {tab.label}
+                                    </NavLink>
+                                </NavItem>
+                            ))}
+                        </Nav>
+
+                        <TabContent activeTab={activeTab} className="page-fit-body mt-3">
+                            <TabPane tabId="transactions" className="page-fit-body">
+                                {activeTab === "transactions" && (
+                                    <div className="page-fit-body">
+                                        <div className="flex flex-wrap items-end gap-3 mb-3">
+                                            <div className="flex w-full flex-col gap-1.5 sm:w-72">
+                                                <Label className="form-label m-0 font-bold text-ink-muted">Date Range</Label>
+                                                <DateRangeInput value={txnRange} onChange={setTxnRange} isBorder={true} />
+                                            </div>
+                                            <Button color="secondary" onClick={loadTransactions} disabled={txnLoading}>
+                                                {txnLoading ? "Loading..." : "Search"}
+                                            </Button>
+                                        </div>
+
+                                        {txnBalance && (
+                                            <div className="mb-3 flex flex-wrap items-center gap-2">
+                                                <StatBadge label="Current Balance" value={fmtCurrency(txnBalance.current)} color="success" />
+                                                <StatBadge label="Total Credited (this range)" value={fmtCurrency(txnBalance.totalCredited)} color="primary" />
+                                            </div>
+                                        )}
+
+                                        {txnLoading ? (
+                                            <Loader message="Loading transactions…" fullscreen={false} />
+                                        ) : (
+                                            <TableContainer
+                                                columns={TRANSACTION_COLUMNS}
+                                                data={txnRows}
+                                                isGlobalFilter={true}
+                                                isPagination={true}
+                                                isCustomPageSize={true}
+                                                defaultPageSize={20}
+                                                SearchPlaceholder="Search within results..."
+                                                pagination="pagination"
+                                                paginationWrapper="dataTables_paginate paging_simple_numbers"
+                                                tableClass="table-nowrap"
+                                                theadClass="sticky top-0 z-10"
+                                                isStickyHeader={true}
+                                                stickyTop={0}
+                                                fillHeight
+                                                tableHeight="60vh"
+                                            />
+                                        )}
+                                        {txnLoaded && !txnLoading && txnRows.length === 0 && (
+                                            <p className="text-ink-muted py-6 text-center text-xs">No transactions found for this date range</p>
+                                        )}
+                                    </div>
+                                )}
+                            </TabPane>
+
+                            <TabPane tabId="manual-credits" className="page-fit-body">
+                                {activeTab === "manual-credits" && (
+                                    <div className="page-fit-body">
+                                        {creditLoading ? (
+                                            <Loader message="Loading credit history…" fullscreen={false} />
+                                        ) : (
+                                            <TableContainer
+                                                columns={TRANSACTION_COLUMNS}
+                                                data={creditRows}
+                                                isGlobalFilter={true}
+                                                isPagination={true}
+                                                isCustomPageSize={true}
+                                                defaultPageSize={20}
+                                                SearchPlaceholder="Search within results..."
+                                                pagination="pagination"
+                                                paginationWrapper="dataTables_paginate paging_simple_numbers"
+                                                tableClass="table-nowrap"
+                                                theadClass="sticky top-0 z-10"
+                                                isStickyHeader={true}
+                                                stickyTop={0}
+                                                fillHeight
+                                                tableHeight="60vh"
+                                            />
+                                        )}
+                                        {creditLoaded && !creditLoading && creditRows.length === 0 && (
+                                            <p className="text-ink-muted py-6 text-center text-xs">No manual credits found for this customer</p>
+                                        )}
+                                    </div>
+                                )}
+                            </TabPane>
+                        </TabContent>
+                    </>
+                )}
             </div>
 
             <SimpleModal
