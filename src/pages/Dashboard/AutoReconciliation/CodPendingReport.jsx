@@ -6,9 +6,11 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import { Badge, Button, Card, CardBody, Input, Label, Spinner } from "@/components/ui"
 import { FaFileExcel } from "react-icons/fa"
 import TableContainer from "../../../components/Table/TableContainer"
+import DateRangeInput from "../../../components/Common/DateRangeInput"
 import ToasterProvider from "../../../helpers/ToasterProvider"
 import { COD_PENDING_REPORT, DOWNLOAD_COD_PENDING_REPORT } from "../../../api"
 import { authFetch } from "@/lib/http"
+import YMD_DateFormate from "../../../helpers/YMD_DateFormate"
 
 const PAGE_SIZE_OPTIONS = [50, 100, 250, 500]
 
@@ -38,6 +40,10 @@ const CodPendingReport = () => {
     const [serviceCenter, setServiceCenter] = useState("")
     const [employee, setEmployee] = useState("")
     const [pageSize, setPageSize] = useState(100)
+    // Optional -- left unset, the backend falls back to its own default
+    // window (the "current 30-day view" the page's own comment describes).
+    // Set, it overrides that window with start_date/end_date.
+    const [selectedRange, setSelectedRange] = useState({ startDate: null, endDate: null })
 
     const [rows, setRows] = useState([])
     const [summary, setSummary] = useState(null)
@@ -70,6 +76,11 @@ const CodPendingReport = () => {
         if (search.trim()) payload.search = search.trim()
         if (serviceCenter.trim()) payload.service_center = serviceCenter.trim()
         if (employee.trim()) payload.employee = employee.trim()
+        if (selectedRange.startDate && selectedRange.endDate) {
+            const { from_date, to_date } = YMD_DateFormate(selectedRange)
+            payload.start_date = from_date
+            payload.end_date = to_date
+        }
         return payload
     }
 
@@ -227,6 +238,23 @@ const CodPendingReport = () => {
                                 onChange={(e) => setEmployee(e.target.value)}
                                 onKeyDown={handleKeyDown}
                             />
+                        </div>
+                        <div className="flex w-full flex-col gap-1.5 sm:w-64">
+                            <Label className="mb-0 text-xs font-bold text-ink-muted">Date Range</Label>
+                            <DateRangeInput
+                                value={selectedRange}
+                                onChange={setSelectedRange}
+                                isBorder={true}
+                            />
+                            {selectedRange.startDate && selectedRange.endDate && (
+                                <button
+                                    type="button"
+                                    className="self-start text-[11px] text-ink-muted underline"
+                                    onClick={() => setSelectedRange({ startDate: null, endDate: null })}
+                                >
+                                    Clear (use default window)
+                                </button>
+                            )}
                         </div>
                         <div className="flex flex-col gap-1.5 sm:w-32">
                             <Label className="mb-0 text-xs font-bold text-ink-muted">Page Size</Label>

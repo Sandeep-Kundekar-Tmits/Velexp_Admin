@@ -35,6 +35,7 @@ const TOP_LEVEL = [
     { link_name: "Invoices", link_url: "#", faicon: "bx bx-file" },
     { link_name: "Delhivery Warehouse", link_url: "/delhivery-warehouse", faicon: "bx bx-package" },
     { link_name: "Payment Details", link_url: "/payment-deatils", faicon: "bx bx-credit-card" },
+    { link_name: "Wallet", link_url: "/wallet-manual-credit", faicon: "bx bx-wallet" },
     { link_name: "Revenue", link_url: "#", faicon: "bx bx-file" },
     { link_name: "International Report", link_url: "#", faicon: "bx bx-world" },
     { link_name: "Billing", link_url: "#", faicon: "bx bx-receipt" },
@@ -96,7 +97,6 @@ const CHILDREN = {
         { link_name: "International Pincodes", link_url: "/intl-pincode" },
         { link_name: "Customer Product Config", link_url: "/customer-product-config" },
         { link_name: "VAS Configuration", link_url: "/vas-config" },
-        { link_name: "Wallet Manual Credit", link_url: "/wallet-manual-credit" },
     ],
     "International Billing": [
         { link_name: "International Rates", link_url: "/intl-rate-data" },

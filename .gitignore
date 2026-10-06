@@ -47,3 +47,4 @@ scripts/updateKochiServiceCentresGeo.js
 scripts/checkAndFixEmployeeServiceCentre.js
 scripts/createEmployeesFromExcel.js
 scripts/updateCreatedEmployeesDesignation.js
+scripts/promoteWalletMenuToTopLevel.js

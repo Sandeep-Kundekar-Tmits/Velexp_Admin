@@ -233,10 +233,6 @@ export const MENU = [
       {
         label: "VAS Configuration",
         url: "/vas-config"
-      },
-      {
-        label: "Wallet Manual Credit",
-        url: "/wallet-manual-credit"
       }
     ]
   },
@@ -311,6 +307,11 @@ export const MENU = [
     label: "Payment Details",
     icon: "bx bx-credit-card",
     url: "/payment-deatils"
+  },
+  {
+    label: "Wallet",
+    icon: "bx bx-wallet",
+    url: "/wallet-manual-credit"
   },
   {
     label: "Revenue",
