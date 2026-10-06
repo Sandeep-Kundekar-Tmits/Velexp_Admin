@@ -21,6 +21,7 @@ import MainHeaderComp from "../../../components/MainHeaderCom"
 import Loader from "@/Loaders/Loader"
 import ToasterProvider from "../../../helpers/ToasterProvider"
 import YMD_DateFormate from "../../../helpers/YMD_DateFormate"
+import { isIsoDateLike, formatDisplayDate } from "../../../helpers/formatDisplayDate"
 import { DOMESTIC_MIS_CUSTOMERS, DOMESTIC_MIS_REPORT } from "../../../api"
 
 const humanize = (key) => key
@@ -48,6 +49,7 @@ const extractSummary = (res) => {
 
 const formatCell = (value) => {
     if (value === null || value === undefined || value === "") return "-"
+    if (isIsoDateLike(value)) return formatDisplayDate(value)
     if (typeof value === "number") return value.toLocaleString("en-IN")
     return String(value)
 }

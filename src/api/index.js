@@ -83,6 +83,12 @@ export const BULK_ASSIGN_RIDER_STORE_ROUTES = `${BASE_URL}/api/admin-panel/rider
 export const DOMESTIC_MIS_CUSTOMERS = `${BASE_URL}/api/admin-panel/domestic-mis/customers/` // GET ?search= -> {results:[{customer_name,user_id}]}
 export const DOMESTIC_MIS_REPORT = `${BASE_URL}/api/admin-panel/domestic-mis/` // POST {user_id, start_date, end_date, filter_status}
 
+// Wallet manual credit -- an ops/finance admin crediting a customer's wallet
+// directly (e.g. for an offline NEFT/UTR payment), plus the history of past
+// manual credits for that customer.
+export const WALLET_MANUAL_CREDITS = `${BASE_URL}/api/admin-panel/wallet/manual-credits/` // GET ?user_id=&limit=
+export const WALLET_MANUAL_CREDIT_CREATE = `${BASE_URL}/api/admin-panel/wallet/manual-credit/` // POST {user_id, amount, reference, remarks}
+
 // department master (dropdown source for Employee Management)
 export const DEPARTMENT_LIST = `${BASE_URL}/departments/get-list/` // POST {}
 

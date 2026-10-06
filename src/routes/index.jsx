@@ -95,6 +95,7 @@ const ProductivityReport = lazy(() => import("../pages/Dashboard/Reports/Product
 const CorporateBilling = lazy(() => import("../pages/NewFeatures/CorporateBilling"));
 const CustomerProductConfig = lazy(() => import("../pages/NewFeatures/CustomerProductConfig"));
 const VASConfig = lazy(() => import("../pages/NewFeatures/VASConfig"));
+const WalletManualCredit = lazy(() => import("../pages/Dashboard/WalletManualCredit"));
 const ShipmentBilling = lazy(() => import("../pages/NewFeatures/ShipmentBilling"));
 const BillingWorking = lazy(() => import("../pages/NewFeatures/BillingWorking"));
 const BillingAutomation = lazy(() => import("../pages/NewFeatures/BillingAutomation"));
@@ -215,6 +216,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/corporate-billing", component: <CorporateBilling /> },
     { path: "/customer-product-config", component: <CustomerProductConfig /> },
     { path: "/vas-config", component: <VASConfig /> },
+    { path: "/wallet-manual-credit", component: <WalletManualCredit /> },
     { path: "/shipment-billing", component: <ShipmentBilling /> },
     { path: "/billing-working", component: <BillingWorking /> },
     { path: "/billing-automation", component: <BillingAutomation /> },

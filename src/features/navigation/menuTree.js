@@ -233,6 +233,10 @@ export const MENU = [
       {
         label: "VAS Configuration",
         url: "/vas-config"
+      },
+      {
+        label: "Wallet Manual Credit",
+        url: "/wallet-manual-credit"
       }
     ]
   },

@@ -96,6 +96,7 @@ const CHILDREN = {
         { link_name: "International Pincodes", link_url: "/intl-pincode" },
         { link_name: "Customer Product Config", link_url: "/customer-product-config" },
         { link_name: "VAS Configuration", link_url: "/vas-config" },
+        { link_name: "Wallet Manual Credit", link_url: "/wallet-manual-credit" },
     ],
     "International Billing": [
         { link_name: "International Rates", link_url: "/intl-rate-data" },
