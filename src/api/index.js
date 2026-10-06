@@ -79,6 +79,10 @@ export const BULK_ASSIGN_SERVICE_CENTRE_PINCODES = `${BASE_URL}/api/admin-panel/
 export const RIDER_STORE_ROUTES = `${BASE_URL}/api/admin-panel/rider-store-routes/` // GET ?employee=&darkstore=&store=&is_active= | POST {employee, darkstore, store, sequence}
 export const BULK_ASSIGN_RIDER_STORE_ROUTES = `${BASE_URL}/api/admin-panel/rider-store-routes/bulk-assign/` // POST {employee, darkstore, stores:[{store,sequence}], mode}
 
+// Domestic MIS report -- customer typeahead, then the report itself scoped to that customer.
+export const DOMESTIC_MIS_CUSTOMERS = `${BASE_URL}/api/admin-panel/domestic-mis/customers/` // GET ?search= -> {results:[{customer_name,user_id}]}
+export const DOMESTIC_MIS_REPORT = `${BASE_URL}/api/admin-panel/domestic-mis/` // POST {user_id, start_date, end_date, filter_status}
+
 // department master (dropdown source for Employee Management)
 export const DEPARTMENT_LIST = `${BASE_URL}/departments/get-list/` // POST {}
 

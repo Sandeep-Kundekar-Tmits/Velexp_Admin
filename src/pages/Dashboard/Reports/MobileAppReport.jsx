@@ -34,6 +34,16 @@ const StatBadge = ({ label, value, color = "primary" }) => (
 
 const todayISO = () => new Date().toISOString().split("T")[0];
 
+const humanize = (key) => key
+    .replace(/_pct$/, " %")
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+
+// Cycles through a few colours so a growing/shrinking set of sources (today:
+// mobile + system; tomorrow: maybe +desktop, +app) stays visually distinct
+// without a hardcoded per-source colour map.
+const SUMMARY_COLORS = ["primary", "info", "warning", "success", "secondary", "dark"];
+
 const MobileAppReport = () => {
     useEffect(() => {
         document.title = "Mobile App Report";
@@ -137,16 +147,28 @@ const MobileAppReport = () => {
         }
     };
 
-    const columns = useMemo(() => [
-        { header: "Hour", accessorKey: "label" },
-        { header: "Total", accessorKey: "total" },
-        { header: "Mobile", accessorKey: "mobile" },
-        { header: "Mobile %", accessorKey: "mobile_pct" },
-        { header: "Desktop", accessorKey: "desktop" },
-        { header: "Desktop %", accessorKey: "desktop_pct" },
-        { header: "System", accessorKey: "system" },
-        { header: "System %", accessorKey: "system_pct" },
-    ], []);
+    // Built from whatever keys the first row actually has, rather than a
+    // fixed list -- the real API has no "desktop"/"desktop_pct" (only
+    // mobile/system today), and a hardcoded column list either showed those
+    // as permanently blank or silently dropped a source the backend adds
+    // later. "hour" (the raw 0-23 number) is skipped since "label" is its
+    // already-formatted "00:00-00:59" form.
+    const columns = useMemo(() => {
+        if (!hourly.length) return [];
+        return Object.keys(hourly[0])
+            .filter((key) => key !== "hour")
+            .map((key) => ({
+                header: humanize(key),
+                accessorKey: key,
+                cell: ({ getValue }) => {
+                    const v = getValue();
+                    if (v === null || v === undefined || v === "") return "-";
+                    if (typeof v === "number" && key.endsWith("_pct")) return `${v}%`;
+                    if (typeof v === "number") return v.toLocaleString();
+                    return String(v);
+                },
+            }));
+    }, [hourly]);
 
     return (
         <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
@@ -233,11 +255,25 @@ const MobileAppReport = () => {
 
                 {summary && (
                     <div className="mb-3 flex flex-wrap items-center gap-2">
-                        <StatBadge label="Total" value={summary.total?.toLocaleString()} color="primary" />
-                        <StatBadge label="Distinct AWBs" value={summary.distinct_awbs?.toLocaleString()} color="secondary" />
-                        <StatBadge label="Mobile" value={`${summary.mobile ?? 0} (${summary.mobile_pct ?? 0}%)`} color="info" />
-                        <StatBadge label="Desktop" value={`${summary.desktop ?? 0} (${summary.desktop_pct ?? 0}%)`} color="dark" />
-                        <StatBadge label="System" value={`${summary.system ?? 0} (${summary.system_pct ?? 0}%)`} color="warning" />
+                        {/* One badge per summary field the response actually sends,
+                            pairing each source's count with its own "_pct" field
+                            (e.g. mobile + mobile_pct -> "22 (8.5%)") instead of a
+                            fixed Total/Mobile/Desktop/System list. */}
+                        {Object.keys(summary)
+                            .filter((key) => !key.endsWith("_pct"))
+                            .map((key, i) => {
+                                const pctKey = `${key}_pct`;
+                                const hasPct = Object.prototype.hasOwnProperty.call(summary, pctKey);
+                                const value = typeof summary[key] === "number" ? summary[key].toLocaleString() : summary[key];
+                                return (
+                                    <StatBadge
+                                        key={key}
+                                        label={humanize(key)}
+                                        value={hasPct ? `${value} (${summary[pctKey]}%)` : value}
+                                        color={SUMMARY_COLORS[i % SUMMARY_COLORS.length]}
+                                    />
+                                );
+                            })}
                     </div>
                 )}
 

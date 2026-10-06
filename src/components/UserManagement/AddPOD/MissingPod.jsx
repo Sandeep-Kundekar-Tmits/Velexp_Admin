@@ -10,6 +10,7 @@ import formatDateForPayload from '../../../helpers/DateHelper';
 import usePostApiCall from '../../../hooks/usePostApiCall';
 import TableContainer from '../../Table/TableContainer';
 import Loader from '@/Loaders/Loader';
+import { downloadExcel } from '../../../helpers/downloadExcel';
 
 /**
  * MissingPod Component
@@ -164,6 +165,22 @@ const MissingPod = ({ onClose }) => {
 
         }
     };
+
+    // Export the missing-POD rows currently on screen, same columns as the
+    // table and the same downloadExcel() worker AddPod.jsx's own table uses.
+    const downloadMissingPod = () => {
+        const rows = MissingPodData?.data || [];
+        const exportData = rows.map((row) => ({
+            'AWB Number': row['AWBNO'],
+            'Booking Date': row['Book Date'],
+            'Delivery Date': row['Delivery Date'],
+            'State': row['Consignee State'],
+            'EC Code': row['ECCODE'],
+        }));
+        const customerLabel = (selectedCustomer?.label || 'customer').replace(/[^a-z0-9]+/gi, '_');
+        downloadExcel(exportData, `missing_pod_${customerLabel}.xlsx`);
+    };
+
     return (
         /* Centred dialog, matching Add POD. `lg` is max-w-3xl (768px), a little
            wider than the 650px drawer because the results table needs it. */
@@ -226,16 +243,34 @@ const MissingPod = ({ onClose }) => {
                             <Loader message="Looking for missing PODs..." fullscreen={false} compact />
                         ) : (
                             MissingPodData?.data ?
-                                <TableContainer
-                                    columns={columns}
-                                    data={MissingPodData?.data || []}
-                                    isGlobalFilter={true}
-                                    isPagination={true}
-                                    SearchPlaceholder="Search From Table"
-                                    pagination="pagination"
-                                    paginationWrapper='dataTables_paginate paging_simple_numbers'
-                                    tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
-                                />
+                                <>
+                                    {/* A plain button here, not TableContainer's own
+                                        isDownloadExcle -- that button portals into the
+                                        page's shared header (PageHeaderActions), which
+                                        is behind this modal, not inside it. */}
+                                    <div className="mb-2 flex items-center justify-between">
+                                        <span className="text-[13px] text-ink-muted">
+                                            {MissingPodData.data.length} missing POD{MissingPodData.data.length === 1 ? "" : "s"} found
+                                        </span>
+                                        <Button
+                                            className="table-action-btn table-action-btn-ghost"
+                                            onClick={downloadMissingPod}
+                                            disabled={!MissingPodData.data.length}
+                                        >
+                                            Download Excel
+                                        </Button>
+                                    </div>
+                                    <TableContainer
+                                        columns={columns}
+                                        data={MissingPodData?.data || []}
+                                        isGlobalFilter={true}
+                                        isPagination={true}
+                                        SearchPlaceholder="Search From Table"
+                                        pagination="pagination"
+                                        paginationWrapper='dataTables_paginate paging_simple_numbers'
+                                        tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                                    />
+                                </>
                                 : MissingPodData?.msg ? (
                                     /* An empty result is information, not an
                                        error heading -- it was an <h4>, which
