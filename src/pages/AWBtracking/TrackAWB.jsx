@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
-import { Button, Input } from "@/components/ui"
+import { Button, Input, Label } from "@/components/ui"
 import { useNavigate } from "react-router-dom"
 import { AlertCircle, CalendarClock, FileSearch, RefreshCcw } from "lucide-react"
 import MainHeaderComp from "../../components/MainHeaderCom"
@@ -290,21 +290,35 @@ const TrackAWB = () => {
                             />
                         </div>
 
-                        <div className="flex items-center gap-2">
-                            <button
-                                type="button"
-                                onClick={() => setSearchType("shipment")}
-                                className={`table-action-btn ${searchType === "shipment" ? "table-action-btn-primary" : "table-action-btn-ghost"}`}
-                            >
-                                Shipment
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => setSearchType("bag")}
-                                className={`table-action-btn ${searchType === "bag" ? "table-action-btn-primary" : "table-action-btn-ghost"}`}
-                            >
-                                Bag
-                            </button>
+                        {/* Real radio inputs, not more buttons -- next to the solid
+                            "Track" button, button-styled Shipment/Bag toggles read as
+                            two more actions rather than "pick a mode, then act." A
+                            radio pair reads unambiguously as a single either/or choice. */}
+                        <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-1.5">
+                                <Input
+                                    type="radio"
+                                    id="search-type-shipment"
+                                    name="searchType"
+                                    checked={searchType === "shipment"}
+                                    onChange={() => setSearchType("shipment")}
+                                />
+                                <Label for="search-type-shipment" className="mb-0 cursor-pointer text-[13px] font-medium">
+                                    Shipment
+                                </Label>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                                <Input
+                                    type="radio"
+                                    id="search-type-bag"
+                                    name="searchType"
+                                    checked={searchType === "bag"}
+                                    onChange={() => setSearchType("bag")}
+                                />
+                                <Label for="search-type-bag" className="mb-0 cursor-pointer text-[13px] font-medium">
+                                    Bag
+                                </Label>
+                            </div>
                         </div>
 
                         <Button
