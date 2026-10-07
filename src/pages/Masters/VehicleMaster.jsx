@@ -271,7 +271,7 @@ const VehicleMaster = () => {
         {
             header: "Actions", id: "actions", enableSorting: false,
             cell: ({ row }) => (
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-nowrap items-center gap-2 whitespace-nowrap">
                     <Button color="primary" size="sm" onClick={() => openEdit(row.original)}>Edit</Button>
                     <Button color="secondary" size="sm" onClick={() => openPrefer(row.original)}>SC Shortlist</Button>
                     <Button
