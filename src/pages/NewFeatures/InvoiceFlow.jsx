@@ -186,7 +186,8 @@ const InvoiceFlow = () => {
             to_pan_no: toPanNo || previewData.invoice_context?.to_pan_no,
             from_pan_no: fromPanNo || previewData.invoice_context?.from_pan_no,
             summary: previewData.summary || {},
-            invoice_context: previewData.invoice_context || {}
+            invoice_context: previewData.invoice_context || {},
+            skip_billed: false
         }
 
         try {

@@ -68,9 +68,13 @@ const StatBadge = ({ label, value, color = "primary" }) => (
 )
 
 const EMPTY_FORM = { amount: "", reference: "", remarks: "" }
+// Manual Credits first -- it's the default tab and loads as soon as a
+// customer is picked. Transactions is opt-in: its API only fires once the
+// user actually clicks that tab (see the effect below), not on every
+// customer selection, since it's a heavier date-ranged ledger pull.
 const TABS = [
-    { key: "transactions", label: "Transactions" },
     { key: "manual-credits", label: "Manual Credits" },
+    { key: "transactions", label: "Transactions" },
 ]
 
 const WalletManualCredit = () => {
@@ -132,13 +136,16 @@ const WalletManualCredit = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedCustomer, txnRange])
 
-    // Auto-load on customer change (default date range already set); the
-    // "Search" button re-runs it after the user picks a different range.
+    // Only loads once the Transactions tab is actually selected (and a
+    // customer is picked) -- not on every customer change regardless of
+    // which tab is showing. Also re-fires if the customer changes while
+    // already on this tab. The "Search" button re-runs it after the user
+    // picks a different date range.
     useEffect(() => {
-        if (selectedCustomer) loadTransactions()
-        else { setTxnRows([]); setTxnLoaded(false) }
+        if (selectedCustomer && activeTab === "transactions") loadTransactions()
+        else if (!selectedCustomer) { setTxnRows([]); setTxnLoaded(false) }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedCustomer])
+    }, [selectedCustomer, activeTab])
 
     // ── Manual credits (subset: only the manually-added ones) ─────────────
     const [creditRows, setCreditRows] = useState([])
@@ -255,7 +262,7 @@ const WalletManualCredit = () => {
                         </Nav>
 
                         <TabContent activeTab={activeTab} className="page-fit-body mt-3">
-                            <TabPane tabId="transactions" className="page-fit-body">
+                            <TabPane key="transactions" tabId="transactions" className="page-fit-body">
                                 {activeTab === "transactions" && (
                                     <div className="page-fit-body">
                                         <div className="flex flex-wrap items-end gap-3 mb-3">
@@ -303,7 +310,7 @@ const WalletManualCredit = () => {
                                 )}
                             </TabPane>
 
-                            <TabPane tabId="manual-credits" className="page-fit-body">
+                            <TabPane key="manual-credits" tabId="manual-credits" className="page-fit-body">
                                 {activeTab === "manual-credits" && (
                                     <div className="page-fit-body">
                                         {creditLoading ? (

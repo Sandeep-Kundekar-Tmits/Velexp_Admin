@@ -750,6 +750,12 @@ export const DOWNLOAD_COD_PENDING_REPORT = `${BASE_URL}/api/admin-reports/cod-pe
 export const STATUS_SOURCE_HOURLY_REPORT = `${BASE_URL}/api/admin-reports/status-source-hourly/`; // POST {user_id, date?, service_center?, region?, scope?}
 export const DOWNLOAD_STATUS_SOURCE_HOURLY_REPORT = `${BASE_URL}/api/admin-reports/status-source-hourly/download/`; // POST same body -> xlsx blob
 
+// Pre-PUD variant of the same report family -- scope is fixed to pre_pud
+// server-side (the `scope` param is ignored on these URLs, unlike the
+// hourly report above), so there's no scope toggle to send here.
+export const STATUS_SOURCE_PREPUD_REPORT = `${BASE_URL}/api/admin-reports/status-source-prepud/`; // POST {user_id, date?, service_center?, region?}
+export const DOWNLOAD_STATUS_SOURCE_PREPUD_REPORT = `${BASE_URL}/api/admin-reports/status-source-prepud/download/`; // POST same body -> xlsx blob
+
 // Unmatched bank-statement transactions — outstanding-backlog view across all uploads.
 // Live on UAT only as of 06 Sep 2026, not yet ported to production (see Velocity-Ops
 // testing-docs/unmatched-transactions-api.md). This whole bank-statement flow runs without

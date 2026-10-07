@@ -9,6 +9,26 @@ import MainHeaderComp from "../../components/MainHeaderCom"
 import DeleteModal from "../../components/Common/DeleteModal"
 import Loader from "@/Loaders/Loader"
 
+/**
+ * Predictable global search: an exact (case-insensitive) match on the
+ * service centre's own code always matches, regardless of which column is
+ * being checked; everything else falls back to a plain substring match.
+ *
+ * Replaces TableContainer's default fuzzy (match-sorter) search for this
+ * table specifically -- fuzzy ranking has a scoring threshold that can
+ * silently reject a real match depending on what else is in the row, which
+ * read as "search sometimes doesn't work," most noticeably when searching
+ * by code. A plain substring match has no such threshold: either the text
+ * is there or it isn't.
+ */
+const serviceCentreGlobalFilter = (row, columnId, value) => {
+    const search = String(value ?? "").trim().toLowerCase()
+    if (!search) return true
+    const code = String(row.original?.service_center_code ?? "").toLowerCase()
+    if (code === search) return true
+    return String(row.getValue(columnId) ?? "").toLowerCase().includes(search)
+}
+
 const ServiceCentreList = () => {
     useEffect(() => { document.title = "Service Centres" }, [])
 
@@ -88,6 +108,7 @@ const ServiceCentreList = () => {
                             columns={columns}
                             data={serviceCentres}
                             isGlobalFilter={true}
+                            globalFilterFn={serviceCentreGlobalFilter}
                             isPagination={true}
                             isCustomPageSize={true}
                             SearchPlaceholder="Search From Table"

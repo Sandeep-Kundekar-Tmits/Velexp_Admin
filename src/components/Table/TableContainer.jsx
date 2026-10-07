@@ -151,6 +151,17 @@ const TableContainer = ({
      * is no spare height to hand out.
      */
     fillHeight = false,
+    /**
+     * Override the global search's match logic for this grid.
+     *
+     * Left unset, search uses match-sorter's fuzzy ranking (`fuzzyFilter`
+     * below) -- lenient, but its scoring threshold can silently reject a
+     * perfectly good match depending on what else is in the row, which reads
+     * as "search doesn't work" with no visible reason. A screen whose search
+     * needs to be predictable (e.g. always matching an exact code) passes its
+     * own `(row, columnId, value) => boolean` here instead.
+     */
+    globalFilterFn = null,
 }) => {
 
     const [columnFilters, setColumnFilters] = useState([]);
@@ -184,7 +195,7 @@ const TableContainer = ({
         onColumnFiltersChange: setColumnFilters,
         onGlobalFilterChange: setGlobalFilter,
         onRowSelectionChange: onRowSelectionChange,
-        globalFilterFn: fuzzyFilter,
+        globalFilterFn: globalFilterFn || fuzzyFilter,
         autoResetPageIndex,
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),

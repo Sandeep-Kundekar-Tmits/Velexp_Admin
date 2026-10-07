@@ -50,6 +50,7 @@ const UploadPreviewModal = ({ isOpen, toggle, onGenerated }) => {
             const fd = new FormData()
             fd.append("upload_file", file)
             fd.append("update_vecom", updateVecom ? "true" : "false")
+            fd.append("skip_billed", "false")
             return fd
         }
 
