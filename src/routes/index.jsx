@@ -27,6 +27,7 @@ const EditServiceCentre = lazy(() => import("../pages/Masters/EditServiceCentre"
 const ServiceCentrePincodes = lazy(() => import("../pages/Masters/ServiceCentrePincodes"));
 const RiderStoreRoutes = lazy(() => import("../pages/Masters/RiderStoreRoutes"));
 const PincodeMasterHome = lazy(() => import("../pages/Masters/PincodeMasterHome"));
+const VehicleMaster = lazy(() => import("../pages/Masters/VehicleMaster"));
 // User Management - Employee Management
 const EmployeeList = lazy(() => import("../pages/UserManagement/EmployeeList"));
 const AddEmployee = lazy(() => import("../pages/UserManagement/AddEmployee"));
@@ -201,6 +202,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/service-centres/pincodes", component: <ServiceCentrePincodes /> },
     { path: "/rider-store-routes", component: <RiderStoreRoutes /> },
     { path: "/pincode-master", component: <PincodeMasterHome /> },
+    { path: "/vehicle-master", component: <VehicleMaster /> },
     // User Management - Employee Management
     { path: "/employees", component: <EmployeeList /> },
     { path: "/employees/add", component: <AddEmployee /> },

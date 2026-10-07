@@ -90,6 +90,21 @@ export const WALLET_MANUAL_CREDITS = `${BASE_URL}/api/admin-panel/wallet/manual-
 export const WALLET_MANUAL_CREDIT_CREATE = `${BASE_URL}/api/admin-panel/wallet/manual-credit/` // POST {user_id, amount, reference, remarks}
 export const WALLET_TRANSACTIONS = `${BASE_URL}/api/admin-panel/wallet/transactions/` // GET ?user_id=&start_date=&end_date= -- full wallet ledger (all movements), not just manual credits
 
+// Vehicle Master (ops_vendor.VendorVehicle) -- same ViewSet as the Ops surface
+// (/vehicle-master/), just accounts.User + IsAdminPanelManager auth instead of
+// Employee JWT. Every write (create/update/activate/deactivate/delete) applies
+// locally first and ALWAYS succeeds here regardless of the best-effort sync
+// out to a third-party trip-management API (Elixia) -- each response's
+// result.elixia_sync_status ('synced'/'pending'/'error') + elixia_sync_error
+// report that sync's health without ever blocking the write. Delete is a soft
+// delete (is_deleted=True); deactivate/activate toggle is_active +
+// vehicle_status (AVAILABLE/UNAVAILABLE) without removing the row.
+export const VEHICLE_MASTER_API = `${BASE_URL}/api/admin-panel/vehicles/` // GET list ?search=&is_active=&vendor=&preferred_for= | POST create | `${id}/` for GET/PATCH/DELETE(soft)
+export const VEHICLE_MASTER_PREFER = (id) => `${BASE_URL}/api/admin-panel/vehicles/${id}/prefer/` // POST {service_center} -- per-SC shortlist, NOT a visibility restriction
+export const VEHICLE_MASTER_UNPREFER = (id) => `${BASE_URL}/api/admin-panel/vehicles/${id}/unprefer/` // POST {service_center}
+export const VEHICLE_MASTER_ACTIVATE = (id) => `${BASE_URL}/api/admin-panel/vehicles/${id}/activate/` // POST
+export const VEHICLE_MASTER_DEACTIVATE = (id) => `${BASE_URL}/api/admin-panel/vehicles/${id}/deactivate/` // POST
+
 // department master (dropdown source for Employee Management)
 export const DEPARTMENT_LIST = `${BASE_URL}/departments/get-list/` // POST {}
 

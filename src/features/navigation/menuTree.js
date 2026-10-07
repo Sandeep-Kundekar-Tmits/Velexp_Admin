@@ -314,6 +314,11 @@ export const MENU = [
     url: "/wallet-manual-credit"
   },
   {
+    label: "Vehicle Master",
+    icon: "bx bx-car",
+    url: "/vehicle-master"
+  },
+  {
     label: "Revenue",
     icon: "bx bx-file",
     children: [
