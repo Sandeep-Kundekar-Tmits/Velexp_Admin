@@ -156,6 +156,7 @@ const TrackAWB = () => {
                 date: formatDate(ele.status_date),
                 time: formatTime(ele.status_date),
                 service_center: ele.service_center || "-",
+                service_center_city: ele.service_center_city || "",
                 remark: ele.remarks || "-",
                 bag_no: ele.bag_no,
                 manifest_no: ele.manifest_no,
@@ -450,6 +451,9 @@ const TrackAWB = () => {
                                             <div>
                                                 <div className="text-[12px] font-semibold text-ink">Service Center</div>
                                                 <div className="text-[12px] text-ink-muted">{item.service_center}</div>
+                                                {item.service_center_city?.trim?.() && (
+                                                    <div className="text-[11px] text-ink-muted">{item.service_center_city}</div>
+                                                )}
                                             </div>
                                             <div>
                                                 <div className="text-[12px] font-semibold text-ink">Remark</div>
