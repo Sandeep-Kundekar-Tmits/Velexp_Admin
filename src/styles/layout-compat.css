@@ -958,6 +958,21 @@ body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-brand-collapsed {
   padding: 0.25rem 0;
 }
 
+/* A standing accent on the pill itself so a pinned entry reads as a
+   highlighted shortcut even when it isn't the current page -- :not(.active)
+   so .active's own blue gradient (further up this file) still takes over
+   untouched once it actually is the current page. */
+.sidebar-pinned .metismenu li>a:not(.active) {
+  background: rgb(59 130 246 / 0.14);
+  border-color: rgb(59 130 246 / 0.4);
+  color: #dbeafe;
+}
+
+.sidebar-pinned .metismenu li>a:not(.active):hover {
+  background: rgb(59 130 246 / 0.22);
+  border-color: rgb(59 130 246 / 0.55);
+}
+
 /*
  * Sidebar footer.
  *
