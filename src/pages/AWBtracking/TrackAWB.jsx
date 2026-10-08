@@ -450,10 +450,10 @@ const TrackAWB = () => {
                                         <div className="grid flex-1 grid-cols-2 gap-3 rounded-xl border border-white/8 bg-white/2 p-3 md:grid-cols-3">
                                             <div>
                                                 <div className="text-[12px] font-semibold text-ink">Service Center</div>
-                                                <div className="text-[12px] text-ink-muted">{item.service_center}</div>
-                                                {item.service_center_city?.trim?.() && (
-                                                    <div className="text-[11px] text-ink-muted">{item.service_center_city}</div>
-                                                )}
+                                                <div className="text-[12px] text-ink-muted">
+                                                    {item.service_center}
+                                                    {item.service_center_city?.trim?.() ? `-${item.service_center_city}` : ""}
+                                                </div>
                                             </div>
                                             <div>
                                                 <div className="text-[12px] font-semibold text-ink">Remark</div>
