@@ -118,6 +118,17 @@ const Sidebar = (props) => {
           />
         </div>
 
+        {/* Entries flagged `pinned: true` in menuTree.js (currently just Track
+            AWB) -- rendered outside the scroll box so they stay visible at
+            the bottom of the rail no matter how far the tree above is
+            scrolled. */}
+        <div className="sidebar-pinned">
+          <SidebarNav
+            pinned
+            onLinkClick={() => { if (isMobile) onMobileClose?.(); }}
+          />
+        </div>
+
         {/* Footer row: role badge and the collapse control side by side, so the
             arrow sits next to the label it acts on ("ADMIN"). The button is a
             sibling of ProfileMenu rather than a child, so a click on it counts

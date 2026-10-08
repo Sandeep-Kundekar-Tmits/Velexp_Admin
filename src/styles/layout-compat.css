@@ -946,6 +946,19 @@ body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-brand-collapsed {
 }
 
 /*
+ * Pinned menu row (entries flagged `pinned: true` in menuTree.js, e.g. Track
+ * AWB) -- sits between the scrollable tree and .sidebar-foot. flex-shrink: 0
+ * keeps it from being squeezed by the scroll box's flex: 1 1 auto; the top
+ * border separates it from the tree above the way .sidebar-foot's own
+ * border separates it from this.
+ */
+.sidebar-pinned {
+  flex-shrink: 0;
+  border-top: 1px solid rgb(255 255 255 / 0.12);
+  padding: 0.25rem 0;
+}
+
+/*
  * Sidebar footer.
  *
  * .sidebar-foot is the row -- role badge on the left, rail collapse arrow on

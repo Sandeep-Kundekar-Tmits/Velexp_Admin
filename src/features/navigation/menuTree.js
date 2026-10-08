@@ -514,7 +514,11 @@ export const MENU = [
   {
     label: "Track AWB",
     icon: "bx bx-search-alt-2 ",
-    url: "/tracking"
+    url: "/tracking",
+    // Rendered pinned to the bottom of the rail, below the scrollable tree,
+    // instead of wherever this sits in the list -- see SidebarNav's `pinned`
+    // prop and Sidebar.jsx's .sidebar-pinned row.
+    pinned: true
   },
   {
     label: "ITrack",

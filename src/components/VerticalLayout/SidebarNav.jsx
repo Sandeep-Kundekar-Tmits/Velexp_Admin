@@ -133,24 +133,37 @@ MenuNode.propTypes = {
   onNavigate: PropTypes.func,
 };
 
-const SidebarNav = ({ onLinkClick }) => {
+/**
+ * `pinned` picks which half of the top-level menu this renders: the
+ * scrollable tree (false, the default) or the handful of entries marked
+ * `pinned: true` in menuTree.js (true), which Sidebar.jsx renders in its own
+ * row below the scroll box instead of inside it. Only top-level nodes are
+ * checked -- a pinned entry is meant to be a standalone leaf, not buried in
+ * a group.
+ */
+const SidebarNav = ({ onLinkClick, pinned = false }) => {
   const { pathname } = useLocation();
   const { canAccess } = usePermissions();
   const { isSuperUser } = checkCustomerPermissions();
   const setMenuExpanded = useUiStore((s) => s.setMenuExpanded);
 
-  const menu = useMemo(() => filterMenu(MENU, canAccess, isSuperUser), [canAccess, isSuperUser]);
+  const menu = useMemo(() => {
+    const filtered = filterMenu(MENU, canAccess, isSuperUser);
+    return filtered.filter((node) => !!node.pinned === pinned);
+  }, [canAccess, isSuperUser, pinned]);
 
   // Open the branch containing the current route. Replaces MetisMenu's
   // activateParentDropdown, which did the same thing by mutating classNames
-  // on ancestor nodes.
+  // on ancestor nodes. Pinned entries are plain leaves, so there's no branch
+  // to expand for them.
   useEffect(() => {
+    if (pinned) return;
     const branch = branchFor(menu, pathname);
     branch?.forEach((key) => setMenuExpanded(key, true));
-  }, [menu, pathname, setMenuExpanded]);
+  }, [menu, pathname, setMenuExpanded, pinned]);
 
   return (
-    <ul className="metismenu list-unstyled" id="side-menu">
+    <ul className="metismenu list-unstyled" id={pinned ? "side-menu-pinned" : "side-menu"}>
       {menu.map((node) => (
         <MenuNode key={keyOf(node, "")} node={node} path="" depth={0} onNavigate={onLinkClick} />
       ))}
@@ -158,6 +171,6 @@ const SidebarNav = ({ onLinkClick }) => {
   );
 };
 
-SidebarNav.propTypes = { onLinkClick: PropTypes.func };
+SidebarNav.propTypes = { onLinkClick: PropTypes.func, pinned: PropTypes.bool };
 
 export default SidebarNav;
