@@ -88,8 +88,8 @@ export const Modal = forwardRef(function Modal(
         /* Same glass as the sidebar rail, the grid panel and the drawers, so a
            dialog reads as part of the same surface family. */
         className={cn(
-          "w-full overflow-hidden rounded-2xl border border-white/10",
-          "bg-[rgba(17,24,39,0.85)] backdrop-blur-xl",
+          "w-full overflow-hidden rounded-2xl border border-[rgb(var(--overlay-rgb)/0.1)]",
+          "bg-[color-mix(in_srgb,var(--color-surface)_85%,transparent)] backdrop-blur-xl",
           "shadow-[0_30px_80px_-30px_rgba(2,6,23,0.95)]",
           /* max-w-none to beat the size cap, and a flex column so the body
              takes the leftover height -- a full-screen dialog whose body is
@@ -117,12 +117,12 @@ export const ModalHeader = forwardRef(function ModalHeader(
     <div
       ref={ref}
       className={cn(
-        "flex shrink-0 items-center justify-between border-b border-white/10 px-5 py-3.5",
+        "flex shrink-0 items-center justify-between border-b border-[rgb(var(--overlay-rgb)/0.1)] px-5 py-3.5",
         className
       )}
       {...rest}
     >
-      <h5 className="text-[15px] font-semibold tracking-tight text-white">{children}</h5>
+      <h5 className="text-[15px] font-semibold tracking-tight text-ink">{children}</h5>
       {toggle && (
         <button
           type="button"
@@ -130,7 +130,7 @@ export const ModalHeader = forwardRef(function ModalHeader(
           aria-label="Close"
           /* A 28px round target, matching the drawers. It was a bare &times;
              glyph with about 10px of clickable area. */
-          className="inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-lg leading-none text-ink-muted transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+          className="inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-[rgb(var(--overlay-rgb)/0.1)] bg-[rgb(var(--overlay-rgb)/0.05)] text-lg leading-none text-ink-muted transition-colors hover:border-[rgb(var(--overlay-rgb)/0.2)] hover:bg-[rgb(var(--overlay-rgb)/0.1)] hover:text-ink"
         >
           &times;
         </button>
@@ -154,7 +154,7 @@ export const ModalFooter = forwardRef(function ModalFooter({ className, children
   return (
     <div
       ref={ref}
-      className={cn("flex shrink-0 items-center justify-end gap-2 border-t border-white/10 px-5 py-3.5", className)}
+      className={cn("flex shrink-0 items-center justify-end gap-2 border-t border-[rgb(var(--overlay-rgb)/0.1)] px-5 py-3.5", className)}
       {...rest}
     >
       {children}
@@ -190,8 +190,8 @@ export const Offcanvas = forwardRef(function Offcanvas(
         /* flex column so OffcanvasBody scrolls on its own and the header stays
            put -- the body used to scroll the whole panel, header included. */
         className={cn(
-          "absolute flex flex-col overflow-hidden rounded-2xl border border-white/10",
-          "bg-[rgba(17,24,39,0.85)] backdrop-blur-xl",
+          "absolute flex flex-col overflow-hidden rounded-2xl border border-[rgb(var(--overlay-rgb)/0.1)]",
+          "bg-[color-mix(in_srgb,var(--color-surface)_85%,transparent)] backdrop-blur-xl",
           "shadow-[0_30px_80px_-30px_rgba(2,6,23,0.95)]",
           OFFCANVAS_POS[direction],
           className
@@ -212,12 +212,12 @@ export const OffcanvasHeader = forwardRef(function OffcanvasHeader(
     <div
       ref={ref}
       className={cn(
-        "flex shrink-0 items-center justify-between border-b border-white/10 px-5 py-3.5",
+        "flex shrink-0 items-center justify-between border-b border-[rgb(var(--overlay-rgb)/0.1)] px-5 py-3.5",
         className
       )}
       {...rest}
     >
-      <h5 className="text-[15px] font-semibold tracking-tight text-white">{children}</h5>
+      <h5 className="text-[15px] font-semibold tracking-tight text-ink">{children}</h5>
       {toggle && (
         <button
           type="button"
@@ -225,7 +225,7 @@ export const OffcanvasHeader = forwardRef(function OffcanvasHeader(
           aria-label="Close"
           /* A 28px round target instead of a bare &times; glyph, which was
              about 10px of clickable area. */
-          className="inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-lg leading-none text-ink-muted transition-colors hover:border-white/20 hover:bg-white/10 hover:text-white"
+          className="inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-[rgb(var(--overlay-rgb)/0.1)] bg-[rgb(var(--overlay-rgb)/0.05)] text-lg leading-none text-ink-muted transition-colors hover:border-[rgb(var(--overlay-rgb)/0.2)] hover:bg-[rgb(var(--overlay-rgb)/0.1)] hover:text-ink"
         >
           &times;
         </button>

@@ -99,7 +99,7 @@ export const DropdownItem = forwardRef(function DropdownItem(
     <Tag
       ref={ref}
       type={Tag === "button" ? "button" : undefined}
-      className={cn("block w-full cursor-pointer px-3 py-1.5 text-left hover:bg-slate-50", className)}
+      className={cn("block w-full cursor-pointer px-3 py-1.5 text-left hover:bg-[rgb(var(--overlay-rgb)/0.06)]", className)}
       {...rest}
     >
       {children}

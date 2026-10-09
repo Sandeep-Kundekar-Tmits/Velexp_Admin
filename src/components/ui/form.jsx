@@ -22,15 +22,23 @@ const BUTTON_COLORS = {
   link: "bg-transparent text-brand-500 underline hover:text-brand-600",
 };
 
+/* hover fills were literal Tailwind -50 tints (brand-50, green-50...) -- a
+   fixed near-white wash that flashed wrong on the dark theme and barely
+   showed at all once the canvas itself could be white. color-mix against
+   each variant's own token keeps a visible, theme-proof tint either way.
+   secondary/light/dark used to each pick a different slate shade for the
+   border/text (200/400/800) that amounted to the same "neutral outline
+   button" -- border-line + text-ink is what bootstrap-compat.css's bridge
+   was already resolving text-slate-700/800 to, just made explicit here. */
 const BUTTON_OUTLINE = {
-  primary: "border border-brand-500 text-brand-500 hover:bg-brand-50",
-  secondary: "border border-slate-400 text-slate-700 hover:bg-slate-50",
-  success: "border border-success-500 text-success-500 hover:bg-green-50",
-  danger: "border border-danger-500 text-danger-500 hover:bg-orange-50",
-  warning: "border border-warning-500 text-warning-500 hover:bg-amber-50",
-  info: "border border-accent-500 text-accent-500 hover:bg-sky-50",
-  light: "border border-slate-200 text-slate-700 hover:bg-slate-50",
-  dark: "border border-slate-800 text-slate-800 hover:bg-slate-100",
+  primary: "border border-brand-500 text-brand-500 hover:bg-[color-mix(in_srgb,var(--color-brand-500)_12%,transparent)]",
+  secondary: "border border-line text-ink hover:bg-[rgb(var(--overlay-rgb)/0.06)]",
+  success: "border border-success-500 text-success-500 hover:bg-[color-mix(in_srgb,var(--color-success-500)_12%,transparent)]",
+  danger: "border border-danger-500 text-danger-500 hover:bg-[color-mix(in_srgb,var(--color-danger-500)_12%,transparent)]",
+  warning: "border border-warning-500 text-warning-500 hover:bg-[color-mix(in_srgb,var(--color-warning-500)_12%,transparent)]",
+  info: "border border-accent-500 text-accent-500 hover:bg-[color-mix(in_srgb,var(--color-accent-500)_12%,transparent)]",
+  light: "border border-line text-ink hover:bg-[rgb(var(--overlay-rgb)/0.06)]",
+  dark: "border border-line text-ink hover:bg-[rgb(var(--overlay-rgb)/0.06)]",
 };
 
 const BUTTON_SIZES = {
