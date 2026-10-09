@@ -52,7 +52,8 @@ function flattenEmployeeRecord(record) {
         qualification: record.qualification || "",
         email: record.email || "",
         mobile_no: record.mobile_no || record.phone || "",
-        status: record.status || (record.is_active === false ? "inactive" : "active"),
+        // Shows whatever the record actually carries -- no guessed fallback.
+        status: record.status || "",
         designation: designationOptionValue,
         // Only the id form of designation is used for the Select's value match
         // (EmployeeInfoStep); designation_name is kept too so it can fall back

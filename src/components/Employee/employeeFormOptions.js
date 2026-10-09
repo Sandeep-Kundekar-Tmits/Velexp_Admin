@@ -2,10 +2,12 @@
 // Details/Vehicles tabs -- mirrors the reference implementation at
 // Velocity-Ops (src/Components/Masters/Employee/*.jsx) value-for-value so
 // submitted values match what the backend expects.
+// Kept in lockstep with the "Active" checkbox (is_active) in
+// EmployeeInfoStep -- picking a status here checks/unchecks it and vice
+// versa, so only these two values are meaningful.
 export const STATUS_OPTIONS = [
     { value: "active", label: "Active" },
     { value: "inactive", label: "Inactive" },
-    { value: "suspended", label: "Suspended" },
 ]
 
 // Maps to the backend's `type` field on create (POST /api/employee/employees/),
@@ -16,6 +18,7 @@ export const EMPLOYEE_TYPE_OPTIONS = [
     { value: "DV", label: "DV" },
     { value: "C", label: "C" },
     { value: "D", label: "D" },
+    { value: "AT", label: "AT" },
 ]
 
 export const GENDER_OPTIONS = [

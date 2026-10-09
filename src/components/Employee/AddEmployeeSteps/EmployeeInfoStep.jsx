@@ -35,7 +35,14 @@ const EmployeeInfoStep = ({ formData, setFormData, onNextButtonClick, isEdit = f
     }
 
     const handleSelectChange = (name, option) => {
-        setFormData((prev) => ({ ...prev, [name]: option?.value ?? null }))
+        setFormData((prev) => ({
+            ...prev,
+            [name]: option?.value ?? null,
+            // No standalone "Active" checkbox in this form -- the Status
+            // dropdown is the only control for is_active, so it's derived
+            // here and still goes out in the submit payload.
+            ...(name === "status" ? { is_active: option?.value === "active" } : {}),
+        }))
     }
 
     // service_center is multi-select -- an employee can belong to more than
@@ -57,7 +64,6 @@ const EmployeeInfoStep = ({ formData, setFormData, onNextButtonClick, isEdit = f
         // `type` picks the code series the server generates employee_code from,
         // so it's only meaningful (and only enforced by the backend) on create.
         if (!isEdit) {
-            if (!formData?.user_name) newErrors.user_name = "Username is required"
             if (!formData?.password) newErrors.password = "Password is required"
             if (!formData?.type) newErrors.type = "Type is required"
         }
@@ -104,13 +110,6 @@ const EmployeeInfoStep = ({ formData, setFormData, onNextButtonClick, isEdit = f
                     </Col>
                     <Col md={3}>
                         <FormGroup>
-                            <Label>Username{!isEdit && <RequiredMark />}</Label>
-                            <Input type="text" name="user_name" value={formData.user_name || ""} onChange={handleChange} invalid={!!errors?.user_name} />
-                            <FormFeedback>{errors?.user_name}</FormFeedback>
-                        </FormGroup>
-                    </Col>
-                    <Col md={3}>
-                        <FormGroup>
                             <Label>Password{!isEdit && <RequiredMark />}</Label>
                             <Input
                                 type="password"
@@ -124,12 +123,20 @@ const EmployeeInfoStep = ({ formData, setFormData, onNextButtonClick, isEdit = f
                         </FormGroup>
                     </Col>
                     {isEdit && (
-                        <Col md={3}>
-                            <FormGroup>
-                                <Label>Employee Code</Label>
-                                <Input type="text" value={formData.employee_code || ""} disabled readOnly />
-                            </FormGroup>
-                        </Col>
+                        <>
+                            <Col md={3}>
+                                <FormGroup>
+                                    <Label>Employee Code</Label>
+                                    <Input type="text" value={formData.employee_code || ""} disabled readOnly />
+                                </FormGroup>
+                            </Col>
+                            <Col md={3}>
+                                <FormGroup>
+                                    <Label>Username</Label>
+                                    <Input type="text" value={formData.user_name || ""} disabled readOnly />
+                                </FormGroup>
+                            </Col>
+                        </>
                     )}
                 </Row>
 
@@ -272,21 +279,17 @@ const EmployeeInfoStep = ({ formData, setFormData, onNextButtonClick, isEdit = f
                     </Col>
                 </Row>
                 <Row>
-                    <Col md={4}>
+                    <Col md={6}>
                         <FormGroup>
                             <Label>Date of Joining</Label>
                             <Input type="date" name="date_of_joining" value={formData.date_of_joining || ""} onChange={handleChange} />
                         </FormGroup>
                     </Col>
-                    <Col md={4}>
-                        <FormGroup check className="mt-4">
-                            <Label check>
-                                <Input type="checkbox" name="is_active" checked={!!formData.is_active} onChange={handleChange} />
-                                Active
-                            </Label>
-                        </FormGroup>
-                    </Col>
-                    <Col md={4}>
+                    {/* No standalone "Active" checkbox -- the Status dropdown
+                        above is the only control for it now, and already
+                        keeps formData.is_active in sync (handleSelectChange),
+                        so it still goes out in the submit payload. */}
+                    <Col md={6}>
                         <FormGroup check className="mt-4">
                             <Label check>
                                 <Input type="checkbox" name="ai_flag" checked={!!formData.ai_flag} onChange={handleChange} />
