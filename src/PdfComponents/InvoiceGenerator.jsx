@@ -4,7 +4,8 @@ import VellocityExpressIcon from "../assets/images/vellocity-express-logo.png"
 import Signature from "../assets/images/PDFsignature.png"
 import { usePDF } from 'react-to-pdf';
 // import QR from "../assets/images/qrcode.jpeg"
-import { numberToWords, amountToWords } from "amount-to-words";
+import { numberToWords } from "amount-to-words";
+import { formatAmountInWords } from "../helpers/formatAmountInWords";
 const CheckInvoice = (invoice) => {
   let obj = {
     manual: "manual",
@@ -328,19 +329,11 @@ const InvoiceGenerator = ({ invoiceData, downloadUrl, autoDownload, onDownloaded
           {/* <p className='border pl-2 py-2'><strong>Amount in words:</strong> {invoiceData.amount_in_words}</p> */}
           <p className=" pl-2 py-2" style={{ border: "solid black 1px", borderTop: 0 }}>
             <strong>Amount in words:</strong>{" "}
-            {(() => {
-              const result = amountToWords(invoiceData?.total_amount || 0, 2);
-
-              let words = result.numberInWords
-                ? `${result.numberInWords} RUPEES`
-                : "";
-
-              if (result.decimalInWords && result.decimalInWords !== "Zero Zero") {
-                words += ` AND ${result.decimalInWords} PAISE`;
-              }
-
-              return words.toUpperCase();
-            })()}
+            {/* Converts the Grand Total actually printed in the table above
+                (summed live from invoiceData.items) rather than
+                invoiceData.total_amount -- that backend field can go stale
+                relative to the items and silently produce mismatched words. */}
+            {formatAmountInWords(totalsAmounts?.total)}
           </p>
 
 

@@ -18,7 +18,7 @@ import {
 import { DELETE_PDF_ENVOICE_ITEM } from '../../api';
 import { useDeleteApiCall } from '../../hooks/useDeleteApiCall';
 import ToasterProvider from '../../helpers/ToasterProvider';
-import { numberToWords, amountToWords } from "amount-to-words";
+import { formatAmountInWords } from "../../helpers/formatAmountInWords";
 const STATE_MAP = {
     // 1. Andhra Pradesh
     AP: "AP",
@@ -995,19 +995,7 @@ const InvoiceEditModal = ({ invoice, isOpen, toggle, onSave, loading }) => {
                                         name="amount_in_words"
                                         readOnly
                                         disabled={true}
-                                        value={(() => {
-                                            const result = amountToWords(formData?.total_amount || 0, 2);
-
-                                            let words = result.numberInWords
-                                                ? `${result.numberInWords} RUPEES`
-                                                : "";
-
-                                            if (result.decimalInWords && result.decimalInWords !== "Zero Zero") {
-                                                words += ` AND ${result.decimalInWords} PAISE`;
-                                            }
-
-                                            return words.toUpperCase();
-                                        })()}
+                                        value={formatAmountInWords(formData?.total_amount)}
                                     // onChange={handleChange}
                                     />
                                 </FormGroup>

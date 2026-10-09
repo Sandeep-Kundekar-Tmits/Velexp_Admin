@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Table, Button } from "@/components/ui";
 import { usePDF } from 'react-to-pdf';
-import { numberToWords, amountToWords } from "amount-to-words";
+import { numberToWords } from "amount-to-words";
+import { formatAmountInWords } from "../helpers/formatAmountInWords";
 
 // Logo and signature imports (you'll need to have these files in your assets)
 import VellocityExpressIcon from "../assets/images/vellocity-express-logo.png";
@@ -181,19 +182,10 @@ const FranchiseInvoiceGenerate = React.forwardRef(({ invoiceData }, ref) => {
           {/* Amount in Words */}
           <p className="pl-2 py-2" style={{ border: "solid black 1px", borderTop: 0 }}>
             <strong>Amount in words:</strong>{" "}
-            {(() => {
-              const result = amountToWords(totals?.total || 0, 2);
-
-              let words = result.numberInWords
-                ? `${result.numberInWords} RUPEES`
-                : "ZERO RUPEES";
-
-              if (result.decimalInWords && result.decimalInWords !== "Zero Zero") {
-                words += ` AND ${result.decimalInWords} PAISE`;
-              }
-
-              return (words + " ONLY").toUpperCase();
-            })()}
+            {/* Matches invoiceData.total_amount -- the figure actually
+                printed as Grand Total in the table above -- not the
+                separately-summed `totals.total`, so the two never diverge. */}
+            {formatAmountInWords(invoiceData?.total_amount)}
           </p>
 
 
