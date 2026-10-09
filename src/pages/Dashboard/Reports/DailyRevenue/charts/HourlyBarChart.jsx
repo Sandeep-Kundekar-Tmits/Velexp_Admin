@@ -104,7 +104,7 @@ const HourlyBarChart = ({ rows = [] }) => {
             <CardBody>
                 <div className="flex flex-wrap justify-between items-start mb-4 gap-2">
                     <div>
-                        <h6 className="m-0 text-[13px] font-semibold text-white">Revenue by Hour</h6>
+                        <h6 className="m-0 text-[13px] font-semibold text-ink">Revenue by Hour</h6>
                         <p className="m-0 mt-0.5 text-[11px] text-ink-muted">Gross &amp; Net distribution across the day</p>
                     </div>
                     <div className="flex flex-wrap gap-2">

@@ -20,7 +20,7 @@ import { authFetch } from "@/lib/http";
    have no CSS behind them at all any more, so the borders, colours and
    loading spinner they were meant to draw simply never appeared. */
 const Panel = ({ className, children }) => (
-    <div className={cn("rounded-2xl border border-white/8 bg-[rgba(17,24,39,0.70)] p-4 backdrop-blur-xl", className)}>
+    <div className={cn("rounded-2xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[color-mix(in_srgb,var(--color-surface)_70%,transparent)] p-4 backdrop-blur-xl", className)}>
         {children}
     </div>
 );
@@ -251,17 +251,17 @@ const MisReport = () => {
                 <Panel>
                     <div className="mb-2.5 flex items-center gap-2">
                         <FileText aria-hidden="true" size={18} className="text-[#3B82F6]" />
-                        <h6 className="m-0 text-[15px] font-semibold text-white">AWB Numbers</h6>
+                        <h6 className="m-0 text-[15px] font-semibold text-ink">AWB Numbers</h6>
                     </div>
 
                     {/* Tabs */}
-                    <div className="mb-3 flex gap-1 border-b border-white/10">
+                    <div className="mb-3 flex gap-1 border-b border-[rgb(var(--overlay-rgb)/0.1)]">
                         <button
                             type="button"
                             onClick={() => switchTab("excel")}
                             className={cn(
                                 "flex items-center gap-1.5 border-b-2 px-3 py-2 text-[13px] font-medium transition-colors -mb-px",
-                                tab === "excel" ? "border-[#3B82F6] text-[#3B82F6]" : "border-transparent text-ink-muted hover:text-white"
+                                tab === "excel" ? "border-[#3B82F6] text-[#3B82F6]" : "border-transparent text-ink-muted hover:text-ink"
                             )}
                         >
                             <FileText aria-hidden="true" size={14} /> Excel Upload
@@ -271,7 +271,7 @@ const MisReport = () => {
                             onClick={() => switchTab("manual")}
                             className={cn(
                                 "flex items-center gap-1.5 border-b-2 px-3 py-2 text-[13px] font-medium transition-colors -mb-px",
-                                tab === "manual" ? "border-[#3B82F6] text-[#3B82F6]" : "border-transparent text-ink-muted hover:text-white"
+                                tab === "manual" ? "border-[#3B82F6] text-[#3B82F6]" : "border-transparent text-ink-muted hover:text-ink"
                             )}
                         >
                             <ClipboardPaste aria-hidden="true" size={14} /> Paste AWBs
@@ -289,7 +289,7 @@ const MisReport = () => {
                         <div
                             className={cn(
                                 "flex min-h-11 grow items-center gap-2 rounded-lg border-2 border-dashed px-4 py-1.5",
-                                awbNumbers.length ? "cursor-default border-white/15" : "cursor-pointer border-white/20 hover:border-[#3B82F6]/50"
+                                awbNumbers.length ? "cursor-default border-[rgb(var(--overlay-rgb)/0.15)]" : "cursor-pointer border-[rgb(var(--overlay-rgb)/0.2)] hover:border-[#3B82F6]/50"
                             )}
                             onClick={() => !awbNumbers.length && fileRef.current?.click()}
                             onDragOver={(e) => e.preventDefault()}
@@ -349,7 +349,7 @@ const MisReport = () => {
                             onChange={(e) => handleAwbTextChange(e.target.value)}
                             placeholder={"VE2136764\nVE2136722\nVE2136700"}
                             rows={5}
-                            className="w-full resize-none rounded-lg border-2 border-white/15 bg-transparent px-3 py-2 font-mono text-[13px] text-white placeholder:text-ink-muted focus:border-[#3B82F6]/50 focus:outline-none"
+                            className="w-full resize-none rounded-lg border-2 border-[rgb(var(--overlay-rgb)/0.15)] bg-transparent px-3 py-2 font-mono text-[13px] text-ink placeholder:text-ink-muted focus:border-[#3B82F6]/50 focus:outline-none"
                         />
                         <div className="flex items-center justify-between gap-3">
                             <span className="text-[12px] text-ink-muted">
@@ -389,7 +389,7 @@ const MisReport = () => {
 
                     {/* Error banner */}
                     {error && (
-                        <div className="mt-2 flex items-center gap-2 rounded-lg border border-danger-500/30 bg-danger-500/10 px-4 py-2 text-[13px] text-[#f5a88a]">
+                        <div className="mt-2 flex items-center gap-2 rounded-lg border border-danger-500/30 bg-danger-500/10 px-4 py-2 text-[13px] text-danger-500">
                             <AlertTriangle aria-hidden="true" size={14} className="shrink-0" />
                             {error}
                         </div>
@@ -429,7 +429,7 @@ const MisReport = () => {
                             {notFound.map((awb) => (
                                 <code
                                     key={awb}
-                                    className="rounded-full border border-danger-500/25 bg-danger-500/10 px-2.5 py-1 font-mono text-[12px] text-[#f5a88a]"
+                                    className="rounded-full border border-danger-500/25 bg-danger-500/10 px-2.5 py-1 font-mono text-[12px] text-danger-500"
                                 >
                                     {awb}
                                 </code>

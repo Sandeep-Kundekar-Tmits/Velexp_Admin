@@ -105,6 +105,11 @@ const StateDetailModal = ({ stateName, points = [], onClose }) => {
 
     // Shared detail panel — rendered as overlay on desktop, below map on mobile
     const detailPanel = (
+        // This panel only ever renders inside the zoom modal below, whose
+        // .modal-content/.modal-header are hardcoded to #0b0f19 regardless
+        // of app theme (its own <style> block further down) -- so its text
+        // stays the literal white that was always paired with that dark
+        // chrome, not the theme's ink token.
         <div className="text-white">
             <div className="font-bold mb-3" style={{ fontSize: 18 }}>{stateName}</div>
             <div className="flex justify-between mb-2" style={{ fontSize: 13 }}>
@@ -142,6 +147,7 @@ const StateDetailModal = ({ stateName, points = [], onClose }) => {
 
     return (
         <Modal isOpen={!!stateName} toggle={onClose} fullscreen={true} modalClassName="sc-zoom-modal">
+            {/* Same always-dark modal chrome as detailPanel above -- see its comment. */}
             <ModalHeader toggle={onClose} className="border-0 text-white">
                 {stateName}
                 <span className="font-normal ml-3" style={{ fontSize: "13px", color: "rgba(255,255,255,0.7)" }}>
@@ -372,7 +378,7 @@ const ServiceCenterMap = ({ rows = [] }) => {
         <Card className="h-full">
             <CardBody>
                 <div className="mb-2">
-                    <h6 className="m-0 text-[13px] font-semibold text-white">Service Centers</h6>
+                    <h6 className="m-0 text-[13px] font-semibold text-ink">Service Centers</h6>
                     <p className="m-0 mt-0.5 text-[11px] text-ink-muted">
                         States shaded by revenue · {points.length} hubs pinned · {isMobile ? "tap" : "click"} a state for its service centers
                         {skipped > 0 && <span className="ml-1">· {skipped} without coordinates hidden</span>}

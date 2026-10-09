@@ -107,7 +107,7 @@ const UserManagementList = () => {
                 const type = row.original.cust_type?.type_of_cust?.trim();
                 if (!type) return "--";
                 return (
-                    <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.06] px-2.5 py-0.5 text-[11px] font-medium text-slate-200">
+                    <span className="inline-flex items-center rounded-full border border-[rgb(var(--overlay-rgb)/0.1)] bg-[rgb(var(--overlay-rgb)/0.06)] px-2.5 py-0.5 text-[11px] font-medium text-ink">
                         {type}
                     </span>
                 );
@@ -141,7 +141,7 @@ const UserManagementList = () => {
                         size="sm"
                         onClick={(e) => { e.stopPropagation(); handleView(row.original); }}
                         aria-label={`View ${row.original?.customer_name || "customer"}`}
-                        className="shrink-0 gap-1.5 rounded-lg border border-[#3B82F6]/30 bg-[#3B82F6]/15 text-[#93C5FD] transition-all duration-200 hover:bg-[#3B82F6]/25 hover:text-white hover:shadow-[0_0_18px_-4px_rgba(59,130,246,0.9)]"
+                        className="shrink-0 gap-1.5 rounded-lg border border-[#3B82F6]/30 bg-[#3B82F6]/15 text-ink transition-all duration-200 hover:bg-[#3B82F6]/25 hover:text-ink hover:shadow-[0_0_18px_-4px_rgba(59,130,246,0.9)]"
                     >
                         <Eye aria-hidden="true" className="size-3.5" />
                         View
@@ -151,7 +151,7 @@ const UserManagementList = () => {
                         size="sm"
                         onClick={(e) => { e.stopPropagation(); handleEdit(row.original); }}
                         aria-label={`Edit ${row.original?.customer_name || "customer"}`}
-                        className="shrink-0 gap-1.5 rounded-lg border border-[#8B5CF6]/30 bg-[#8B5CF6]/15 text-[#C4B5FD] transition-all duration-200 hover:bg-[#8B5CF6]/25 hover:text-white hover:shadow-[0_0_18px_-4px_rgba(139,92,246,0.9)]"
+                        className="shrink-0 gap-1.5 rounded-lg border border-[#8B5CF6]/30 bg-[#8B5CF6]/15 text-ink transition-all duration-200 hover:bg-[#8B5CF6]/25 hover:text-ink hover:shadow-[0_0_18px_-4px_rgba(139,92,246,0.9)]"
                     >
                         <Pencil aria-hidden="true" className="size-3.5" />
                         Edit
@@ -260,15 +260,15 @@ const UserManagementList = () => {
                             initial="hidden"
                             animate="show"
                             whileHover={{ y: -2 }}
-                            className="group rounded-xl border border-white/8 bg-[rgba(17,24,39,0.70)] p-3.5 backdrop-blur-xl transition-colors duration-200 hover:border-white/[0.16]"
+                            className="group rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[color-mix(in_srgb,var(--color-surface)_70%,transparent)] p-3.5 backdrop-blur-xl transition-colors duration-200 hover:border-[rgb(var(--overlay-rgb)/0.16)]"
                         >
                             <div className="flex items-start justify-between">
-                                <p className="text-[11px] font-medium uppercase tracking-wider text-[#94A3B8]">
+                                <p className="text-[11px] font-medium uppercase tracking-wider text-ink-muted">
                                     {label}
                                 </p>
                                 <span
                                     className={cn(
-                                        "flex size-8 items-center justify-center rounded-lg border border-white/8 bg-white/[0.04] transition-shadow duration-200",
+                                        "flex size-8 items-center justify-center rounded-lg border border-[rgb(var(--overlay-rgb)/0.08)] bg-[rgb(var(--overlay-rgb)/0.04)] transition-shadow duration-200",
                                         STAT_ACCENTS[accent]
                                     )}
                                 >
@@ -277,7 +277,7 @@ const UserManagementList = () => {
                             </div>
                             {/* leading-tight, or the 22px figure reserves a 32px
                                 line box and gives back the padding just saved. */}
-                            <p className="mt-1.5 text-[22px] font-semibold leading-tight tracking-tight text-white">
+                            <p className="mt-1.5 text-[22px] font-semibold leading-tight tracking-tight text-ink">
                                 {value.toLocaleString()}
                             </p>
                         </motion.div>

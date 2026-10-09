@@ -42,7 +42,7 @@ const RevenueAreaChart = ({ rows = [] }) => {
     return (
         <Card className="h-full">
             <CardBody className="flex flex-col">
-                <h6 className="m-0 text-[13px] font-semibold text-white">Last 7 Days — Gross vs Net</h6>
+                <h6 className="m-0 text-[13px] font-semibold text-ink">Last 7 Days — Gross vs Net</h6>
                 <p className="m-0 mb-3 mt-0.5 text-[11px] text-ink-muted">Daily gross &amp; net revenue trend</p>
                 <div className="mt-auto">
                     <ReactApexChart options={options} series={series} type="area" height={400} />

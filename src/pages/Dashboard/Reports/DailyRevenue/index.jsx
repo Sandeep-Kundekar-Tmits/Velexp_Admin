@@ -107,8 +107,8 @@ const DailyRevenue = () => {
                     <DropdownMenu right style={{ zIndex: 99999 }} container="body">
                         <style>{`
                             .excel-dropdown-item:hover {
-                                background-color: #f3f4f6 !important;
-                                color: #111827 !important;
+                                background-color: rgb(var(--overlay-rgb) / 0.06) !important;
+                                color: var(--color-ink) !important;
                             }
                         `}</style>
                         {breakdowns.map((b) => (

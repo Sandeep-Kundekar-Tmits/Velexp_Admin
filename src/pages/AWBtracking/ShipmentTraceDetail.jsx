@@ -54,7 +54,7 @@ const BagMovementChain = ({ bagTracking = [] }) => {
                         <div className="rounded-full" style={{ width: 10, height: 10, marginTop: 6, backgroundColor: ACCENT_SOLID }} />
                         {i < bagTracking.length - 1 && <div style={{ width: 2, flex: 1, background: "rgba(59,130,246,0.35)" }} />}
                     </div>
-                    <div className="grid flex-1 grid-cols-2 gap-2 rounded-xl border border-white/8 bg-white/2 p-2 md:grid-cols-4" style={{ fontSize: 13 }}>
+                    <div className="grid flex-1 grid-cols-2 gap-2 rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[rgb(var(--overlay-rgb)/0.02)] p-2 md:grid-cols-4" style={{ fontSize: 13 }}>
                         <div><span className="font-semibold text-ink">Bag No:</span> <span className="text-ink-muted">{bag.bag_no || "-"}</span></div>
                         <div><span className="font-semibold text-ink">Manifest:</span> <span className="text-ink-muted">{bag.bag_manifest_no || "-"}</span></div>
                         <div><span className="font-semibold text-ink">Status:</span> <span className="text-ink-muted">{bag.status || "-"} {bag.remark ? `(${bag.remark})` : ""}</span></div>
@@ -164,7 +164,7 @@ const ShipmentTraceDetail = () => {
             <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
                 <MainHeaderComp title="Shipment Trace Details" subTitle={`AWB: ${awbno}`} />
                 <div className="container-fluid relative z-10 px-4 pb-4">
-                    <p className="m-0 rounded-xl border border-white/8 bg-white/2 px-4 py-12 text-center text-[13px] text-ink-muted">
+                    <p className="m-0 rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[rgb(var(--overlay-rgb)/0.02)] px-4 py-12 text-center text-[13px] text-ink-muted">
                         No data found for AWB: {awbno}
                     </p>
                 </div>
@@ -200,18 +200,18 @@ const ShipmentTraceDetail = () => {
 
             <div className="container-fluid relative z-10 px-4 pb-4">
                 {/* Same "Shipment Details - AWB : ..." sub-heading TrackAWB shows */}
-                <div className="mb-3 flex items-center gap-2 border-b border-white/8 pb-2 font-semibold text-ink" style={{ fontSize: 18 }}>
+                <div className="mb-3 flex items-center gap-2 border-b border-[rgb(var(--overlay-rgb)/0.08)] pb-2 font-semibold text-ink" style={{ fontSize: 18 }}>
                     Shipment Details - AWB : {awbno}
                     {booking?.rto_approval === true && booking?.shipment_flag ? (
                         <span className="badge border border-success-500/30 bg-success-500/15 text-success-500">RTO Approved</span>
                     ) : (
-                        <span className="badge border border-white/15 bg-white/5 text-ink-muted">Not RTO Approved</span>
+                        <span className="badge border border-[rgb(var(--overlay-rgb)/0.15)] bg-[rgb(var(--overlay-rgb)/0.05)] text-ink-muted">Not RTO Approved</span>
                     )}
                 </div>
 
                 {/* Booking Info */}
-                <div className="mb-4 overflow-hidden rounded-xl border border-white/8 bg-[rgba(17,24,39,0.70)] backdrop-blur-xl">
-                    <div className="card-header border-b border-white/8 bg-[#3B82F6]/12">
+                <div className="mb-4 overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[color-mix(in_srgb,var(--color-surface)_70%,transparent)] backdrop-blur-xl">
+                    <div className="card-header border-b border-[rgb(var(--overlay-rgb)/0.08)] bg-[#3B82F6]/12">
                         <h6 className="mb-0 font-bold text-ink">Booking Information</h6>
                     </div>
                     <div className="card-body">
@@ -246,15 +246,15 @@ const ShipmentTraceDetail = () => {
                             </div>
                             <div className="col-md-3">
                                 <small className="text-ink-muted">Multipiece Type</small>
-                                <p className="mb-0"><span className="badge border border-[#3B82F6]/30 bg-[#3B82F6]/15 capitalize text-[#93C5FD]">{booking?.multipiece_type}</span></p>
+                                <p className="mb-0"><span className="badge border border-[#3B82F6]/30 bg-[#3B82F6]/15 capitalize text-ink">{booking?.multipiece_type}</span></p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Shipper Details */}
-                <div className="mb-4 overflow-hidden rounded-xl border border-white/8 bg-[rgba(17,24,39,0.70)] backdrop-blur-xl">
-                    <div className="card-header border-b border-white/8 bg-success-500/12">
+                <div className="mb-4 overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[color-mix(in_srgb,var(--color-surface)_70%,transparent)] backdrop-blur-xl">
+                    <div className="card-header border-b border-[rgb(var(--overlay-rgb)/0.08)] bg-success-500/12">
                         <h6 className="mb-0 font-bold text-ink">Shipper Details</h6>
                     </div>
                     <div className="card-body">
@@ -292,8 +292,8 @@ const ShipmentTraceDetail = () => {
                 </div>
 
                 {/* Consignee Details */}
-                <div className="mb-4 overflow-hidden rounded-xl border border-white/8 bg-[rgba(17,24,39,0.70)] backdrop-blur-xl">
-                    <div className="card-header border-b border-white/8 bg-danger-500/12">
+                <div className="mb-4 overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[color-mix(in_srgb,var(--color-surface)_70%,transparent)] backdrop-blur-xl">
+                    <div className="card-header border-b border-[rgb(var(--overlay-rgb)/0.08)] bg-danger-500/12">
                         <h6 className="mb-0 font-bold text-ink">Consignee Details</h6>
                     </div>
                     <div className="card-body">
@@ -331,8 +331,8 @@ const ShipmentTraceDetail = () => {
                 </div>
 
                 {/* Tracking History — click a status to see its bag movement chain */}
-                <div className="overflow-hidden rounded-xl border border-white/8 bg-[rgba(17,24,39,0.70)] backdrop-blur-xl">
-                    <div className="card-header border-b border-white/8 bg-canvas">
+                <div className="overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[color-mix(in_srgb,var(--color-surface)_70%,transparent)] backdrop-blur-xl">
+                    <div className="card-header border-b border-[rgb(var(--overlay-rgb)/0.08)] bg-canvas">
                         <h6 className="mb-0 font-semibold text-ink">Tracking History</h6>
                     </div>
                     <div className="card-body p-0">
@@ -344,7 +344,7 @@ const ShipmentTraceDetail = () => {
                                 const open = expandedIndex === index
                                 const bagTracking = ele.bag_data?.parent_bag_data?.bag_tracking || []
                                 return (
-                                    <div key={ele.id ?? index} className="border-b border-white/8">
+                                    <div key={ele.id ?? index} className="border-b border-[rgb(var(--overlay-rgb)/0.08)]">
                                         <div
                                             role="button"
                                             onClick={() => setExpandedIndex(open ? -1 : index)}
@@ -352,7 +352,7 @@ const ShipmentTraceDetail = () => {
                                             style={{ cursor: "pointer", backgroundColor: open ? ACCENT_TINT : undefined }}
                                         >
                                             <div className="flex flex-wrap items-center gap-3">
-                                                <span className="badge" style={{ backgroundColor: ACCENT_TINT, color: "#93C5FD" }}>{ele.status}</span>
+                                                <span className="badge" style={{ backgroundColor: ACCENT_TINT, color: "var(--color-ink)" }}>{ele.status}</span>
                                                 <span style={{ fontSize: 12 }} className="text-ink">{formatDateTime(ele.status_date)}</span>
                                                 <span className="text-ink-muted" style={{ fontSize: 12, maxWidth: 220 }}>{ele.remarks}</span>
                                                 <span className="text-ink-muted" style={{ fontSize: 12 }}>{ele.service_center || "-"} → {ele.destination_sc || "-"}</span>

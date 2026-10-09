@@ -29,7 +29,7 @@ const RevenueBySource = ({ rows = [] }) => {
                                 <span className="font-semibold" style={{ color }}>{labelOf(r.source)}</span>
                                 <span className="text-ink-muted">{formatINR(r.gross)} · {formatInt(r.shipments)} shp</span>
                             </div>
-                            <div style={{ background: "#f1f1f5", borderRadius: 4, height: 8 }}>
+                            <div style={{ background: "rgb(var(--overlay-rgb) / 0.08)", borderRadius: 4, height: 8 }}>
                                 <div style={{ width: `${barWidth(r.gross, maxGross)}%`, background: color, height: 8, borderRadius: 4, transition: "width .4s ease" }} />
                             </div>
                         </div>

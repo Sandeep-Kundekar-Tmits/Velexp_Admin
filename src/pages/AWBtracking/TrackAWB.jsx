@@ -47,11 +47,16 @@ const logTrackScan = async (awb, screenName) => {
     }
 }
 
-// The accent blue the modernised tracking screens use throughout (see ShipmentTraceDetail)
-const ACCENT = { border: "rgba(59,130,246,0.3)", tint: "rgba(59,130,246,0.15)", text: "#93C5FD", solid: "#3B82F6" }
+// The accent blue the modernised tracking screens use throughout (see
+// ShipmentTraceDetail). border/tint/solid stay a fixed accent blue in both
+// themes, same as elsewhere; text used to be a pastel blue (#93C5FD) tuned
+// only for the dark glass it always sat on -- on a light-theme card that
+// pastel-on-pale-tint pairing goes low-contrast, so it's the theme's own
+// ink token instead.
+const ACCENT = { border: "rgba(59,130,246,0.3)", tint: "rgba(59,130,246,0.15)", text: "var(--color-ink)", solid: "#3B82F6" }
 
 const ACCENTS = {
-    blue: { header: "bg-[#3B82F6]/12", text: "text-[#93C5FD]" },
+    blue: { header: "bg-[#3B82F6]/12", text: "text-ink" },
     green: { header: "bg-success-500/12", text: "text-success-500" },
     red: { header: "bg-danger-500/12", text: "text-danger-500" },
 }
@@ -63,8 +68,8 @@ const ACCENTS = {
  * this same three-way split.
  */
 const Section = ({ title, accent = "blue", children }) => (
-    <div className="flex h-full flex-col overflow-hidden rounded-xl border border-white/8 bg-[rgba(17,24,39,0.70)] backdrop-blur-xl">
-        <div className={`border-b border-white/8 px-4 py-2.5 ${ACCENTS[accent].header}`}>
+    <div className="flex h-full flex-col overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[color-mix(in_srgb,var(--color-surface)_70%,transparent)] backdrop-blur-xl">
+        <div className={`border-b border-[rgb(var(--overlay-rgb)/0.08)] px-4 py-2.5 ${ACCENTS[accent].header}`}>
             <h6 className={`m-0 text-[11px] font-semibold uppercase tracking-wider ${ACCENTS[accent].text}`}>{title}</h6>
         </div>
         <div className="grid grid-cols-2 gap-3 p-4">{children}</div>
@@ -339,7 +344,7 @@ const TrackAWB = () => {
                 ) : bookingData && (
                     <div className="mt-3">
                         {/* --------- header info --------- */}
-                        <div className="mb-3 flex items-center gap-2 border-b border-white/8 pb-2">
+                        <div className="mb-3 flex items-center gap-2 border-b border-[rgb(var(--overlay-rgb)/0.08)] pb-2">
                             <span className="font-semibold text-ink" style={{ fontSize: 18 }}>
                                 Shipment Details - AWB : {activeAwb}
                             </span>
@@ -354,7 +359,7 @@ const TrackAWB = () => {
                                     RTO Approved
                                 </span>
                             ) : (
-                                <span className="badge border border-white/15 bg-white/5 text-ink-muted">Not RTO Approved</span>
+                                <span className="badge border border-[rgb(var(--overlay-rgb)/0.15)] bg-[rgb(var(--overlay-rgb)/0.05)] text-ink-muted">Not RTO Approved</span>
                             )}
                         </div>
 
@@ -392,8 +397,8 @@ const TrackAWB = () => {
 
                         {/* --------- multipiece AWB tabs + timeline --------- */}
                         <div className="mt-3 flex flex-col gap-3 md:flex-row">
-                            <div className="overflow-hidden rounded-xl border border-white/8 bg-[rgba(17,24,39,0.70)] backdrop-blur-xl md:w-44 md:flex-shrink-0">
-                                <div className="border-b border-white/8 px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-ink-muted">
+                            <div className="overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[color-mix(in_srgb,var(--color-surface)_70%,transparent)] backdrop-blur-xl md:w-44 md:flex-shrink-0">
+                                <div className="border-b border-[rgb(var(--overlay-rgb)/0.08)] px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-ink-muted">
                                     AWB No
                                 </div>
                                 <div className="flex flex-wrap md:flex-col">
@@ -447,7 +452,7 @@ const TrackAWB = () => {
                                             )}
                                         </div>
 
-                                        <div className="grid flex-1 grid-cols-2 gap-3 rounded-xl border border-white/8 bg-white/2 p-3 md:grid-cols-3">
+                                        <div className="grid flex-1 grid-cols-2 gap-3 rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[rgb(var(--overlay-rgb)/0.02)] p-3 md:grid-cols-3">
                                             <div>
                                                 <div className="text-[12px] font-semibold text-ink">Service Center</div>
                                                 <div className="text-[12px] text-ink-muted">

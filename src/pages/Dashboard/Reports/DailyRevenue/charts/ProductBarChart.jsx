@@ -79,7 +79,7 @@ const ProductBarChart = ({ rows = [], topN = 7 }) => {
     return (
         <Card className="h-full">
             <CardBody className="flex flex-col">
-                <h6 className="m-0 text-[13px] font-semibold text-white">Revenue by Product</h6>
+                <h6 className="m-0 text-[13px] font-semibold text-ink">Revenue by Product</h6>
                 <p className="m-0 mb-3 mt-0.5 text-[11px] text-ink-muted">Top products by gross revenue</p>
                 <div className="mt-auto">
                     {sorted.length === 0

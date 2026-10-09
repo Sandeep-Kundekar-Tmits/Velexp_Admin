@@ -27,10 +27,12 @@ import {
 import { AlertCircle, ArrowRight, Eye, EyeOff, Lock, User } from "lucide-react";
 import { cn } from "@/lib/cn";
 
-/* Auth surface only. The palette lives in arbitrary values rather than in the
-   global @theme block because the rest of the admin is the light "Dense Ops"
-   theme -- promoting these to tokens would let the dark scheme leak into every
-   report screen. */
+/* Now built on the same @theme tokens as the rest of the admin (surface,
+   canvas, ink, ink-muted, --overlay-rgb, danger-500) so the login screen
+   follows the dark/light toggle too, instead of being permanently dark. A
+   handful of brand-accent colours (#3B82F6 blue, #38BDF8 focus ring) stay
+   literal -- same call made everywhere else -- since they're meant to read
+   the same regardless of theme. */
 const EASE = [0.22, 1, 0.36, 1];
 
 const containerVariants = {
@@ -51,20 +53,20 @@ const itemVariants = {
    keeps the primitive's validation contract intact. */
 const fieldClasses = (hasError) =>
   cn(
-    "h-12 w-full rounded-xl border bg-white/[0.04] pl-11 pr-4 text-[14px] text-white",
-    "placeholder:text-[#94A3B8]/60 transition-[border-color,box-shadow,background-color] duration-200",
-    "focus:bg-white/[0.06] focus:outline-none focus:ring-4",
+    "h-12 w-full rounded-xl border bg-[rgb(var(--overlay-rgb)/0.04)] pl-11 pr-4 text-[14px] text-ink",
+    "placeholder:text-ink-muted/60 transition-[border-color,box-shadow,background-color] duration-200",
+    "focus:bg-[rgb(var(--overlay-rgb)/0.06)] focus:outline-none focus:ring-4",
     /* Picking a saved value makes Chrome paint its own near-white fill via the
        UA stylesheet, which is flagged !important -- no background-color rule
        can beat it. Clipping that fill to the glyphs makes it invisible while
        leaving the field's own background showing, and unlike the usual
        "1000px inset box-shadow" trick it does not fight the focus ring, which
-       is itself a box-shadow. text-fill-color restores the white text. */
-    "autofill:[-webkit-background-clip:text] autofill:[-webkit-text-fill-color:#FFFFFF]",
-    "autofill:caret-white",
+       is itself a box-shadow. text-fill-color restores the field's own ink. */
+    "autofill:[-webkit-background-clip:text] autofill:[-webkit-text-fill-color:var(--color-ink)]",
+    "autofill:caret-ink",
     hasError
-      ? "border-[#EF4444]/70 focus:border-[#EF4444] focus:ring-[#EF4444]/20"
-      : "border-white/8 hover:border-white/[0.16] focus:border-[#3B82F6] focus:ring-[#3B82F6]/20"
+      ? "border-danger-500/70 focus:border-danger-500 focus:ring-danger-500/20"
+      : "border-[rgb(var(--overlay-rgb)/0.08)] hover:border-[rgb(var(--overlay-rgb)/0.16)] focus:border-[#3B82F6] focus:ring-[#3B82F6]/20"
   );
 
 const Login = (props) => {
@@ -176,7 +178,7 @@ const Login = (props) => {
     <React.Fragment>
       {/* h-dvh, not h-screen: on mobile browsers 100vh excludes the collapsing
           URL bar, which is what makes auth pages scroll by a few pixels. */}
-      <div className="relative h-dvh w-full overflow-hidden bg-[#050816] antialiased">
+      <div className="relative h-dvh w-full overflow-hidden bg-canvas antialiased">
         <AmbientBackground />
 
         <div className="relative z-10 flex h-full items-center justify-center px-4 py-6 sm:px-6">
@@ -189,13 +191,13 @@ const Login = (props) => {
             <motion.div
               variants={itemVariants}
               onPointerMove={onCardPointerMove}
-              className="group relative rounded-3xl border border-white/8 bg-[rgba(17,24,39,0.70)] p-6 shadow-[0_24px_70px_-20px_rgba(2,6,23,0.9)] backdrop-blur-xl sm:p-8"
+              className="group relative rounded-3xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[color-mix(in_srgb,var(--color-surface)_70%,transparent)] p-6 shadow-[0_24px_70px_-20px_rgba(2,6,23,0.9)] backdrop-blur-xl sm:p-8"
             >
               {/* Sheen across the glass. Fades in on hover via Tailwind so no
                   extra React state is needed to know the pointer left. */}
               <motion.div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 rounded-3xl bg-[radial-gradient(160px_circle_at_var(--sheen-x)_var(--sheen-y),rgba(255,255,255,0.07),transparent_70%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                className="pointer-events-none absolute inset-0 rounded-3xl bg-[radial-gradient(160px_circle_at_var(--sheen-x)_var(--sheen-y),rgb(var(--overlay-rgb)/0.07),transparent_70%)] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                 style={{ "--sheen-x": cardSheenX, "--sheen-y": cardSheenY }}
               />
               <div className="relative auth-logo">
@@ -224,19 +226,19 @@ const Login = (props) => {
                 {/* <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-[24px]">
                   Welcome Back !
                 </h1> */}
-                <p className="mt-2 text-[14px] text-[#94A3B8]">Sign up to Admin Panel.</p>
+                <p className="mt-2 text-[14px] text-ink-muted">Sign up to Admin Panel.</p>
               </motion.div>
 
               <div className="mt-6">
                 <form className="form-horizontal" onSubmit={handleSubmit}>
                   <motion.div variants={itemVariants} className="mb-4">
-                    <Label for="username" className="mb-2 text-[13px] font-medium text-[#94A3B8]">
+                    <Label for="username" className="mb-2 text-[13px] font-medium text-ink-muted">
                       User
                     </Label>
                     <div className="relative">
                       <User
                         aria-hidden="true"
-                        className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[#94A3B8]"
+                        className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-ink-muted"
                       />
                       <Input
                         id="username"
@@ -262,7 +264,7 @@ const Login = (props) => {
                           <FormFeedback
                             id="username-error"
                             type="invalid"
-                            className="mt-2 flex items-center gap-1.5 text-[12px] text-[#EF4444]"
+                            className="mt-2 flex items-center gap-1.5 text-[12px] text-danger-500"
                           >
                             <AlertCircle aria-hidden="true" className="size-3.5 shrink-0" />
                             {error?.username}
@@ -273,13 +275,13 @@ const Login = (props) => {
                   </motion.div>
 
                   <motion.div variants={itemVariants} className="mb-4">
-                    <Label for="password" className="mb-2 text-[13px] font-medium text-[#94A3B8]">
+                    <Label for="password" className="mb-2 text-[13px] font-medium text-ink-muted">
                       Password
                     </Label>
                     <div className="relative">
                       <Lock
                         aria-hidden="true"
-                        className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[#94A3B8]"
+                        className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-ink-muted"
                       />
                       <Input
                         id="password"
@@ -297,7 +299,7 @@ const Login = (props) => {
                       <button
                         type="button"
                         onClick={() => setShowPassword((prev) => !prev)}
-                        className="absolute right-4 top-1/2 -translate-y-1/2 text-[#94A3B8] transition-colors duration-200 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#38BDF8]"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-ink-muted transition-colors duration-200 hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#38BDF8]"
                         aria-label={showPassword ? "Hide password" : "Show password"}
                         aria-pressed={showPassword}
                         tabIndex={-1}
@@ -316,7 +318,7 @@ const Login = (props) => {
                           <FormFeedback
                             id="password-error"
                             type="invalid"
-                            className="mt-2 flex items-center gap-1.5 text-[12px] text-[#EF4444]"
+                            className="mt-2 flex items-center gap-1.5 text-[12px] text-danger-500"
                           >
                             <AlertCircle aria-hidden="true" className="size-3.5 shrink-0" />
                             {error?.password}
@@ -356,7 +358,7 @@ const Login = (props) => {
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -6 }}
                           transition={{ duration: 0.25, ease: EASE }}
-                          className="mt-4 flex items-start gap-2 rounded-xl border border-[#EF4444]/30 bg-[#EF4444]/10 px-4 py-3 text-left text-[13px] font-medium text-[#FCA5A5]"
+                          className="mt-4 flex items-start gap-2 rounded-xl border border-danger-500/30 bg-danger-500/10 px-4 py-3 text-left text-[13px] font-medium text-danger-500"
                         >
                           <AlertCircle aria-hidden="true" className="mt-px size-4 shrink-0" />
                           <span>{bannerMessage}</span>

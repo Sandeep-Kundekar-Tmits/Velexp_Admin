@@ -82,7 +82,7 @@ const CustomerBarChart = ({ rows = [], topN }) => {
     return (
         <Card className="h-full">
             <CardBody>
-                <h6 className="m-0 text-[13px] font-semibold text-white">Top Customers by Revenue</h6>
+                <h6 className="m-0 text-[13px] font-semibold text-ink">Top Customers by Revenue</h6>
                 <p className="m-0 mb-3 mt-0.5 text-[11px] text-ink-muted">Gross &amp; Net revenue per customer (highest first)</p>
                 {data.length === 0
                     ? <p className="text-ink-muted mb-0">No customer data.</p>

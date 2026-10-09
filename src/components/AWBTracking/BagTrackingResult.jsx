@@ -36,11 +36,11 @@ const BagCard = ({ bag, expanded, onClick, children }) => (
             className="rounded-xl border backdrop-blur-xl"
             style={{
                 cursor: "pointer",
-                backgroundColor: expanded ? "rgba(59,130,246,0.10)" : "rgba(17,24,39,0.70)",
-                borderColor: expanded ? "rgba(59,130,246,0.4)" : "rgba(255,255,255,0.08)",
+                backgroundColor: expanded ? "rgba(59,130,246,0.10)" : "color-mix(in srgb, var(--color-surface) 70%, transparent)",
+                borderColor: expanded ? "rgba(59,130,246,0.4)" : "rgb(var(--overlay-rgb) / 0.08)",
             }}
         >
-            <div className="flex items-center justify-between border-b border-white/8 px-4 py-2 font-bold text-ink">
+            <div className="flex items-center justify-between border-b border-[rgb(var(--overlay-rgb)/0.08)] px-4 py-2 font-bold text-ink">
                 {bag.bagNo || "-"}
                 <ChevronDown size={16} style={{ transition: "transform .15s", transform: expanded ? "rotate(180deg)" : "none" }} />
             </div>
@@ -67,7 +67,7 @@ const mapBagToCard = (b = {}) => ({
 })
 
 const ShipmentIdTable = ({ ids = [] }) => (
-    <div className="mb-2 overflow-hidden rounded-xl border border-white/8" style={{ maxHeight: 220, overflowY: "auto" }}>
+    <div className="mb-2 overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)]" style={{ maxHeight: 220, overflowY: "auto" }}>
         <table className="table table-sm mb-0">
             <thead className="sticky top-0 bg-canvas">
                 <tr><th className="text-center">Shipment ID / AWB</th></tr>
@@ -94,14 +94,14 @@ const BagTimeline = ({ steps = [] }) => {
                     className="rounded-xl border px-3 py-2 text-center"
                     style={{
                         minWidth: 150,
-                        borderColor: s.active ? ACCENT : "rgba(255,255,255,0.08)",
+                        borderColor: s.active ? ACCENT : "rgb(var(--overlay-rgb) / 0.08)",
                         borderWidth: s.active ? 2 : 1,
-                        backgroundColor: "rgba(17,24,39,0.70)",
+                        backgroundColor: "color-mix(in srgb, var(--color-surface) 70%, transparent)",
                     }}
                 >
                     <span
                         className="badge mb-1"
-                        style={{ backgroundColor: s.active ? "rgba(59,130,246,0.15)" : "rgba(255,255,255,0.06)", color: s.active ? "#93C5FD" : "var(--color-ink-muted)" }}
+                        style={{ backgroundColor: s.active ? "rgba(59,130,246,0.15)" : "rgb(var(--overlay-rgb) / 0.06)", color: s.active ? "var(--color-ink)" : "var(--color-ink-muted)" }}
                     >
                         {BAG_STATUS_MAP[s.status] || s.status || "-"}
                     </span>
@@ -164,11 +164,11 @@ const BagTrackingResult = ({ bagInfo, bagNo }) => {
 
     return (
         <div>
-            <div className="mt-3 border-b border-white/8 pb-2 font-semibold text-ink" style={{ fontSize: 18 }}>
+            <div className="mt-3 border-b border-[rgb(var(--overlay-rgb)/0.08)] pb-2 font-semibold text-ink" style={{ fontSize: 18 }}>
                 Bag Details - Bag ID : {bagNo}
             </div>
 
-            <div className="flex flex-wrap gap-6 border-b border-white/8 py-3">
+            <div className="flex flex-wrap gap-6 border-b border-[rgb(var(--overlay-rgb)/0.08)] py-3">
                 <Stat value={bagData.source_sc} label="Source" />
                 <Stat value={bagData.destination_sc} label="Destination" />
                 <Stat value={bagData.total_weight} label="Total Weight" />
@@ -176,7 +176,7 @@ const BagTrackingResult = ({ bagInfo, bagNo }) => {
                 <Stat value={bagData.child_bag_count} label="Hub Bags" />
             </div>
 
-            <div className="border-b border-white/8 py-3">
+            <div className="border-b border-[rgb(var(--overlay-rgb)/0.08)] py-3">
                 <BagTimeline steps={bagTracking} />
             </div>
 

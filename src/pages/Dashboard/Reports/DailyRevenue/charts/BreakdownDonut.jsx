@@ -56,7 +56,7 @@ const BreakdownDonut = ({ title, rows = [], labelKey, topN = 7, legendPosition =
     return (
         <Card className="h-full">
             <CardBody>
-                <h6 className="m-0 mb-3 text-[13px] font-semibold text-white">{title}</h6>
+                <h6 className="m-0 mb-3 text-[13px] font-semibold text-ink">{title}</h6>
                 {series.length === 0
                     ? <p className="text-ink-muted mb-0">No data.</p>
                     : <ReactApexChart options={options} series={series} type="donut" height={340} />}
