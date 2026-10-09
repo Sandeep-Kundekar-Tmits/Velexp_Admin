@@ -23,6 +23,17 @@ import {
   topBarThemeTypes,
 } from "@/constants/layout";
 
+// The app theme is a `[data-theme="light"]` attribute on <html> -- see
+// styles/app.css, which redeclares the same five neutral tokens the dark
+// theme defines, and index.html, which sets this attribute synchronously
+// from localStorage before React mounts so a returning light-mode user
+// doesn't see a flash of the dark theme first.
+const applyThemeAttribute = (mode) => {
+  if (typeof document !== "undefined") {
+    document.documentElement.setAttribute("data-theme", mode);
+  }
+};
+
 export const useUiStore = create(
   persist(
     (set, get) => ({
@@ -39,6 +50,8 @@ export const useUiStore = create(
       mobileSidebarOpen: false,
       /** link_url (or menu id) -> expanded, for the sidebar accordion. */
       expandedMenus: {},
+      /** "dark" (default, matches the app's original look) | "light". */
+      themeMode: "dark",
 
       openMobileSidebar: () => {
         document.body.classList.add("sidebar-enable");
@@ -53,12 +66,28 @@ export const useUiStore = create(
         set({ expandedMenus: { ...get().expandedMenus, [key]: !get().expandedMenus[key] } }),
       setMenuExpanded: (key, expanded) =>
         set({ expandedMenus: { ...get().expandedMenus, [key]: expanded } }),
+
+      setThemeMode: (mode) => {
+        applyThemeAttribute(mode);
+        set({ themeMode: mode });
+      },
+      toggleThemeMode: () => {
+        const next = get().themeMode === "dark" ? "light" : "dark";
+        applyThemeAttribute(next);
+        set({ themeMode: next });
+      },
     }),
     {
       name: "velexp-ui",
-      // Only the accordion survives a reload; the mobile drawer should always
-      // start closed.
-      partialize: (state) => ({ expandedMenus: state.expandedMenus }),
+      // Accordion state and the theme choice survive a reload; the mobile
+      // drawer should always start closed.
+      partialize: (state) => ({ expandedMenus: state.expandedMenus, themeMode: state.themeMode }),
+      // Re-asserts the attribute once the persisted value is actually
+      // loaded -- belt-and-braces alongside index.html's inline script,
+      // which only guesses from the raw localStorage JSON.
+      onRehydrateStorage: () => (state) => {
+        if (state) applyThemeAttribute(state.themeMode);
+      },
     }
   )
 );

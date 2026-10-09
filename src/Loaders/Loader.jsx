@@ -256,12 +256,16 @@ const Loader = ({ message = "Loading...", fullscreen = true, compact = false, cl
         className
       )}
     >
-      <div className="relative rounded-2xl border border-white/8 bg-[rgba(17,24,39,0.70)] px-6 py-5 backdrop-blur-xl">
-        <LoaderMark className="h-12 w-56 text-[#7DD3FC]" />
+      <div className="relative rounded-2xl border border-line bg-surface/70 px-6 py-5 backdrop-blur-xl">
+        {/* No color override: LoaderMark's own default (#3B82F6) is the one
+            chosen to read on both a white and a dark card -- see its own
+            comment. The #7DD3FC this used to pass was picked only for the
+            old permanently-dark card and went invisible on a light one. */}
+        <LoaderMark className="h-12 w-56" />
       </div>
 
       {message && (
-        <p className="mt-4 text-[14px] font-medium tracking-tight text-slate-300">
+        <p className="mt-4 text-[14px] font-medium tracking-tight text-ink-muted">
           {message}
         </p>
       )}

@@ -8,6 +8,22 @@
     <script>
       var global = global || window;
       </script>
+    <script>
+      // Applies the saved theme before first paint, reading the same
+      // "velexp-ui" localStorage key the uiStore zustand persist middleware
+      // owns (src/stores/uiStore.js) -- without this, a returning
+      // light-theme user would see a flash of the default dark theme while
+      // React boots and rehydrates the store.
+      (function () {
+        try {
+          var saved = JSON.parse(localStorage.getItem("velexp-ui") || "null");
+          var mode = saved && saved.state && saved.state.themeMode === "light" ? "light" : "dark";
+          document.documentElement.setAttribute("data-theme", mode);
+        } catch (e) {
+          document.documentElement.setAttribute("data-theme", "dark");
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

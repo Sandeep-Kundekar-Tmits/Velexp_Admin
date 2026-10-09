@@ -42,9 +42,10 @@ const Layout = (props) => {
   return (
     <React.Fragment>
       {/* Canvas behind the floating rail. The gutter around the panel shows
-          this, so it has to be the dark theme colour -- .main-content keeps its
-          own light surface, so no content screen is affected. */}
-      <div id="layout-wrapper" className="bg-[#050816]" style={{ height: "100vh" }}>
+          this, so it tracks the theme token now that the sidebar itself is
+          theme-aware too -- a fixed dark gutter would frame a light sidebar
+          with a mismatched dark border. */}
+      <div id="layout-wrapper" className="bg-canvas" style={{ height: "100vh" }}>
 
         {/* Backdrop when mobile sidebar is open */}
         {isMobile && mobileSidebarOpen && (

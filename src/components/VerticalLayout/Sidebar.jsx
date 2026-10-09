@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import logoLightPng from "../../assets/images/vellocity-express-white-bg.png";
 import logoCollapsedPng from "../../assets/images/mob-logo.png";
 import ProfileMenu from "../CommonForBoth/TopbarDropdown/ProfileMenu";
+import ThemeToggle from "./ThemeToggle";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
 const Sidebar = (props) => {
@@ -135,6 +136,7 @@ const Sidebar = (props) => {
             as an outside click and dismisses an open logout menu. */}
         <div className="sidebar-foot">
           <ProfileMenu />
+          <ThemeToggle />
           {!isMobile && (
             <button
               type="button"

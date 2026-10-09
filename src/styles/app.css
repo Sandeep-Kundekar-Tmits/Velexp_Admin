@@ -54,6 +54,13 @@
   --color-ink: #e2e8f0;
   --color-ink-muted: #94a3b8;
 
+  /* Base tint for the low-alpha overlay borders/fills used throughout
+     layout-compat.css (the sidebar, header, grid chrome, tabs, toasts...):
+     `rgb(var(--overlay-rgb) / 0.08)` etc. Each call site keeps its own
+     alpha; only this triplet needs to flip per theme -- white lightens a
+     dark surface, the light theme needs the opposite, a dark tint. */
+  --overlay-rgb: 255 255 255;
+
   /* --- type & density --- */
   --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --text-base: 0.8125rem; /* 13px */
@@ -61,9 +68,40 @@
   --spacing-row: 2.125rem; /* 34px table row */
 }
 
+/*
+ * Light theme, opt-in via a `data-theme="light"` attribute on <html> (see
+ * uiStore.themeMode / ThemeToggle.jsx, and index.html for the pre-paint
+ * sync). Redeclares the same five neutrals the dark theme sets above --
+ * same mechanism as the existing [data-print-surface] island these
+ * components already cascade off (see bootstrap-compat.css), just scoped to
+ * the whole document instead of one printable subtree.
+ *
+ * This repaints every token-based call site for free (text-ink in 155+
+ * places, text-ink-muted in 605+, bg-canvas, border-line, and the bg-white/
+ * bg-light/text-black legacy bridge in bootstrap-compat.css, which is
+ * itself var-based). It does NOT fix literal, non-tokenised colours written
+ * directly in a screen (text-white, bg-slate-800, inline hex styles) --
+ * those are patched screen-by-screen as they're spotted looking wrong.
+ */
+[data-theme="light"] {
+  --color-surface: #ffffff;
+  --color-canvas: #f1f5f9;
+  --color-line: #e2e8f0;
+  --color-ink: #0f172a;
+  --color-ink-muted: #64748b;
+  --overlay-rgb: 15 23 42;
+  color-scheme: light;
+}
+
 @layer base {
   html {
     font-size: 16px;
+    /* Default; [data-theme="light"] above overrides it on this same
+       element via its higher-specificity attribute selector. Declared here
+       rather than only on body so it's inherited correctly -- body used to
+       hardcode its own copy, which (being a fresh declaration, not
+       inheritance) always won over whatever html had regardless of theme. */
+    color-scheme: dark;
   }
 
   body {
@@ -75,18 +113,29 @@
        reports with 15-25 numeric columns. */
     font-variant-numeric: tabular-nums;
     -webkit-font-smoothing: antialiased;
-    /* Native controls — <select> drop-down lists, date pickers, checkboxes,
-       scrollbars — are painted by the OS, not the page, so they come back
-       light-on-light on a dark app no matter what CSS says. This is the one
-       declaration that tells the OS which way round we are. Was set on the
-       grid toolbar only, which left every select outside it unreadable. */
-    color-scheme: dark;
   }
 
   /* Tables inherit tabular figures and compact rhythm by default. */
   table {
     font-variant-numeric: tabular-nums;
   }
+}
+
+/* AmbientBackground's "map paper" grid layer (src/components/Common/
+   AmbientBackground.jsx). Plain CSS rather than a Tailwind arbitrary value:
+   the color needs to reference --overlay-rgb, and nesting a var() inside a
+   bracketed linear-gradient() utility is fragile. Was a literal white line
+   at 3% -- invisible by design on the dark canvas it was written for, and
+   literally invisible (white-on-white) once the canvas itself can be light.
+   Bumped to 8% (from an initial 3%) so the grid actually reads as a map
+   backdrop instead of disappearing into the canvas in either theme. */
+.ambient-grid-lines {
+  background-image:
+    linear-gradient(to right, rgb(var(--overlay-rgb) / 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(var(--overlay-rgb) / 0.08) 1px, transparent 1px);
+}
+
+@layer base {
 
   :focus-visible {
     outline: 2px solid var(--color-brand-500);

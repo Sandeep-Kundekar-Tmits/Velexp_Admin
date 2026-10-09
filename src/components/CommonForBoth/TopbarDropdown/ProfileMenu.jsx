@@ -59,7 +59,7 @@ const ProfileMenu = (props) => {
               unhovered -- gating it on a prop meant the label was absent from
               the DOM and hovering the widened rail showed a nameless icon. */}
           <div className="user-info">
-            <div className="font-bold text-white">{displayText}</div>
+            <div className="font-bold text-ink">{displayText}</div>
             {roleLabel && <small>{roleLabel}</small>}
           </div>
         </div>

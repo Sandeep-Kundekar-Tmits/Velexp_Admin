@@ -194,8 +194,10 @@ const AmbientBackground = ({ className, showSpotlight = true, clearCentre = true
     >
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_55%_at_50%_-10%,rgba(59,130,246,0.20),transparent_60%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_85%_110%,rgba(139,92,246,0.18),transparent_60%)]" />
-      {/* Faint grid is the "map paper" the routes are drawn on. */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-size-[72px_72px] mask-[radial-gradient(ellipse_70%_60%_at_50%_45%,black,transparent_70%)]" />
+      {/* Faint grid is the "map paper" the routes are drawn on -- see
+          .ambient-grid-lines in app.css for why this isn't a Tailwind
+          arbitrary value (it needs to reference --overlay-rgb). */}
+      <div className="absolute inset-0 ambient-grid-lines bg-size-[72px_72px] mask-[radial-gradient(ellipse_70%_60%_at_50%_45%,black,transparent_70%)]" />
       {/* clearCentre punches a hole so routes never run behind centred content
           such as the login card. Screens that fill the viewport turn it off. */}
       <div
