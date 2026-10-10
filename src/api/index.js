@@ -570,6 +570,23 @@ export const GET_EMPLOYEE_DETAIL = `${BASE_URL}/api/employee/employees/get-detai
 export const ADD_EMPLOYEE = `${BASE_URL}/api/employee/employees/` // POST
 export const UPDATE_EMPLOYEE = `${BASE_URL}/api/employee/employees/` // PATCH {id}/
 export const DELETE_EMPLOYEE = `${BASE_URL}/api/employee/employees/` // DELETE {id}/
+// Mark an employee's exit (resignation/termination) -- sets is_active=false.
+// POST {employee_code or id, date_of_exit, remark}. Success: 200
+// {"message": "Employee exit recorded successfully", result: {date_of_exit,
+// exit_remark, exit_marked_by, exit_marked_at, status: "inactive",
+// is_active: false}}. The normal create/update calls above silently ignore
+// date_of_exit/exit_remark/exit_marked_by/exit_marked_at -- this is the only
+// endpoint that ever writes them.
+export const MARK_EMPLOYEE_EXIT = `${BASE_URL}/api/employee/employees/mark-exit/`
+// Past exit record(s) for one employee (exited, reversed, exited again...).
+// POST {employee_code}. Confirmed response shape: {message, employee_code,
+// current_date_of_exit, results: [{id, action: "EXIT" | "REVERSAL",
+// date_of_exit, remark, performed_by, performed_at}, ...]}.
+export const EMPLOYEE_EXIT_HISTORY = `${BASE_URL}/api/employee/employees/exit-history/`
+// Undoes the most recent exit (reactivates the account). POST
+// {employee_code, remark} -- writes a "REVERSAL" row into the same history
+// EMPLOYEE_EXIT_HISTORY returns.
+export const REVERSE_EMPLOYEE_EXIT = `${BASE_URL}/api/employee/employees/reverse-exit/`
 
 // Designation master, for the Employee Info tab's Designation dropdown. Same
 // underlying table as the legacy Privileges screen's role list

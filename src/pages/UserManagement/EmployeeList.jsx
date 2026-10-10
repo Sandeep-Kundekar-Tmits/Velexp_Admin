@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Badge, Button, Input, Pagination, PaginationItem, PaginationLink } from "@/components/ui"
+import { UserX, UserCheck } from "lucide-react"
 import TableContainer from "../../components/Table/TableContainer"
 import usePostApiCall from "../../hooks/usePostApiCall"
-import { useDeleteApiCall } from "../../hooks/useDeleteApiCall"
-import { EMPLOYEE_LIST, DELETE_EMPLOYEE } from "../../api"
+import { EMPLOYEE_LIST } from "../../api"
 import MainHeaderComp from "../../components/MainHeaderCom"
-import DeleteModal from "../../components/Common/DeleteModal"
+import MarkExitModal from "../../components/UserManagement/MarkExitModal"
+import ReverseExitModal from "../../components/UserManagement/ReverseExitModal"
 import Loader from "@/Loaders/Loader"
 
 const EmployeeList = () => {
@@ -14,11 +15,11 @@ const EmployeeList = () => {
 
     const navigate = useNavigate()
     const { apifunc: getEmployees, data, loading } = usePostApiCall()
-    const { apifunc: deleteEmployee, loading: deleteLoading } = useDeleteApiCall()
 
     const [employees, setEmployees] = useState([])
-    const [selectedInfo, setSelectedInfo] = useState(null)
-    const [showDelete, setShowDelete] = useState(false)
+    const [exitTarget, setExitTarget] = useState(null)
+    const [showMarkExit, setShowMarkExit] = useState(false)
+    const [showReverseExit, setShowReverseExit] = useState(false)
     const [page, setPage] = useState(1)
     const [searchInput, setSearchInput] = useState("")
     const [search, setSearch] = useState("")
@@ -64,17 +65,23 @@ const EmployeeList = () => {
     const handleEdit = useCallback((rowData) => navigate(`/employees/edit/${rowData?.id}`), [navigate])
     const handleAdd = useCallback(() => navigate("/employees/add"), [navigate])
 
-    const handleDeleteClick = useCallback((rowData) => {
-        setSelectedInfo(rowData)
-        setShowDelete(true)
+    const handleMarkExitClick = useCallback((rowData) => {
+        setExitTarget(rowData)
+        setShowMarkExit(true)
     }, [])
 
-    const onDelete = async () => {
-        const isDeleted = await deleteEmployee(`${DELETE_EMPLOYEE}${selectedInfo?.id}/`)
-        if (isDeleted) {
-            setShowDelete(false)
-            setEmployees((prev) => prev.filter((ele) => ele?.id !== selectedInfo?.id))
-        }
+    const handleReverseExitClick = useCallback((rowData) => {
+        setExitTarget(rowData)
+        setShowReverseExit(true)
+    }, [])
+
+    // Flip the row to Inactive locally rather than a full refetch.
+    const onExitRecorded = () => {
+        setEmployees((prev) => prev.map((ele) => (ele?.id === exitTarget?.id ? { ...ele, is_active: false } : ele)))
+    }
+
+    const onExitReversed = () => {
+        setEmployees((prev) => prev.map((ele) => (ele?.id === exitTarget?.id ? { ...ele, is_active: true } : ele)))
     }
 
     const columns = useMemo(() => [
@@ -102,11 +109,19 @@ const EmployeeList = () => {
                 <div className="flex gap-2">
                     <Button color="success" size="sm" onClick={() => handleView(row.original)}>View</Button>
                     <Button color="primary" size="sm" onClick={() => handleEdit(row.original)}>Edit</Button>
-                    <Button color="danger" size="sm" onClick={() => handleDeleteClick(row.original)}>Delete</Button>
+                    {row.original.is_active ? (
+                        <Button color="secondary" size="sm" title="Mark Exit" onClick={() => handleMarkExitClick(row.original)}>
+                            <UserX size={14} />
+                        </Button>
+                    ) : (
+                        <Button color="success" size="sm" title="Reverse Exit" onClick={() => handleReverseExitClick(row.original)}>
+                            <UserCheck size={14} />
+                        </Button>
+                    )}
                 </div>
             ),
         },
-    ], [handleView, handleEdit, handleDeleteClick])
+    ], [handleView, handleEdit, handleMarkExitClick, handleReverseExitClick])
 
     return (
         <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
@@ -170,7 +185,8 @@ const EmployeeList = () => {
                 )}
             </div>
 
-            <DeleteModal show={showDelete} onCloseClick={() => setShowDelete(false)} onDeleteClick={onDelete} loading={deleteLoading} />
+            <MarkExitModal employee={exitTarget} isOpen={showMarkExit} setIsOpen={setShowMarkExit} onSuccess={onExitRecorded} />
+            <ReverseExitModal employee={exitTarget} isOpen={showReverseExit} setIsOpen={setShowReverseExit} onSuccess={onExitReversed} />
         </div>
     )
 }

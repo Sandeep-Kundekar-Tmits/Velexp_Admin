@@ -30,6 +30,7 @@ const PincodeMasterHome = lazy(() => import("../pages/Masters/PincodeMasterHome"
 const VehicleMaster = lazy(() => import("../pages/Masters/VehicleMaster"));
 // User Management - Employee Management
 const EmployeeList = lazy(() => import("../pages/UserManagement/EmployeeList"));
+const ExitHistoryList = lazy(() => import("../pages/UserManagement/ExitHistoryList"));
 const AddEmployee = lazy(() => import("../pages/UserManagement/AddEmployee"));
 const EditEmployee = lazy(() => import("../pages/UserManagement/EditEmployee"));
 const ViewEmployee = lazy(() => import("../pages/UserManagement/ViewEmployee"));
@@ -205,6 +206,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/vehicle-master", component: <VehicleMaster /> },
     // User Management - Employee Management
     { path: "/employees", component: <EmployeeList /> },
+    { path: "/exit-history", component: <ExitHistoryList /> },
     { path: "/employees/add", component: <AddEmployee /> },
     { path: "/employees/edit/:id", component: <EditEmployee /> },
     { path: "/employees/:id", component: <ViewEmployee /> },

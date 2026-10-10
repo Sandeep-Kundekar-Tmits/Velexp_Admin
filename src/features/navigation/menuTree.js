@@ -531,6 +531,7 @@ export const MENU = [
     children: [
       { label: "Service Centres", url: "/service-centres" },
       { label: "Employee", url: "/employees" },
+      { label: "Exit History", url: "/exit-history" },
       { label: "Rider Store Routes", url: "/rider-store-routes" },
       { label: "Pincode Master", url: "/pincode-master" }
     ]

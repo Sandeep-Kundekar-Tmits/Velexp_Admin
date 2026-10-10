@@ -157,6 +157,7 @@ const CHILDREN = {
     "Ops Master": [
         { link_name: "Service Centres", link_url: "/service-centres" },
         { link_name: "Employee", link_url: "/employees" },
+        { link_name: "Exit History", link_url: "/exit-history" },
         { link_name: "Rider Store Routes", link_url: "/rider-store-routes" },
         { link_name: "Pincode Master", link_url: "/pincode-master" },
     ],
