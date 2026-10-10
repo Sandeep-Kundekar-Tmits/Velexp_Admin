@@ -33,7 +33,10 @@ const AddEmployee = () => {
     const { SucceesToaster, ErrorToaster } = ToasterProvider()
     const { apifunc: addEmployee, loading } = usePostFileApicall()
 
-    const [formData, setFormData] = useState({ is_active: true, service_center: [] })
+    // Status dropdown is hidden on this form (see EmployeeInfoStep) -- every
+    // new employee starts active, so that's the default sent in the payload
+    // without the user having to pick it.
+    const [formData, setFormData] = useState({ is_active: true, status: "active", service_center: [] })
     const [activeTab, setActiveTab] = useState(1)
     // Holds the backend's own created-employee record, shown in a summary
     // modal before leaving the page -- the Employee Code and Username are

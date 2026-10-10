@@ -4,7 +4,7 @@ import { Row, Col, FormGroup, Label, Input, FormFeedback, Button } from "@/compo
 import Select from "react-select"
 import { customStyles } from "../../../helpers/CustomStyle"
 import { useDepartments, useDesignations, useServiceCentreDirectory } from "../../../hooks/queries/useReferenceData"
-import { STATUS_OPTIONS, GENDER_OPTIONS, EMPLOYEE_TYPE_OPTIONS } from "../employeeFormOptions"
+import { GENDER_OPTIONS, EMPLOYEE_TYPE_OPTIONS } from "../employeeFormOptions"
 
 const RequiredMark = () => <span className="text-danger-500"> *</span>
 
@@ -35,14 +35,7 @@ const EmployeeInfoStep = ({ formData, setFormData, onNextButtonClick, isEdit = f
     }
 
     const handleSelectChange = (name, option) => {
-        setFormData((prev) => ({
-            ...prev,
-            [name]: option?.value ?? null,
-            // No standalone "Active" checkbox in this form -- the Status
-            // dropdown is the only control for is_active, so it's derived
-            // here and still goes out in the submit payload.
-            ...(name === "status" ? { is_active: option?.value === "active" } : {}),
-        }))
+        setFormData((prev) => ({ ...prev, [name]: option?.value ?? null }))
     }
 
     // service_center is multi-select -- an employee can belong to more than
@@ -56,7 +49,9 @@ const EmployeeInfoStep = ({ formData, setFormData, onNextButtonClick, isEdit = f
         const newErrors = {}
         if (!formData?.first_name) newErrors.first_name = "First name is required"
         if (!formData?.email) newErrors.email = "Email is required"
-        if (!formData?.status) newErrors.status = "Status is required"
+        // Status dropdown is hidden (see below) -- create defaults it to
+        // "active", edit keeps whatever the record already had -- so there's
+        // nothing left for the user to fill in here.
         if (!formData?.designation) newErrors.designation = "Designation is required"
         if (!formData?.service_center?.length) newErrors.service_center = "At least one service centre is required"
         // Credentials are set once at creation, not re-required on every edit --
@@ -94,20 +89,12 @@ const EmployeeInfoStep = ({ formData, setFormData, onNextButtonClick, isEdit = f
                             {errors?.type && <div className="text-danger-500 text-sm mt-1">{errors.type}</div>}
                         </FormGroup>
                     </Col>
-                    <Col md={3}>
-                        <FormGroup>
-                            <Label>Status<RequiredMark /></Label>
-                            <Select
-                                options={STATUS_OPTIONS}
-                                onChange={(option) => handleSelectChange("status", option)}
-                                value={STATUS_OPTIONS.find((opt) => opt.value === formData.status) || null}
-                                placeholder="Select Status"
-                                isClearable
-                                styles={customStyles}
-                            />
-                            {errors?.status && <div className="text-danger-500 text-sm mt-1">{errors.status}</div>}
-                        </FormGroup>
-                    </Col>
+                    {/* Hidden on both Add and Edit -- create defaults
+                        status/is_active to "active" (AddEmployee.jsx's
+                        initial formData); edit just carries through whatever
+                        the record already had, unmodified. Active/inactive
+                        is managed separately now via Mark Exit / Reverse
+                        Exit, not by hand-picking a value here. */}
                     <Col md={3}>
                         <FormGroup>
                             <Label>Password{!isEdit && <RequiredMark />}</Label>
