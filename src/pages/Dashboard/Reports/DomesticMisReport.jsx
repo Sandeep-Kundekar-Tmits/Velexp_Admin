@@ -4,12 +4,12 @@
 // envelope), so this calls rawRequest directly rather than the generic
 // use*ApiCall hooks, same reasoning as RiderStoreRoutes.jsx/PincodeMaster*.
 //
-// The POST /api/admin-panel/domestic-mis/ response shape wasn't given to us
-// (only the request was documented) -- the table columns and summary strip
-// below are therefore built DYNAMICALLY from whatever keys the response
-// actually returns, rather than a fixed column list that could silently
-// hide fields. Once a real response is seen, these can be swapped for an
-// explicit column list (see InternationalMisReport.jsx for that pattern).
+// Response confirmed as { tracking_data: [...], status_counts: {...} }
+// (D:\VelexpDashboard\VelexpDashboard's TrackDetaillayout.jsx /
+// TrackDetailTableComp.jsx, the reference this screen mirrors). Columns,
+// labels, order and the Chargeable Weight/export formatting below match
+// that reference's domestic column set exactly rather than being derived
+// from whatever keys happen to come back.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import AsyncSelect from "react-select/async"
 import { Badge, Button, Label, Spinner } from "@/components/ui"
@@ -22,29 +22,53 @@ import Loader from "@/Loaders/Loader"
 import ToasterProvider from "../../../helpers/ToasterProvider"
 import YMD_DateFormate from "../../../helpers/YMD_DateFormate"
 import { isIsoDateLike, formatDisplayDate } from "../../../helpers/formatDisplayDate"
+import { useExcelExport } from "../../../hooks/useExcelExport"
 import { DOMESTIC_MIS_CUSTOMERS, DOMESTIC_MIS_REPORT } from "../../../api"
+
+// Max of the two weight fields, same "chargeable weight" convention the
+// reference uses instead of showing weight/vol_weight separately.
+const chargeableWeight = (row) => Math.max(Number(row?.weight || 0), Number(row?.vol_weight || 0))
 
 const humanize = (key) => key
     .replace(/_/g, " ")
     .replace(/([a-z])([A-Z])/g, "$1 $2")
     .replace(/\b\w/g, (c) => c.toUpperCase())
 
+// Confirmed response shape: { tracking_data: [...] }. None of the generic
+// names this used to guess at (data/results/rows) matched, so the array was
+// never found -- the fetch succeeded, rows stayed [], and the table rendered
+// with zero records. tracking_data is checked first; the rest are kept as a
+// fallback in case a different filter_status ever shapes the response
+// differently.
 const unwrapRows = (res) => {
     if (Array.isArray(res)) return res
-    if (Array.isArray(res?.data)) return res.data
-    if (Array.isArray(res?.results)) return res.results
-    if (Array.isArray(res?.rows)) return res.rows
+    const candidates = [res?.tracking_data, res?.data, res?.results, res?.rows]
+    for (const c of candidates) {
+        if (Array.isArray(c)) return c
+        if (Array.isArray(c?.results)) return c.results
+        if (Array.isArray(c?.data)) return c.data
+        if (Array.isArray(c?.rows)) return c.rows
+    }
     return []
 }
 
-// Any top-level scalar field the response sends alongside the row array
-// (e.g. total_count, total_amount) is shown as a summary stat -- generic,
-// since the exact field names weren't documented either.
+// Any scalar field sent alongside the row array (e.g. total_count,
+// total_amount) is shown as a summary stat -- generic, since the exact field
+// names weren't documented either. Scans both the top-level response and
+// whichever nested envelope (res.results, res.data...) actually turned out
+// to hold the array, since a scalar like total_amount can sit next to the
+// array at either level depending on how deeply this response is wrapped.
+const scalarEntries = (obj) =>
+    !obj || Array.isArray(obj) || typeof obj !== "object"
+        ? []
+        : Object.entries(obj).filter(([, v]) => v !== null && typeof v !== "object")
+
 const extractSummary = (res) => {
-    if (!res || Array.isArray(res) || typeof res !== "object") return []
-    return Object.entries(res)
-        .filter(([, v]) => v !== null && typeof v !== "object")
-        .map(([key, value]) => ({ key, label: humanize(key), value }))
+    const seen = new Map()
+    for (const [key, value] of [...scalarEntries(res), ...scalarEntries(res?.results), ...scalarEntries(res?.data)]) {
+        seen.set(key, value)
+    }
+    return Array.from(seen.entries()).map(([key, value]) => ({ key, label: humanize(key), value }))
 }
 
 const formatCell = (value) => {
@@ -67,6 +91,7 @@ const DomesticMisReport = () => {
     const [summary, setSummary] = useState([])
     const [loading, setLoading] = useState(false)
     const [hasSearched, setHasSearched] = useState(false)
+    const { exportToExcel, isExporting } = useExcelExport()
 
     // Default date range: current month to date, same convention as the
     // sibling MIS report screens.
@@ -127,15 +152,61 @@ const DomesticMisReport = () => {
         }
     }
 
-    const columns = useMemo(() => {
-        if (!rows.length) return []
-        return Object.keys(rows[0]).map((key) => ({
-            header: humanize(key),
-            accessorKey: key,
-            enableSorting: true,
-            cell: ({ getValue }) => formatCell(getValue()),
-        }))
-    }, [rows])
+    const columns = useMemo(() => [
+        { header: "Sl. No.", id: "sl_no", enableSorting: false, cell: ({ row }) => row.index + 1 },
+        { header: "AWB No.", accessorKey: "awb", enableSorting: true, cell: ({ getValue }) => getValue() || "-" },
+        { header: "Order No.", accessorKey: "orderno", enableSorting: true, cell: ({ getValue }) => getValue() || "-" },
+        { header: "Cust Ref No", accessorKey: "ref2", enableSorting: true, cell: ({ getValue }) => getValue() || "-" },
+        { header: "Pickup Date", accessorKey: "pupdate", enableSorting: true, cell: ({ getValue }) => formatDisplayDate(getValue()) || "-" },
+        { header: "ORGSC", accessorKey: "orgsc", enableSorting: true, cell: ({ getValue }) => getValue() || "-" },
+        { header: "Shipper", accessorKey: "pick_name", enableSorting: true, cell: ({ getValue }) => getValue() || "-" },
+        { header: "Contact Person", accessorKey: "contact_person", enableSorting: true, cell: ({ getValue }) => getValue() || "-" },
+        { header: "Consignee", accessorKey: "consignee", enableSorting: true, cell: ({ getValue }) => getValue() || "-" },
+        { header: "Status", accessorKey: "status", enableSorting: true, cell: ({ getValue }) => getValue() || "-" },
+        { header: "Status Date", accessorKey: "statdate", enableSorting: true, cell: ({ getValue }) => formatDisplayDate(getValue()) || "-" },
+        { header: "Pincode", accessorKey: "pincode", enableSorting: true, cell: ({ getValue }) => getValue() || "-" },
+        { header: "Remarks", accessorKey: "remarks", enableSorting: true, cell: ({ getValue }) => getValue() || "-" },
+        { header: "Time", accessorKey: "time", enableSorting: true, cell: ({ getValue }) => getValue() || "-" },
+        { header: "Chargeable Weight", id: "chargeable_weight", enableSorting: true, cell: ({ row }) => chargeableWeight(row.original).toFixed(2) },
+        { header: "Destination", accessorKey: "destination", enableSorting: true, cell: ({ getValue }) => getValue() || "-" },
+        { header: "Service Center", accessorKey: "service_center", enableSorting: true, cell: ({ getValue }) => getValue() || "-" },
+        { header: "Pieces", accessorKey: "number_of_pieces", enableSorting: true, cell: ({ getValue }) => getValue() ?? "-" },
+        { header: "Shipment Value", accessorKey: "shipment_value", enableSorting: true, cell: ({ getValue }) => { const v = getValue(); return v != null ? Number(v).toFixed(2) : "-" } },
+        { header: "Payment Mode", accessorKey: "payment_mode", enableSorting: true, cell: ({ getValue }) => getValue() || "-" },
+        { header: "POD", accessorKey: "pod", enableSorting: true, cell: ({ getValue }) => (getValue() ? "True" : "False") },
+        { header: "OTP Verified", accessorKey: "otp_verified", enableSorting: true, cell: ({ getValue }) => (getValue() ? "True" : "False") },
+    ], [])
+
+    // Mirrors the on-screen columns 1:1, except Chargeable Weight/Shipment
+    // Value export as real numbers rather than the .toFixed() display
+    // strings -- so SUM()/other formulas in Excel work on the column
+    // instead of treating it as text, same reasoning as the reference.
+    const buildExportRow = useCallback((row, index) => ({
+        "Sl. No.": index + 1,
+        "AWB No.": row.awb || "-",
+        "Order No.": row.orderno || "-",
+        "Cust Ref No": row.ref2 || "-",
+        "Pickup Date": formatDisplayDate(row.pupdate) || "-",
+        "ORGSC": row.orgsc || "-",
+        "Shipper": row.pick_name || "-",
+        "Contact Person": row.contact_person || "-",
+        "Consignee": row.consignee || "-",
+        "Status": row.status || "-",
+        "Status Date": formatDisplayDate(row.statdate) || "-",
+        "Pincode": row.pincode || "-",
+        "Remarks": row.remarks || "-",
+        "Time": row.time || "-",
+        "Chargeable Weight": chargeableWeight(row),
+        "Destination": row.destination || "-",
+        "Service Center": row.service_center || "-",
+        "Pieces": row.number_of_pieces ?? "-",
+        "Shipment Value": Number(row.shipment_value || 0),
+        "Payment Mode": row.payment_mode || "-",
+        "POD": row.pod ? "True" : "False",
+        "OTP Verified": row.otp_verified ? "True" : "False",
+    }), [])
+
+    const handleDownloadExcel = () => exportToExcel(rows, "Domestic_MIS_Report", buildExportRow)
 
     return (
         <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
@@ -228,6 +299,9 @@ const DomesticMisReport = () => {
                             pagination="pagination"
                             paginationWrapper="dataTables_paginate paging_simple_numbers"
                             SearchPlaceholder="Search within results..."
+                            isDownloadExcle={true}
+                            onDownloadExcle={handleDownloadExcel}
+                            ExcleLoading={isExporting}
                             tableClass="table-nowrap"
                             theadClass="sticky top-0 z-10"
                             isStickyHeader={true}
