@@ -4,6 +4,7 @@ import { Button, Col, FormGroup, Label, Row } from "@/components/ui";
 import Loader from "@/Loaders/Loader";
 import TableContainer from "../../../components/Table/TableContainer";
 import MainHeaderComp from "../../../components/MainHeaderCom";
+import DateRangeInput from "../../../components/Common/DateRangeInput";
 import {
     GET_OPS_PENDING_REPORT,
     DOWNLOAD_OPS_PENDING_REPORT,
@@ -59,9 +60,16 @@ const PendingReport = () => {
         setSelectedSCs(chosen.some((o) => o.value === "__all__") ? scOptions : chosen);
     };
 
-    // ── Date range: fixed 01-01-2025 → today (picker hidden) ──────────────
-    const today = new Date().toISOString().split("T")[0];
-    const [selectedRange] = useState({ startDate: "2025-01-01", endDate: today });
+    // ── Date range: picker, defaulting to the last 7 days ──────────────────
+    // Was a fixed, hidden 01-01-2025 → today -- every query scanned nearly
+    // the whole table's history. A visible, editable range narrows that to
+    // a sensible default while still letting a wider lookup be chosen.
+    const [selectedRange, setSelectedRange] = useState(() => {
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 7);
+        return { startDate, endDate };
+    });
 
     // ── Report data ────────────────────────────────────────────────────────
     const SERVER_PAGE_SIZE = 1000;
@@ -227,6 +235,17 @@ const PendingReport = () => {
                                 components={{ MultiValue: SCMultiValue }}
                                 menuPortalTarget={document.body}
                                 menuPosition="fixed"
+                            />
+                        </FormGroup>
+                    </Col>
+
+                    <Col xs="auto" style={{ minWidth: 260 }}>
+                        <FormGroup className="mb-2">
+                            <Label className="mb-1 text-xs font-semibold">Date Range</Label>
+                            <DateRangeInput
+                                value={selectedRange}
+                                onChange={setSelectedRange}
+                                isBorder={true}
                             />
                         </FormGroup>
                     </Col>
