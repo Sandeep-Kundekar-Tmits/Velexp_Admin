@@ -189,10 +189,11 @@ const TrackAWB = () => {
                 "Order ID": bookingData.orderid,
                 Customer: bookingData.customer_name,
                 "Booking Date": formatDate(bookingData.booking_date || bookingData.booked_date),
-                // Same two source fields as Booking Date, opposite fallback
-                // order -- a distinct label for data that's often (but not
-                // always) the same value, matching the reference app.
-                "Airway Bill Date": formatDate(bookingData.booked_date || bookingData.booking_date),
+                // Its own real field, not a guessed fallback off Booking
+                // Date -- confirmed from a live GET_AWB_TRACKING response:
+                // booking_data.awb_date is a distinct timestamp (when the
+                // AWB itself was generated, not when the order was booked).
+                "Airway Bill Date": formatDate(bookingData.awb_date),
                 Product: bookingData.product,
                 Weight: bookingData.weight != null ? `${bookingData.weight} Kg` : null,
                 "Vol. Weight": bookingData.volumetric_weight != null ? `${bookingData.volumetric_weight} Kg` : null,
