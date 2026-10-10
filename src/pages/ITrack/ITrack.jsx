@@ -1,13 +1,22 @@
 import React, { useState, useMemo, useCallback } from "react";
-import { Button, Input, Label } from "@/components/ui";
+import { Button, Input, Label, Nav, NavItem, NavLink, TabContent, TabPane } from "@/components/ui";
 import MainHeaderCom from "../../components/MainHeaderCom";
 import TableContainer from "../../components/Table/TableContainer";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
 import { ITRACK_SCANS } from "../../api";
 import ToasterProvider from "../../helpers/ToasterProvider";
 import Loader from "@/Loaders/Loader";
+
+// screen_name is logged as "<screen> by <who scanned it>" (see TrackAWB.jsx's
+// logTrackScan) -- e.g. "Shipment & Bag Tracking by Admin" and "Shipment &
+// Bag Tracking by PNSO TECHNOLOGY PVT LTD" are the same screen, different
+// scanners. Just two tabs: that screen (whoever did it), and everything else
+// together -- not one tab per distinct "by <who>" or per other screen name.
+const isTrackingScreen = (screenName) => /shipment\s*&\s*bag\s*tracking/i.test(screenName || "");
+
 const ITrack = () => {
     const [awbNumber, setAwbNumber] = useState("");
+    const [activeTab, setActiveTab] = useState("tracking");
     const { apifunc: getScans, data, loading, error } = useGetApiCall();
     const { ErrorToaster } = ToasterProvider();
 
@@ -16,6 +25,10 @@ const ITrack = () => {
             ErrorToaster("Please enter an AWB number");
             return;
         }
+        // Back to the first tab for every new lookup, same reasoning as
+        // before: a tab that happened to be active for the previous AWB
+        // might have zero rows for this one.
+        setActiveTab("tracking");
         await getScans(`${ITRACK_SCANS}?awb=${awbNumber}`);
     };
 
@@ -78,6 +91,24 @@ const ITrack = () => {
         return Array.isArray(data) ? data : [];
     }, [data]);
 
+    // Exactly two tabs: Shipment & Bag Tracking scans, and everything else
+    // (Manual Status Update, or any other screen_name) lumped into "Other".
+    const trackingRows = useMemo(
+        () => processedData.filter((row) => isTrackingScreen(row.screen_name)),
+        [processedData]
+    );
+    const otherRows = useMemo(
+        () => processedData.filter((row) => !isTrackingScreen(row.screen_name)),
+        [processedData]
+    );
+
+    const tabs = useMemo(() => ([
+        { key: "tracking", label: "Shipment & Bag Tracking", count: trackingRows.length },
+        { key: "other", label: "Other", count: otherRows.length },
+    ]), [trackingRows, otherRows]);
+
+    const visibleData = activeTab === "tracking" ? trackingRows : otherRows;
+
     return (
         <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
             <MainHeaderCom
@@ -122,29 +153,54 @@ const ITrack = () => {
                     </div>
                 </form>
 
+                {!loading && processedData.length > 0 && (
+                    <Nav tabs className="nav-tabs-custom nav-justified mt-4 mb-0">
+                        {tabs.map((tab) => (
+                            <NavItem key={tab.key}>
+                                <NavLink
+                                    active={activeTab === tab.key}
+                                    style={{ cursor: "pointer" }}
+                                    onClick={() => setActiveTab(tab.key)}
+                                    className={activeTab === tab.key ? "bg-[#3B82F6]/12 text-[15px] font-bold" : "text-[15px] font-bold"}
+                                >
+                                    {tab.label} ({tab.count})
+                                </NavLink>
+                            </NavItem>
+                        ))}
+                    </Nav>
+                )}
+
                 <div className="page-fit-body mt-4">
                     {loading ? (
                         <Loader message="Fetching scan records..." fullscreen={false} />
                     ) : (
-                        <TableContainer
-                            columns={columns}
-                            data={processedData}
-                            isGlobalFilter={true}
-                            isPagination={true}
-                            isCustomPageSize={true}
-                            SearchPlaceholder="Search scan records..."
-                            pagination="pagination"
-                            buttonClass="btn-success"
-                            paginationWrapper='dataTables_paginate paging_simple_numbers'
-                            /* table-bordered dropped: .grid-shell draws the row
-                               rules now, and the two only fought each other. */
-                            tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
-                            theadClass="sticky top-0 z-10"
-                            isStickyHeader={true}
-                            stickyTop={0}
-                            fillHeight
-                            tableHeight="60vh"
-                        />
+                        <TabContent activeTab={activeTab} className="page-fit-body">
+                            {tabs.map((tab) => (
+                                <TabPane key={tab.key} tabId={tab.key} className="page-fit-body">
+                                    {activeTab === tab.key && (
+                                        <TableContainer
+                                            columns={columns}
+                                            data={visibleData}
+                                            isGlobalFilter={true}
+                                            isPagination={true}
+                                            isCustomPageSize={true}
+                                            SearchPlaceholder="Search scan records..."
+                                            pagination="pagination"
+                                            buttonClass="btn-success"
+                                            paginationWrapper='dataTables_paginate paging_simple_numbers'
+                                            /* table-bordered dropped: .grid-shell draws the row
+                                               rules now, and the two only fought each other. */
+                                            tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
+                                            theadClass="sticky top-0 z-10"
+                                            isStickyHeader={true}
+                                            stickyTop={0}
+                                            fillHeight
+                                            tableHeight="60vh"
+                                        />
+                                    )}
+                                </TabPane>
+                            ))}
+                        </TabContent>
                     )}
                 </div>
             </div>
