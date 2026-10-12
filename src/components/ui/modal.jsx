@@ -90,7 +90,7 @@ export const Modal = forwardRef(function Modal(
         className={cn(
           "w-full overflow-hidden rounded-2xl border border-[rgb(var(--overlay-rgb)/0.1)]",
           "bg-[color-mix(in_srgb,var(--color-surface)_85%,transparent)] backdrop-blur-xl",
-          "shadow-[0_30px_80px_-30px_rgba(2,6,23,0.95)]",
+          "shadow-[0_30px_80px_-30px_var(--shadow-elevated-strong)]",
           /* max-w-none to beat the size cap, and a flex column so the body
              takes the leftover height -- a full-screen dialog whose body is
              auto-height would leave the map floating at the top of an empty
@@ -192,7 +192,7 @@ export const Offcanvas = forwardRef(function Offcanvas(
         className={cn(
           "absolute flex flex-col overflow-hidden rounded-2xl border border-[rgb(var(--overlay-rgb)/0.1)]",
           "bg-[color-mix(in_srgb,var(--color-surface)_85%,transparent)] backdrop-blur-xl",
-          "shadow-[0_30px_80px_-30px_rgba(2,6,23,0.95)]",
+          "shadow-[0_30px_80px_-30px_var(--shadow-elevated-strong)]",
           OFFCANVAS_POS[direction],
           className
         )}

@@ -260,7 +260,7 @@ const UserManagementList = () => {
                             initial="hidden"
                             animate="show"
                             whileHover={{ y: -2 }}
-                            className="group rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[color-mix(in_srgb,var(--color-surface)_70%,transparent)] p-3.5 backdrop-blur-xl transition-colors duration-200 hover:border-[rgb(var(--overlay-rgb)/0.16)]"
+                            className="group rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[var(--glass-surface)] p-3.5 backdrop-blur-xl transition-colors duration-200 hover:border-[rgb(var(--overlay-rgb)/0.16)]"
                         >
                             <div className="flex items-start justify-between">
                                 <p className="text-[11px] font-medium uppercase tracking-wider text-ink-muted">

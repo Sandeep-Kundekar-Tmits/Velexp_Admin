@@ -29,7 +29,7 @@ import MainHeaderComp from "../../../components/MainHeaderCom";
 const Section = ({ icon: Icon, title, children }) => (
     /* p-4 on a phone: at p-5 the card padding plus the Row/Col gutters took
        ~56px of a 360px screen, leaving the inputs noticeably narrow. */
-    <div className="rounded-2xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[color-mix(in_srgb,var(--color-surface)_70%,transparent)] p-4 backdrop-blur-xl sm:p-5">
+    <div className="rounded-2xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[var(--glass-surface)] p-4 backdrop-blur-xl sm:p-5">
         <h5 className="mb-4 flex items-center gap-2 text-[15px] font-semibold text-ink">
             <Icon aria-hidden="true" className="size-4 text-[#3B82F6]" />
             {title}

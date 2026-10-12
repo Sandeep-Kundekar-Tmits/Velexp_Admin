@@ -48,7 +48,7 @@
   z-index: 1001;
   /* Same glass as the cards on the new screens: palette "Card" over the
      #050816 canvas, not a colour of its own. */
-  background: color-mix(in srgb, var(--color-surface) 70%, transparent);
+  background: var(--glass-surface);
   backdrop-filter: blur(20px);
   border: 1px solid rgb(var(--overlay-rgb) / 0.08);
   border-radius: 1.25rem;
@@ -57,7 +57,7 @@
      straight to the panel's bottom edge and covered the rounded corner the
      border-radius above was supposed to show. */
   overflow: hidden;
-  box-shadow: 0 24px 60px -24px rgb(2 6 23 / 0.9),
+  box-shadow: 0 24px 60px -24px var(--shadow-elevated),
     0 0 48px -28px rgb(59 130 246 / 0.65);
   color: var(--color-ink-muted);
   display: flex;
@@ -102,7 +102,7 @@ body.vertical-collpsed .vertical-menu .metismenu li>a {
  */
 body.vertical-collpsed .vertical-menu:hover {
   width: var(--sidebar-width-expanded);
-  box-shadow: 0 30px 70px -20px rgb(2 6 23 / 0.95),
+  box-shadow: 0 30px 70px -20px var(--shadow-elevated-strong),
     0 0 60px -24px rgb(59 130 246 / 0.75);
 }
 
@@ -256,9 +256,9 @@ body.vertical-collpsed .vertical-menu .metismenu li>a>i {
   padding: 0.5rem 1rem;
   border: 1px solid rgb(var(--overlay-rgb) / 0.08);
   border-radius: 1.25rem;
-  background: color-mix(in srgb, var(--color-surface) 70%, transparent);
+  background: var(--glass-surface);
   backdrop-filter: blur(20px);
-  box-shadow: 0 18px 45px -28px rgb(2 6 23 / 0.9);
+  box-shadow: 0 18px 45px -28px var(--shadow-elevated);
 }
 
 /* min-width:0 is what lets the ellipsis below actually trigger -- a flex item
@@ -465,16 +465,23 @@ body.vertical-collpsed .vertical-menu .metismenu li>a>i {
   cursor: not-allowed;
 }
 
+/* A genuinely solid fill, not the faint 16%-opacity tint this used to be
+   despite its name -- that tint plus a pale green text color (#86efac,
+   tuned only for a dark card) read as barely-there on the light theme, and
+   was still fairly washed out even as a success-500 token at that low an
+   opacity. White on solid green is unambiguous in either theme, same
+   treatment table-action-btn-primary already uses. */
 .table-action-btn-solid {
-  border: 1px solid rgb(34 197 94 / 0.35);
-  background: rgb(34 197 94 / 0.16);
-  color: #86efac;
+  border: 1px solid transparent;
+  background: var(--color-success-500);
+  color: #fff;
+  box-shadow: 0 6px 16px -8px rgb(34 197 94 / 0.7);
 }
 
 .table-action-btn-solid:not(:disabled):hover {
-  background: rgb(34 197 94 / 0.26);
-  color: var(--color-ink);
-  box-shadow: 0 0 18px -4px rgb(34 197 94 / 0.9);
+  background: color-mix(in srgb, var(--color-success-500) 85%, black);
+  color: #fff;
+  box-shadow: 0 10px 24px -8px rgb(34 197 94 / 0.85);
 }
 
 /* The extra export buttons (excelItems). Green like the one above, because
@@ -487,7 +494,7 @@ body.vertical-collpsed .vertical-menu .metismenu li>a>i {
 
 .table-action-btn-export:not(:disabled):hover {
   border-color: rgb(34 197 94 / 0.45);
-  color: #86efac;
+  color: var(--color-success-500);
   background: rgb(34 197 94 / 0.12);
 }
 
@@ -1453,7 +1460,7 @@ thead.table-light th {
     --grid-accent: #3b82f6;
     --grid-line: rgb(var(--overlay-rgb) / 0.08);
     --grid-control: rgb(var(--overlay-rgb) / 0.04);
-    --grid-surface: color-mix(in srgb, var(--color-surface) 70%, transparent);
+    --grid-surface: var(--glass-surface);
     --grid-header: color-mix(in srgb, var(--color-canvas), var(--color-surface));
   }
 }
@@ -1468,7 +1475,7 @@ thead.table-light th {
   border-radius: 1rem;
   background: var(--grid-surface);
   backdrop-filter: blur(20px);
-  box-shadow: 0 24px 70px -30px rgb(2 6 23 / 0.9);
+  box-shadow: 0 24px 70px -30px var(--shadow-elevated);
   /* Deliberately NOT overflow:hidden. Nothing opaque reaches the rounded
      corners -- the toolbar and pagination bars are transparent and the header
      row sits below the toolbar -- while several screens put a react-select in
@@ -1819,7 +1826,7 @@ thead.table-light th {
   border: 1px solid rgb(var(--overlay-rgb) / 0.1);
   border-radius: 0.75rem;
   background: var(--color-surface);
-  box-shadow: 0 24px 60px -20px rgb(2 6 23 / 0.9);
+  box-shadow: 0 24px 60px -20px var(--shadow-elevated);
   /* Never wider or taller than the window it is measured against, whatever the
      calendar's own intrinsic size. The component drops to one stacked month
      below sm; this is the backstop for anything in between. */
@@ -2215,7 +2222,7 @@ thead.table-light th {
   border: 1px solid rgb(var(--overlay-rgb) / 0.1);
   background: var(--toastify-color-dark);
   backdrop-filter: blur(20px);
-  box-shadow: 0 24px 60px -24px rgb(2 6 23 / 0.95);
+  box-shadow: 0 24px 60px -24px var(--shadow-elevated-strong);
   font-size: 13px;
 }
 

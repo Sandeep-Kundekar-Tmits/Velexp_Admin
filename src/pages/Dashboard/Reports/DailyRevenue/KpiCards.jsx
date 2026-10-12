@@ -38,7 +38,7 @@ const StatCard = ({ title, icon: Icon, accent, data, showGst }) => (
      * unbroken list of numbers with nothing to say where one ended.
      */
     <div
-        className="flex h-full flex-col overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[color-mix(in_srgb,var(--color-surface)_70%,transparent)] backdrop-blur-xl"
+        className="flex h-full flex-col overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[var(--glass-surface)] backdrop-blur-xl"
         style={{ borderTop: `3px solid ${accent}` }}
     >
         <div className="p-4">

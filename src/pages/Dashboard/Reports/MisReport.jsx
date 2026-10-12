@@ -20,7 +20,7 @@ import { authFetch } from "@/lib/http";
    have no CSS behind them at all any more, so the borders, colours and
    loading spinner they were meant to draw simply never appeared. */
 const Panel = ({ className, children }) => (
-    <div className={cn("rounded-2xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[color-mix(in_srgb,var(--color-surface)_70%,transparent)] p-4 backdrop-blur-xl", className)}>
+    <div className={cn("rounded-2xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[var(--glass-surface)] p-4 backdrop-blur-xl", className)}>
         {children}
     </div>
 );

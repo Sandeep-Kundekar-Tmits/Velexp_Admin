@@ -191,7 +191,7 @@ const Login = (props) => {
             <motion.div
               variants={itemVariants}
               onPointerMove={onCardPointerMove}
-              className="group relative rounded-3xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[color-mix(in_srgb,var(--color-surface)_70%,transparent)] p-6 shadow-[0_24px_70px_-20px_rgba(2,6,23,0.9)] backdrop-blur-xl sm:p-8"
+              className="group relative rounded-3xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[var(--glass-surface)] p-6 shadow-[0_24px_70px_-20px_rgba(2,6,23,0.9)] backdrop-blur-xl sm:p-8"
             >
               {/* Sheen across the glass. Fades in on hover via Tailwind so no
                   extra React state is needed to know the pointer left. */}

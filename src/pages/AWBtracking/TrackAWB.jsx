@@ -68,7 +68,7 @@ const ACCENTS = {
  * this same three-way split.
  */
 const Section = ({ title, accent = "blue", children }) => (
-    <div className="flex h-full flex-col overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[color-mix(in_srgb,var(--color-surface)_70%,transparent)] backdrop-blur-xl">
+    <div className="flex h-full flex-col overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[var(--glass-surface)] backdrop-blur-xl">
         <div className={`border-b border-[rgb(var(--overlay-rgb)/0.08)] px-4 py-2.5 ${ACCENTS[accent].header}`}>
             <h6 className={`m-0 text-[11px] font-semibold uppercase tracking-wider ${ACCENTS[accent].text}`}>{title}</h6>
         </div>
@@ -398,7 +398,7 @@ const TrackAWB = () => {
 
                         {/* --------- multipiece AWB tabs + timeline --------- */}
                         <div className="mt-3 flex flex-col gap-3 md:flex-row">
-                            <div className="overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[color-mix(in_srgb,var(--color-surface)_70%,transparent)] backdrop-blur-xl md:w-44 md:flex-shrink-0">
+                            <div className="overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[var(--glass-surface)] backdrop-blur-xl md:w-44 md:flex-shrink-0">
                                 <div className="border-b border-[rgb(var(--overlay-rgb)/0.08)] px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-ink-muted">
                                     AWB No
                                 </div>

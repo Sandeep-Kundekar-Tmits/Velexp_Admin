@@ -210,7 +210,7 @@ const ShipmentTraceDetail = () => {
                 </div>
 
                 {/* Booking Info */}
-                <div className="mb-4 overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[color-mix(in_srgb,var(--color-surface)_70%,transparent)] backdrop-blur-xl">
+                <div className="mb-4 overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[var(--glass-surface)] backdrop-blur-xl">
                     <div className="card-header border-b border-[rgb(var(--overlay-rgb)/0.08)] bg-[#3B82F6]/12">
                         <h6 className="mb-0 font-bold text-ink">Booking Information</h6>
                     </div>
@@ -253,7 +253,7 @@ const ShipmentTraceDetail = () => {
                 </div>
 
                 {/* Shipper Details */}
-                <div className="mb-4 overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[color-mix(in_srgb,var(--color-surface)_70%,transparent)] backdrop-blur-xl">
+                <div className="mb-4 overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[var(--glass-surface)] backdrop-blur-xl">
                     <div className="card-header border-b border-[rgb(var(--overlay-rgb)/0.08)] bg-success-500/12">
                         <h6 className="mb-0 font-bold text-ink">Shipper Details</h6>
                     </div>
@@ -292,7 +292,7 @@ const ShipmentTraceDetail = () => {
                 </div>
 
                 {/* Consignee Details */}
-                <div className="mb-4 overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[color-mix(in_srgb,var(--color-surface)_70%,transparent)] backdrop-blur-xl">
+                <div className="mb-4 overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[var(--glass-surface)] backdrop-blur-xl">
                     <div className="card-header border-b border-[rgb(var(--overlay-rgb)/0.08)] bg-danger-500/12">
                         <h6 className="mb-0 font-bold text-ink">Consignee Details</h6>
                     </div>
@@ -331,7 +331,7 @@ const ShipmentTraceDetail = () => {
                 </div>
 
                 {/* Tracking History — click a status to see its bag movement chain */}
-                <div className="overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[color-mix(in_srgb,var(--color-surface)_70%,transparent)] backdrop-blur-xl">
+                <div className="overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[var(--glass-surface)] backdrop-blur-xl">
                     <div className="card-header border-b border-[rgb(var(--overlay-rgb)/0.08)] bg-canvas">
                         <h6 className="mb-0 font-semibold text-ink">Tracking History</h6>
                     </div>

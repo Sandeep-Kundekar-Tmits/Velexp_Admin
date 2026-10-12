@@ -61,6 +61,23 @@
      dark surface, the light theme needs the opposite, a dark tint. */
   --overlay-rgb: 255 255 255;
 
+  /* The sidebar/header/grid-shell/card "glass" background: 70% surface over
+     whatever's behind it (the ambient route-map glow, in most of this app).
+     That translucency is a deliberate dark-glassmorphism look -- on the
+     light theme, 30% of a colored glow bleeding through read as uneven and
+     washed out rather than calm. Light goes almost fully opaque instead, so
+     menu/table/header surfaces present as a clean, solid light panel. */
+  --glass-surface: color-mix(in srgb, var(--color-surface) 70%, transparent);
+
+  /* Elevation shadow for the floating glass panels (sidebar, header,
+     grid-shell, modals, toasts). Dark default matches each call site's
+     existing literal rgb(2 6 23 / 0.9|0.95) exactly -- a near-black shadow
+     reads fine against this theme's own near-black canvas. The light theme
+     below softens both: the same high alpha against a white canvas looked
+     like a heavy block of near-solid black, not a soft lift. */
+  --shadow-elevated: rgb(2 6 23 / 0.9);
+  --shadow-elevated-strong: rgb(2 6 23 / 0.95);
+
   /* --- type & density --- */
   --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --text-base: 0.8125rem; /* 13px */
@@ -83,14 +100,48 @@
  * directly in a screen (text-white, bg-slate-800, inline hex styles) --
  * those are patched screen-by-screen as they're spotted looking wrong.
  */
+/*
+ * Tuned for less eye strain, not just "inverted dark": a pure #ffffff
+ * surface next to a near-black #0f172a ink is the highest-contrast
+ * combination available and reads as glary over a full dashboard rather
+ * than crisp -- real screen-time light themes (GitHub, Linear, Notion)
+ * avoid it by softening one or both ends. Surface drops one step to
+ * slate-50 and ink one step to slate-800; canvas/line/ink-muted stay put.
+ * Contrast is still comfortably clear of WCAG AA at every pairing used
+ * (ink-muted/surface, the tightest of them, is ~7.2:1 against a 4.5:1
+ * floor) -- this is a softer palette, not a less accessible one.
+ */
 [data-theme="light"] {
-  --color-surface: #ffffff;
+  --color-surface: #f8fafc;
   --color-canvas: #f1f5f9;
   --color-line: #e2e8f0;
-  --color-ink: #0f172a;
-  --color-ink-muted: #64748b;
+  --color-ink: #1e293b;
+  --color-ink-muted: #475569;
   --overlay-rgb: 15 23 42;
+  --shadow-elevated: rgb(15 23 42 / 0.1);
+  --shadow-elevated-strong: rgb(15 23 42 / 0.14);
+  --glass-surface: color-mix(in srgb, var(--color-surface) 95%, transparent);
   color-scheme: light;
+}
+
+/*
+ * Smooth theme switch -- without this, toggling ThemeToggle snapped every
+ * token-driven color instantly, which read as a flash/flicker rather than a
+ * deliberate switch. Layered (not unlayered like layout-compat.css/
+ * bootstrap-compat.css), so it only fills in where nothing more specific
+ * already owns `transition` on that element -- an unlayered rule, or a
+ * Tailwind utility (its own layer, `transition-colors` and friends), wins on
+ * that property regardless of this selector's broader reach. That's exactly
+ * what's wanted: a button's own hover transition keeps its own timing, and
+ * every plain, untransitioned surface still fades instead of snapping.
+ */
+@layer base {
+  @media (prefers-reduced-motion: no-preference) {
+    *, ::before, ::after {
+      transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+        box-shadow 0.2s ease, fill 0.2s ease, stroke 0.2s ease;
+    }
+  }
 }
 
 @layer base {

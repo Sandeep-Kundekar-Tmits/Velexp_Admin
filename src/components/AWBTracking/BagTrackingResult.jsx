@@ -36,7 +36,7 @@ const BagCard = ({ bag, expanded, onClick, children }) => (
             className="rounded-xl border backdrop-blur-xl"
             style={{
                 cursor: "pointer",
-                backgroundColor: expanded ? "rgba(59,130,246,0.10)" : "color-mix(in srgb, var(--color-surface) 70%, transparent)",
+                backgroundColor: expanded ? "rgba(59,130,246,0.10)" : "var(--glass-surface)",
                 borderColor: expanded ? "rgba(59,130,246,0.4)" : "rgb(var(--overlay-rgb) / 0.08)",
             }}
         >
@@ -96,7 +96,7 @@ const BagTimeline = ({ steps = [] }) => {
                         minWidth: 150,
                         borderColor: s.active ? ACCENT : "rgb(var(--overlay-rgb) / 0.08)",
                         borderWidth: s.active ? 2 : 1,
-                        backgroundColor: "color-mix(in srgb, var(--color-surface) 70%, transparent)",
+                        backgroundColor: "var(--glass-surface)",
                     }}
                 >
                     <span
