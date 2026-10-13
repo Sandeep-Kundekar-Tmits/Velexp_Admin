@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Row, Col, FormGroup, Spinner } from "@/components/ui";
 import { Button, FormFeedback, Input, Label, Table } from "@/components/ui";
-import DateRangePicker from "@paprika/date-range-picker";
+import DateRangeInput from '../../../components/Common/DateRangeInput';
 import TableContainer from '../../../components/Table/TableContainer';
 import Select from 'react-select'
 import { customStyles } from '../../../helpers/CustomStyle';
@@ -1098,11 +1098,10 @@ const AttemptWiseOperationPickupReport = () => {
                             <FormGroup className="mb-2">
                                 <Label>Start Date and End Date</Label>
                                 <div style={{ minWidth: "200px" }}>
-                                    <DateRangePicker
-                                        startDate={selectedRange.startDate}
-                                        endDate={selectedRange.endDate}
+                                    <DateRangeInput
+                                        isBorder={true}
+                                        value={selectedRange}
                                         onChange={handleChange}
-                                        className="my-custom-range-picker"
                                     />
                                 </div>
                             </FormGroup>
