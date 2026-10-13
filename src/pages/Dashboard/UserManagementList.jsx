@@ -12,26 +12,60 @@ import MainHeaderCom from "../../components/MainHeaderCom";
 import Customer360Modal from "../../components/UserManagement/Customer360Modal";
 import { cn } from "@/lib/cn";
 import ToasterProvider from "../../helpers/ToasterProvider";
+import SimpleModal from "../../components/SimpleModal";
+import { FormGroup, Input, Label } from "@/components/ui";
 
 /* Rows are quoted or left blank in the same shape account/ops teams already
-   paste into their own tickets -- Password and Service Type have no backing
-   field on this record at all, so they're always blank, same as they'd be
-   left blank by hand. `label` is padded to a fixed column so every colon
-   lines up regardless of how long the label text is. */
+   paste into their own tickets. Password and Service Type have no backing
+   field on this record at all -- `fromRow` is omitted for both, so the Copy
+   modal always opens with those two blank and editable, letting whoever is
+   copying fill in the one piece this record doesn't carry before copying.
+   `label` is padded to a fixed column so every colon lines up regardless of
+   how long the label text is. */
 const COPY_FIELDS = [
-    { label: "Username", value: (row) => row.username },
-    { label: "Password", value: () => "" },
-    { label: "Secret Code", value: (row) => row.domestic_secretcode },
-    { label: "Customer Name", value: (row) => row.customer_name },
-    { label: "Account Number", value: (row) => row.accno },
-    { label: "Service Type", value: () => "" },
+    { label: "Username", fromRow: (row) => row.username },
+    { label: "Password" },
+    { label: "Secret Code", fromRow: (row) => row.domestic_secretcode },
+    { label: "Customer Name", fromRow: (row) => row.customer_name },
+    { label: "Account Number", fromRow: (row) => row.accno },
+    { label: "Service Type" },
 ];
 const LABEL_WIDTH = 18;
 
-const buildCopyText = (row) => COPY_FIELDS.map(({ label, value }) => {
-    const v = value(row);
+const buildCopyText = (row, manualValues) => COPY_FIELDS.map(({ label, fromRow }) => {
+    const v = fromRow ? fromRow(row) : (manualValues[label] || "").trim();
     return `${label.padEnd(LABEL_WIDTH)}:${v ? ` '${v}'` : ""}`;
 }).join("\n");
+
+/* navigator.clipboard.writeText silently rejects outside a secure context
+   (plain http, which is how this admin panel is reached on the LAN) --
+   execCommand("copy") via a throwaway textarea has no such restriction, so
+   it's the fallback rather than the primary path's error case. */
+const copyToClipboard = async (text) => {
+    if (navigator.clipboard && window.isSecureContext) {
+        try {
+            await navigator.clipboard.writeText(text);
+            return true;
+        } catch {
+            // fall through to the execCommand fallback below
+        }
+    }
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.style.position = "fixed";
+    textarea.style.left = "-9999px";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    let ok = false;
+    try {
+        ok = document.execCommand("copy");
+    } catch {
+        ok = false;
+    }
+    document.body.removeChild(textarea);
+    return ok;
+};
 
 const EASE = [0.22, 1, 0.36, 1];
 
@@ -67,6 +101,12 @@ const UserManagementList = () => {
        can hold several accounts. */
     const [detailCustomer, setDetailCustomer] = useState(null);
 
+    /* Row the Copy modal is open for, plus the two fields it can't fill in
+       from the record itself (null when the modal is closed). */
+    const [copyTarget, setCopyTarget] = useState(null);
+    const [copyPassword, setCopyPassword] = useState("");
+    const [copyServiceType, setCopyServiceType] = useState("");
+
     // Memoized navigation handlers
     const handleEdit = useCallback((rowData) => {
         navigate(`/edit-user/${rowData?.id}`);
@@ -80,14 +120,26 @@ const UserManagementList = () => {
         navigate("/add-user");
     }, [navigate]);
 
-    const handleCopy = useCallback(async (rowData) => {
-        try {
-            await navigator.clipboard.writeText(buildCopyText(rowData));
+    const handleCopy = useCallback((rowData) => {
+        setCopyTarget(rowData);
+        setCopyPassword("");
+        setCopyServiceType("");
+    }, []);
+
+    const copyPreview = useMemo(() => {
+        if (!copyTarget) return "";
+        return buildCopyText(copyTarget, { Password: copyPassword, "Service Type": copyServiceType });
+    }, [copyTarget, copyPassword, copyServiceType]);
+
+    const handleCopyConfirm = useCallback(async () => {
+        const ok = await copyToClipboard(copyPreview);
+        if (ok) {
             SucceesToaster("Copied to clipboard");
-        } catch {
-            ErrorToaster("Failed to copy — clipboard access was blocked");
+            setCopyTarget(null);
+        } else {
+            ErrorToaster("Couldn't copy automatically — select the text below and copy it manually");
         }
-    }, [SucceesToaster, ErrorToaster]);
+    }, [copyPreview, SucceesToaster, ErrorToaster]);
 
     /* Memoized columns configuration.
      *
@@ -381,6 +433,48 @@ const UserManagementList = () => {
                     onClose={() => setDetailCustomer(null)}
                 />
             )}
+
+            <SimpleModal
+                isOpen={!!copyTarget}
+                setIsOpen={(open) => { if (!open) setCopyTarget(null); }}
+                successButtonName="Copy to Clipboard"
+                onSuccess={handleCopyConfirm}
+                cancelButtonName="Close"
+                onCancel={() => setCopyTarget(null)}
+                size="md"
+            >
+                <h5 className="mb-1">Copy Account Details</h5>
+                <p className="mb-3 text-xs text-ink-muted">
+                    {copyTarget?.customer_name} — Password and Service Type aren't in this
+                    record, so fill them in here before copying if they're needed.
+                </p>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <FormGroup>
+                        <Label>Password</Label>
+                        <Input
+                            value={copyPassword}
+                            onChange={(e) => setCopyPassword(e.target.value)}
+                            placeholder="Not in system — enter manually"
+                        />
+                    </FormGroup>
+                    <FormGroup>
+                        <Label>Service Type</Label>
+                        <Input
+                            value={copyServiceType}
+                            onChange={(e) => setCopyServiceType(e.target.value)}
+                            placeholder="Not in system — enter manually"
+                        />
+                    </FormGroup>
+                </div>
+                <Label className="mb-1 mt-2 block">Preview</Label>
+                <textarea
+                    readOnly
+                    rows={6}
+                    value={copyPreview}
+                    onFocus={(e) => e.target.select()}
+                    className="w-full rounded-lg border border-white/10 bg-white/5 p-2 font-mono text-[12px] text-ink"
+                />
+            </SimpleModal>
         </div>
     );
 };
