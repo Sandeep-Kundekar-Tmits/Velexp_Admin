@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { ArrowLeft, UserX, UserCheck, History } from "lucide-react"
-import { Badge, Button, Card, CardBody, CardHeader, CardTitle, ListGroup, ListGroupItem } from "@/components/ui"
+import { Badge, Button, Card, CardBody, CardHeader, CardTitle } from "@/components/ui"
 import usePostApiCall from "../../hooks/usePostApiCall"
 import { GET_EMPLOYEE_DETAIL } from "../../api"
 import MainHeaderComp from "../../components/MainHeaderCom"
@@ -26,30 +26,43 @@ import {
 // of the two screens disagreeing on how a field is worded.
 const labelFrom = (options, value) => options.find((opt) => opt.value === value)?.label || value
 
+// One tile per field, same visual language as Customer360Modal's Metric --
+// a small uppercase label over the value -- instead of a full-width row per
+// field, so a profile with 20+ fields reads as a scannable grid rather than
+// a long single column of rows.
+const FieldBox = ({ label, children }) => (
+    <div className="min-w-0 rounded-xl border border-white/8 bg-white/2 px-3.5 py-2.5">
+        <div className="text-[10.5px] font-semibold uppercase tracking-wider text-ink-muted">{label}</div>
+        <div className="mt-1 truncate text-[13px] font-medium text-ink" title={typeof children === "string" ? children : undefined}>
+            {children}
+        </div>
+    </div>
+)
+
 const Field = ({ label, value }) => (
-    <ListGroupItem className="flex justify-between items-center p-4">
-        <span className="font-bold text-ink-muted">{label}</span>
-        <span className="text-ink text-right">{value || value === 0 ? value : "—"}</span>
-    </ListGroupItem>
+    <FieldBox label={label}>{value || value === 0 ? value : "—"}</FieldBox>
 )
 
 const DateField = ({ label, value }) => (
     <Field label={label} value={value ? (formatDisplayDate(value) || value) : null} />
 )
 
+const BadgeField = ({ label, color, children }) => (
+    <FieldBox label={label}>
+        <Badge color={color} pill>{children}</Badge>
+    </FieldBox>
+)
+
 // Every KYC/bank/vehicle image field is either null or a URL -- a plain link
 // is enough, there's no inline preview anywhere else in this app either.
 const DocField = ({ label, url }) => (
-    <ListGroupItem className="flex justify-between items-center p-4">
-        <span className="font-bold text-ink-muted">{label}</span>
+    <FieldBox label={label}>
         {url ? (
             <a href={url} target="_blank" rel="noreferrer" className="text-primary-500 hover:underline">
                 View
             </a>
-        ) : (
-            <span className="text-ink">—</span>
-        )}
-    </ListGroupItem>
+        ) : "—"}
+    </FieldBox>
 )
 
 const SectionCard = ({ icon, title, children }) => (
@@ -60,8 +73,10 @@ const SectionCard = ({ icon, title, children }) => (
                 {title}
             </CardTitle>
         </CardHeader>
-        <CardBody className="p-0">
-            <ListGroup flush>{children}</ListGroup>
+        <CardBody className="p-4">
+            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+                {children}
+            </div>
         </CardBody>
     </Card>
 )
@@ -132,6 +147,27 @@ const ViewEmployee = () => {
                     <Loader message="Loading Employee…" fullscreen={false} />
                 ) : (
                     <>
+                        {/* Identity strip: the handful of fields that identify who this
+                            page is about, large enough to read at a glance above the
+                            field grid below. */}
+                        <div className="mb-4 flex flex-wrap items-center gap-4 rounded-xl border border-white/8 bg-white/3 px-4 py-3.5">
+                            <div className="flex size-11 shrink-0 items-center justify-center rounded-full border border-white/8 bg-white/5">
+                                <i className="fas fa-user text-[18px] text-ink"></i>
+                            </div>
+                            <div className="min-w-0">
+                                <div className="truncate text-[15px] font-semibold text-ink">
+                                    {employee?.name || [employee?.first_name, employee?.last_name].filter(Boolean).join(" ") || "—"}
+                                </div>
+                                <div className="truncate text-[12px] text-ink-muted">
+                                    {employee?.employee_code || "—"} · {employee?.designation_name || employee?.designation || "—"}
+                                </div>
+                            </div>
+                            <div className="ml-auto flex items-center gap-2">
+                                <Badge color={employee?.status === "active" ? "success" : "secondary"} pill>{employee?.status || "—"}</Badge>
+                                <Badge color={employee?.is_active ? "success" : "secondary"} pill>{employee?.is_active ? "Active" : "Inactive"}</Badge>
+                            </div>
+                        </div>
+
                         <SectionCard icon="fas fa-user-circle" title="Basic Details">
                             <Field label="Employee Code" value={employee?.employee_code} />
                             <Field label="Name" value={employee?.name || [employee?.first_name, employee?.last_name].filter(Boolean).join(" ")} />
@@ -153,20 +189,15 @@ const ViewEmployee = () => {
                             <Field label="Access" value={employee?.access} />
                             <Field label="Verification ID" value={employee?.verification_id} />
                             <DateField label="Date of Joining" value={employee?.date_of_joining} />
-                            <ListGroupItem className="flex justify-between items-center p-4">
-                                <span className="font-bold text-ink-muted">Status</span>
-                                <Badge color={employee?.status === "active" ? "success" : "secondary"} pill>
-                                    {employee?.status || "—"}
-                                </Badge>
-                            </ListGroupItem>
-                            <ListGroupItem className="flex justify-between items-center p-4">
-                                <span className="font-bold text-ink-muted">Is Active</span>
-                                <Badge color={employee?.is_active ? "success" : "secondary"} pill>{employee?.is_active ? "Yes" : "No"}</Badge>
-                            </ListGroupItem>
-                            <ListGroupItem className="flex justify-between items-center p-4">
-                                <span className="font-bold text-ink-muted">AI Flag</span>
-                                <Badge color={employee?.ai_flag ? "success" : "secondary"} pill>{employee?.ai_flag ? "Yes" : "No"}</Badge>
-                            </ListGroupItem>
+                            <BadgeField label="Status" color={employee?.status === "active" ? "success" : "secondary"}>
+                                {employee?.status || "—"}
+                            </BadgeField>
+                            <BadgeField label="Is Active" color={employee?.is_active ? "success" : "secondary"}>
+                                {employee?.is_active ? "Yes" : "No"}
+                            </BadgeField>
+                            <BadgeField label="AI Flag" color={employee?.ai_flag ? "success" : "secondary"}>
+                                {employee?.ai_flag ? "Yes" : "No"}
+                            </BadgeField>
                             <Field label="Remark" value={employee?.remark} />
                             <DocField label="Photo" url={employee?.photo_url} />
                             <Field label="Created By" value={employee?.created_by} />
@@ -187,12 +218,12 @@ const ViewEmployee = () => {
 
                         {kyc && (
                             <SectionCard icon="fas fa-id-card" title="KYC Details">
-                                <ListGroupItem className="flex justify-between items-center p-4">
-                                    <span className="font-bold text-ink-muted">KYC Status</span>
-                                    <Badge color={kyc.kyc_status === "verified" ? "success" : kyc.kyc_status === "rejected" ? "danger" : "warning"} pill>
-                                        {labelFrom(KYC_STATUS_OPTIONS, kyc.kyc_status)}
-                                    </Badge>
-                                </ListGroupItem>
+                                <BadgeField
+                                    label="KYC Status"
+                                    color={kyc.kyc_status === "verified" ? "success" : kyc.kyc_status === "rejected" ? "danger" : "warning"}
+                                >
+                                    {labelFrom(KYC_STATUS_OPTIONS, kyc.kyc_status)}
+                                </BadgeField>
                                 <Field label="Aadhar Number" value={kyc.aadhar_number} />
                                 <Field label="PAN Number" value={kyc.pan_number} />
                                 <Field label="Driving Licence No" value={kyc.driving_licence_no} />
@@ -226,10 +257,9 @@ const ViewEmployee = () => {
                                 <Field label="Bank Branch" value={account.bank_branch} />
                                 <Field label="Account Type" value={labelFrom(ACCOUNT_TYPE_OPTIONS, account.account_type)} />
                                 <Field label="UPI ID" value={account.upi_id} />
-                                <ListGroupItem className="flex justify-between items-center p-4">
-                                    <span className="font-bold text-ink-muted">Default Account</span>
-                                    <Badge color={account.is_default ? "success" : "secondary"} pill>{account.is_default ? "Yes" : "No"}</Badge>
-                                </ListGroupItem>
+                                <BadgeField label="Default Account" color={account.is_default ? "success" : "secondary"}>
+                                    {account.is_default ? "Yes" : "No"}
+                                </BadgeField>
                                 <DocField label="Passbook Image" url={account.passbook_image} />
                             </SectionCard>
                         ))}
