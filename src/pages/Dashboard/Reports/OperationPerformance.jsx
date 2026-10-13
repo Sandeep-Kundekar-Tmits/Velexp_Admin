@@ -945,8 +945,10 @@ const OperationPerformance = () => {
                         {/* Date Range Picker */}
                         <Col md={4}>
                             <FormGroup className="mb-2">
-                                <Label>Start Date and End Date</Label>
-                                <div style={{ minWidth: "200px" }}>
+                                <div className="flex w-full flex-col gap-1.5">
+                                    <Label className="form-label m-0 font-bold text-ink-muted">
+                                        Date Range
+                                    </Label>
                                     <DateRangeInput
                                         isBorder={true}
                                         value={selectedRange}
