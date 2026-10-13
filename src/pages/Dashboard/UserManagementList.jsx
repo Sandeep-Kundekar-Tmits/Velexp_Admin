@@ -7,10 +7,31 @@ import { GET_ALL_USER_LIST, GET_USER_API } from "../../api";
 import usePostApiCall from "../../hooks/usePostApiCall";
 import Loader from "../../Loaders/Loader";
 import { motion } from "framer-motion";
-import { Building2, Eye, Handshake, Pencil, Store, UserPlus, Users } from "lucide-react";
+import { Building2, Copy, Eye, Handshake, Pencil, Store, UserPlus, Users } from "lucide-react";
 import MainHeaderCom from "../../components/MainHeaderCom";
 import Customer360Modal from "../../components/UserManagement/Customer360Modal";
 import { cn } from "@/lib/cn";
+import ToasterProvider from "../../helpers/ToasterProvider";
+
+/* Rows are quoted or left blank in the same shape account/ops teams already
+   paste into their own tickets -- Password and Service Type have no backing
+   field on this record at all, so they're always blank, same as they'd be
+   left blank by hand. `label` is padded to a fixed column so every colon
+   lines up regardless of how long the label text is. */
+const COPY_FIELDS = [
+    { label: "Username", value: (row) => row.username },
+    { label: "Password", value: () => "" },
+    { label: "Secret Code", value: (row) => row.domestic_secretcode },
+    { label: "Customer Name", value: (row) => row.customer_name },
+    { label: "Account Number", value: (row) => row.accno },
+    { label: "Service Type", value: () => "" },
+];
+const LABEL_WIDTH = 18;
+
+const buildCopyText = (row) => COPY_FIELDS.map(({ label, value }) => {
+    const v = value(row);
+    return `${label.padEnd(LABEL_WIDTH)}:${v ? ` '${v}'` : ""}`;
+}).join("\n");
 
 const EASE = [0.22, 1, 0.36, 1];
 
@@ -40,6 +61,7 @@ const UserManagementList = () => {
 
     const navigate = useNavigate();
     const { apifunc: getUser, data, loading } = usePostApiCall();
+    const { SucceesToaster, ErrorToaster } = ToasterProvider();
     /* Customer name of the row whose 360 view is open; null when closed.
        The name, not the row id -- customer-360 keys on it, and one customer
        can hold several accounts. */
@@ -57,6 +79,15 @@ const UserManagementList = () => {
     const handleAddUser = useCallback(() => {
         navigate("/add-user");
     }, [navigate]);
+
+    const handleCopy = useCallback(async (rowData) => {
+        try {
+            await navigator.clipboard.writeText(buildCopyText(rowData));
+            SucceesToaster("Copied to clipboard");
+        } catch {
+            ErrorToaster("Failed to copy — clipboard access was blocked");
+        }
+    }, [SucceesToaster, ErrorToaster]);
 
     /* Memoized columns configuration.
      *
@@ -126,11 +157,11 @@ const UserManagementList = () => {
             accessorKey: 'actions',
             enableColumnFilter: false,
             enableSorting: false,
-            /* Sized for its content, not squeezed with the text columns: two
-               labelled buttons plus the cell padding need ~170px, which is what
+            /* Sized for its content, not squeezed with the text columns: three
+               labelled buttons plus the cell padding need ~230px, which is what
                this share of the 1010 total works out to at the widths this
                screen renders at. */
-            size: 150,
+            size: 230,
             cell: ({ row }) => (
                 /* nowrap + shrink-0: this column holds controls, so it may
                    overflow before it lets a button break across two lines or
@@ -156,10 +187,20 @@ const UserManagementList = () => {
                         <Pencil aria-hidden="true" className="size-3.5" />
                         Edit
                     </Button>
+                    <Button
+                        color="secondary"
+                        size="sm"
+                        onClick={(e) => { e.stopPropagation(); handleCopy(row.original); }}
+                        aria-label={`Copy ${row.original?.customer_name || "customer"} details`}
+                        className="shrink-0 gap-1.5 rounded-lg border border-[#38BDF8]/30 bg-[#38BDF8]/15 text-ink transition-all duration-200 hover:bg-[#38BDF8]/25 hover:text-ink hover:shadow-[0_0_18px_-4px_rgba(56,189,248,0.9)]"
+                    >
+                        <Copy aria-hidden="true" className="size-3.5" />
+                        Copy
+                    </Button>
                 </div>
             ),
         },
-    ], [handleEdit, handleView]);
+    ], [handleEdit, handleView, handleCopy]);
 
     // Data fetching effect
     useEffect(() => {
