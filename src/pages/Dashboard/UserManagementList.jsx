@@ -437,7 +437,7 @@ const UserManagementList = () => {
             <SimpleModal
                 isOpen={!!copyTarget}
                 setIsOpen={(open) => { if (!open) setCopyTarget(null); }}
-                successButtonName="Copy to Clipboard"
+                successButtonName="Copy"
                 onSuccess={handleCopyConfirm}
                 cancelButtonName="Close"
                 onCancel={() => setCopyTarget(null)}
