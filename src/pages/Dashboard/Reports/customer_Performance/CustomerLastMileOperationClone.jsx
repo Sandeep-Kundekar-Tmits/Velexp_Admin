@@ -4,7 +4,7 @@ import { Button, FormFeedback, Input, Label, Table } from "@/components/ui";
 import DateRangeInput from "../../../../components/Common/DateRangeInput";
 
 import Select from 'react-select'
-import { GET_ADMIN_BOOKING_DETAILS, GET_CUSTOMER_SERVICE, GET_OPERATION_PERFORMANCE, GET_USER_API, PRODUCT_LIST, SPD_OPERATION_PERFORMANCE, GET_ALL_REGION, GET_CUSTOMER_PERFORMANCE_FDSR, GET_CUSTOMER_PERFORMANCE_FDSR_CLONE } from '../../../../api';
+import { GET_ADMIN_BOOKING_DETAILS, GET_CUSTOMER_SERVICE, GET_OPERATION_PERFORMANCE, GET_USER_API, PRODUCT_LIST, SPD_OPERATION_PERFORMANCE, GET_ALL_REGION, GET_CUSTOMER_PERFORMANCE_FDSR, GET_CUSTOMER_PERFORMANCE_FDSR_CLONE, GET_CUSTOMER_PERFORMANCE_FDSR_CLONE_EXPORT } from '../../../../api';
 import { useQuery } from "@tanstack/react-query";
 import { qk } from "@/lib/queryKeys";
 import { fetchServiceCenters } from "@/services/reference.service";
@@ -20,9 +20,10 @@ import { useFirstMileExcel } from '../../../../hooks/useFirstMileExcel';
 import { useSecondMileExcel } from '../../../../hooks/useSecondMileExcel';
 import renderCountWithPercent from '../../../../components/renderCountWithPercent';
 import { useOperationFDSR } from '../../../../hooks/useOperationFDSR';
-import { useNewOperationDelivaryStrikeRate } from '../../../../hooks/useNewOperationDelivaryStrikeRate';
 import StatsCard from '../../../../components/StatsCard';
 import MainHeaderComp from '../../../../components/MainHeaderCom';
+import { downloadReportExcel } from '../../../../helpers/downloadReportExcel';
+import ToasterProvider from '../../../../helpers/ToasterProvider';
 
 /* Same contract as LastMileOperations.jsx: a checkbox per option instead of a
    chip strip beside the control, and a count in the control instead of one
@@ -647,7 +648,8 @@ const CustomerLastMileOperationClone = () => {
     //  first mile report
     const { downloadExcel, loading: FirstMileLoading, error } = useFirstMileExcel();
     //  first mile report
-    const { downloadExcel: SecondMileReport, loading: SecondMileLoading, error: SecondMileError } = useNewOperationDelivaryStrikeRate();
+    const { ErrorToaster } = ToasterProvider()
+    const [isExportingReport, setIsExportingReport] = useState(false)
     // defining the get regions api
     const { apifunc: GetAllRegions, data: Regions } = useGetApiCall()
     const { exportToExcel, isExporting, exportProgress } = useExcelExport();
@@ -772,6 +774,36 @@ const CustomerLastMileOperationClone = () => {
         }
     };
 
+    // Server-generated xlsx (/export/) -- replaces the client-side
+    // SecondMileReport/exportToExcel path below, which rebuilt the file in
+    // the browser from whatever rows were already on screen. customer_name
+    // is mandatory for this report, unlike the operations-wide ones.
+    const handleExportExcel = async () => {
+        if (!username?.value) {
+            alert("Select a customer first");
+            return;
+        }
+        const updatedDate = formatDateForPayload(selectedRange);
+        if (updatedDate?.from_date === "" || updatedDate?.to_date === "") {
+            alert("Please select a valid date range");
+            return;
+        }
+        const payload = {
+            customer_name: username.value,
+            start_date: updatedDate.from_date,
+            end_date: updatedDate.to_date,
+            region: SelectedRegion?.map((ele) => ele?.value) || [],
+        };
+        setIsExportingReport(true);
+        try {
+            await downloadReportExcel(GET_CUSTOMER_PERFORMANCE_FDSR_CLONE_EXPORT, payload, "customer_delivery_strike_rate.xlsx");
+        } catch (err) {
+            ErrorToaster(err.message || "Download failed");
+        } finally {
+            setIsExportingReport(false);
+        }
+    };
+
     // useEffect for the filtering the  Service Centers
     useEffect(() => {
         if (!SelectedRegion || SelectedRegion.length === 0) {
@@ -884,6 +916,14 @@ const CustomerLastMileOperationClone = () => {
                     >
                         Check
                     </Button>
+                    <Button
+                        color="secondary"
+                        disabled={isExportingReport}
+                        className="h-9.5 shrink-0 px-6"
+                        onClick={handleExportExcel}
+                    >
+                        {isExportingReport ? "Downloading…" : "Download Report"}
+                    </Button>
                 </div>
 
                 {Object.keys(FinalStatusCount).length > 0 && (
@@ -908,54 +948,10 @@ const CustomerLastMileOperationClone = () => {
                                 tableClass="table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
                                 theadClass="sticky top-0 z-10"
                                 isCustomPageSize={true}
-                                isDownloadExcle={true}
                                 isStickyHeader={true}
                                 stickyTop={0}
                                 fillHeight
                                 tableHeight="72vh"
-                                onDownloadExcle={async () => {
-                                            const toTitleCase = (str) =>
-                                                str
-                                                    .replace(/_/g, " ")
-                                                    .replace(/\b\w/g, (c) => c.toUpperCase());
-
-                                            let rowData = BookingData.map((ele) => {
-                                                const result = {};
-
-                                                Object.keys(ele).forEach((key) => {
-                                                    // ❌ remove group_date
-                                                    if (key === "group_date") return;
-
-                                                    // Rename created_date → AWB Date
-                                                    const newKey =
-                                                        key === "created_date"
-                                                            ? "AWB Date"
-                                                            : toTitleCase(key);
-
-                                                    result[newKey] = ele[key];
-                                                });
-
-                                                return result;
-                                            });
-                                            let newHeaders = Object.keys(rowData[0]).map(ele => {
-                                                return ele
-                                            })
-                                            let secondeMileReportUpdate = [...SecondMiles].map(ele => {
-                                                return {
-                                                    ...ele,
-                                                    same_day_spd: ele?.same_day,
-                                                }
-                                            })
-                                            await SecondMileReport(secondeMileReportUpdate, "Customer_Delivery_Strike_Rate", {
-                                                sheetName: "Operation_Performance",
-                                                headers: newHeaders,
-                                                rows: rowData
-                                            },
-                                                selectedPayload,
-                                                FinalStatusCount
-                                            )
-                                        }}
-                                ExcleLoading={SecondMileLoading}
                             />
                         )
                     }

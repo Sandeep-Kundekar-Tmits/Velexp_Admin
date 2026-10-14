@@ -8,11 +8,12 @@ import { useQuery } from "@tanstack/react-query";
 import { qk } from "@/lib/queryKeys";
 import { fetchServiceCenters } from "@/services/reference.service";
 import { useGetApiCall } from '../../../hooks/useGetApiCall';
-import { GET_ALL_REGION, GET_USER_API, PRODUCT_LIST, PUD_OPERATION_PERFORMANCE } from '../../../api';
+import { GET_ALL_REGION, GET_USER_API, PRODUCT_LIST, PUD_OPERATION_PERFORMANCE, PUD_OPERATION_PERFORMANCE_EXPORT } from '../../../api';
 import usePostApiCall from '../../../hooks/usePostApiCall';
 import formatDateForPayload from '../../../helpers/DateHelper';
 import Loader from "@/Loaders/Loader";
-import { useNewOperationPickupStrikeRate } from '../../../hooks/useNewOperationPickupStrikeRate';
+import { downloadReportExcel } from '../../../helpers/downloadReportExcel';
+import ToasterProvider from '../../../helpers/ToasterProvider';
 /* The default StatsCard (components/StatsCard), not the FilterComponents one
    this used to import: that one takes title/color/unit/breakdown/isGroup, so
    being called here with just label/value rendered no title and no styling at
@@ -356,8 +357,8 @@ const FirstMileOperation = () => {
     //  defining the get booking list 
     const { apifunc: GetBookingList, loading: bookingLoading } = usePostApiCall()
 
-    //  first mile report
-    const { downloadExcel, loading: FirstMileLoading } = useNewOperationPickupStrikeRate();
+    const { ErrorToaster } = ToasterProvider()
+    const [isExporting, setIsExporting] = useState(false)
 
     // defining the get regions api
     const { apifunc: GetAllRegions, data: Regions } = useGetApiCall()
@@ -439,7 +440,32 @@ const FirstMileOperation = () => {
         }
     };
 
-    // use effect for the service center option dropdown    
+    // Server-generated xlsx (/export/) -- replaces the old client-side
+    // downloadExcel path below, which rebuilt the file in the browser from
+    // whatever rows were already on screen.
+    const handleExportExcel = async () => {
+        const updatedDate = formatDateForPayload(selectedRange);
+        if (updatedDate?.from_date === "" || updatedDate?.to_date === "") {
+            alert("Please select a valid date range");
+            return;
+        }
+        const payload = {
+            start_date: updatedDate.from_date,
+            end_date: updatedDate.to_date,
+            service_center: SelectedServiceCenters.map((ele) => ele?.value) || [],
+            region: SelectedRegion?.map((ele) => ele?.value) || [],
+        };
+        setIsExporting(true);
+        try {
+            await downloadReportExcel(PUD_OPERATION_PERFORMANCE_EXPORT, payload, "operations_pickup_strike_rate.xlsx");
+        } catch (err) {
+            ErrorToaster(err.message || "Download failed");
+        } finally {
+            setIsExporting(false);
+        }
+    };
+
+    // use effect for the service center option dropdown
     useEffect(() => {
         if (!SelectedRegion || SelectedRegion.length === 0) {
             setServiceCenterOption(AllServiceCenterOption);
@@ -534,6 +560,14 @@ const FirstMileOperation = () => {
                     >
                         Check
                     </Button>
+                    <Button
+                        color="secondary"
+                        disabled={isExporting}
+                        className="h-9.5 shrink-0 px-6"
+                        onClick={handleExportExcel}
+                    >
+                        {isExporting ? "Downloading…" : "Download Report"}
+                    </Button>
                 </div>
 
                 {Object.keys(FinalStatusCount).length > 0 && (
@@ -560,31 +594,8 @@ const FirstMileOperation = () => {
                                 isStickyHeader={true}
                                 stickyTop={0}
                                 isCustomPageSize={true}
-                                isDownloadExcle={true}
                                 fillHeight
                                 tableHeight="72vh"
-                                onDownloadExcle={async () => {
-                                    let rowData = BookingData;
-                                    let newHeaders = Object.keys(BookingData[0]).map(ele => {
-                                        return ele
-                                    })
-                                    let secondeMileReportUpdate = [...FirstMiles].map(ele => {
-                                        return {
-                                            ...ele,
-                                            same_day_spd: ele?.same_day,
-                                        }
-                                    })
-                                    // calling the download excel function
-                                    await downloadExcel(secondeMileReportUpdate, "Pickup_Strike_Rate", {
-                                        sheetName: "Operation_Performance",
-                                        headers: newHeaders,
-                                        rows: rowData
-                                    },
-                                        SelectedPayload,
-                                        FinalStatusCount
-                                    )
-                                }}
-                                ExcleLoading={FirstMileLoading}
                             />
                         )
                     }

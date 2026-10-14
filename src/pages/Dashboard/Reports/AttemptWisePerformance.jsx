@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { qk } from "@/lib/queryKeys";
 import { fetchServiceCenters } from "@/services/reference.service";
 import { useGetApiCall } from '../../../hooks/useGetApiCall';
-import { GET_ADMIN_BOOKING_DETAILS, GET_ALL_REGION, GET_ATTEMPT_WISE_DELIVARY_REPORT, GET_CUSTOMER_SERVICE, GET_OPERATION_PERFORMANCE, GET_USER_API, PRODUCT_LIST, SPD_OPERATION_PERFORMANCE } from '../../../api';
+import { GET_ADMIN_BOOKING_DETAILS, GET_ALL_REGION, GET_ATTEMPT_WISE_DELIVARY_REPORT, GET_ATTEMPT_WISE_DELIVARY_REPORT_EXPORT, GET_CUSTOMER_SERVICE, GET_OPERATION_PERFORMANCE, GET_USER_API, PRODUCT_LIST, SPD_OPERATION_PERFORMANCE } from '../../../api';
 import usePostApiCall from '../../../hooks/usePostApiCall';
 import formatDateForPayload from '../../../helpers/DateHelper';
 import Loader from "@/Loaders/Loader";
@@ -22,7 +22,8 @@ import { useExcelExport } from '../../../hooks/useExcelExport';
 import { useFirstMileExcel } from '../../../hooks/useFirstMileExcel';
 import TabsProvider from '../../../components/TabsProvider';
 import { useSecondMileExcel } from '../../../hooks/useSecondMileExcel';
-import { useAttemptWiseExcel } from '../../../hooks/useAttemptWiseExcel';
+import { downloadReportExcel } from '../../../helpers/downloadReportExcel';
+import ToasterProvider from '../../../helpers/ToasterProvider';
 import renderCountWithPercent from '../../../components/renderCountWithPercent';
 import MainHeaderComp from '../../../components/MainHeaderCom';
 
@@ -138,7 +139,8 @@ const AttemptWisePerformance = () => {
     //  first mile report
     const { downloadExcel, loading: FirstMileLoading, error } = useFirstMileExcel();
     //  first mile report
-    const { downloadExcel: AttemptWiseReport, loading: AttemptWiseLoading, error: AttemptWiseError } = useAttemptWiseExcel();
+    const { ErrorToaster } = ToasterProvider()
+    const [isExportingReport, setIsExportingReport] = useState(false)
     // defining the get regions api
     const { apifunc: GetAllRegions, data: Regions } = useGetApiCall()
     const { exportToExcel, isExporting, exportProgress } = useExcelExport();
@@ -505,6 +507,31 @@ const AttemptWisePerformance = () => {
         }
     };
 
+    // Server-generated xlsx (/export/) -- replaces the client-side
+    // AttemptWiseReport/exportToExcel path below, which rebuilt the file in
+    // the browser from whatever rows were already on screen.
+    const handleExportExcel = async () => {
+        const updatedDate = formatDateForPayload(selectedRange);
+        if (updatedDate?.from_date === "" || updatedDate?.to_date === "") {
+            alert("Please select a valid date range");
+            return;
+        }
+        const payload = {
+            start_date: updatedDate.from_date,
+            end_date: updatedDate.to_date,
+            service_center: SelectedServiceCenters.map((ele) => ele?.value) || [],
+            region: SelectedRegion?.map((ele) => ele?.value) || [],
+        };
+        setIsExportingReport(true);
+        try {
+            await downloadReportExcel(GET_ATTEMPT_WISE_DELIVARY_REPORT_EXPORT, payload, "operations_delivery_attempt_strike_rate.xlsx");
+        } catch (err) {
+            ErrorToaster(err.message || "Download failed");
+        } finally {
+            setIsExportingReport(false);
+        }
+    };
+
     // useEffect for the filtering the  Service Centers
     useEffect(() => {
         if (!SelectedRegion || SelectedRegion.length === 0) {
@@ -601,6 +628,14 @@ const AttemptWisePerformance = () => {
                     >
                         Check
                     </Button>
+                    <Button
+                        color="secondary"
+                        disabled={isExportingReport}
+                        className="h-9.5 shrink-0 px-6"
+                        onClick={handleExportExcel}
+                    >
+                        {isExportingReport ? "Downloading…" : "Download Report"}
+                    </Button>
                 </div>
 
                 <div className="page-fit-body mt-4">
@@ -619,24 +654,8 @@ const AttemptWisePerformance = () => {
                                 isStickyHeader={true}
                                 stickyTop={0}
                                 isCustomPageSize={true}
-                                isDownloadExcle={true}
                                 fillHeight
                                 tableHeight="72vh"
-                                onDownloadExcle={async () => {
-                                    let rowData = BookingData;
-                                    let newHeaders = Object.keys(BookingData[0]).map(ele => {
-                                        return ele
-                                    })
-                                    await AttemptWiseReport(SecondMiles, "Operations_attempt_strike_rate", {
-                                        sheetName: "Operation_Performance",
-                                        headers: newHeaders,
-                                        rows: rowData
-                                    },
-                                        SelectedPayload,
-                                        FinalStatusCount
-                                    )
-                                }}
-                                ExcleLoading={AttemptWiseLoading}
                             />
                         )
                     }

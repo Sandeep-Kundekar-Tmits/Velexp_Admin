@@ -433,17 +433,23 @@ export const GET_OPERATION_PERFORMANCE = `${BASE_URL}/reports/operations_perform
 //reports/spd_operations_performance/
 // export const SPD_OPERATION_PERFORMANCE = `${BASE_URL}/reports/spd_operations_performance/`
 export const SPD_OPERATION_PERFORMANCE = `${BASE_URL}/reports/operations_delivery_strike_rate/`
+// Backend-generated xlsx for the same report (replaces client-side exportToExcel) -- POST {start_date, end_date, region?, service_center?} as dd-mm-yyyy -> xlsx blob
+export const SPD_OPERATION_PERFORMANCE_EXPORT = `${BASE_URL}/reports/operations_delivery_strike_rate/export/`
 
 // Attempt wise delivary report
 // export const GET_ATTEMPT_WISE_DELIVARY_REPORT = `${BASE_URL}/reports/attempt_strike_rate/` // POST
 export const GET_ATTEMPT_WISE_DELIVARY_REPORT = `${BASE_URL}/reports/operations_delivery_attempt_strike_rate/` // POST
+export const GET_ATTEMPT_WISE_DELIVARY_REPORT_EXPORT = `${BASE_URL}/reports/operations_delivery_attempt_strike_rate/export/` // POST -> xlsx blob
 export const CUSTOMER_GET_ATTEMPT_WISE_DELIVARY_REPORT = `${BASE_URL}/reports/attempt_strike_rate_customer/` // POST
-// 
+export const CUSTOMER_GET_ATTEMPT_WISE_DELIVARY_REPORT_EXPORT = `${BASE_URL}/reports/attempt_strike_rate_customer/export/` // POST -> xlsx blob
+//
 export const CUSTOMER_GET_ATTEMPT_WISE_DELIVARY_REPORT_CLONE = `${BASE_URL}/reports/customer_delivery_attempt_strike_rate/` // POST
+export const CUSTOMER_GET_ATTEMPT_WISE_DELIVARY_REPORT_CLONE_EXPORT = `${BASE_URL}/reports/customer_delivery_attempt_strike_rate/export/` // POST -> xlsx blob
 
 //reports/spd_operations_performance/
 // export const PUD_OPERATION_PERFORMANCE = `${BASE_URL}/reports/pud_operations_performance/`
 export const PUD_OPERATION_PERFORMANCE = `${BASE_URL}/reports/operations_pickup_strike_rate/`
+export const PUD_OPERATION_PERFORMANCE_EXPORT = `${BASE_URL}/reports/operations_pickup_strike_rate/export/` // POST -> xlsx blob
 
 // reports/ofd_operations_performance/
 export const OFD_OPERATIONS_PERFORMANCE = `${BASE_URL}/reports/ofd_operations_performance/`
@@ -456,9 +462,11 @@ export const GET_PICKUP_PERFORMANCE = `${BASE_URL}/pickup_performance_report/`
 export const GET_CUSTOMER_PERFORMANCE_FDSR = `${BASE_URL}/reports/pud_spd_performance/`
 // 
 export const GET_CUSTOMER_PERFORMANCE_FDSR_CLONE = `${BASE_URL}/reports/customer_delivery_strike_rate/`
+export const GET_CUSTOMER_PERFORMANCE_FDSR_CLONE_EXPORT = `${BASE_URL}/reports/customer_delivery_strike_rate/export/` // POST -> xlsx blob
 
 // customer performance fpsr
 export const GET_CUSTOMER_PERFORMANCE_FPDR = `${BASE_URL}/reports/customer_pickup_strike_rate/`
+export const GET_CUSTOMER_PERFORMANCE_FPDR_EXPORT = `${BASE_URL}/reports/customer_pickup_strike_rate/export/` // POST -> xlsx blob
 // export const GET_CUSTOMER_PERFORMANCE_FPDR = `${BASE_URL}/reports/spu_pud_performance/`
 // export const GET_CUSTOMER_PERFORMANCE_FPDR = `${BASE_URL}/reports/pud_operations_performance/`
 

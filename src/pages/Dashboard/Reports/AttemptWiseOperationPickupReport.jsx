@@ -9,11 +9,13 @@ import { useQuery } from "@tanstack/react-query";
 import { qk } from "@/lib/queryKeys";
 import { fetchServiceCenters } from "@/services/reference.service";
 import { useGetApiCall } from '../../../hooks/useGetApiCall';
-import { GET_ADMIN_BOOKING_DETAILS, GET_ALL_REGION, GET_ATTEMPT_WISE_DELIVARY_REPORT, GET_CUSTOMER_SERVICE, GET_OPERATION_PERFORMANCE, GET_USER_API, PRODUCT_LIST, SPD_OPERATION_PERFORMANCE } from '../../../api';
+import { GET_ADMIN_BOOKING_DETAILS, GET_ALL_REGION, GET_ATTEMPT_WISE_DELIVARY_REPORT, GET_ATTEMPT_WISE_DELIVARY_REPORT_EXPORT, GET_CUSTOMER_SERVICE, GET_OPERATION_PERFORMANCE, GET_USER_API, PRODUCT_LIST, SPD_OPERATION_PERFORMANCE } from '../../../api';
 import usePostApiCall from '../../../hooks/usePostApiCall';
 import formatDateForPayload from '../../../helpers/DateHelper';
 import Loader from "@/Loaders/Loader";
 import { IoMdCloudDownload } from "react-icons/io";
+import { downloadReportExcel } from '../../../helpers/downloadReportExcel';
+import ToasterProvider from '../../../helpers/ToasterProvider';
 // import CustomerServiceFilter from '../../../components/CustomerService/CustomerServiceFilter';
 import OperationPerformanceFilter from '../../../components/Report/OperationPerformanceFilter';
 import { downloadExcel } from '../../../helpers/downloadExcel';
@@ -355,6 +357,8 @@ const AttemptWiseOperationPickupReport = () => {
     };
 
     const [SelectedPayload, setSelectedPayload] = useState(null)
+    const { ErrorToaster } = ToasterProvider()
+    const [isExportingReport, setIsExportingReport] = useState(false)
     const [paymentModeOptions, setpaymentModeOptions] = useState([
         {
             value: "ALL",
@@ -785,6 +789,31 @@ const AttemptWiseOperationPickupReport = () => {
         }
     };
 
+    // Server-generated xlsx (/export/) -- replaces the client-side
+    // AttemptWiseReport/exportToExcel path below, which rebuilt the file in
+    // the browser from whatever rows were already on screen.
+    const handleExportExcel = async () => {
+        const updatedDate = formatDateForPayload(selectedRange);
+        if (updatedDate?.from_date === "" || updatedDate?.to_date === "") {
+            alert("Please select a valid date range");
+            return;
+        }
+        const payload = {
+            start_date: updatedDate.from_date,
+            end_date: updatedDate.to_date,
+            service_center: SelectedServiceCenters.map((ele) => ele?.value) || [],
+            region: SelectedRegion?.map((ele) => ele?.value) || [],
+        };
+        setIsExportingReport(true);
+        try {
+            await downloadReportExcel(GET_ATTEMPT_WISE_DELIVARY_REPORT_EXPORT, payload, "operations_delivery_attempt_strike_rate.xlsx");
+        } catch (err) {
+            ErrorToaster(err.message || "Download failed");
+        } finally {
+            setIsExportingReport(false);
+        }
+    };
+
     const DownloadPerformanceDetails = async () => {
         const updatedDate = formatDateForPayload(selectedRange);
         if (updatedDate?.from_date === "" || updatedDate?.to_date === "") {
@@ -1115,27 +1144,14 @@ const AttemptWiseOperationPickupReport = () => {
                             <Button color="primary" disabled={bookingLoading} style={{ height: "2.2rem", width: "100%" }} onClick={OnCheckClick}>
                                 Check
                             </Button>
-
-                            {/* <Button color="primary" disabled={true} style={{ height: "2.2rem", width: "100%" }} onClick={OnCheckClick}>
-                                Check
-                            </Button> */}
-                            {/* <Button
-                                    color="primary"
-                                    className='flex justify-center items-center'
-                                    disabled={BookingData.length < 1}
-                                    onClick={DownloadPerformanceDetails}
-                                    title='Download'
-                                    style={{ height: "2.2rem", width: "6rem" }}
-                                >
-                                    {isExporting ? (
-                                        <>
-                                            <span className="spinner"></span>
-                                            Exporting...
-                                        </>
-                                    ) : (
-                                        <FaCloudDownloadAlt style={{ width: "20px", height: "20px" }} />
-                                    )}
-                                </Button> */}
+                            <Button
+                                color="secondary"
+                                disabled={isExportingReport}
+                                style={{ height: "2.2rem", width: "100%", marginTop: "0.5rem" }}
+                                onClick={handleExportExcel}
+                            >
+                                {isExportingReport ? "Downloading…" : "Download Report"}
+                            </Button>
                             {/* </div> */}
                         </Col>
                         {/* {
@@ -1166,21 +1182,6 @@ const AttemptWiseOperationPickupReport = () => {
                                         paginationWrapper='dataTables_paginate paging_simple_numbers'
                                         tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline"
                                         isCustomPageSize={true}
-                                        isDownloadExcle={true}
-                                        onDownloadExcle={async () => {
-                                            let rowData = BookingData;
-                                            let newHeaders = Object.keys(BookingData[0]).map(ele => {
-                                                return ele
-                                            })
-                                            await AttemptWiseReport(SecondMiles, "Operations_attempt_strike_rate", {
-                                                sheetName: "Operation_Performance",
-                                                headers: newHeaders,
-                                                rows: rowData
-                                            },
-                                                SelectedPayload
-                                            )
-                                        }}
-                                        ExcleLoading={AttemptWiseLoading}
                                     // excelItems={excelItems}
                                     />
                                 </>

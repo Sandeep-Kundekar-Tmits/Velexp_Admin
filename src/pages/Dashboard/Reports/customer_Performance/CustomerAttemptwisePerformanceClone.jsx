@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { qk } from "@/lib/queryKeys";
 import { fetchServiceCenters } from "@/services/reference.service";
 import { useGetApiCall } from '../../../../hooks/useGetApiCall';
-import { CUSTOMER_GET_ATTEMPT_WISE_DELIVARY_REPORT, CUSTOMER_GET_ATTEMPT_WISE_DELIVARY_REPORT_CLONE, GET_ADMIN_BOOKING_DETAILS, GET_ALL_REGION, GET_ATTEMPT_WISE_DELIVARY_REPORT, GET_CUSTOMER_SERVICE, GET_OPERATION_PERFORMANCE, GET_USER_API, PRODUCT_LIST, SPD_OPERATION_PERFORMANCE } from '../../../../api';
+import { CUSTOMER_GET_ATTEMPT_WISE_DELIVARY_REPORT, CUSTOMER_GET_ATTEMPT_WISE_DELIVARY_REPORT_CLONE, CUSTOMER_GET_ATTEMPT_WISE_DELIVARY_REPORT_CLONE_EXPORT, GET_ADMIN_BOOKING_DETAILS, GET_ALL_REGION, GET_ATTEMPT_WISE_DELIVARY_REPORT, GET_CUSTOMER_SERVICE, GET_OPERATION_PERFORMANCE, GET_USER_API, PRODUCT_LIST, SPD_OPERATION_PERFORMANCE } from '../../../../api';
 import usePostApiCall from '../../../../hooks/usePostApiCall';
 import formatDateForPayload from '../../../../helpers/DateHelper';
 import Loader from "@/Loaders/Loader";
@@ -22,11 +22,11 @@ import { useExcelExport } from '../../../../hooks/useExcelExport';
 import { useFirstMileExcel } from '../../../../hooks/useFirstMileExcel';
 // import TabsProvider from '../../../components/TabsProvider';
 // import { useSecondMileExcel } from '../../../hooks/useSecondMileExcel';
-import { useAttemptWiseExcel } from '../../../../hooks/useAttemptWiseExcel';
 import renderCountWithPercent from '../../../../components/renderCountWithPercent';
-import { useAttemptWiseExcelClone } from '../../../../hooks/useAttemptWiseExcelClone';
 import StatsCard from '../../../../components/StatsCard';
 import MainHeaderComp from '../../../../components/MainHeaderCom';
+import { downloadReportExcel } from '../../../../helpers/downloadReportExcel';
+import ToasterProvider from '../../../../helpers/ToasterProvider';
 
 /* Same contract as LastMileOperations.jsx: a checkbox per option instead of a
    chip strip beside the control, and a count in the control instead of one
@@ -123,8 +123,8 @@ const CustomerAttemptwisePerformanceClone = () => {
     //  first mile report
     const { downloadExcel, loading: FirstMileLoading, error } = useFirstMileExcel();
     //  first mile report
-    // const { downloadExcel: AttemptWiseReport, loading: AttemptWiseLoading, error: AttemptWiseError } = useAttemptWiseExcel();
-    const { downloadExcel: AttemptWiseReport, loading: AttemptWiseLoading, error: AttemptWiseError } = useAttemptWiseExcelClone();
+    const { ErrorToaster } = ToasterProvider()
+    const [isExportingReport, setIsExportingReport] = useState(false)
     // defining the get regions api
     const { apifunc: GetAllRegions, data: Regions } = useGetApiCall()
     const { exportToExcel, isExporting, exportProgress } = useExcelExport();
@@ -635,6 +635,36 @@ const CustomerAttemptwisePerformanceClone = () => {
         }
     };
 
+    // Server-generated xlsx (/export/) -- replaces the client-side
+    // AttemptWiseReport/exportToExcel path below, which rebuilt the file in
+    // the browser from whatever rows were already on screen. customer_name
+    // is mandatory for this report, unlike the operations-wide ones.
+    const handleExportExcel = async () => {
+        if (!username?.value) {
+            alert("Select a customer first");
+            return;
+        }
+        const updatedDate = formatDateForPayload(selectedRange);
+        if (updatedDate?.from_date === "" || updatedDate?.to_date === "") {
+            alert("Please select a valid date range");
+            return;
+        }
+        const payload = {
+            customer_name: username.value,
+            start_date: updatedDate.from_date,
+            end_date: updatedDate.to_date,
+            region: SelectedRegion?.map((ele) => ele?.value) || [],
+        };
+        setIsExportingReport(true);
+        try {
+            await downloadReportExcel(CUSTOMER_GET_ATTEMPT_WISE_DELIVARY_REPORT_CLONE_EXPORT, payload, "customer_delivery_attempt_strike_rate.xlsx");
+        } catch (err) {
+            ErrorToaster(err.message || "Download failed");
+        } finally {
+            setIsExportingReport(false);
+        }
+    };
+
     // useEffect for the filtering the  Service Centers
     useEffect(() => {
         if (!SelectedRegion || SelectedRegion.length === 0) {
@@ -747,6 +777,14 @@ const CustomerAttemptwisePerformanceClone = () => {
                     >
                         Check
                     </Button>
+                    <Button
+                        color="secondary"
+                        disabled={isExportingReport}
+                        className="h-9.5 shrink-0 px-6"
+                        onClick={handleExportExcel}
+                    >
+                        {isExportingReport ? "Downloading…" : "Download Report"}
+                    </Button>
                 </div>
 
                 {Object.keys(FinalStatusCount).length > 0 && (
@@ -773,43 +811,8 @@ const CustomerAttemptwisePerformanceClone = () => {
                                 isStickyHeader={true}
                                 stickyTop={0}
                                 isCustomPageSize={true}
-                                isDownloadExcle={true}
                                 fillHeight
                                 tableHeight="72vh"
-                                onDownloadExcle={async () => {
-                                            const toTitleCase = (str) =>
-                                                str
-                                                    .replace(/_/g, " ")
-                                                    .replace(/\b\w/g, (c) => c.toUpperCase());
-
-                                            let rowData = BookingData.map((ele) => {
-                                                const result = {};
-
-                                                Object.keys(ele).forEach((key) => {
-                                                    // Rename created_date → AWB Date
-                                                    const newKey =
-                                                        key === "created_date"
-                                                            ? "AWB Date"
-                                                            : toTitleCase(key);
-
-                                                    result[newKey] = ele[key];
-                                                });
-
-                                                return result;
-                                            });
-                                            let newHeaders = Object.keys(rowData[0]).map(ele => {
-                                                return ele
-                                            })
-                                            await AttemptWiseReport(SecondMiles, "Customer_attempt_strike_rate", {
-                                                sheetName: "Operation_Performance",
-                                                headers: newHeaders,
-                                                rows: rowData
-                                            },
-                                                SelectedPayload,
-                                                FinalStatusCount
-                                            )
-                                        }}
-                                ExcleLoading={AttemptWiseLoading}
                             />
                         )
                     }
