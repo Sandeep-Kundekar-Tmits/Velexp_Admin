@@ -205,14 +205,20 @@ const ManualInvoice = () => {
                 })
                 setSelectedAddress(null)
 
-                //  calling the generate pdf function after 1 second
-                setTimeout(() => {
-                    handleDownload()
-                }, 1000);
-
-                setTimeout(() => {
+                // 1s delay: PdfData was just set above, and the off-screen
+                // InvoicePdfGenerater (gated on `PdfData && ...`) needs a render
+                // pass before targetRef points at real content for toPDF() to
+                // capture. The reload used to run on its own fixed 5s timer --
+                // if toPDF() (itself configured for up to 30s) ever ran past
+                // that, the page reloaded out from under it mid-capture, which
+                // showed as the "Generating the Pdf" loader spinning and then
+                // the whole screen vanishing. Awaiting handleDownload() here
+                // instead means the reload always happens after the capture
+                // actually finishes (or fails), never during it.
+                setTimeout(async () => {
+                    await handleDownload()
                     window.location.reload(); // Reloads the page from cache
-                }, 5000)
+                }, 1000);
             }
             else {
                 ErrorToaster("PdfData Not Available")
