@@ -13,6 +13,7 @@ import { MdSearch, MdFileDownload } from "react-icons/md"
 import { useGetApiCall } from "../../hooks/useGetApiCall"
 import { customStyles } from "../../helpers/CustomStyle"
 import YMD_DateFormate from "../../helpers/YMD_DateFormate"
+import { formatDisplayDate } from "../../helpers/formatDisplayDate"
 
 // Format DD-MM-YYYY from a YYYY-MM-DD string for the API
 const toApiDate = (dateStr) => {
@@ -40,6 +41,7 @@ const AllBooking = () => {
     const [selectedRange, setSelectedRange] = useState({ startDate: firstOfMonth, endDate: today })
     const [bookings, setBookings] = useState([])
     const [totalCount, setTotalCount] = useState(0)
+    const [totalPages, setTotalPages] = useState(1)
     const [currentPage, setCurrentPage] = useState(1)
     const [loading, setLoading] = useState(false)
     const [exporting, setExporting] = useState(false)
@@ -75,15 +77,14 @@ const AllBooking = () => {
                 headers: { "Content-Type": "application/json" }
             })
             const data = res.data
-            // Support both { results, count } and flat array responses
-            if (Array.isArray(data)) {
-                setBookings(data)
-                setTotalCount(data.length)
-            } else {
-                setBookings(data.results || data.data || [])
-                setTotalCount(data.count || data.total || (data.results || []).length)
-            }
-            setCurrentPage(page)
+            // Real shape: { success, items, total_count, page, page_size, total_pages }.
+            // Kept the old { results/data, count/total } and flat-array fallbacks too,
+            // since nothing here actually confirms the shape never varies by endpoint.
+            const items = Array.isArray(data) ? data : (data.items || data.results || data.data || [])
+            setBookings(items)
+            setTotalCount(data.total_count ?? data.count ?? data.total ?? items.length)
+            setTotalPages(data.total_pages || Math.ceil((data.total_count ?? items.length) / PAGE_SIZE) || 1)
+            setCurrentPage(data.page || page)
             setHasFetched(true)
             SuccessToaster("Bookings loaded successfully")
         } catch (err) {
@@ -117,28 +118,43 @@ const AllBooking = () => {
         }
     }
 
-    const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1
-
     const columns = [
         { header: "#", cell: (c) => ((currentPage - 1) * PAGE_SIZE) + c.row.index + 1 },
-        { header: "AWB No", accessorKey: "awbno" },
-        { header: "Date", accessorKey: "booking_date", cell: (c) => c.getValue() || "N/A" },
-        { header: "Customer", accessorKey: "customer_name", cell: (c) => c.getValue() || "N/A" },
-        { header: "Consignee", accessorKey: "consignee_name", cell: (c) => c.getValue() || "N/A" },
-        { header: "From", accessorKey: "from_city", cell: (c) => c.getValue() || "N/A" },
-        { header: "To", accessorKey: "to_city", cell: (c) => c.getValue() || "N/A" },
-        { header: "Weight", accessorKey: "weight", cell: (c) => c.getValue() || "0" },
-        { header: "Product", accessorKey: "product", cell: (c) => c.getValue() || "N/A" },
+        { header: "AWB No", accessorKey: "awbno", cell: (c) => c.getValue() || "N/A" },
+        { header: "AWB Date", accessorKey: "awbdate", cell: (c) => formatDisplayDate(c.getValue()) || c.getValue() || "N/A" },
+        { header: "Order No", accessorKey: "orderno", cell: (c) => c.getValue() || "N/A" },
+        { header: "Reference No", accessorKey: "ref2", cell: (c) => c.getValue() || "N/A" },
+        { header: "Customer", accessorKey: "custname", cell: (c) => c.getValue() || "N/A" },
+        { header: "Consignee Name", accessorKey: "ConsigneeName", cell: (c) => c.getValue() || "N/A" },
+        { header: "Consignee City", accessorKey: "ConsCity", cell: (c) => c.getValue() || "N/A" },
+        { header: "Consignee State", accessorKey: "consstate", cell: (c) => c.getValue() || "N/A" },
+        { header: "Billing Pincode", accessorKey: "billing_PINCODE", cell: (c) => c.getValue() || "N/A" },
+        { header: "Origin SC", accessorKey: "ORGSC", cell: (c) => c.getValue() || "N/A" },
+        { header: "Destination SC", accessorKey: "DestinationSC", cell: (c) => c.getValue() || "N/A" },
+        { header: "Origin Pincode", accessorKey: "origin_pincode", cell: (c) => c.getValue() || "N/A" },
+        { header: "Vendor Name", accessorKey: "VendorName", cell: (c) => c.getValue() || "N/A" },
+        { header: "Vendor Pincode", accessorKey: "vendorpincode", cell: (c) => c.getValue() || "N/A" },
+        { header: "Quantity", accessorKey: "Quantity", cell: (c) => c.getValue() ?? "0" },
+        { header: "Weight", accessorKey: "weight", cell: (c) => c.getValue() ?? "0" },
+        { header: "Vol. Weight", accessorKey: "volumetric_weight", cell: (c) => c.getValue() ?? "0" },
+        { header: "Shipment Value", accessorKey: "value", cell: (c) => c.getValue() != null ? `₹${c.getValue()}` : "₹0" },
+        { header: "Total Amount", accessorKey: "Totalamount", cell: (c) => c.getValue() != null ? `₹${c.getValue()}` : "₹0" },
+        { header: "Freight", accessorKey: "tot_freight", cell: (c) => c.getValue() != null ? `₹${c.getValue()}` : "₹0" },
+        { header: "Payment Mode", accessorKey: "paymentmode", cell: (c) => c.getValue() || "N/A" },
+        { header: "RTO AWB No", accessorKey: "RTOAWBNO", cell: (c) => c.getValue() || "N/A" },
+        { header: "Invoice No", accessorKey: "INVNO", cell: (c) => c.getValue() || "N/A" },
+        { header: "EC Code", accessorKey: "eccode", cell: (c) => c.getValue() || "N/A" },
+        { header: "Product", accessorKey: "product_name", cell: (c) => c.getValue() || "N/A" },
         {
             header: "Status", accessorKey: "status",
             cell: (c) => {
                 const val = c.getValue()
                 if (!val) return "N/A"
-                const color = val === "DELIVERED" ? "success" : val === "PENDING" ? "warning" : "info"
+                const key = String(val).toLowerCase()
+                const color = key === "delivered" ? "success" : key === "pending" ? "warning" : key.includes("rto") ? "danger" : "info"
                 return <Badge color={color}>{val}</Badge>
             }
         },
-        { header: "COD", accessorKey: "cod_amount", cell: (c) => c.getValue() ? `₹${c.getValue()}` : "₹0" },
     ]
 
     return (
