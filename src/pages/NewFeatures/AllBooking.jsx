@@ -29,12 +29,7 @@ const toApiDate = (dateStr) => {
 const today = new Date()
 const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
 
-const PAGE_SIZE_OPTIONS = [
-    { value: 50, label: "50 / page" },
-    { value: 100, label: "100 / page" },
-    { value: 500, label: "500 / page" },
-    { value: 1000, label: "1000 / page" },
-]
+const PAGE_SIZE = 50
 
 const ALL_OPTION = { value: "All", label: "All Customers" }
 
@@ -48,7 +43,6 @@ const AllBooking = () => {
     const [totalCount, setTotalCount] = useState(0)
     const [totalPages, setTotalPages] = useState(1)
     const [currentPage, setCurrentPage] = useState(1)
-    const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0].value)
     const [loading, setLoading] = useState(false)
     const [exporting, setExporting] = useState(false)
     const [hasFetched, setHasFetched] = useState(false)
@@ -65,21 +59,21 @@ const AllBooking = () => {
         return [ALL_OPTION, ...corporates]
     }, [customerListRaw])
 
-    const buildPayload = (page = 1, size = pageSize) => {
+    const buildPayload = (page = 1, pageSize = PAGE_SIZE) => {
         const { from_date, to_date } = YMD_DateFormate(selectedRange)
         return {
             customer_name: selectedCustomer?.value || "All",
             start_date: toApiDate(from_date),
             end_date: toApiDate(to_date),
             page,
-            page_size: size,
+            page_size: pageSize,
         }
     }
 
-    const fetchBookings = async (page = 1, size = pageSize) => {
+    const fetchBookings = async (page = 1) => {
         setLoading(true)
         try {
-            const res = await axios.post(ALL_BOOKINGS_VIEW, buildPayload(page, size), {
+            const res = await axios.post(ALL_BOOKINGS_VIEW, buildPayload(page), {
                 headers: { "Content-Type": "application/json" }
             })
             const data = res.data
@@ -89,9 +83,8 @@ const AllBooking = () => {
             const items = Array.isArray(data) ? data : (data.items || data.results || data.data || [])
             setBookings(items)
             setTotalCount(data.total_count ?? data.count ?? data.total ?? items.length)
-            setTotalPages(data.total_pages || Math.ceil((data.total_count ?? items.length) / size) || 1)
+            setTotalPages(data.total_pages || Math.ceil((data.total_count ?? items.length) / PAGE_SIZE) || 1)
             setCurrentPage(data.page || page)
-            setPageSize(data.page_size || size)
             setHasFetched(true)
             SuccessToaster("Bookings loaded successfully")
         } catch (err) {
@@ -99,12 +92,6 @@ const AllBooking = () => {
         } finally {
             setLoading(false)
         }
-    }
-
-    const handlePageSizeChange = (option) => {
-        const size = option?.value || PAGE_SIZE_OPTIONS[0].value
-        setPageSize(size)
-        fetchBookings(1, size)
     }
 
     const handleExport = async () => {
@@ -132,7 +119,7 @@ const AllBooking = () => {
     }
 
     const columns = [
-        { header: "#", cell: (c) => ((currentPage - 1) * pageSize) + c.row.index + 1 },
+        { header: "#", cell: (c) => ((currentPage - 1) * PAGE_SIZE) + c.row.index + 1 },
         { header: "AWB No", accessorKey: "awbno", cell: (c) => c.getValue() || "N/A" },
         { header: "AWB Date", accessorKey: "awbdate", cell: (c) => formatDisplayDate(c.getValue()) || c.getValue() || "N/A" },
         { header: "Order No", accessorKey: "orderno", cell: (c) => c.getValue() || "N/A" },
@@ -253,33 +240,20 @@ const AllBooking = () => {
                                     SearchPlaceholder="Search bookings..."
                                     tableClass="table-hover mb-0"
                                 />
-                                <div className="flex justify-between items-center gap-3 px-4 py-2 border-top bg-canvas">
+                                <div className="flex justify-between items-center px-4 py-2 border-top bg-canvas">
                                     <span className="font-bold text-xs text-ink-muted">
                                         Showing page {currentPage} of {totalPages} &nbsp;|&nbsp; Total: <strong>{totalCount.toLocaleString()}</strong> bookings
                                     </span>
-                                    <div className="flex items-center gap-3">
-                                        <div style={{ width: 130 }}>
-                                            <Select
-                                                options={PAGE_SIZE_OPTIONS}
-                                                value={PAGE_SIZE_OPTIONS.find(o => o.value === pageSize) || PAGE_SIZE_OPTIONS[0]}
-                                                onChange={handlePageSizeChange}
-                                                isSearchable={false}
-                                                styles={customStyles}
-                                                menuPortalTarget={document.body}
-                                                menuPosition="fixed"
-                                            />
+                                    {totalPages > 1 && (
+                                        <div className="flex gap-2">
+                                            <Button size="sm" color="secondary" outline disabled={currentPage <= 1} onClick={() => fetchBookings(currentPage - 1)}>
+                                                &laquo; Prev
+                                            </Button>
+                                            <Button size="sm" color="secondary" outline disabled={currentPage >= totalPages} onClick={() => fetchBookings(currentPage + 1)}>
+                                                Next &raquo;
+                                            </Button>
                                         </div>
-                                        {totalPages > 1 && (
-                                            <div className="flex gap-2">
-                                                <Button size="sm" color="secondary" outline disabled={currentPage <= 1} onClick={() => fetchBookings(currentPage - 1)}>
-                                                    &laquo; Prev
-                                                </Button>
-                                                <Button size="sm" color="secondary" outline disabled={currentPage >= totalPages} onClick={() => fetchBookings(currentPage + 1)}>
-                                                    Next &raquo;
-                                                </Button>
-                                            </div>
-                                        )}
-                                    </div>
+                                    )}
                                 </div>
                             </CardBody>
                         </Card>
