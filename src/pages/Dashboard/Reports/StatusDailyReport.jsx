@@ -6,7 +6,7 @@
 // becomes a badge strip) so this keeps working whatever the backend actually
 // sends, the same approach MobileAppReport.jsx uses for its own admin-reports
 // endpoints.
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import Select from "react-select";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -106,22 +106,39 @@ const StatusDailyReport = () => {
     // scrolled, so the rows get the room back -- reappear once scrolled
     // back near the top. Same pattern as CodPendingReport.jsx/MobileAppReport.jsx.
     const scrollRef = useRef(null);
+    const collapsibleRef = useRef(null);
+    // Natural (fully expanded) heights, captured once per fresh result --
+    // NOT recomputed live inside onScroll. Collapsing removes the filters
+    // block's ~900px, which can leave the remaining content shorter than
+    // the box; the browser then force-resets scrollTop to 0 to keep it in
+    // range, that reset itself fires a scroll event, scrollTop 0 isn't > 8,
+    // so it re-expands -- recreating the overflow and the whole cycle,
+    // visible as the page snapping back to the top the instant you scroll.
+    // Deciding "would collapsing still leave something to scroll?" off a
+    // stable, pre-collapse measurement (rather than el.scrollHeight, which
+    // our own collapse keeps changing) breaks that feedback loop.
+    const metricsRef = useRef({ natural: 0, collapsible: 0 });
     const [filtersCollapsed, setFiltersCollapsed] = useState(false);
+    useLayoutEffect(() => {
+        if (scrollRef.current && collapsibleRef.current) {
+            metricsRef.current = {
+                natural: scrollRef.current.scrollHeight,
+                collapsible: collapsibleRef.current.scrollHeight,
+            };
+        }
+    }, [response]);
     useEffect(() => {
         const el = scrollRef.current;
         if (!el) return undefined;
         const onScroll = () => {
-            // A short table (2-10 rows) can leave the expanded content just
-            // barely taller than the box. Collapsing then makes it NOT
-            // taller, the browser snaps scrollTop back to 0 to keep it in
-            // range, that scroll fires this handler again, 0 isn't > 8 so
-            // it re-expands, the content is tall again, and the collapse
-            // transition's own in-between heights can retrigger the whole
-            // cycle mid-animation -- a continuous flicker. Only collapsing
-            // once there's a real amount of overflow (not just a few px of
-            // it) keeps a short table from ever reaching that boundary.
-            const overflow = el.scrollHeight - el.clientHeight;
-            setFiltersCollapsed(overflow > 150 && el.scrollTop > 8);
+            const { natural, collapsible } = metricsRef.current;
+            const expandedOverflow = natural - el.clientHeight;
+            // How much would still be left to scroll AFTER the filters
+            // block is hidden -- collapsing when this isn't positive would
+            // just eliminate the overflow outright and force the reset/
+            // re-expand loop above, so it's never worth collapsing then.
+            const collapsedOverflow = natural - collapsible - el.clientHeight;
+            setFiltersCollapsed(expandedOverflow > 150 && collapsedOverflow > 20 && el.scrollTop > 8);
         };
         el.addEventListener("scroll", onScroll, { passive: true });
         return () => el.removeEventListener("scroll", onScroll);
@@ -267,6 +284,7 @@ const StatusDailyReport = () => {
                 already uses for this exact collapse behaviour. */}
             <div ref={scrollRef} className="scroll-slim relative z-10 pb-4" style={{ maxHeight: "78vh", overflowY: "auto" }}>
                 <div
+                    ref={collapsibleRef}
                     className="transition-[max-height,opacity] duration-300 ease-out"
                     style={filtersCollapsed ? { maxHeight: 0, opacity: 0, overflow: "hidden" } : { maxHeight: 900, opacity: 1, overflow: "hidden" }}
                 >
