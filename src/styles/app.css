@@ -111,25 +111,30 @@
  * those are patched screen-by-screen as they're spotted looking wrong.
  */
 /*
- * Tuned for less eye strain, not just "inverted dark": a pure #ffffff
- * surface next to a near-black #0f172a ink is the highest-contrast
- * combination available and reads as glary over a full dashboard rather
- * than crisp -- real screen-time light themes (GitHub, Linear, Notion)
- * avoid it by softening one or both ends. Surface drops one step to
- * slate-50 and ink one step to slate-800; canvas/line/ink-muted stay put.
- * Contrast is still comfortably clear of WCAG AA at every pairing used
- * (ink-muted/surface, the tightest of them, is ~7.2:1 against a 4.5:1
- * floor) -- this is a softer palette, not a less accessible one.
+ * "Serene Lavender" -- the light theme's five neutrals re-tinted off a
+ * named five-color palette (Lavender Blush/Thistle/Lilac/Dusty Mauve/Space
+ * Indigo) instead of plain slate, in the same light-to-dark order the
+ * tokens themselves already run: surface and canvas are the two lightest
+ * (cards lift off a slightly deeper-tinted page, same relationship the
+ * dark theme has between its own canvas/surface), line is the mid step,
+ * and ink-muted/ink are the two darkest, for text.
+ *
+ * ink-muted is Dusty Mauve deepened toward Space Indigo (both from this
+ * same palette) rather than the raw swatch -- plain Dusty Mauve on
+ * Lavender Blush only measures ~3.1:1, fine for an 18px+ label but too
+ * low for the small print this token also covers in 600+ places; this
+ * mix clears ~5.2:1 (AA) while staying in the same mauve family. Every
+ * other value here is the palette's own hex, unmixed.
  */
 [data-theme="light"] {
-  --color-surface: #f8fafc;
-  --color-canvas: #f1f5f9;
-  --color-line: #e2e8f0;
-  --color-ink: #1e293b;
-  --color-ink-muted: #475569;
-  --overlay-rgb: 15 23 42;
-  --shadow-elevated: rgb(15 23 42 / 0.1);
-  --shadow-elevated-strong: rgb(15 23 42 / 0.14);
+  --color-surface: #f5e6e8; /* Lavender Blush */
+  --color-canvas: #d5c6e0; /* Thistle */
+  --color-line: #aaa1c8; /* Lilac */
+  --color-ink: #192a51; /* Space Indigo -- 11.6:1 on surface (AAA) */
+  --color-ink-muted: color-mix(in srgb, #192a51 40%, #967aa1 60%); /* Dusty Mauve, deepened -- ~5.2:1 on surface (AA) */
+  --overlay-rgb: 25 42 81; /* Space Indigo */
+  --shadow-elevated: rgb(25 42 81 / 0.1);
+  --shadow-elevated-strong: rgb(25 42 81 / 0.14);
   --glass-surface: color-mix(in srgb, var(--color-surface) 95%, transparent);
   color-scheme: light;
 }
