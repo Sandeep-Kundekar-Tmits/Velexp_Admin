@@ -192,20 +192,26 @@ const StatusDailyReport = () => {
 
     const arraySections = useMemo(() => {
         if (!response || typeof response !== "object") return [];
+        // Every array field becomes its own tab, even an empty one -- a
+        // low-volume query (the real sample that exposed this had Total: 1)
+        // can legitimately come back with an empty by_region/by_service_center,
+        // and the old v.length check dropped those tabs outright instead of
+        // showing "no rows for this breakdown," which read as the tab (and
+        // the data behind it) not existing at all.
         return Object.entries(response)
-            .filter(([, v]) => Array.isArray(v) && v.length && typeof v[0] === "object")
+            .filter(([, v]) => Array.isArray(v) && (v.length === 0 || typeof v[0] === "object"))
             .map(([key, rows]) => ({
                 key,
                 title: humanize(key),
                 rows,
-                columns: Object.keys(rows[0]).map((col) => ({
+                columns: rows.length ? Object.keys(rows[0]).map((col) => ({
                     header: humanize(col),
                     accessorKey: col,
                     cell: ({ getValue }) => {
                         const v = getValue();
                         return v === null || v === undefined || v === "" ? "—" : String(v);
                     },
-                })),
+                })) : [],
             }));
     }, [response]);
 
@@ -372,6 +378,9 @@ const StatusDailyReport = () => {
                                     <TabContent activeTab={activeArrayTab}>
                                         {arraySections.map(({ key, rows, columns }) => (
                                             <TabPane key={key} tabId={key}>
+                                                {rows.length === 0 ? (
+                                                    <div className="py-10 text-center text-ink-muted">No rows for this breakdown.</div>
+                                                ) : (
                                                 <TableContainer
                                                     columns={columns}
                                                     data={rows}
@@ -380,8 +389,11 @@ const StatusDailyReport = () => {
                                                     isCustomPageSize={true}
                                                     defaultPageSize={20}
                                                     SearchPlaceholder="Search within results..."
+                                                    pagination="pagination"
+                                                    paginationWrapper="dataTables_paginate paging_simple_numbers"
                                                     tableClass="table-nowrap dt-responsive w-full dataTable no-footer"
                                                 />
+                                                )}
                                             </TabPane>
                                         ))}
                                     </TabContent>
