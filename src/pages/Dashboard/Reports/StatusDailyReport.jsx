@@ -6,7 +6,7 @@
 // becomes a badge strip) so this keeps working whatever the backend actually
 // sends, the same approach MobileAppReport.jsx uses for its own admin-reports
 // endpoints.
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Select from "react-select";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -310,19 +310,17 @@ const StatusDailyReport = () => {
                     </Card>
 
                     {/* Filters/Summary/Notes/Cache (whatever the response
-                        actually names its object fields), as a plain
-                        label/value table -- one bold section-header row per
-                        group, then one row per field. Simpler and more
-                        reliably readable than the tile/pill layouts this
-                        went through before: no colour contrast to get wrong,
-                        no squeezing a long value into a fixed-width box. */}
+                        actually names its object fields) as their own small
+                        table each, side by side in one row -- not one long
+                        stacked table, so none of the four has to compete with
+                        the others for vertical space. */}
                     {objectSections.length > 0 && (
-                        <Card className="mb-3">
-                            <CardBody className="p-0">
-                                <Table bordered responsive className="mb-0">
-                                    <tbody>
-                                        {objectSections.map(({ key, title, entries }) => (
-                                            <Fragment key={key}>
+                        <div className="mb-3 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                            {objectSections.map(({ key, title, entries }) => (
+                                <Card key={key} className="mb-0">
+                                    <CardBody className="p-0">
+                                        <Table bordered responsive className="mb-0">
+                                            <tbody>
                                                 <tr className="bg-canvas">
                                                     <th colSpan={2} className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">
                                                         {title}
@@ -330,16 +328,16 @@ const StatusDailyReport = () => {
                                                 </tr>
                                                 {entries.map(([k, v]) => (
                                                     <tr key={k}>
-                                                        <td className="w-1/3 font-medium text-ink-muted">{humanize(k)}</td>
+                                                        <td className="font-medium text-ink-muted">{humanize(k)}</td>
                                                         <td className="text-ink">{formatSummaryValue(v)}</td>
                                                     </tr>
                                                 ))}
-                                            </Fragment>
-                                        ))}
-                                    </tbody>
-                                </Table>
-                            </CardBody>
-                        </Card>
+                                            </tbody>
+                                        </Table>
+                                    </CardBody>
+                                </Card>
+                            ))}
+                        </div>
                     )}
                 </div>
 
