@@ -6,16 +6,17 @@
 // becomes a badge strip) so this keeps working whatever the backend actually
 // sends, the same approach MobileAppReport.jsx uses for its own admin-reports
 // endpoints.
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Select from "react-select";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { Badge, Button, Card, CardBody, Label } from "@/components/ui";
+import { Button, Card, CardBody, Label } from "@/components/ui";
 import Loader from "@/Loaders/Loader";
 import TableContainer from "../../../components/Table/TableContainer";
 import MainHeaderComp from "../../../components/MainHeaderCom";
 import ToasterProvider from "../../../helpers/ToasterProvider";
 import { customStyles, CheckboxOption, SelectedCountValue } from "../../../helpers/CustomStyle";
+import { formatDisplayDate, isIsoDateLike } from "../../../helpers/formatDisplayDate";
 import { authFetch } from "@/lib/http";
 import { useQuery } from "@tanstack/react-query";
 import { qk } from "@/lib/queryKeys";
@@ -51,6 +52,27 @@ const STATUS_CODE_OPTIONS = [
     "SPD",
 ].sort().map((code) => ({ value: code, label: code }));
 
+// Array -> comma list (not JSON.stringify's "[\"ABN\"]"), boolean -> Yes/No,
+// an ISO date/datetime -> dd-mm-yyyy, everything else as-is.
+const formatSummaryValue = (v) => {
+    if (Array.isArray(v)) return v.length ? v.join(", ") : "—";
+    if (typeof v === "boolean") return v ? "Yes" : "No";
+    if (isIsoDateLike(v)) return formatDisplayDate(v) || v;
+    if (v === null || v === undefined || v === "") return "—";
+    return String(v);
+};
+
+/* One label/value tile. Fixed-size and non-shrinking so a short "Cached:
+   false" and a long "Expires At: 16-10-2026 13:33" both stay fully readable
+   on one line, instead of the old Badge pills that squeezed arbitrarily
+   long text into a pill-shaped box with no minimum width. */
+const SummaryTile = ({ label, value }) => (
+    <div className="flex shrink-0 flex-col gap-0.5 whitespace-nowrap rounded-lg border border-white/8 bg-white/3 px-3 py-1.5">
+        <span className="text-[10px] uppercase tracking-wider text-ink-muted">{label}</span>
+        <span className="text-[13px] font-semibold text-ink">{formatSummaryValue(value)}</span>
+    </div>
+);
+
 const StatusDailyReport = () => {
     useEffect(() => { document.title = "Status Daily Report"; }, []);
     const { ErrorToaster } = ToasterProvider();
@@ -81,6 +103,19 @@ const StatusDailyReport = () => {
     const [loading, setLoading] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
     const [hasChecked, setHasChecked] = useState(false);
+
+    // The filter row + summary strip collapse once the table area is
+    // scrolled, so the rows get the room back -- reappear once scrolled
+    // back near the top. Same pattern as CodPendingReport.jsx/MobileAppReport.jsx.
+    const scrollRef = useRef(null);
+    const [filtersCollapsed, setFiltersCollapsed] = useState(false);
+    useEffect(() => {
+        const el = scrollRef.current;
+        if (!el) return undefined;
+        const onScroll = () => setFiltersCollapsed(el.scrollTop > 8);
+        el.addEventListener("scroll", onScroll, { passive: true });
+        return () => el.removeEventListener("scroll", onScroll);
+    }, []);
 
     const handleStatusChange = (opts) => {
         const values = (opts || []).map((o) => o.value);
@@ -188,71 +223,100 @@ const StatusDailyReport = () => {
                 subTitle="Daily shipment counts by status, service centre and region."
             />
 
-            <div className="page-fit-body relative z-10 pb-4">
-                <Card className="mb-3">
-                    <CardBody className="flex flex-wrap items-end gap-3 py-3">
-                        <div className="flex flex-col gap-1.5">
-                            <Label className="mb-0 text-xs font-bold text-ink-muted">Date *</Label>
-                            {/* dd-mm-yyyy display -- a native type="date" input's text
-                                is locale-driven and can't be forced to a fixed format,
-                                so this uses the same DatePicker + dateFormat pattern
-                                MobileAppReport.jsx already uses. `date` itself stays a
-                                YYYY-MM-DD string (what the API needs). */}
-                            <DatePicker
-                                selected={(() => { const [y, m, d] = date.split("-").map(Number); return new Date(y, m - 1, d); })()}
-                                onChange={(d) => d && setDate(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`)}
-                                dateFormat="dd-MM-yyyy"
-                                maxDate={new Date()}
-                                className="form-control form-control-sm"
-                                wrapperClassName="d-inline-block"
-                            />
-                        </div>
+            {/* scrollRef is the one thing on this screen that scrolls; the
+                filter row + summary strip tuck away once that scroll moves
+                past the top (see filtersCollapsed above), so the table gets
+                the screen space back. Same pattern as MobileAppReport.jsx/
+                CodPendingReport.jsx. */}
+            <div ref={scrollRef} className="page-fit-body scroll-slim relative z-10 overflow-y-auto pb-4">
+                <div
+                    className="transition-[max-height,opacity] duration-300 ease-out"
+                    style={filtersCollapsed ? { maxHeight: 0, opacity: 0, overflow: "hidden" } : { maxHeight: 900, opacity: 1, overflow: "hidden" }}
+                >
+                    <Card className="mb-3">
+                        <CardBody className="flex flex-wrap items-end gap-3 py-3">
+                            <div className="flex flex-col gap-1.5">
+                                <Label className="mb-0 text-xs font-bold text-ink-muted">Date *</Label>
+                                {/* dd-mm-yyyy display -- a native type="date" input's text
+                                    is locale-driven and can't be forced to a fixed format,
+                                    so this uses the same DatePicker + dateFormat pattern
+                                    MobileAppReport.jsx already uses. `date` itself stays a
+                                    YYYY-MM-DD string (what the API needs). */}
+                                <DatePicker
+                                    selected={(() => { const [y, m, d] = date.split("-").map(Number); return new Date(y, m - 1, d); })()}
+                                    onChange={(d) => d && setDate(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`)}
+                                    dateFormat="dd-MM-yyyy"
+                                    maxDate={new Date()}
+                                    className="form-control form-control-sm"
+                                    wrapperClassName="d-inline-block"
+                                />
+                            </div>
 
-                        <div className="flex w-full flex-col gap-1.5 sm:w-80">
-                            <Label className="mb-0 text-xs font-bold text-ink-muted">Status Codes * (up to {MAX_STATUS_CODES})</Label>
-                            <Select
-                                isMulti
-                                options={STATUS_CODE_OPTIONS}
-                                value={STATUS_CODE_OPTIONS.filter((o) => statusCodes.includes(o.value))}
-                                onChange={handleStatusChange}
-                                placeholder="Select status codes…"
-                                {...MULTI_SELECT_PROPS}
-                            />
-                        </div>
+                            <div className="flex w-full flex-col gap-1.5 sm:w-80">
+                                <Label className="mb-0 text-xs font-bold text-ink-muted">Status Codes * (up to {MAX_STATUS_CODES})</Label>
+                                <Select
+                                    isMulti
+                                    options={STATUS_CODE_OPTIONS}
+                                    value={STATUS_CODE_OPTIONS.filter((o) => statusCodes.includes(o.value))}
+                                    onChange={handleStatusChange}
+                                    placeholder="Select status codes…"
+                                    {...MULTI_SELECT_PROPS}
+                                />
+                            </div>
 
-                        <div className="flex w-full flex-col gap-1.5 sm:w-64">
-                            <Label className="mb-0 text-xs font-bold text-ink-muted">Service Centers</Label>
-                            <Select
-                                isMulti
-                                options={scOptions}
-                                value={serviceCenters}
-                                onChange={(opts) => setServiceCenters(opts || [])}
-                                placeholder="All service centers"
-                                {...MULTI_SELECT_PROPS}
-                            />
-                        </div>
+                            <div className="flex w-full flex-col gap-1.5 sm:w-64">
+                                <Label className="mb-0 text-xs font-bold text-ink-muted">Service Centers</Label>
+                                <Select
+                                    isMulti
+                                    options={scOptions}
+                                    value={serviceCenters}
+                                    onChange={(opts) => setServiceCenters(opts || [])}
+                                    placeholder="All service centers"
+                                    {...MULTI_SELECT_PROPS}
+                                />
+                            </div>
 
-                        <div className="flex w-full flex-col gap-1.5 sm:w-56">
-                            <Label className="mb-0 text-xs font-bold text-ink-muted">Region</Label>
-                            <Select
-                                options={regionOptions}
-                                value={region}
-                                onChange={setRegion}
-                                isClearable
-                                placeholder="All regions"
-                                styles={customStyles}
-                                menuPortalTarget={document.body}
-                            />
-                        </div>
+                            <div className="flex w-full flex-col gap-1.5 sm:w-56">
+                                <Label className="mb-0 text-xs font-bold text-ink-muted">Region</Label>
+                                <Select
+                                    options={regionOptions}
+                                    value={region}
+                                    onChange={setRegion}
+                                    isClearable
+                                    placeholder="All regions"
+                                    styles={customStyles}
+                                    menuPortalTarget={document.body}
+                                />
+                            </div>
 
-                        <Button color="primary" onClick={fetchReport} disabled={loading}>
-                            {loading ? "Checking…" : "Check"}
-                        </Button>
-                        <Button color="success" onClick={downloadExcel} disabled={isExporting}>
-                            {isExporting ? "Downloading…" : "Download Report"}
-                        </Button>
-                    </CardBody>
-                </Card>
+                            <Button color="primary" onClick={fetchReport} disabled={loading}>
+                                {loading ? "Checking…" : "Check"}
+                            </Button>
+                            <Button color="success" onClick={downloadExcel} disabled={isExporting}>
+                                {isExporting ? "Downloading…" : "Download Report"}
+                            </Button>
+                        </CardBody>
+                    </Card>
+
+                    {/* Each section (Filters/Summary/Notes/Cache, whatever
+                        the response actually names them) on its own single,
+                        non-wrapping line of label/value tiles -- not the
+                        former Badge pills, which squeezed an array field like
+                        service_center into a literal "[\"ABN\"]" and could
+                        read as unreadable depending on the pill's colour. */}
+                    {objectSections.map(({ key, title, entries }) => (
+                        <Card key={key} className="mb-3">
+                            <CardBody className="py-2.5">
+                                <div className="flex flex-nowrap items-center gap-2 overflow-x-auto">
+                                    <span className="shrink-0 text-[11px] font-bold uppercase tracking-wider text-ink-muted">{title}</span>
+                                    {entries.map(([k, v]) => (
+                                        <SummaryTile key={k} label={humanize(k)} value={v} />
+                                    ))}
+                                </div>
+                            </CardBody>
+                        </Card>
+                    ))}
+                </div>
 
                 {!hasChecked ? (
                     <Card><CardBody className="py-12 text-center text-ink-muted">Set your filters and click Check.</CardBody></Card>
@@ -260,20 +324,6 @@ const StatusDailyReport = () => {
                     <Loader message="Loading…" fullscreen={false} />
                 ) : (
                     <>
-                        {objectSections.map(({ key, title, entries }) => (
-                            <Card key={key} className="mb-3">
-                                <CardBody>
-                                    <h6 className="mb-2 text-xs font-bold uppercase tracking-wider text-ink-muted">{title}</h6>
-                                    <div className="flex flex-wrap gap-2">
-                                        {entries.map(([k, v]) => (
-                                            <Badge key={k} color="info" pill>
-                                                {humanize(k)}: {typeof v === "object" && v !== null ? JSON.stringify(v) : String(v)}
-                                            </Badge>
-                                        ))}
-                                    </div>
-                                </CardBody>
-                            </Card>
-                        ))}
                         {arraySections.map(({ key, title, rows, columns }) => (
                             <Card key={key} className="mb-3">
                                 <CardBody className="p-0">
