@@ -7,7 +7,6 @@
 // action is a plain Activate/Deactivate toggle, not a destructive delete.
 import { useCallback, useEffect, useMemo, useState } from "react"
 import Select from "react-select"
-import CreatableSelect from "react-select/creatable"
 import { Badge, Button, FormGroup, Input, Label } from "@/components/ui"
 import { rawRequest } from "@/lib/http"
 import { customStyles } from "../../helpers/CustomStyle"
@@ -41,9 +40,6 @@ const SUMMARY_FLAGS = [
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const EMAIL_MAX_LENGTH = 1000 // matches the API's own limit on the joined string
-// No dropdown arrow/menu -- this CreatableSelect is a plain email-chip input,
-// not a picker with options to browse.
-const EMAIL_SELECT_COMPONENTS = { DropdownIndicator: null }
 
 const EMPTY_FORM = {
     customer: null,
@@ -144,8 +140,6 @@ const DailyMisReport = () => {
     ), [form.email])
     const [emailInput, setEmailInput] = useState("")
 
-    const setEmailTags = (tags) => setForm((f) => ({ ...f, email: tags.map((t) => t.value).join(", ") }))
-
     const addEmailTag = (raw) => {
         const value = raw.trim().replace(/,+$/, "")
         if (!value) return
@@ -166,12 +160,9 @@ const DailyMisReport = () => {
         setEmailInput("")
     }
 
-    const handleEmailKeyDown = (e) => {
-        if (!emailInput) return
-        if (e.key === "Enter" || e.key === "Tab" || e.key === ",") {
-            e.preventDefault()
-            addEmailTag(emailInput)
-        }
+    const removeEmailTag = (value) => {
+        const next = emailTags.filter((t) => t.value !== value).map((t) => t.value).join(", ")
+        setForm((f) => ({ ...f, email: next }))
     }
 
     const handleSave = async () => {
@@ -376,24 +367,17 @@ const DailyMisReport = () => {
                     </FormGroup>
                     <FormGroup className="col-span-2">
                         <Label>Email Addresses *</Label>
-                        <div className="flex items-start gap-2">
-                            <div className="flex-1">
-                                <CreatableSelect
-                                    components={EMAIL_SELECT_COMPONENTS}
-                                    inputValue={emailInput}
-                                    isMulti
-                                    isClearable={false}
-                                    menuIsOpen={false}
-                                    value={emailTags}
-                                    onChange={(tags) => setEmailTags(tags || [])}
-                                    onInputChange={(value, meta) => { if (meta.action === "input-change") setEmailInput(value) }}
-                                    onKeyDown={handleEmailKeyDown}
-                                    onBlur={() => addEmailTag(emailInput)}
-                                    placeholder="Type an email…"
-                                    styles={customStyles}
-                                    menuPortalTarget={document.body}
-                                />
-                            </div>
+                        <div className="flex items-center gap-2">
+                            <Input
+                                type="email"
+                                value={emailInput}
+                                onChange={(e) => setEmailInput(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") { e.preventDefault(); addEmailTag(emailInput) }
+                                }}
+                                placeholder="Enter email address"
+                                className="flex-1"
+                            />
                             <Button
                                 type="button"
                                 color="secondary"
@@ -404,7 +388,27 @@ const DailyMisReport = () => {
                                 + Add
                             </Button>
                         </div>
-                        <div className="mt-1 text-[11px] text-ink-muted">Type an email and click Add (or press Enter/Tab/comma); click the × on a chip to remove it.</div>
+                        {emailTags.length > 0 && (
+                            <div className="mt-2 flex flex-wrap gap-1.5">
+                                {emailTags.map((t) => (
+                                    <span
+                                        key={t.value}
+                                        className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[12px] text-ink"
+                                    >
+                                        {t.value}
+                                        <button
+                                            type="button"
+                                            onClick={() => removeEmailTag(t.value)}
+                                            aria-label={`Remove ${t.value}`}
+                                            className="leading-none text-ink-muted hover:text-danger-500"
+                                        >
+                                            ×
+                                        </button>
+                                    </span>
+                                ))}
+                            </div>
+                        )}
+                        <div className="mt-1 text-[11px] text-ink-muted">Enter an email address and click Add (or press Enter); click × on a chip to remove it.</div>
                     </FormGroup>
                     <div className="col-span-2 flex items-center gap-2">
                         <Input
