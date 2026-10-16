@@ -83,6 +83,14 @@ export const BULK_ASSIGN_RIDER_STORE_ROUTES = `${BASE_URL}/api/admin-panel/rider
 export const DOMESTIC_MIS_CUSTOMERS = `${BASE_URL}/api/admin-panel/domestic-mis/customers/` // GET ?search= -> {results:[{customer_name,user_id}]}
 export const DOMESTIC_MIS_REPORT = `${BASE_URL}/api/admin-panel/domestic-mis/` // POST {user_id, start_date, end_date, filter_status}
 
+// Monthly operational reports. Each is GET ?user_id=&month=YYYY-MM and the
+// response IS the xlsx file -- there's no JSON listing endpoint for any of
+// these, only a direct download.
+export const MONTHLY_REPORT_SPD = `${BASE_URL}/api/admin-reports/monthly/spd/download/`
+export const MONTHLY_REPORT_PUD = `${BASE_URL}/api/admin-reports/monthly/pud/download/`
+export const MONTHLY_REPORT_LDP = `${BASE_URL}/api/admin-reports/monthly/ldp/download/`
+export const MONTHLY_REPORT_SPL_LOST = `${BASE_URL}/api/admin-reports/monthly/spl-lost/download/`
+
 // Wallet manual credit -- an ops/finance admin crediting a customer's wallet
 // directly (e.g. for an offline NEFT/UTR payment), plus the history of past
 // manual credits for that customer.
@@ -709,7 +717,7 @@ export const STATUS_UPDATE = `${BASE_URL}/status_update_report/` // POST
 export const PRODUCTIVITY_REPORT = `${BASE_URL}/reports/productivity-report/` // POST
 
 // all bookings - view (paginated JSON) and export (file download)
-export const ALL_BOOKINGS_VIEW = `${BASE_URL}/api_booking/optimized_bookings/`   // POST - returns paginated JSON
+export const ALL_BOOKINGS_VIEW = `${BASE_URL}/optimized_bookings/`   // POST - returns paginated JSON
 export const ALL_BOOKINGS_EXPORT = `${BASE_URL}/optimized_bookings_export/`       // POST - returns Excel file
 export const COD_RECONCILIATION = `${BASE_URL}/public-reconciliation/`;
 export const COD_RECONCILIATION_APPROVE = `${BASE_URL}/accountant-approval`;

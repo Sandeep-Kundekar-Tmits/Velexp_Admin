@@ -17,21 +17,31 @@
  * cramped and why numbers never line up down a column.
  */
 @theme {
-  /* --- brand --- */
-  --color-brand-50: #eef0f9;
-  --color-brand-100: #d6dbf0;
-  --color-brand-300: #8f96cc;
-  --color-brand-500: #414593; /* primary — 8.4:1 on white (AAA) */
-  --color-brand-600: #383c80;
-  --color-brand-700: #2e386a; /* sidebar/header — 11.1:1 (AAA) */
-  --color-brand-900: #1e2447;
+  /* --- brand ---
+   * The company's own named palette (Primary blue / Globe cyan / Velocity
+   * red), not the prior stock indigo. 50-900 are a generated scale around
+   * the given brand-500 (same hue/saturation, HSL lightness steps at
+   * 95/88/68/[given]/28/21/13%) so gradients, hover/active states and the
+   * sidebar/header tint stay a coherent family rather than just swapping
+   * the one mid-tone.
+   */
+  --color-brand-50: #ecf3f9;
+  --color-brand-100: #d1e3f0;
+  --color-brand-300: #73b5e7;
+  --color-brand-500: #0866ad; /* Primary blue — 5.98:1 on white (AA) */
+  --color-brand-600: #065088;
+  --color-brand-700: #053c66; /* sidebar/header — 11.38:1 (AAA) */
+  --color-brand-900: #03253f;
 
-  /* accent — links, info, chart series. 2.9:1, so NEVER white text on it */
-  --color-accent-500: #00a0e3;
+  /* Globe cyan — highlights, charts, secondary accents. 2.2:1, so NEVER
+     white text on it (same role/warning the old accent-500 carried). */
+  --color-accent-500: #16bfe0;
 
-  /* status. orange is reserved for meaning, never decoration */
+  /* status. orange/red are reserved for meaning, never decoration. Velocity
+     red replaces the old stock orange-red for alerts/errors — still meant
+     for sparing use (badges, error text), not large fills. */
   --color-warning-500: #f59d0e;
-  --color-danger-500: #e85222;
+  --color-danger-500: #e51b2b; /* Velocity red — 4.64:1 on white (AA) */
   --color-cta-500: #ef7b1b;
   --color-success-500: #16a34a;
 

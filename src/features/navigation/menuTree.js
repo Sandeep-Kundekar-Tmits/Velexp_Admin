@@ -125,6 +125,10 @@ export const MENU = [
       {
         label: "Customer Dashboard Report",
         url: "/domestic-mis-report"
+      },
+      {
+        label: "Monthly Report",
+        url: "/monthly-report"
       }
     ]
   },

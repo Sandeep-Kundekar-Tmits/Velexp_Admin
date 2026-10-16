@@ -157,7 +157,16 @@ const MisReport = () => {
             setNotFound(Array.isArray(json.not_found) ? json.not_found : []);
 
             if (shipments.length > 0) {
-                setReportColumns(Object.keys(shipments[0]));
+                // Columns used to come only from shipments[0]'s keys -- fine
+                // when every record has the same shape, but fields like
+                // shipmentflag/flag_remark are only present on shipments that
+                // actually have a flag set, so whenever the first row in the
+                // batch happened to be unflagged, those columns silently
+                // never appeared for the whole table even though other rows
+                // had the data. Union the keys across every row instead.
+                const keySet = new Set();
+                shipments.forEach((s) => Object.keys(s).forEach((k) => keySet.add(k)));
+                setReportColumns(Array.from(keySet));
                 setReportData(shipments);
                 // Only on real success: an error or an empty result needs the
                 // panel to stay put, since the message explaining why lives

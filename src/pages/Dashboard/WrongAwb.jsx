@@ -10,7 +10,7 @@ import {
 } from "@/components/ui"
 import Select from "react-select"
 import {
-    AlertCircle, CheckCircle, ChevronDown, Flag, FlagOff, RefreshCw, SkipForward, XCircle,
+    AlertCircle, CheckCircle, ChevronDown, ChevronLeft, ChevronRight, Flag, FlagOff, RefreshCw, SkipForward, XCircle,
 } from "lucide-react"
 import MainHeaderComp from "@/components/MainHeaderCom"
 import ToasterProvider from "@/helpers/ToasterProvider"
@@ -142,9 +142,10 @@ const WrongAwb = () => {
     }
 
     const loadFlaggedList = async (filterOptions = scFilter) => {
+        if (!filterOptions.length) return
         setFlaggedLoading(true)
         try {
-            const body = filterOptions.length ? { service_center: filterOptions.map((o) => o.value) } : {}
+            const body = { service_center: filterOptions.map((o) => o.value) }
             const res = await authFetch(WRONG_AWB_FLAGGED_LIST, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -215,8 +216,25 @@ const WrongAwb = () => {
     const [flaggedRows, setFlaggedRows] = useState([])
     const [flaggedLoading, setFlaggedLoading] = useState(false)
     const [clearingAwb, setClearingAwb] = useState("")
+    const [hasSearchedFlagged, setHasSearchedFlagged] = useState(false)
+    const FLAGGED_PAGE_SIZE = 500
+    const [flaggedPage, setFlaggedPage] = useState(1)
 
-    useEffect(() => { loadFlaggedList([]) }, []) // eslint-disable-line react-hooks/exhaustive-deps
+    const handleSearchFlagged = () => {
+        if (!scFilter.length) { ErrorToaster("Select a Service Centre first"); return }
+        setHasSearchedFlagged(true)
+        setFlaggedPage(1)
+        loadFlaggedList(scFilter)
+    }
+
+    const flaggedPageCount = Math.max(1, Math.ceil(flaggedRows.length / FLAGGED_PAGE_SIZE))
+    useEffect(() => {
+        if (flaggedPage > flaggedPageCount) setFlaggedPage(flaggedPageCount)
+    }, [flaggedPageCount, flaggedPage])
+    const pagedFlaggedRows = useMemo(
+        () => flaggedRows.slice((flaggedPage - 1) * FLAGGED_PAGE_SIZE, flaggedPage * FLAGGED_PAGE_SIZE),
+        [flaggedRows, flaggedPage]
+    )
 
     const clearSingleFlag = async (awbno) => {
         setClearingAwb(awbno)
@@ -326,8 +344,9 @@ const WrongAwb = () => {
                                         menuPosition="fixed"
                                     />
                                 </div>
-                                <Button color="light" size="sm" onClick={() => loadFlaggedList(scFilter)} disabled={flaggedLoading}>
-                                    {flaggedLoading ? <Spinner size="sm" /> : <RefreshCw size={14} />}
+                                <Button color="primary" size="sm" onClick={handleSearchFlagged} disabled={flaggedLoading || scFilter.length === 0}>
+                                    {flaggedLoading ? <Spinner size="sm" /> : <RefreshCw size={14} className="mr-1" />}
+                                    Search
                                 </Button>
                             </div>
                         </div>
@@ -341,52 +360,86 @@ const WrongAwb = () => {
 
                         {flaggedLoading ? (
                             <div className="flex justify-center py-6"><Spinner /></div>
+                        ) : !hasSearchedFlagged ? (
+                            <div className="py-6 text-center text-ink-muted text-sm">
+                                Select a Service Centre and click Search to load flagged AWBs.
+                            </div>
                         ) : flaggedRows.length === 0 ? (
                             <div className="py-6 text-center text-ink-muted text-sm">No AWBs are currently flagged WRONG_AWB.</div>
                         ) : (
-                            <div className="scroll-slim" style={{ maxHeight: "calc(100vh - 260px)", overflowY: "auto", overflowX: "auto" }}>
-                                <Table bordered hover size="sm" className="align-middle mb-0">
-                                    <thead className="sticky top-0 bg-canvas" style={{ zIndex: 1 }}>
-                                        <tr>
-                                            <th>AWB No</th>
-                                            <th>Service Centre</th>
-                                            <th>Remark</th>
-                                            <th>Flagged By</th>
-                                            <th>Flagged At</th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {flaggedRows.map((r, i) => (
-                                            <tr key={`${r.awbno}-${i}`}>
-                                                <td className="font-semibold">{r.awbno}</td>
-                                                <td><Badge color="secondary">{r.service_center}</Badge></td>
-                                                <td className="text-ink-muted">{r.remark || "—"}</td>
-                                                <td>{r.flaggedBy}</td>
-                                                <td>{fmtDate(r.flaggedAt)}</td>
-                                                <td>
-                                                    <div className="flex gap-2">
-                                                        <Button
-                                                            size="sm" color="primary" outline
-                                                            disabled={employeeIdMissing || employeeIdLoading}
-                                                            onClick={() => openCorrectionModal(r.awbno)}
-                                                        >
-                                                            Mark Corrected
-                                                        </Button>
-                                                        <Button
-                                                            size="sm" color="secondary" outline
-                                                            disabled={clearingAwb === r.awbno}
-                                                            onClick={() => clearSingleFlag(r.awbno)}
-                                                        >
-                                                            {clearingAwb === r.awbno ? <Spinner size="sm" /> : "Clear Flag"}
-                                                        </Button>
-                                                    </div>
-                                                </td>
+                            <>
+                                <div className="scroll-slim" style={{ maxHeight: "calc(100vh - 300px)", overflowY: "auto", overflowX: "auto" }}>
+                                    <Table bordered hover size="sm" className="align-middle mb-0">
+                                        <thead className="sticky top-0 bg-canvas" style={{ zIndex: 1 }}>
+                                            <tr>
+                                                <th>AWB No</th>
+                                                <th>Service Centre</th>
+                                                <th>Remark</th>
+                                                <th>Flagged By</th>
+                                                <th>Flagged At</th>
+                                                <th></th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </Table>
-                            </div>
+                                        </thead>
+                                        <tbody>
+                                            {pagedFlaggedRows.map((r, i) => (
+                                                <tr key={`${r.awbno}-${i}`}>
+                                                    <td className="font-semibold">{r.awbno}</td>
+                                                    <td><Badge color="secondary">{r.service_center}</Badge></td>
+                                                    <td className="text-ink-muted">{r.remark || "—"}</td>
+                                                    <td>{r.flaggedBy}</td>
+                                                    <td>{fmtDate(r.flaggedAt)}</td>
+                                                    <td>
+                                                        <div className="flex gap-2">
+                                                            <Button
+                                                                size="sm" color="primary" outline
+                                                                disabled={employeeIdMissing || employeeIdLoading}
+                                                                onClick={() => openCorrectionModal(r.awbno)}
+                                                            >
+                                                                Mark Corrected
+                                                            </Button>
+                                                            <Button
+                                                                size="sm" color="secondary" outline
+                                                                disabled={clearingAwb === r.awbno}
+                                                                onClick={() => clearSingleFlag(r.awbno)}
+                                                            >
+                                                                {clearingAwb === r.awbno ? <Spinner size="sm" /> : "Clear Flag"}
+                                                            </Button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </Table>
+                                </div>
+
+                                {flaggedPageCount > 1 && (
+                                    <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                                        <div className="text-xs text-ink-muted">
+                                            Showing {(flaggedPage - 1) * FLAGGED_PAGE_SIZE + 1}–
+                                            {Math.min(flaggedPage * FLAGGED_PAGE_SIZE, flaggedRows.length)} of {flaggedRows.length}
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Button
+                                                size="sm" color="light" outline
+                                                disabled={flaggedPage <= 1}
+                                                onClick={() => setFlaggedPage((p) => Math.max(1, p - 1))}
+                                            >
+                                                <ChevronLeft size={14} />
+                                            </Button>
+                                            <span className="text-xs text-ink-muted">
+                                                Page {flaggedPage} of {flaggedPageCount}
+                                            </span>
+                                            <Button
+                                                size="sm" color="light" outline
+                                                disabled={flaggedPage >= flaggedPageCount}
+                                                onClick={() => setFlaggedPage((p) => Math.min(flaggedPageCount, p + 1))}
+                                            >
+                                                <ChevronRight size={14} />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                )}
+                            </>
                         )}
                     </CardBody>
                 </Card>

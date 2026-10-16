@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import PropTypes from "prop-types"
 import { Row, Col, FormGroup, Label, Input, FormFeedback, Button } from "@/components/ui"
 import Select from "react-select"
-import { customStyles } from "../../../helpers/CustomStyle"
+import { customStyles, CheckboxOption, SelectedCountValue } from "../../../helpers/CustomStyle"
 import { useDepartments, useDesignations, useServiceCentreDirectory } from "../../../hooks/queries/useReferenceData"
 import { GENDER_OPTIONS, EMPLOYEE_TYPE_OPTIONS } from "../employeeFormOptions"
 
@@ -14,6 +14,25 @@ const EmployeeInfoStep = ({ formData, setFormData, onNextButtonClick, isEdit = f
     const { data: departmentOptions = [] } = useDepartments()
     const { data: designationOptions = [] } = useDesignations()
     const { data: serviceCentreOptions = [] } = useServiceCentreDirectory()
+
+    // Selected centres float to the top -- snapshotted fresh each time the
+    // menu opens (useMemo keyed on scMenuOpenKey, bumped by onMenuOpen
+    // below) rather than re-sorted on every click. Re-sorting live would
+    // make an item jump to the top the instant it's checked, shifting
+    // whatever was below it into the spot the pointer was still over --
+    // exactly the kind of multi-select that causes a misclick on the next
+    // pick. Freezing the order for the open session avoids that while still
+    // surfacing prior selections at the top each time it's reopened.
+    const [scMenuOpenKey, setScMenuOpenKey] = useState(0)
+    const serviceCentreMenuOptions = useMemo(() => {
+        const selected = new Set(formData.service_center || [])
+        return [...serviceCentreOptions].sort((a, b) => {
+            const aSelected = selected.has(a.value)
+            const bSelected = selected.has(b.value)
+            return aSelected === bSelected ? 0 : aSelected ? -1 : 1
+        })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [serviceCentreOptions, scMenuOpenKey])
 
     // The Select's `value` prop can display a name-matched fallback (below),
     // but that alone never touches formData.designation -- so an edit
@@ -222,11 +241,15 @@ const EmployeeInfoStep = ({ formData, setFormData, onNextButtonClick, isEdit = f
                             <Label>Service Centre<RequiredMark /></Label>
                             <Select
                                 isMulti
-                                options={serviceCentreOptions}
+                                options={serviceCentreMenuOptions}
                                 onChange={handleServiceCentreChange}
+                                onMenuOpen={() => setScMenuOpenKey((k) => k + 1)}
                                 value={serviceCentreOptions.filter((opt) => (formData.service_center || []).includes(opt.value))}
                                 placeholder="Select Service Centre(s)"
                                 styles={customStyles}
+                                closeMenuOnSelect={false}
+                                hideSelectedOptions={false}
+                                components={{ Option: CheckboxOption, ValueContainer: SelectedCountValue }}
                             />
                             {errors?.service_center && <div className="text-danger-500 text-sm mt-1">{errors.service_center}</div>}
                         </FormGroup>

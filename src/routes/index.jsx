@@ -113,6 +113,7 @@ const CODReconciliation = lazy(() => import("../pages/Dashboard/CODReconciliatio
 const AutoReconciliation = lazy(() => import("../pages/Dashboard/AutoReconciliation"));
 const MisReport = lazy(() => import("../pages/Dashboard/Reports/MisReport"));
 const DomesticMisReport = lazy(() => import("../pages/Dashboard/Reports/DomesticMisReport"));
+const MonthlyReport = lazy(() => import("../pages/Dashboard/Reports/MonthlyReport"));
 const ITrack = lazy(() => import("../pages/ITrack/ITrack"));
 const InternationalMisReport = lazy(() => import("../pages/Dashboard/Reports/InternationalMisReport"));
 const InternationalDimensionChangeLog = lazy(() => import("../pages/Dashboard/Reports/InternationalDimensionChangeLog"));
@@ -272,6 +273,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/auto-reconciliation", component: <AutoReconciliation /> },
     { path: "/mis-report", component: <MisReport /> },
     { path: "/domestic-mis-report", component: <DomesticMisReport /> },
+    { path: "/monthly-report", component: <MonthlyReport /> },
     { path: "/intl-rate-data", component: <InternationRateData /> },
     { path: "/itrack", component: <ITrack /> },
     { path: "/international-mis-report", component: <InternationalMisReport /> },

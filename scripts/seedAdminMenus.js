@@ -71,6 +71,7 @@ const CHILDREN = {
         { link_name: "Status Update Audit", link_url: "/status-update-audit" },
         { link_name: "Productivity Report", link_url: "/productivity-report" },
         { link_name: "Customer Dashboard Report", link_url: "/domestic-mis-report" },
+        { link_name: "Monthly Report", link_url: "/monthly-report" },
     ],
     "OPS Reports": [
         { link_name: "Pending Report", link_url: "/pending-report" },

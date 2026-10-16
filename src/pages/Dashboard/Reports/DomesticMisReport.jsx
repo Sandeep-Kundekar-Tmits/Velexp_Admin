@@ -12,7 +12,7 @@
 // from whatever keys happen to come back.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import AsyncSelect from "react-select/async"
-import { Badge, Button, Label, Spinner } from "@/components/ui"
+import { Button, Label, Spinner } from "@/components/ui"
 import { rawRequest } from "@/lib/http"
 import { customStyles } from "../../../helpers/CustomStyle"
 import DateRangeInput from "../../../components/Common/DateRangeInput"
@@ -21,13 +21,25 @@ import MainHeaderComp from "../../../components/MainHeaderCom"
 import Loader from "@/Loaders/Loader"
 import ToasterProvider from "../../../helpers/ToasterProvider"
 import YMD_DateFormate from "../../../helpers/YMD_DateFormate"
-import { isIsoDateLike, formatDisplayDate } from "../../../helpers/formatDisplayDate"
+import { formatDisplayDate } from "../../../helpers/formatDisplayDate"
 import { useExcelExport } from "../../../hooks/useExcelExport"
 import { DOMESTIC_MIS_CUSTOMERS, DOMESTIC_MIS_REPORT } from "../../../api"
 
 // Max of the two weight fields, same "chargeable weight" convention the
 // reference uses instead of showing weight/vol_weight separately.
 const chargeableWeight = (row) => Math.max(Number(row?.weight || 0), Number(row?.vol_weight || 0))
+
+// TableContainer's default global filter runs match-sorter's rankItem (fuzzy
+// scoring) per cell. At this screen's real volume -- 10k+ rows x ~25 columns
+// -- that's 250k+ fuzzy-match calls on every keystroke, which is exactly what
+// was freezing the UI while typing in the search box. A plain, case-
+// insensitive substring test does the same practical job (does this cell
+// contain what I typed) at a fraction of the cost.
+const plainTextFilter = (row, columnId, filterValue) => {
+    const value = row.getValue(columnId)
+    if (value == null) return false
+    return String(value).toLowerCase().includes(String(filterValue).toLowerCase())
+}
 
 const humanize = (key) => key
     .replace(/_/g, " ")
@@ -52,30 +64,70 @@ const unwrapRows = (res) => {
     return []
 }
 
-// Any scalar field sent alongside the row array (e.g. total_count,
-// total_amount) is shown as a summary stat -- generic, since the exact field
-// names weren't documented either. Scans both the top-level response and
-// whichever nested envelope (res.results, res.data...) actually turned out
-// to hold the array, since a scalar like total_amount can sit next to the
-// array at either level depending on how deeply this response is wrapped.
-const scalarEntries = (obj) =>
-    !obj || Array.isArray(obj) || typeof obj !== "object"
-        ? []
-        : Object.entries(obj).filter(([, v]) => v !== null && typeof v !== "object")
+// Confirmed alongside tracking_data: status_counts is an object of bucket ->
+// count (e.g. {IN_TRANSIT: 461, PICKUP_PENDING: 674, ..., TOTAL: 1498}). The
+// summary strip used to be built by scanning the response for scalar fields,
+// which is exactly why it never showed anything here -- status_counts is an
+// object, so that scan skipped it outright. known order + tone first, then
+// whatever other keys the response actually sent (humanized), so a bucket
+// this doesn't already know about still gets a card instead of being dropped.
+const STATUS_CARD_META = {
+    TOTAL: { label: "Total Shipments", tone: "ink" },
+    DELIVERED: { label: "Delivered", tone: "success" },
+    IN_TRANSIT: { label: "In Transit", tone: "accent" },
+    OUT_FOR_DELIVERY: { label: "Out for Delivery", tone: "warning" },
+    PICKUP_PENDING: { label: "Pickup Pending", tone: "warning" },
+    UNDELIVERED: { label: "Undelivered", tone: "danger" },
+    RTS: { label: "RTS", tone: "danger" },
+    LOST: { label: "Lost", tone: "danger" },
+}
+const STATUS_CARD_ORDER = Object.keys(STATUS_CARD_META)
 
-const extractSummary = (res) => {
-    const seen = new Map()
-    for (const [key, value] of [...scalarEntries(res), ...scalarEntries(res?.results), ...scalarEntries(res?.data)]) {
-        seen.set(key, value)
-    }
-    return Array.from(seen.entries()).map(([key, value]) => ({ key, label: humanize(key), value }))
+// Confirmed bucket -> raw checkpoint code mapping. The row-level `status`
+// field is one of these codes (e.g. "SPU"), not a bucket name, so a status
+// card can filter the already-fetched rows directly -- no second request
+// needed. TOTAL has no code set; it means "every row" (handled separately
+// below rather than listed here).
+const STATUS_CODE_MAP = {
+    IN_TRANSIT: ["SAO", "LDP", "PUD", "SMR", "ITR", "SOH", "SAM", "SDH", "ITM", "LMT", "SAD"],
+    PICKUP_PENDING: ["SPU", "FMPNR", "OFP", "PICKUP_PENDING", "PUI", "FMICA", "FMPNA", "FMPUC", "FMVLC", "FMHOC"],
+    OUT_FOR_DELIVERY: ["OFD"],
+    UNDELIVERED: ["SPH", "DRC", "ICA", "CRF", "CNS", "RTA", "CAN", "COS", "ERA", "PUP", "DPT", "RTO", "DIS", "OSA", "ODD", "CNA", "SPL", "SDM", "SDO"],
+    RTS: ["RTS"],
+    DELIVERED: ["SPD"],
+}
+const normalizeCode = (value) => String(value ?? "").trim().toUpperCase()
+const matchesStatusTab = (row, tabKey) => {
+    if (tabKey === "TOTAL") return true
+    const codes = STATUS_CODE_MAP[tabKey]
+    if (!codes) return true // an unknown bucket (not in the mapping) shows everything rather than nothing
+    return codes.includes(normalizeCode(row?.status))
 }
 
-const formatCell = (value) => {
-    if (value === null || value === undefined || value === "") return "-"
-    if (isIsoDateLike(value)) return formatDisplayDate(value)
-    if (typeof value === "number") return value.toLocaleString("en-IN")
-    return String(value)
+// resting / active (the currently-applied filter) classes per tone --
+// explicit per state rather than one class + a ring modifier, so the active
+// card's fill visibly strengthens too, not just its border.
+const TONE_CLASSES = {
+    ink: {
+        base: "border-line bg-[rgb(var(--overlay-rgb)/0.05)] text-ink",
+        active: "border-line bg-[rgb(var(--overlay-rgb)/0.12)] text-ink ring-2 ring-line",
+    },
+    success: {
+        base: "border-success-500/30 bg-success-500/10 text-success-500",
+        active: "border-success-500 bg-success-500/20 text-success-500 ring-2 ring-success-500",
+    },
+    accent: {
+        base: "border-accent-500/30 bg-accent-500/10 text-accent-500",
+        active: "border-accent-500 bg-accent-500/20 text-accent-500 ring-2 ring-accent-500",
+    },
+    warning: {
+        base: "border-warning-500/30 bg-warning-500/10 text-warning-500",
+        active: "border-warning-500 bg-warning-500/20 text-warning-500 ring-2 ring-warning-500",
+    },
+    danger: {
+        base: "border-danger-500/30 bg-danger-500/10 text-danger-500",
+        active: "border-danger-500 bg-danger-500/20 text-danger-500 ring-2 ring-danger-500",
+    },
 }
 
 const DomesticMisReport = () => {
@@ -88,7 +140,11 @@ const DomesticMisReport = () => {
     const [filterStatus, setFilterStatus] = useState("All")
 
     const [rows, setRows] = useState([])
-    const [summary, setSummary] = useState([])
+    const [statusCounts, setStatusCounts] = useState(null)
+    // Which status card is currently narrowing the table view. Purely a
+    // client-side display filter over `rows` -- unrelated to filterStatus
+    // above, which is the server-side filter_status sent on fetch.
+    const [activeStatusTab, setActiveStatusTab] = useState("TOTAL")
     const [loading, setLoading] = useState(false)
     const [hasSearched, setHasSearched] = useState(false)
     const { exportToExcel, isExporting } = useExcelExport()
@@ -134,23 +190,45 @@ const DomesticMisReport = () => {
                 },
             })
             setHasSearched(true)
+            // A fresh fetch starts back on the full (TOTAL) view -- whatever
+            // tab was active for the previous result may not mean anything
+            // for this one.
+            setActiveStatusTab("TOTAL")
             if (ok) {
                 setRows(unwrapRows(data))
-                setSummary(extractSummary(data))
+                setStatusCounts(data?.status_counts || null)
             } else {
                 setRows([])
-                setSummary([])
+                setStatusCounts(null)
                 ErrorToaster(data?.detail || data?.error || data?.message || "Failed to load the report")
             }
         } catch {
             setHasSearched(true)
             setRows([])
-            setSummary([])
+            setStatusCounts(null)
             ErrorToaster("Failed to load the report — network error")
         } finally {
             setLoading(false)
         }
     }
+
+    // Instant, client-side -- just narrows which already-fetched rows are
+    // shown, via STATUS_CODE_MAP. No request involved.
+    const visibleRows = useMemo(
+        () => rows.filter((row) => matchesStatusTab(row, activeStatusTab)),
+        [rows, activeStatusTab]
+    )
+
+    const statusCardList = useMemo(() => {
+        if (!statusCounts) return []
+        const known = STATUS_CARD_ORDER.filter((key) => key in statusCounts)
+        const extra = Object.keys(statusCounts).filter((key) => !STATUS_CARD_ORDER.includes(key))
+        return [...known, ...extra].map((key) => ({
+            key,
+            count: statusCounts[key],
+            ...(STATUS_CARD_META[key] || { label: humanize(key), tone: "ink" }),
+        }))
+    }, [statusCounts])
 
     const columns = useMemo(() => [
         { header: "Sl. No.", id: "sl_no", enableSorting: false, cell: ({ row }) => row.index + 1 },
@@ -173,8 +251,12 @@ const DomesticMisReport = () => {
         { header: "Pieces", accessorKey: "number_of_pieces", enableSorting: true, cell: ({ getValue }) => getValue() ?? "-" },
         { header: "Shipment Value", accessorKey: "shipment_value", enableSorting: true, cell: ({ getValue }) => { const v = getValue(); return v != null ? Number(v).toFixed(2) : "-" } },
         { header: "Payment Mode", accessorKey: "payment_mode", enableSorting: true, cell: ({ getValue }) => getValue() || "-" },
+        { header: "Service Type", accessorKey: "service_type", enableSorting: true, cell: ({ getValue }) => getValue() || "-" },
+        { header: "Attempts", accessorKey: "attempts", enableSorting: true, cell: ({ getValue }) => getValue() ?? "-" },
         { header: "POD", accessorKey: "pod", enableSorting: true, cell: ({ getValue }) => (getValue() ? "True" : "False") },
         { header: "OTP Verified", accessorKey: "otp_verified", enableSorting: true, cell: ({ getValue }) => (getValue() ? "True" : "False") },
+        { header: "Shipment Flag", accessorKey: "shipment_flag", enableSorting: true, cell: ({ getValue }) => getValue() || "-" },
+        { header: "Flag Remark", accessorKey: "flag_remark", enableSorting: true, cell: ({ getValue }) => getValue() || "-" },
     ], [])
 
     // Mirrors the on-screen columns 1:1, except Chargeable Weight/Shipment
@@ -202,17 +284,21 @@ const DomesticMisReport = () => {
         "Pieces": row.number_of_pieces ?? "-",
         "Shipment Value": Number(row.shipment_value || 0),
         "Payment Mode": row.payment_mode || "-",
+        "Service Type": row.service_type || "-",
+        "Attempts": row.attempts ?? "-",
         "POD": row.pod ? "True" : "False",
         "OTP Verified": row.otp_verified ? "True" : "False",
+        "Shipment Flag": row.shipment_flag || "-",
+        "Flag Remark": row.flag_remark || "-",
     }), [])
 
-    const handleDownloadExcel = () => exportToExcel(rows, "Domestic_MIS_Report", buildExportRow)
+    const handleDownloadExcel = () => exportToExcel(visibleRows, "Domestic_MIS_Report", buildExportRow)
 
     return (
         <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
             <MainHeaderComp
                 title="Customer Dashboard Report"
-                subTitle={hasSearched ? `Total: ${rows.length} record(s)` : "Select a customer and date range to run the report."}
+                subTitle={hasSearched ? `Showing ${visibleRows.length} of ${rows.length} record(s)` : "Select a customer and date range to run the report."}
             />
 
             <div className="page-fit-body relative z-10 pb-4">
@@ -269,18 +355,28 @@ const DomesticMisReport = () => {
                     </Button>
                 </div>
 
-                {/* Summary -- generic stat strip built from whatever scalar fields the response sends alongside the rows. */}
-                {summary.length > 0 && (
-                    <div className="flex flex-wrap gap-2 py-3">
-                        {summary.map((stat) => (
-                            <div
-                                key={stat.key}
-                                className="inline-flex min-w-0 items-center gap-1.5 rounded-lg border border-white/10 bg-white/3 px-2.5 py-1"
-                            >
-                                <span className="text-[11px] uppercase tracking-wider text-ink-muted">{stat.label}</span>
-                                <Badge color="primary">{formatCell(stat.value)}</Badge>
-                            </div>
-                        ))}
+                {/* Summary -- status_counts as clickable tabs over the
+                    already-fetched rows (STATUS_CODE_MAP matches each row's
+                    raw checkpoint code, e.g. "SPU", to the bucket it
+                    belongs to). Instant and client-side, not a new request. */}
+                {statusCardList.length > 0 && (
+                    <div className="grid grid-cols-2 gap-2 py-3 sm:grid-cols-4 lg:grid-cols-8">
+                        {statusCardList.map((stat) => {
+                            const isActive = activeStatusTab === stat.key
+                            const tone = TONE_CLASSES[stat.tone] || TONE_CLASSES.ink
+                            return (
+                                <button
+                                    key={stat.key}
+                                    type="button"
+                                    onClick={() => setActiveStatusTab(stat.key)}
+                                    title={`Show ${stat.label}`}
+                                    className={`flex flex-col items-start gap-0.5 rounded-lg border px-3 py-2 text-left transition-colors ${isActive ? tone.active : tone.base}`}
+                                >
+                                    <span className="text-[10.5px] uppercase tracking-wider opacity-80">{stat.label}</span>
+                                    <span className="text-[18px] font-semibold leading-tight">{Number(stat.count ?? 0).toLocaleString("en-IN")}</span>
+                                </button>
+                            )
+                        })}
                     </div>
                 )}
 
@@ -291,11 +387,12 @@ const DomesticMisReport = () => {
                     ) : (
                         <TableContainer
                             columns={columns}
-                            data={rows}
+                            data={visibleRows}
                             isGlobalFilter={true}
+                            globalFilterFn={plainTextFilter}
                             isPagination={true}
-                            isCustomPageSize={true}
-                            defaultPageSize={20}
+                            isCustomPageSize={false}
+                            defaultPageSize={100}
                             pagination="pagination"
                             paginationWrapper="dataTables_paginate paging_simple_numbers"
                             SearchPlaceholder="Search within results..."
