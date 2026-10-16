@@ -151,6 +151,15 @@ const StatusDailyReport = () => {
         if (!statusCodes.length) { ErrorToaster("Add at least one status code"); return; }
         setLoading(true);
         setHasChecked(true);
+        // Always start a fresh result with the filters/summary visible --
+        // without this, a collapse left over from a previous, longer result
+        // could stay stuck collapsed on a short one (nothing left to scroll
+        // means no scroll event ever fires to clear it), or the container's
+        // scrollHeight could still read the old, taller measurement for one
+        // frame right as the shorter content swaps in, letting the overflow
+        // guard below pass once before correcting itself -- visible as the
+        // page snapping to the top on every single Check.
+        setFiltersCollapsed(false);
         try {
             const res = await authFetch(`${STATUS_DAILY_REPORT}?${buildQuery()}`, { method: "GET" });
             const json = await res.json().catch(() => null);
