@@ -2265,3 +2265,16 @@ thead.table-light th {
     --sidebar-transition: 0.01ms;
   }
 }
+
+/*
+ * react-datepicker rendered via portalId (StatusDailyReport.jsx). portalId
+ * appends a plain div to <body> with no z-index of its own -- DOM order
+ * alone doesn't guarantee it paints above the sidebar (.vertical-menu is a
+ * stacking context at z-index: 1001), so without this the calendar can still
+ * render underneath it. Matches the same 99999 ceiling react-select's own
+ * menuPortalTarget popups already use throughout this app.
+ */
+#status-daily-datepicker-portal {
+  position: relative;
+  z-index: 99999;
+}

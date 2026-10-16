@@ -260,6 +260,13 @@ const StatusDailyReport = () => {
                                     maxDate={new Date()}
                                     className="form-control form-control-sm"
                                     wrapperClassName="d-inline-block"
+                                    /* Rendered inline by default, react-datepicker's calendar
+                                       gets clipped by the scrollRef box's overflow-y:auto +
+                                       bounded max-height above -- same "ancestor overflow clips
+                                       the popup" bug DateRangeInput/react-select's own
+                                       menuPortalTarget already work around elsewhere. portalId
+                                       renders the calendar into a body-level div instead. */
+                                    portalId="status-daily-datepicker-portal"
                                 />
                             </div>
 
