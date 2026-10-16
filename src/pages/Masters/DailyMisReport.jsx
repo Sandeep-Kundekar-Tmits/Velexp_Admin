@@ -376,22 +376,35 @@ const DailyMisReport = () => {
                     </FormGroup>
                     <FormGroup className="col-span-2">
                         <Label>Email Addresses *</Label>
-                        <CreatableSelect
-                            components={EMAIL_SELECT_COMPONENTS}
-                            inputValue={emailInput}
-                            isMulti
-                            isClearable={false}
-                            menuIsOpen={false}
-                            value={emailTags}
-                            onChange={(tags) => setEmailTags(tags || [])}
-                            onInputChange={(value, meta) => { if (meta.action === "input-change") setEmailInput(value) }}
-                            onKeyDown={handleEmailKeyDown}
-                            onBlur={() => addEmailTag(emailInput)}
-                            placeholder="Type an email, press Enter…"
-                            styles={customStyles}
-                            menuPortalTarget={document.body}
-                        />
-                        <div className="mt-1 text-[11px] text-ink-muted">Press Enter, Tab or comma to add one; click the × on a chip to remove it.</div>
+                        <div className="flex items-start gap-2">
+                            <div className="flex-1">
+                                <CreatableSelect
+                                    components={EMAIL_SELECT_COMPONENTS}
+                                    inputValue={emailInput}
+                                    isMulti
+                                    isClearable={false}
+                                    menuIsOpen={false}
+                                    value={emailTags}
+                                    onChange={(tags) => setEmailTags(tags || [])}
+                                    onInputChange={(value, meta) => { if (meta.action === "input-change") setEmailInput(value) }}
+                                    onKeyDown={handleEmailKeyDown}
+                                    onBlur={() => addEmailTag(emailInput)}
+                                    placeholder="Type an email…"
+                                    styles={customStyles}
+                                    menuPortalTarget={document.body}
+                                />
+                            </div>
+                            <Button
+                                type="button"
+                                color="secondary"
+                                className="shrink-0"
+                                onClick={() => addEmailTag(emailInput)}
+                                disabled={!emailInput.trim()}
+                            >
+                                + Add
+                            </Button>
+                        </div>
+                        <div className="mt-1 text-[11px] text-ink-muted">Type an email and click Add (or press Enter/Tab/comma); click the × on a chip to remove it.</div>
                     </FormGroup>
                     <div className="col-span-2 flex items-center gap-2">
                         <Input
