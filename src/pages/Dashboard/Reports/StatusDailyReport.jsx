@@ -17,8 +17,20 @@ import MainHeaderComp from "../../../components/MainHeaderCom";
 import ToasterProvider from "../../../helpers/ToasterProvider";
 import { customStyles, CheckboxOption, SelectedCountValue } from "../../../helpers/CustomStyle";
 import { authFetch } from "@/lib/http";
+import { useQuery } from "@tanstack/react-query";
+import { qk } from "@/lib/queryKeys";
+import { fetchServiceCenters, toServiceCenterOptions } from "@/services/reference.service";
 import { useGetApiCall } from "../../../hooks/useGetApiCall";
 import { STATUS_DAILY_REPORT, DOWNLOAD_STATUS_DAILY_REPORT, GET_ALL_REGION } from "../../../api";
+
+const MULTI_SELECT_PROPS = {
+    closeMenuOnSelect: false,
+    hideSelectedOptions: false,
+    components: { Option: CheckboxOption, ValueContainer: SelectedCountValue },
+    styles: customStyles,
+    menuPortalTarget: typeof document !== "undefined" ? document.body : undefined,
+    menuPosition: "fixed",
+};
 
 const todayISO = () => new Date().toISOString().split("T")[0];
 const humanize = (key) => key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -45,7 +57,15 @@ const StatusDailyReport = () => {
 
     const [date, setDate] = useState(todayISO());
     const [statusCodes, setStatusCodes] = useState([]);
+    const [serviceCenters, setServiceCenters] = useState([]);
     const [region, setRegion] = useState(null);
+
+    const { data: scRaw } = useQuery({
+        queryKey: qk.reference.serviceCenters(),
+        queryFn: fetchServiceCenters,
+        staleTime: 30 * 60_000,
+    });
+    const scOptions = useMemo(() => toServiceCenterOptions(scRaw), [scRaw]);
 
     const { apifunc: GetAllRegions, data: RegionsRaw } = useGetApiCall();
     useEffect(() => { GetAllRegions(GET_ALL_REGION); }, [GetAllRegions]);
@@ -78,6 +98,7 @@ const StatusDailyReport = () => {
         params.set("status", statusCodes.join(","));
         params.set("date", date);
         if (region?.value) params.set("region", region.value);
+        if (serviceCenters.length) params.set("service_center", serviceCenters.map((s) => s.value).join(","));
         return params.toString();
     };
 
@@ -195,12 +216,19 @@ const StatusDailyReport = () => {
                                 value={STATUS_CODE_OPTIONS.filter((o) => statusCodes.includes(o.value))}
                                 onChange={handleStatusChange}
                                 placeholder="Select status codes…"
-                                closeMenuOnSelect={false}
-                                hideSelectedOptions={false}
-                                components={{ Option: CheckboxOption, ValueContainer: SelectedCountValue }}
-                                styles={customStyles}
-                                menuPortalTarget={document.body}
-                                menuPosition="fixed"
+                                {...MULTI_SELECT_PROPS}
+                            />
+                        </div>
+
+                        <div className="flex w-full flex-col gap-1.5 sm:w-64">
+                            <Label className="mb-0 text-xs font-bold text-ink-muted">Service Centers</Label>
+                            <Select
+                                isMulti
+                                options={scOptions}
+                                value={serviceCenters}
+                                onChange={(opts) => setServiceCenters(opts || [])}
+                                placeholder="All service centers"
+                                {...MULTI_SELECT_PROPS}
                             />
                         </div>
 
