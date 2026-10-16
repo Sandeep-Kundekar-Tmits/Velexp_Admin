@@ -7,6 +7,7 @@
 // action is a plain Activate/Deactivate toggle, not a destructive delete.
 import { useCallback, useEffect, useMemo, useState } from "react"
 import Select from "react-select"
+import CreatableSelect from "react-select/creatable"
 import { Badge, Button, FormGroup, Input, Label } from "@/components/ui"
 import { rawRequest } from "@/lib/http"
 import { customStyles } from "../../helpers/CustomStyle"
@@ -37,6 +38,12 @@ const SUMMARY_FLAGS = [
     { key: "Gujarat_summary", label: "Gujarat" },
     { key: "Ahmedabad_summary", label: "Ahmedabad" },
 ]
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const EMAIL_MAX_LENGTH = 1000 // matches the API's own limit on the joined string
+// No dropdown arrow/menu -- this CreatableSelect is a plain email-chip input,
+// not a picker with options to browse.
+const EMAIL_SELECT_COMPONENTS = { DropdownIndicator: null }
 
 const EMPTY_FORM = {
     customer: null,
@@ -126,6 +133,45 @@ const DailyMisReport = () => {
             ...Object.fromEntries(SUMMARY_FLAGS.map((f) => [f.key, !!row[f.key]])),
         })
         setFormOpen(true)
+    }
+
+    // Email addresses as removable chips instead of a raw comma-separated
+    // textarea -- form.email itself stays the single joined string the API
+    // actually wants; these just derive the chip list from it and write
+    // back to it, so handleSave below needs no changes.
+    const emailTags = useMemo(() => (
+        form.email.split(",").map((s) => s.trim()).filter(Boolean).map((v) => ({ value: v, label: v }))
+    ), [form.email])
+    const [emailInput, setEmailInput] = useState("")
+
+    const setEmailTags = (tags) => setForm((f) => ({ ...f, email: tags.map((t) => t.value).join(", ") }))
+
+    const addEmailTag = (raw) => {
+        const value = raw.trim().replace(/,+$/, "")
+        if (!value) return
+        if (!EMAIL_RE.test(value)) {
+            ErrorToaster(`"${value}" doesn't look like a valid email`)
+            return
+        }
+        if (emailTags.some((t) => t.value.toLowerCase() === value.toLowerCase())) {
+            setEmailInput("")
+            return
+        }
+        const next = [...emailTags.map((t) => t.value), value].join(", ")
+        if (next.length > EMAIL_MAX_LENGTH) {
+            ErrorToaster(`Email list can't be longer than ${EMAIL_MAX_LENGTH} characters`)
+            return
+        }
+        setForm((f) => ({ ...f, email: next }))
+        setEmailInput("")
+    }
+
+    const handleEmailKeyDown = (e) => {
+        if (!emailInput) return
+        if (e.key === "Enter" || e.key === "Tab" || e.key === ",") {
+            e.preventDefault()
+            addEmailTag(emailInput)
+        }
     }
 
     const handleSave = async () => {
@@ -330,15 +376,22 @@ const DailyMisReport = () => {
                     </FormGroup>
                     <FormGroup className="col-span-2">
                         <Label>Email Addresses *</Label>
-                        <Input
-                            type="textarea"
-                            rows={2}
-                            value={form.email}
-                            onChange={(e) => setForm({ ...form, email: e.target.value })}
-                            placeholder="ops@client.com, accounts@client.com, mgr@client.com"
-                            maxLength={1000}
+                        <CreatableSelect
+                            components={EMAIL_SELECT_COMPONENTS}
+                            inputValue={emailInput}
+                            isMulti
+                            isClearable={false}
+                            menuIsOpen={false}
+                            value={emailTags}
+                            onChange={(tags) => setEmailTags(tags || [])}
+                            onInputChange={(value, meta) => { if (meta.action === "input-change") setEmailInput(value) }}
+                            onKeyDown={handleEmailKeyDown}
+                            onBlur={() => addEmailTag(emailInput)}
+                            placeholder="Type an email, press Enter…"
+                            styles={customStyles}
+                            menuPortalTarget={document.body}
                         />
-                        <div className="mt-1 text-[11px] text-ink-muted">Comma-separated, up to 1000 characters.</div>
+                        <div className="mt-1 text-[11px] text-ink-muted">Press Enter, Tab or comma to add one; click the × on a chip to remove it.</div>
                     </FormGroup>
                     <div className="col-span-2 flex items-center gap-2">
                         <Input
