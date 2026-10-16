@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import AsyncSelect from "react-select/async"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import Select from "react-select"
 import { Badge, Button, Input, Label } from "@/components/ui"
 import { rawRequest } from "@/lib/http"
@@ -37,29 +36,78 @@ const RiderStoreRoutes = () => {
     })), [serviceCentres])
 
     // Rider picker -- searched against the same paginated employee endpoint
-    // EmployeeList.jsx uses, since the rider list can be large. loadOptions
-    // is debounced by hand (setTimeout), matching this codebase's own search
-    // debounce idiom elsewhere rather than pulling in a library for it.
+    // EmployeeList.jsx uses, since the rider list can be large. A plain
+    // (not Async) Select, manually fed: react-select's own loadOptions only
+    // ever re-fetches on a new search term, with no hook for "the menu was
+    // scrolled to the bottom, fetch the next page" -- that's onMenuScrollToBottom,
+    // a separate prop that only makes sense against options this component
+    // owns and appends to itself, not AsyncSelect's own internal, per-search-
+    // term option cache.
     const { apifunc: searchEmployees } = usePostApiCall()
-    const riderSearchTimeout = useRef(null)
     const [selectedRider, setSelectedRider] = useState(null)
     const [selectedDarkstore, setSelectedDarkstore] = useState(null)
 
-    const loadRiderOptions = useCallback((inputValue, callback) => {
-        if (riderSearchTimeout.current) clearTimeout(riderSearchTimeout.current)
-        riderSearchTimeout.current = setTimeout(async () => {
-            const result = await searchEmployees(EMPLOYEE_LIST, { page: "1", search: inputValue })
+    const [riderOptions, setRiderOptions] = useState([])
+    const [riderSearchInput, setRiderSearchInput] = useState("")
+    const [riderSearch, setRiderSearch] = useState("")
+    const [riderPage, setRiderPage] = useState(1)
+    const [riderHasMore, setRiderHasMore] = useState(false)
+    const [riderLoading, setRiderLoading] = useState(false)
+    const [riderLoadingMore, setRiderLoadingMore] = useState(false)
+    const [riderMenuOpened, setRiderMenuOpened] = useState(false)
+
+    const toRiderOptions = (rows) => rows
+        .filter((emp) => emp?.employee_code)
+        .map((emp) => ({
+            value: emp.employee_code,
+            label: `${emp.employee_code} — ${emp.name || [emp.first_name, emp.last_name].filter(Boolean).join(" ") || ""}`.trim(),
+        }))
+
+    // Response shape is the same {count, next, previous, results: {results: [...]}}
+    // EmployeeList.jsx documents -- `next` (nested, or not, depending on which
+    // envelope layer this endpoint happens to wrap it in) is what says
+    // whether there's another page to fetch on scroll.
+    const fetchRiders = useCallback(async (page, search, { append }) => {
+        if (append) setRiderLoadingMore(true); else setRiderLoading(true)
+        try {
+            const result = await searchEmployees(EMPLOYEE_LIST, { page: String(page), search })
             const rows = result?.results?.results || result?.results || result || []
-            callback(
-                rows
-                    .filter((emp) => emp?.employee_code)
-                    .map((emp) => ({
-                        value: emp.employee_code,
-                        label: `${emp.employee_code} — ${emp.name || [emp.first_name, emp.last_name].filter(Boolean).join(" ") || ""}`.trim(),
-                    }))
-            )
-        }, 400)
+            const options = toRiderOptions(rows)
+            setRiderOptions((prev) => (append ? [...prev, ...options] : options))
+            setRiderHasMore(!!(result?.next ?? result?.results?.next))
+            setRiderPage(page)
+        } catch {
+            if (!append) setRiderOptions([])
+        } finally {
+            if (append) setRiderLoadingMore(false); else setRiderLoading(false)
+        }
     }, [searchEmployees])
+
+    // Debounced so typing doesn't fire a request per keystroke -- 400ms
+    // matches this field's own previous debounce. A new search always
+    // restarts at page 1 and replaces the option list rather than appending.
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            if (riderSearchInput !== riderSearch) {
+                setRiderSearch(riderSearchInput)
+                fetchRiders(1, riderSearchInput, { append: false })
+            }
+        }, 400)
+        return () => clearTimeout(timeout)
+    }, [riderSearchInput, riderSearch, fetchRiders])
+
+    const handleRiderMenuOpen = () => {
+        if (!riderMenuOpened) {
+            setRiderMenuOpened(true)
+            fetchRiders(1, riderSearchInput, { append: false })
+        }
+    }
+
+    const handleRiderMenuScrollToBottom = () => {
+        if (riderHasMore && !riderLoadingMore && !riderLoading) {
+            fetchRiders(riderPage + 1, riderSearch, { append: true })
+        }
+    }
 
     // existing routes for the selected rider / dark store -- /api/admin-panel/
     // is a plain DRF REST resource, unlike the "get-list"/{status:1} envelope
@@ -216,13 +264,20 @@ const RiderStoreRoutes = () => {
                 <div className="flex flex-wrap items-end gap-4 border-b border-white/8 pb-4">
                     <div className="flex w-full flex-col gap-1.5 sm:w-72">
                         <Label className="form-label m-0 font-bold text-ink-muted">Rider</Label>
-                        <AsyncSelect
-                            cacheOptions
-                            defaultOptions
-                            loadOptions={loadRiderOptions}
+                        <Select
+                            options={riderOptions}
                             value={selectedRider}
                             onChange={setSelectedRider}
+                            onInputChange={(val, meta) => { if (meta.action === "input-change") setRiderSearchInput(val) }}
+                            onMenuOpen={handleRiderMenuOpen}
+                            onMenuScrollToBottom={handleRiderMenuScrollToBottom}
+                            // Options already reflect the server-side search -- react-select's
+                            // own client-side label filter would otherwise filter them a
+                            // second time (and differently), so it's disabled here.
+                            filterOption={() => true}
+                            isLoading={riderLoading || riderLoadingMore}
                             placeholder="Search rider by employee code or name"
+                            noOptionsMessage={() => (riderLoading ? "Loading…" : "No riders found")}
                             styles={customStyles}
                             isClearable
                         />
