@@ -10,7 +10,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Select from "react-select";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { Button, Card, CardBody, Label } from "@/components/ui";
+import { Button, Card, CardBody, Label, Nav, NavItem, NavLink, TabContent, TabPane } from "@/components/ui";
 import Loader from "@/Loaders/Loader";
 import TableContainer from "../../../components/Table/TableContainer";
 import MainHeaderComp from "../../../components/MainHeaderCom";
@@ -216,6 +216,18 @@ const StatusDailyReport = () => {
             .map(([key, obj]) => ({ key, title: humanize(key), entries: Object.entries(obj) }));
     }, [response]);
 
+    // Whichever breakdown arrays the response actually sent (By Region, By
+    // Service Center, Hourly, or anything else) as tabs instead of stacked
+    // tables -- keeps whatever tab was open if it's still there after a new
+    // Check, otherwise falls back to the first one.
+    const [activeArrayTab, setActiveArrayTab] = useState(null);
+    useEffect(() => {
+        setActiveArrayTab((prev) => {
+            if (!arraySections.length) return null;
+            return arraySections.some((s) => s.key === prev) ? prev : arraySections[0].key;
+        });
+    }, [arraySections]);
+
     return (
         <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
             <MainHeaderComp
@@ -301,24 +313,29 @@ const StatusDailyReport = () => {
                         </CardBody>
                     </Card>
 
-                    {/* Each section (Filters/Summary/Notes/Cache, whatever
-                        the response actually names them) on its own single,
-                        non-wrapping line of label/value tiles -- not the
-                        former Badge pills, which squeezed an array field like
+                    {/* Filters/Summary/Notes/Cache (whatever the response
+                        actually names its object fields) side by side on one
+                        row, each group divided from the next, instead of a
+                        separate full-width card per section. Not the former
+                        Badge pills either, which squeezed an array field like
                         service_center into a literal "[\"ABN\"]" and could
                         read as unreadable depending on the pill's colour. */}
-                    {objectSections.map(({ key, title, entries }) => (
-                        <Card key={key} className="mb-3">
+                    {objectSections.length > 0 && (
+                        <Card className="mb-3">
                             <CardBody className="py-2.5">
-                                <div className="flex flex-nowrap items-center gap-2 overflow-x-auto">
-                                    <span className="shrink-0 text-[11px] font-bold uppercase tracking-wider text-ink-muted">{title}</span>
-                                    {entries.map(([k, v]) => (
-                                        <SummaryTile key={k} label={humanize(k)} value={v} />
+                                <div className="flex flex-nowrap items-stretch gap-4 overflow-x-auto">
+                                    {objectSections.map(({ key, title, entries }) => (
+                                        <div key={key} className="flex shrink-0 flex-nowrap items-center gap-2 border-r border-white/8 pr-4 last:border-r-0 last:pr-0">
+                                            <span className="shrink-0 text-[11px] font-bold uppercase tracking-wider text-ink-muted">{title}</span>
+                                            {entries.map(([k, v]) => (
+                                                <SummaryTile key={k} label={humanize(k)} value={v} />
+                                            ))}
+                                        </div>
                                     ))}
                                 </div>
                             </CardBody>
                         </Card>
-                    ))}
+                    )}
                 </div>
 
                 {!hasChecked ? (
@@ -327,23 +344,50 @@ const StatusDailyReport = () => {
                     <Loader message="Loading…" fullscreen={false} />
                 ) : (
                     <>
-                        {arraySections.map(({ key, title, rows, columns }) => (
-                            <Card key={key} className="mb-3">
+                        {/* By Region / By Service Center / Hourly, or
+                            whatever other breakdown arrays the response
+                            sent, as tabs rather than stacked tables. Each
+                            TabPane needs its own unique `key` -- without one,
+                            TabContent's filter-to-the-active-tabId render
+                            reuses the same component instance across a
+                            switch instead of remounting it, so the previous
+                            tab's own table state (page, search) would leak
+                            into whichever tab opens next. */}
+                        {arraySections.length > 0 && (
+                            <Card className="mb-3">
                                 <CardBody className="p-0">
-                                    <h6 className="px-4 pt-3 text-xs font-bold uppercase tracking-wider text-ink-muted">{title}</h6>
-                                    <TableContainer
-                                        columns={columns}
-                                        data={rows}
-                                        isGlobalFilter={true}
-                                        isPagination={true}
-                                        isCustomPageSize={true}
-                                        defaultPageSize={20}
-                                        SearchPlaceholder="Search within results..."
-                                        tableClass="table-nowrap dt-responsive w-full dataTable no-footer"
-                                    />
+                                    <Nav tabs className="px-3 pt-2">
+                                        {arraySections.map(({ key, title }) => (
+                                            <NavItem key={key}>
+                                                <NavLink
+                                                    className={activeArrayTab === key ? "active" : undefined}
+                                                    style={{ cursor: "pointer" }}
+                                                    onClick={() => setActiveArrayTab(key)}
+                                                >
+                                                    {title}
+                                                </NavLink>
+                                            </NavItem>
+                                        ))}
+                                    </Nav>
+                                    <TabContent activeTab={activeArrayTab}>
+                                        {arraySections.map(({ key, rows, columns }) => (
+                                            <TabPane key={key} tabId={key}>
+                                                <TableContainer
+                                                    columns={columns}
+                                                    data={rows}
+                                                    isGlobalFilter={true}
+                                                    isPagination={true}
+                                                    isCustomPageSize={true}
+                                                    defaultPageSize={20}
+                                                    SearchPlaceholder="Search within results..."
+                                                    tableClass="table-nowrap dt-responsive w-full dataTable no-footer"
+                                                />
+                                            </TabPane>
+                                        ))}
+                                    </TabContent>
                                 </CardBody>
                             </Card>
-                        ))}
+                        )}
                         {!objectSections.length && !arraySections.length && (
                             <Card><CardBody className="py-12 text-center text-ink-muted">No data returned for these filters.</CardBody></Card>
                         )}
