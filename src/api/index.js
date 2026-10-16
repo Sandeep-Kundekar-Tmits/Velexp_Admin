@@ -811,6 +811,18 @@ export const DOWNLOAD_STATUS_SOURCE_HOURLY_REPORT = `${BASE_URL}/api/admin-repor
 export const STATUS_SOURCE_PREPUD_REPORT = `${BASE_URL}/api/admin-reports/status-source-prepud/`; // POST {user_id, date?, service_center?, region?}
 export const DOWNLOAD_STATUS_SOURCE_PREPUD_REPORT = `${BASE_URL}/api/admin-reports/status-source-prepud/download/`; // POST same body -> xlsx blob
 
+// Status Daily Report -- generalized from the old PUD-only report (its
+// total_pud/pud_count response fields are now just total/count). GET, not
+// POST: ?user_id=&status=CNA,SPD&date=YYYY-MM-DD&region=. Up to 20
+// (case-insensitive) status codes, comma-separated; missing/malformed status
+// is a 400. Rows with no service center are credited to the pickup-pincode's
+// SC for pickup-side codes (SPU/OFP/PUI/PUD/SAO/LDP/FM*) and the drop-
+// pincode's SC for everything else, or UNMAPPED if neither matches -- the
+// Excel's own "SC Source" column records which rule applied. Cached 30min
+// per date+status combo.
+export const STATUS_DAILY_REPORT = `${BASE_URL}/api/admin-reports/status-daily/`; // GET
+export const DOWNLOAD_STATUS_DAILY_REPORT = `${BASE_URL}/api/admin-reports/status-daily/download/`; // GET same params -> xlsx blob, named "<STATUSES>_Daily_Report_<date>.xlsx"
+
 // Unmatched bank-statement transactions — outstanding-backlog view across all uploads.
 // Live on UAT only as of 06 Sep 2026, not yet ported to production (see Velocity-Ops
 // testing-docs/unmatched-transactions-api.md). This whole bank-statement flow runs without

@@ -51,6 +51,7 @@ const CODReport = lazy(() => import("../pages/Dashboard/Reports/CODReport"));
 const PendingReport = lazy(() => import("../pages/Dashboard/Reports/PendingReport"));
 const PickupPendingReport = lazy(() => import("../pages/Dashboard/Reports/PickupPendingReport"));
 const MobileAppReport = lazy(() => import("../pages/Dashboard/Reports/MobileAppReport"));
+const StatusDailyReport = lazy(() => import("../pages/Dashboard/Reports/StatusDailyReport"));
 const CustomerPerformance = lazy(() => import("../pages/Dashboard/Reports/CustomerPerformance"));
 const OperationPerformance = lazy(() => import("../pages/Dashboard/Reports/OperationPerformance"));
 const PickupPerformance = lazy(() => import("../pages/Dashboard/Reports/PickupPeformance"));
@@ -173,6 +174,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/pending-report", component: <PendingReport /> },
     { path: "/pickup-pending-report", component: <PickupPendingReport /> },
     { path: "/mobile-app-report", component: <MobileAppReport /> },
+    { path: "/status-daily-report", component: <StatusDailyReport /> },
     { path: "/customer-performance", component: <CustomerPerformance /> },
     { path: "/operation-performance", component: <OperationPerformance /> },
     { path: "/pickup-performance", component: <PickupPerformance /> },

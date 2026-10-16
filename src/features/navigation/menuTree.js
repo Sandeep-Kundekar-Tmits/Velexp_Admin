@@ -149,6 +149,10 @@ export const MENU = [
         url: "/mobile-app-report"
       },
       {
+        label: "Status Daily Report",
+        url: "/status-daily-report"
+      },
+      {
         label: "MIS Run",
         url: "/mis-report"
       },

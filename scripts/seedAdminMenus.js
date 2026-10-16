@@ -77,6 +77,7 @@ const CHILDREN = {
         { link_name: "Pending Report", link_url: "/pending-report" },
         { link_name: "Pickup Pending Report", link_url: "/pickup-pending-report" },
         { link_name: "Mobile App Report", link_url: "/mobile-app-report" },
+        { link_name: "Status Daily Report", link_url: "/status-daily-report" },
         { link_name: "MIS Run", link_url: "/mis-report" },
         { link_name: "Admin Booking", link_url: "/admin-booking-download" },
         { link_name: "Customer Service", link_url: "/customer-service" },
