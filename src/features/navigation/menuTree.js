@@ -319,6 +319,11 @@ export const MENU = [
     url: "/vehicle-master"
   },
   {
+    label: "Daily MIS Report",
+    icon: "bx bx-mail-send",
+    url: "/daily-mis-report"
+  },
+  {
     label: "Revenue",
     icon: "bx bx-file",
     children: [

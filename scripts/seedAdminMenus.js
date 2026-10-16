@@ -37,6 +37,7 @@ const TOP_LEVEL = [
     { link_name: "Payment Details", link_url: "/payment-deatils", faicon: "bx bx-credit-card" },
     { link_name: "Wallet", link_url: "/wallet-manual-credit", faicon: "bx bx-wallet" },
     { link_name: "Vehicle Master", link_url: "/vehicle-master", faicon: "bx bx-car" },
+    { link_name: "Daily MIS Report", link_url: "/daily-mis-report", faicon: "bx bx-mail-send" },
     { link_name: "Revenue", link_url: "#", faicon: "bx bx-file" },
     { link_name: "International Report", link_url: "#", faicon: "bx bx-world" },
     { link_name: "Billing", link_url: "#", faicon: "bx bx-receipt" },

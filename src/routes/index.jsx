@@ -28,6 +28,7 @@ const ServiceCentrePincodes = lazy(() => import("../pages/Masters/ServiceCentreP
 const RiderStoreRoutes = lazy(() => import("../pages/Masters/RiderStoreRoutes"));
 const PincodeMasterHome = lazy(() => import("../pages/Masters/PincodeMasterHome"));
 const VehicleMaster = lazy(() => import("../pages/Masters/VehicleMaster"));
+const DailyMisReport = lazy(() => import("../pages/Masters/DailyMisReport"));
 // User Management - Employee Management
 const EmployeeList = lazy(() => import("../pages/UserManagement/EmployeeList"));
 const ExitHistoryList = lazy(() => import("../pages/UserManagement/ExitHistoryList"));
@@ -204,6 +205,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/rider-store-routes", component: <RiderStoreRoutes /> },
     { path: "/pincode-master", component: <PincodeMasterHome /> },
     { path: "/vehicle-master", component: <VehicleMaster /> },
+    { path: "/daily-mis-report", component: <DailyMisReport /> },
     // User Management - Employee Management
     { path: "/employees", component: <EmployeeList /> },
     { path: "/exit-history", component: <ExitHistoryList /> },

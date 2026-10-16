@@ -105,6 +105,13 @@ export const VEHICLE_MASTER_UNPREFER = (id) => `${BASE_URL}/api/admin-panel/vehi
 export const VEHICLE_MASTER_ACTIVATE = (id) => `${BASE_URL}/api/admin-panel/vehicles/${id}/activate/` // POST
 export const VEHICLE_MASTER_DEACTIVATE = (id) => `${BASE_URL}/api/admin-panel/vehicles/${id}/deactivate/` // POST
 
+// Daily MIS Report -- per-customer scheduled delivery-summary emails (Delivery/
+// SPD/SPU/PuneCity/PuneDistrict/Mumbai/ROMH/Gujarat/Ahmedabad summary flags +
+// report_name/email/schedule_time). Needs an admin/staff/superuser JWT -- an
+// Ops (AuthEmployee) token gets a 403. DELETE is soft: sets is_active=false
+// and returns 204, never removes the row; PATCH {is_active:true} undoes it.
+export const DELIVERY_SUMMARY_CUSTOMERS = `${BASE_URL}/api/admin-panel/delivery-summary-customers/` // GET list ?search=&is_active=&page=&page_size= (<=200) | POST create | `${id}/` for GET/PATCH/DELETE(soft)
+
 // department master (dropdown source for Employee Management)
 export const DEPARTMENT_LIST = `${BASE_URL}/departments/get-list/` // POST {}
 
