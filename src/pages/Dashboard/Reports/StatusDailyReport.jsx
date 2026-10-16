@@ -10,12 +10,12 @@ import { useEffect, useMemo, useState } from "react";
 import Select from "react-select";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { Badge, Button, Card, CardBody, Input, Label } from "@/components/ui";
+import { Badge, Button, Card, CardBody, Label } from "@/components/ui";
 import Loader from "@/Loaders/Loader";
 import TableContainer from "../../../components/Table/TableContainer";
 import MainHeaderComp from "../../../components/MainHeaderCom";
 import ToasterProvider from "../../../helpers/ToasterProvider";
-import { customStyles } from "../../../helpers/CustomStyle";
+import { customStyles, CheckboxOption, SelectedCountValue } from "../../../helpers/CustomStyle";
 import { authFetch } from "@/lib/http";
 import { useGetApiCall } from "../../../hooks/useGetApiCall";
 import { STATUS_DAILY_REPORT, DOWNLOAD_STATUS_DAILY_REPORT, GET_ALL_REGION } from "../../../api";
@@ -24,13 +24,27 @@ const todayISO = () => new Date().toISOString().split("T")[0];
 const humanize = (key) => key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 const MAX_STATUS_CODES = 20;
 
+// Every checkpoint code the pickup/drop SC-attribution rule already covers
+// (see api/index.js's own note on this endpoint) plus the handful the curl
+// examples named directly -- the known vocabulary a daily count actually
+// makes sense for. Same checkbox-per-option + selected-count multi-select
+// every other report filter here uses, not free text, since these are fixed
+// codes, not arbitrary values.
+const STATUS_CODE_OPTIONS = [
+    "SAO", "LDP", "PUD", "SMR", "ITR", "SOH", "SAM", "SDH", "ITM", "LMT", "SAD",
+    "SPU", "FMPNR", "OFP", "PUI", "FMICA", "FMPNA", "FMPUC", "FMVLC", "FMHOC",
+    "OFD",
+    "SPH", "DRC", "ICA", "CRF", "CNS", "RTA", "CAN", "COS", "ERA", "PUP", "DPT", "RTO", "DIS", "OSA", "ODD", "CNA", "SPL", "SDM", "SDO",
+    "RTS",
+    "SPD",
+].sort().map((code) => ({ value: code, label: code }));
+
 const StatusDailyReport = () => {
     useEffect(() => { document.title = "Status Daily Report"; }, []);
     const { ErrorToaster } = ToasterProvider();
 
     const [date, setDate] = useState(todayISO());
     const [statusCodes, setStatusCodes] = useState([]);
-    const [statusInput, setStatusInput] = useState("");
     const [region, setRegion] = useState(null);
 
     const { apifunc: GetAllRegions, data: RegionsRaw } = useGetApiCall();
@@ -48,15 +62,14 @@ const StatusDailyReport = () => {
     const [isExporting, setIsExporting] = useState(false);
     const [hasChecked, setHasChecked] = useState(false);
 
-    const addStatus = () => {
-        const code = statusInput.trim().toUpperCase();
-        if (!code) return;
-        if (statusCodes.includes(code)) { setStatusInput(""); return; }
-        if (statusCodes.length >= MAX_STATUS_CODES) { ErrorToaster(`Up to ${MAX_STATUS_CODES} status codes per request`); return; }
-        setStatusCodes([...statusCodes, code]);
-        setStatusInput("");
+    const handleStatusChange = (opts) => {
+        const values = (opts || []).map((o) => o.value);
+        if (values.length > MAX_STATUS_CODES) {
+            ErrorToaster(`Up to ${MAX_STATUS_CODES} status codes per request`);
+            return;
+        }
+        setStatusCodes(values);
     };
-    const removeStatus = (code) => setStatusCodes(statusCodes.filter((c) => c !== code));
 
     const buildQuery = () => {
         const authUser = JSON.parse(localStorage.getItem("authUser") || "{}");
@@ -176,30 +189,19 @@ const StatusDailyReport = () => {
 
                         <div className="flex w-full flex-col gap-1.5 sm:w-80">
                             <Label className="mb-0 text-xs font-bold text-ink-muted">Status Codes * (up to {MAX_STATUS_CODES})</Label>
-                            <div className="flex items-center gap-2">
-                                <Input
-                                    value={statusInput}
-                                    onChange={(e) => setStatusInput(e.target.value)}
-                                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addStatus(); } }}
-                                    placeholder="e.g. SPD, CNA, OFD…"
-                                    className="flex-1"
-                                />
-                                <Button type="button" color="secondary" className="shrink-0" onClick={addStatus} disabled={!statusInput.trim()}>
-                                    + Add
-                                </Button>
-                            </div>
-                            {statusCodes.length > 0 && (
-                                <div className="mt-1 flex flex-wrap gap-1.5">
-                                    {statusCodes.map((code) => (
-                                        <span key={code} className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[12px] text-ink">
-                                            {code}
-                                            <button type="button" onClick={() => removeStatus(code)} aria-label={`Remove ${code}`} className="leading-none text-ink-muted hover:text-danger-500">
-                                                ×
-                                            </button>
-                                        </span>
-                                    ))}
-                                </div>
-                            )}
+                            <Select
+                                isMulti
+                                options={STATUS_CODE_OPTIONS}
+                                value={STATUS_CODE_OPTIONS.filter((o) => statusCodes.includes(o.value))}
+                                onChange={handleStatusChange}
+                                placeholder="Select status codes…"
+                                closeMenuOnSelect={false}
+                                hideSelectedOptions={false}
+                                components={{ Option: CheckboxOption, ValueContainer: SelectedCountValue }}
+                                styles={customStyles}
+                                menuPortalTarget={document.body}
+                                menuPosition="fixed"
+                            />
                         </div>
 
                         <div className="flex w-full flex-col gap-1.5 sm:w-56">
