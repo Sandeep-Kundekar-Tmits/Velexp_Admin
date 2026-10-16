@@ -217,18 +217,21 @@ const StatusDailyReport = () => {
     }, [response]);
 
     return (
-        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+        <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
             <MainHeaderComp
                 title="Status Daily Report"
                 subTitle="Daily shipment counts by status, service centre and region."
             />
 
-            {/* scrollRef is the one thing on this screen that scrolls; the
-                filter row + summary strip tuck away once that scroll moves
-                past the top (see filtersCollapsed above), so the table gets
-                the screen space back. Same pattern as MobileAppReport.jsx/
-                CodPendingReport.jsx. */}
-            <div ref={scrollRef} className="page-fit-body scroll-slim relative z-10 overflow-y-auto pb-4">
+            {/* scrollRef is the one thing on this screen that scrolls -- a
+                plain fixed-height box, not the page-fit/fillHeight cascade
+                (that system needs every ancestor wrapper to opt in too, and
+                mixing the two left this box with no real bounded height, so
+                scrolling it never actually changed its scrollTop and the
+                filters/summary stayed collapsed with no way back). Same
+                self-contained maxHeight + overflowY approach MobileAppReport.jsx
+                already uses for this exact collapse behaviour. */}
+            <div ref={scrollRef} className="scroll-slim relative z-10 pb-4" style={{ maxHeight: "78vh", overflowY: "auto" }}>
                 <div
                     className="transition-[max-height,opacity] duration-300 ease-out"
                     style={filtersCollapsed ? { maxHeight: 0, opacity: 0, overflow: "hidden" } : { maxHeight: 900, opacity: 1, overflow: "hidden" }}
