@@ -167,7 +167,6 @@ const DailyMisReport = () => {
 
     const handleSave = async () => {
         if (!editing && !form.customer) { ErrorToaster("Customer is required"); return }
-        if (!form.report_name.trim()) { ErrorToaster("Report name is required"); return }
         if (!form.email.trim()) { ErrorToaster("At least one email address is required"); return }
 
         setSaving(true)
@@ -350,7 +349,7 @@ const DailyMisReport = () => {
                         />
                     </FormGroup>
                     <FormGroup>
-                        <Label>Report Name *</Label>
+                        <Label>Report Name</Label>
                         <Input
                             value={form.report_name}
                             onChange={(e) => setForm({ ...form, report_name: e.target.value })}
