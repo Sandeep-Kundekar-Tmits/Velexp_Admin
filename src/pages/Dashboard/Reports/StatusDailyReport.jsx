@@ -6,11 +6,11 @@
 // becomes a badge strip) so this keeps working whatever the backend actually
 // sends, the same approach MobileAppReport.jsx uses for its own admin-reports
 // endpoints.
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import Select from "react-select";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { Button, Card, CardBody, Label, Nav, NavItem, NavLink, TabContent, TabPane } from "@/components/ui";
+import { Button, Card, CardBody, Label, Nav, NavItem, NavLink, Table, TabContent, TabPane } from "@/components/ui";
 import Loader from "@/Loaders/Loader";
 import TableContainer from "../../../components/Table/TableContainer";
 import MainHeaderComp from "../../../components/MainHeaderCom";
@@ -62,16 +62,6 @@ const formatSummaryValue = (v) => {
     return String(v);
 };
 
-/* One label/value tile. Fixed-size and non-shrinking so a short "Cached:
-   false" and a long "Expires At: 16-10-2026 13:33" both stay fully readable
-   on one line, instead of the old Badge pills that squeezed arbitrarily
-   long text into a pill-shaped box with no minimum width. */
-const SummaryTile = ({ label, value }) => (
-    <div className="flex shrink-0 flex-col gap-0.5 whitespace-nowrap rounded-lg border border-white/8 bg-white/3 px-3 py-1.5">
-        <span className="text-[10px] uppercase tracking-wider text-ink-muted">{label}</span>
-        <span className="text-[13px] font-semibold text-ink">{formatSummaryValue(value)}</span>
-    </div>
-);
 
 const StatusDailyReport = () => {
     useEffect(() => { document.title = "Status Daily Report"; }, []);
@@ -320,25 +310,34 @@ const StatusDailyReport = () => {
                     </Card>
 
                     {/* Filters/Summary/Notes/Cache (whatever the response
-                        actually names its object fields) side by side on one
-                        row, each group divided from the next, instead of a
-                        separate full-width card per section. Not the former
-                        Badge pills either, which squeezed an array field like
-                        service_center into a literal "[\"ABN\"]" and could
-                        read as unreadable depending on the pill's colour. */}
+                        actually names its object fields), as a plain
+                        label/value table -- one bold section-header row per
+                        group, then one row per field. Simpler and more
+                        reliably readable than the tile/pill layouts this
+                        went through before: no colour contrast to get wrong,
+                        no squeezing a long value into a fixed-width box. */}
                     {objectSections.length > 0 && (
                         <Card className="mb-3">
-                            <CardBody className="py-2.5">
-                                <div className="flex flex-nowrap items-stretch gap-4 overflow-x-auto">
-                                    {objectSections.map(({ key, title, entries }) => (
-                                        <div key={key} className="flex shrink-0 flex-nowrap items-center gap-2 border-r border-white/8 pr-4 last:border-r-0 last:pr-0">
-                                            <span className="shrink-0 text-[11px] font-bold uppercase tracking-wider text-ink-muted">{title}</span>
-                                            {entries.map(([k, v]) => (
-                                                <SummaryTile key={k} label={humanize(k)} value={v} />
-                                            ))}
-                                        </div>
-                                    ))}
-                                </div>
+                            <CardBody className="p-0">
+                                <Table bordered responsive className="mb-0">
+                                    <tbody>
+                                        {objectSections.map(({ key, title, entries }) => (
+                                            <Fragment key={key}>
+                                                <tr className="bg-canvas">
+                                                    <th colSpan={2} className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">
+                                                        {title}
+                                                    </th>
+                                                </tr>
+                                                {entries.map(([k, v]) => (
+                                                    <tr key={k}>
+                                                        <td className="w-1/3 font-medium text-ink-muted">{humanize(k)}</td>
+                                                        <td className="text-ink">{formatSummaryValue(v)}</td>
+                                                    </tr>
+                                                ))}
+                                            </Fragment>
+                                        ))}
+                                    </tbody>
+                                </Table>
                             </CardBody>
                         </Card>
                     )}
