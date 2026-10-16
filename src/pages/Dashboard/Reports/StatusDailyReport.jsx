@@ -52,13 +52,21 @@ const STATUS_CODE_OPTIONS = [
     "SPD",
 ].sort().map((code) => ({ value: code, label: code }));
 
-// Array -> comma list (not JSON.stringify's "[\"ABN\"]"), boolean -> Yes/No,
-// an ISO date/datetime -> dd-mm-yyyy, everything else as-is.
-const formatSummaryValue = (v) => {
+// Array -> comma list (not JSON.stringify's "[\"ABN\"]"), plain object -> its
+// own "key: value, key2: value2" list (not String(v)'s "[object Object]" --
+// seen on a By Status breakdown whose per-row cells are themselves a
+// status -> count map), boolean -> Yes/No, an ISO date/datetime -> dd-mm-yyyy,
+// everything else as-is. Shared by the Filters/Summary/Notes/Cache tables
+// and every breakdown table's own cells.
+const formatCellValue = (v) => {
+    if (v === null || v === undefined || v === "") return "—";
     if (Array.isArray(v)) return v.length ? v.join(", ") : "—";
+    if (typeof v === "object") {
+        const entries = Object.entries(v);
+        return entries.length ? entries.map(([k, val]) => `${humanize(k)}: ${formatCellValue(val)}`).join(", ") : "—";
+    }
     if (typeof v === "boolean") return v ? "Yes" : "No";
     if (isIsoDateLike(v)) return formatDisplayDate(v) || v;
-    if (v === null || v === undefined || v === "") return "—";
     return String(v);
 };
 
@@ -197,10 +205,7 @@ const StatusDailyReport = () => {
                 columns: rows.length ? Object.keys(rows[0]).map((col) => ({
                     header: humanize(col),
                     accessorKey: col,
-                    cell: ({ getValue }) => {
-                        const v = getValue();
-                        return v === null || v === undefined || v === "" ? "—" : String(v);
-                    },
+                    cell: ({ getValue }) => formatCellValue(getValue()),
                 })) : [],
             }));
     }, [response]);
@@ -336,7 +341,7 @@ const StatusDailyReport = () => {
                                                 {entries.map(([k, v]) => (
                                                     <tr key={k}>
                                                         <td className="font-medium text-ink-muted">{humanize(k)}</td>
-                                                        <td className="text-ink">{formatSummaryValue(v)}</td>
+                                                        <td className="text-ink">{formatCellValue(v)}</td>
                                                     </tr>
                                                 ))}
                                             </tbody>
