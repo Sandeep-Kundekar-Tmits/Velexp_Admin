@@ -110,7 +110,19 @@ const StatusDailyReport = () => {
     useEffect(() => {
         const el = scrollRef.current;
         if (!el) return undefined;
-        const onScroll = () => setFiltersCollapsed(el.scrollTop > 8);
+        const onScroll = () => {
+            // A short table (2-10 rows) can leave the expanded content just
+            // barely taller than the box. Collapsing then makes it NOT
+            // taller, the browser snaps scrollTop back to 0 to keep it in
+            // range, that scroll fires this handler again, 0 isn't > 8 so
+            // it re-expands, the content is tall again, and the collapse
+            // transition's own in-between heights can retrigger the whole
+            // cycle mid-animation -- a continuous flicker. Only collapsing
+            // once there's a real amount of overflow (not just a few px of
+            // it) keeps a short table from ever reaching that boundary.
+            const overflow = el.scrollHeight - el.clientHeight;
+            setFiltersCollapsed(overflow > 150 && el.scrollTop > 8);
+        };
         el.addEventListener("scroll", onScroll, { passive: true });
         return () => el.removeEventListener("scroll", onScroll);
     }, []);
