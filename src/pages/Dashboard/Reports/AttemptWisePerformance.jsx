@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Spinner } from "@/components/ui";
 import { Button, Card, CardBody, FormFeedback, Input, Label, Table } from "@/components/ui";
 import DateRangeInput from '../../../components/Common/DateRangeInput';
@@ -136,6 +136,39 @@ const AttemptWisePerformance = () => {
     const [isShowFilter, setIsShowFilter] = useState(false)
     // to store all entries
     const [AllEntries, setAllEntries] = useState({})
+
+    // The filter row + Attempt Counter/Percent summary collapse once the
+    // table area is scrolled, so the rows get that room back -- reappear
+    // once scrolled back near the top. Same pattern as
+    // StatusDailyReport.jsx, including its two fixes: natural heights are
+    // measured once per fresh result (not live off el.scrollHeight, which
+    // collapsing itself keeps changing) and collapsing is only allowed when
+    // doing so still leaves something to scroll afterward, so a mid-size
+    // result can't force scrollTop back to 0 and immediately re-expand.
+    const scrollRef = useRef(null)
+    const collapsibleRef = useRef(null)
+    const metricsRef = useRef({ natural: 0, collapsible: 0 })
+    const [filtersCollapsed, setFiltersCollapsed] = useState(false)
+    useLayoutEffect(() => {
+        if (scrollRef.current && collapsibleRef.current) {
+            metricsRef.current = {
+                natural: scrollRef.current.scrollHeight,
+                collapsible: collapsibleRef.current.scrollHeight,
+            }
+        }
+    }, [SecondMiles])
+    useEffect(() => {
+        const el = scrollRef.current
+        if (!el) return undefined
+        const onScroll = () => {
+            const { natural, collapsible } = metricsRef.current
+            const expandedOverflow = natural - el.clientHeight
+            const collapsedOverflow = natural - collapsible - el.clientHeight
+            setFiltersCollapsed(expandedOverflow > 150 && collapsedOverflow > 20 && el.scrollTop > 8)
+        }
+        el.addEventListener("scroll", onScroll, { passive: true })
+        return () => el.removeEventListener("scroll", onScroll)
+    }, [])
     // select user option
     const [UserListOptions, setUserListOption] = useState([])
     // product list
@@ -493,6 +526,11 @@ const AttemptWisePerformance = () => {
 
     const OnCheckClick = async () => {
         setIsShowFilter(false)
+        // Always start a fresh result with the filters/summary visible --
+        // see the StatusDailyReport.jsx fix this mirrors: without this, a
+        // collapse left over from a previous, taller result could stay
+        // stuck collapsed on a shorter one.
+        setFiltersCollapsed(false)
         try {
             // Validate username exists before proceeding
 
@@ -593,109 +631,112 @@ const AttemptWisePerformance = () => {
 
 
     return (
-        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+        <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
             <MainHeaderComp
                 title="Attempt-wise Delivery Performance"
                 subTitle="Region and service-center level attempt outcomes."
             />
 
-            <div className="page-fit-body relative z-10 pb-4">
-                {/* Filters -- see LastMileOperations.jsx for the reasoning:
-                    checkboxes in the dropdown replace the chip strip beside
-                    the control, and every field wraps to the next line rather
-                    than push the row past the card. */}
-                <div className="flex flex-wrap items-end gap-3 border-b border-white/8 pb-4">
-                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
-                        <Label className="form-label m-0 font-bold text-ink-muted">
-                            Select Region
-                        </Label>
-                        <Select
-                            options={AllRegions}
-                            placeholder="Search Region"
-                            value={SelectedRegion}
-                            onChange={setSelectedRegion}
-                            {...MULTI_SELECT_PROPS}
-                        />
+            {/* scrollRef is the one thing on this screen that scrolls -- a
+                plain fixed-height box, not the page-fit/fillHeight cascade
+                this used to use (that system needs every ancestor wrapper
+                to opt in, and the Attempt Counter/Percent summary tacked
+                onto the chrome above the grid left the grid too little of
+                the leftover height to show its own rows). Same
+                self-contained maxHeight + overflowY approach
+                StatusDailyReport.jsx/MobileAppReport.jsx use for this exact
+                collapse behaviour. */}
+            <div ref={scrollRef} className="scroll-slim relative z-10 pb-4" style={{ maxHeight: "78vh", overflowY: "auto" }}>
+                <div
+                    ref={collapsibleRef}
+                    className="transition-[max-height,opacity] duration-300 ease-out"
+                    style={filtersCollapsed ? { maxHeight: 0, opacity: 0, overflow: "hidden" } : { maxHeight: 900, opacity: 1, overflow: "hidden" }}
+                >
+                    {/* Filters -- see LastMileOperations.jsx for the reasoning:
+                        checkboxes in the dropdown replace the chip strip beside
+                        the control, and every field wraps to the next line rather
+                        than push the row past the card. */}
+                    <div className="flex flex-wrap items-end gap-3 border-b border-white/8 pb-4">
+                        <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                Select Region
+                            </Label>
+                            <Select
+                                options={AllRegions}
+                                placeholder="Search Region"
+                                value={SelectedRegion}
+                                onChange={setSelectedRegion}
+                                {...MULTI_SELECT_PROPS}
+                            />
+                        </div>
+
+                        <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                Select Service Center
+                            </Label>
+                            <Select
+                                options={ServiceCenterOption}
+                                placeholder="Search Service Center"
+                                value={SelectedServiceCenters}
+                                onChange={setSelectedServiceCenters}
+                                {...MULTI_SELECT_PROPS}
+                            />
+                        </div>
+
+                        <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                Date Range
+                            </Label>
+                            <DateRangeInput
+                                value={selectedRange}
+                                onChange={handleChange}
+                                isBorder={true}
+                            />
+                        </div>
+
+                        <div className="flex w-full flex-col gap-1.5 sm:w-48">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                Payment Mode
+                            </Label>
+                            <Select
+                                options={paymentModeOptions}
+                                placeholder="Search Customer"
+                                value={PaymentMode}
+                                onChange={setPaymentMode}
+                                isClearable={true}
+                                styles={customStyles}
+                                menuPortalTarget={document.body}
+                                menuPosition="fixed"
+                            />
+                        </div>
+
+                        <Button
+                            color="primary"
+                            disabled={bookingLoading}
+                            className="h-9.5 shrink-0 px-6"
+                            onClick={OnCheckClick}
+                        >
+                            Check
+                        </Button>
+                        <Button
+                            color="secondary"
+                            disabled={isExportingReport}
+                            className="h-9.5 shrink-0 px-6"
+                            onClick={handleExportExcel}
+                        >
+                            {isExportingReport ? "Downloading…" : "Download Report"}
+                        </Button>
                     </div>
 
-                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
-                        <Label className="form-label m-0 font-bold text-ink-muted">
-                            Select Service Center
-                        </Label>
-                        <Select
-                            options={ServiceCenterOption}
-                            placeholder="Search Service Center"
-                            value={SelectedServiceCenters}
-                            onChange={setSelectedServiceCenters}
-                            {...MULTI_SELECT_PROPS}
-                        />
-                    </div>
-
-                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
-                        <Label className="form-label m-0 font-bold text-ink-muted">
-                            Date Range
-                        </Label>
-                        <DateRangeInput
-                            value={selectedRange}
-                            onChange={handleChange}
-                            isBorder={true}
-                        />
-                    </div>
-
-                    <div className="flex w-full flex-col gap-1.5 sm:w-48">
-                        <Label className="form-label m-0 font-bold text-ink-muted">
-                            Payment Mode
-                        </Label>
-                        <Select
-                            options={paymentModeOptions}
-                            placeholder="Search Customer"
-                            value={PaymentMode}
-                            onChange={setPaymentMode}
-                            isClearable={true}
-                            styles={customStyles}
-                            menuPortalTarget={document.body}
-                            menuPosition="fixed"
-                        />
-                    </div>
-
-                    <Button
-                        color="primary"
-                        disabled={bookingLoading}
-                        className="h-9.5 shrink-0 px-6"
-                        onClick={OnCheckClick}
-                    >
-                        Check
-                    </Button>
-                    <Button
-                        color="secondary"
-                        disabled={isExportingReport}
-                        className="h-9.5 shrink-0 px-6"
-                        onClick={handleExportExcel}
-                    >
-                        {isExportingReport ? "Downloading…" : "Download Report"}
-                    </Button>
+                    {(AllEntries?.attempt_counter || AllEntries?.attempt_percent) && (
+                        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                            <AttemptSummaryTable title="Attempt Counter" entries={AllEntries.attempt_counter} />
+                            <AttemptSummaryTable title="Attempt Percent" entries={AllEntries.attempt_percent} suffix="%" />
+                        </div>
+                    )}
                 </div>
 
-                {(AllEntries?.attempt_counter || AllEntries?.attempt_percent) && (
-                    /* sticky, not a plain flow div: below the layout's 992px
-                       breakpoint (or any viewport too short for page-fit's
-                       flex-shrink to give the grid a sane leftover height)
-                       this screen falls back to ordinary document scroll,
-                       and a plain div here just scrolls out of view with
-                       everything above the table -- same as the filters row
-                       would. Pinning it to the top of the nearest scrolling
-                       ancestor keeps it in view either way; at >=992px
-                       nothing actually scrolls past it, so this is a no-op
-                       there. z-20, one above the table's own sticky thead
-                       (z-10), and an explicit bg so table rows scrolling
-                       underneath don't show through. */
-                    <div className="sticky top-0 z-20 mt-3 grid grid-cols-1 gap-3 bg-canvas pb-1 sm:grid-cols-2">
-                        <AttemptSummaryTable title="Attempt Counter" entries={AllEntries.attempt_counter} />
-                        <AttemptSummaryTable title="Attempt Percent" entries={AllEntries.attempt_percent} suffix="%" />
-                    </div>
-                )}
-
-                <div className="page-fit-body mt-4">
+                <div className="mt-4">
                     {
                         bookingLoading ? <Loader message="Loading Operation Performance ..." fullscreen={false} /> : (
                             <TableContainer
@@ -711,8 +752,6 @@ const AttemptWisePerformance = () => {
                                 isStickyHeader={true}
                                 stickyTop={0}
                                 isCustomPageSize={true}
-                                fillHeight
-                                tableHeight="72vh"
                             />
                         )
                     }
