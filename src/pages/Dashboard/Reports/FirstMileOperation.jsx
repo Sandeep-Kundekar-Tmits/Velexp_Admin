@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Label } from "@/components/ui";
+import { Button, Card, CardBody, Label, Table } from "@/components/ui";
 import DateRangeInput from "../../../components/Common/DateRangeInput";
 import TableContainer from '../../../components/Table/TableContainer';
 import Select from 'react-select'
@@ -39,12 +39,52 @@ const MULTI_SELECT_PROPS = {
        position in the viewport instead. */
     menuPosition: "fixed",
 };
+
+// Same TAT-bucket keys the date-wise table columns already use (same_day,
+// 1_day..10_day, 10_plus_day, not_picked) -- labels them the same way the
+// column headers above read, instead of the raw snake_case key.
+const bucketLabel = (key) => {
+    if (key === "not_picked") return "Not Picked";
+    if (key === "10_plus_day") return "10+ Day";
+    const dayMatch = key.match(/^(\d+)_day$/);
+    if (dayMatch) return `${dayMatch[1]} Day`;
+    return key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+};
+
+// The API's pickup_counter/rto_pickup_counter/pickup_percent are each a
+// single aggregate object (one value per TAT bucket, summed across every
+// date) -- not rows a TableContainer fits, so each renders as its own small
+// table instead. Same "Filters/Summary/Notes/Cache" card pattern
+// StatusDailyReport.jsx uses for its own generic object fields.
+const SummaryTable = ({ title, entries, suffix = "" }) => (
+    <Card className="mb-0">
+        <CardBody className="p-0">
+            <Table bordered responsive className="mb-0">
+                <tbody>
+                    <tr className="bg-canvas">
+                        <th colSpan={2} className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">{title}</th>
+                    </tr>
+                    {Object.entries(entries || {}).map(([k, v]) => (
+                        <tr key={k}>
+                            <td className="font-medium text-ink-muted">{bucketLabel(k)}</td>
+                            <td className="text-ink">{v ?? 0}{suffix}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </Table>
+        </CardBody>
+    </Card>
+);
+
 const FirstMileOperation = () => {
     useEffect(() => {
         document.title = "Operation Performance Report";
     }, []);
-    // final status count state
-    const [FinalStatusCount, setFinalStatusCount] = useState({})
+    // Report-wide aggregates the API returns alongside the date-wise rows
+    // (total_shipments/rto_shipments plus the pickup_counter/
+    // rto_pickup_counter/pickup_percent TAT breakdowns) -- replaces the old
+    // final_status_counter the API no longer sends.
+    const [Summary, setSummary] = useState(null)
     // payment mode options
     const [paymentModeOptions] = useState([
         {
@@ -124,10 +164,10 @@ const FirstMileOperation = () => {
                 acc['10_day'] += Number(row['10_day'] || 0);
                 acc['10_plus_day'] += Number(row['10_plus_day'] || 0);
 
-                acc.picked_up += Number(row.picked_up || 0);
                 acc.not_picked += Number(row.not_picked || 0);
 
                 acc.total_shipments += Number(row.total_shipments || 0);
+                acc.rto_shipments += Number(row.rto_shipments || 0);
 
                 return acc;
             },
@@ -144,11 +184,15 @@ const FirstMileOperation = () => {
                 '9_day': 0,
                 '10_day': 0,
                 '10_plus_day': 0,
-                picked_up: 0,
                 not_picked: 0,
                 total_shipments: 0,
+                rto_shipments: 0,
             }
         );
+
+        // Not part of the row shape any more (the API dropped it) --
+        // picked up is just everything that isn't still "not picked".
+        totals.picked_up = totals.total_shipments - totals.not_picked;
 
         const total = totals.total_shipments || 1; // avoid divide-by-zero
 
@@ -292,8 +336,12 @@ const FirstMileOperation = () => {
                 {
                     id: 'picked_up',
                     header: () => null,
-                    accessorKey: 'picked_up',
-                    cell: valueCell('picked_up'),
+                    // Not a field the API sends any more -- derive it the
+                    // same way the footer total above does: whatever wasn't
+                    // left "not picked".
+                    cell: ({ row }) => (
+                        <strong>{(row.original.total_shipments || 0) - (row.original.not_picked || 0)}</strong>
+                    ),
                     footer: () => <strong>{firstMileTotals.picked_up}</strong>,
                     ...baseColumnConfig,
                 },
@@ -346,6 +394,24 @@ const FirstMileOperation = () => {
                     cell: valueCell('total_shipments'),
                     footer: () => (
                         <strong>{firstMileTotals.total_shipments}</strong>
+                    ),
+                    ...baseColumnConfig,
+                },
+            ],
+        },
+
+        /* ================= RTO SHIPMENTS ================= */
+        {
+            header: 'RTO Shipments',
+            footer: () => null,
+            columns: [
+                {
+                    id: 'rto_shipments',
+                    header: () => null,
+                    accessorKey: 'rto_shipments',
+                    cell: valueCell('rto_shipments'),
+                    footer: () => (
+                        <strong>{firstMileTotals.rto_shipments}</strong>
                     ),
                     ...baseColumnConfig,
                 },
@@ -429,9 +495,16 @@ const FirstMileOperation = () => {
             if (records?.bookings) {
                 setBookingData(records?.bookings);
                 setFirstMiles(records?.date_wise_summary || [])
-                setFinalStatusCount(records?.final_status_counter || {})
+                setSummary({
+                    total_shipments: records?.total_shipments ?? 0,
+                    rto_shipments: records?.rto_shipments ?? 0,
+                    pickup_counter: records?.pickup_counter || {},
+                    rto_pickup_counter: records?.rto_pickup_counter || {},
+                    pickup_percent: records?.pickup_percent || {},
+                })
             } else {
                 setBookingData([]); // Reset or set to empty array
+                setSummary(null)
             }
         } catch (error) {
             console.error("Error in OnCheckClick:", error);
@@ -570,11 +643,17 @@ const FirstMileOperation = () => {
                     </Button>
                 </div>
 
-                {Object.keys(FinalStatusCount).length > 0 && (
-                    <div className="mt-4 flex flex-wrap gap-3">
-                        {Object.entries(FinalStatusCount).map(([key, value]) => (
-                            <StatsCard key={key} label={key} value={value} />
-                        ))}
+                {Summary && (
+                    <div className="mt-4 flex flex-col gap-3">
+                        <div className="flex flex-wrap gap-3">
+                            <StatsCard label="Total Shipments" value={Summary.total_shipments} />
+                            <StatsCard label="RTO Shipments" value={Summary.rto_shipments} />
+                        </div>
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                            <SummaryTable title="Pickup TAT (Forward)" entries={Summary.pickup_counter} />
+                            <SummaryTable title="Pickup TAT % (Forward)" entries={Summary.pickup_percent} suffix="%" />
+                            <SummaryTable title="Pickup TAT (RTO)" entries={Summary.rto_pickup_counter} />
+                        </div>
                     </div>
                 )}
 
