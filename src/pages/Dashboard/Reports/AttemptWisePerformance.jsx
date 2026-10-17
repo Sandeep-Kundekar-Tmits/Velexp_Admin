@@ -677,7 +677,19 @@ const AttemptWisePerformance = () => {
                 </div>
 
                 {(AllEntries?.attempt_counter || AllEntries?.attempt_percent) && (
-                    <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    /* sticky, not a plain flow div: below the layout's 992px
+                       breakpoint (or any viewport too short for page-fit's
+                       flex-shrink to give the grid a sane leftover height)
+                       this screen falls back to ordinary document scroll,
+                       and a plain div here just scrolls out of view with
+                       everything above the table -- same as the filters row
+                       would. Pinning it to the top of the nearest scrolling
+                       ancestor keeps it in view either way; at >=992px
+                       nothing actually scrolls past it, so this is a no-op
+                       there. z-20, one above the table's own sticky thead
+                       (z-10), and an explicit bg so table rows scrolling
+                       underneath don't show through. */
+                    <div className="sticky top-0 z-20 mt-3 grid grid-cols-1 gap-3 bg-canvas pb-1 sm:grid-cols-2">
                         <AttemptSummaryTable title="Attempt Counter" entries={AllEntries.attempt_counter} />
                         <AttemptSummaryTable title="Attempt Percent" entries={AllEntries.attempt_percent} suffix="%" />
                     </div>
