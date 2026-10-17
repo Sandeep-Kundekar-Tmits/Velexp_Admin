@@ -206,8 +206,11 @@ const CustomerAttemptwisePerformanceClone = () => {
         <strong>{row.original[key] ?? 0}</strong>
     );
 
+    // Theme-aware token, not a literal hex -- #555 (dark gray) read fine on
+    // the light theme's white table cells but was nearly invisible on the
+    // dark theme's own dark surface.
     const percentCell = key => ({ row }) => (
-        <span style={{ fontSize: '12px', color: '#555' }}>
+        <span className="text-xs text-ink-muted">
             {row.original[key] ?? 0}%
         </span>
     );
