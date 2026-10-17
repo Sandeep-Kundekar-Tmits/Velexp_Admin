@@ -466,6 +466,14 @@ export const CUSTOMER_GET_ATTEMPT_WISE_DELIVARY_REPORT_CLONE_EXPORT = `${BASE_UR
 export const PUD_OPERATION_PERFORMANCE = `${BASE_URL}/reports/operations_pickup_strike_rate/`
 export const PUD_OPERATION_PERFORMANCE_EXPORT = `${BASE_URL}/reports/operations_pickup_strike_rate/export/` // POST -> xlsx blob
 
+// Attempt wise pickup report -- AttemptWiseOperationPickupReport.jsx used
+// GET_ATTEMPT_WISE_DELIVARY_REPORT (operations_delivery_attempt_strike_rate)
+// for this screen until now because there was no dedicated pickup-attempt
+// endpoint; this is the real one. POST {start_date, end_date (dd-mm-yyyy),
+// service_center OR region (list) -- one required}.
+export const PICKUP_ATTEMPT_WISE_REPORT = `${BASE_URL}/reports/operations_pickup_attempt_strike_rate/` // POST
+export const PICKUP_ATTEMPT_WISE_REPORT_EXPORT = `${BASE_URL}/reports/operations_pickup_attempt_strike_rate/export/` // POST -> xlsx blob
+
 // reports/ofd_operations_performance/
 export const OFD_OPERATIONS_PERFORMANCE = `${BASE_URL}/reports/ofd_operations_performance/`
 

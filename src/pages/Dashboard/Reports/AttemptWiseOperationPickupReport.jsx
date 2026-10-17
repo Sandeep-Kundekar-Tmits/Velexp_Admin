@@ -9,7 +9,7 @@ import { useQuery } from "@tanstack/react-query";
 import { qk } from "@/lib/queryKeys";
 import { fetchServiceCenters } from "@/services/reference.service";
 import { useGetApiCall } from '../../../hooks/useGetApiCall';
-import { GET_ADMIN_BOOKING_DETAILS, GET_ALL_REGION, GET_ATTEMPT_WISE_DELIVARY_REPORT, GET_ATTEMPT_WISE_DELIVARY_REPORT_EXPORT, GET_CUSTOMER_SERVICE, GET_OPERATION_PERFORMANCE, GET_USER_API, PRODUCT_LIST, SPD_OPERATION_PERFORMANCE } from '../../../api';
+import { GET_ADMIN_BOOKING_DETAILS, GET_ALL_REGION, GET_CUSTOMER_SERVICE, GET_OPERATION_PERFORMANCE, GET_USER_API, PICKUP_ATTEMPT_WISE_REPORT, PICKUP_ATTEMPT_WISE_REPORT_EXPORT, PRODUCT_LIST, SPD_OPERATION_PERFORMANCE } from '../../../api';
 import usePostApiCall from '../../../hooks/usePostApiCall';
 import formatDateForPayload from '../../../helpers/DateHelper';
 import Loader from "@/Loaders/Loader";
@@ -807,7 +807,7 @@ const AttemptWiseOperationPickupReport = () => {
             };
             setSelectedPayload(payload)
             // API call
-            const records = await GetBookingList(GET_ATTEMPT_WISE_DELIVARY_REPORT, payload);
+            const records = await GetBookingList(PICKUP_ATTEMPT_WISE_REPORT, payload);
 
             if (records?.bookings) {
                 setBookingData(records?.bookings);
@@ -845,7 +845,7 @@ const AttemptWiseOperationPickupReport = () => {
         };
         setIsExportingReport(true);
         try {
-            await downloadReportExcel(GET_ATTEMPT_WISE_DELIVARY_REPORT_EXPORT, payload, "operations_delivery_attempt_strike_rate.xlsx");
+            await downloadReportExcel(PICKUP_ATTEMPT_WISE_REPORT_EXPORT, payload, "operations_pickup_attempt_strike_rate.xlsx");
         } catch (err) {
             ErrorToaster(err.message || "Download failed");
         } finally {
