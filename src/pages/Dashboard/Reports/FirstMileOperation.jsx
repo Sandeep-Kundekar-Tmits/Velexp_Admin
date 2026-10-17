@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { Button, Card, CardBody, Label, Table } from "@/components/ui";
+import { Button, Label } from "@/components/ui";
 import DateRangeInput from "../../../components/Common/DateRangeInput";
 import TableContainer from '../../../components/Table/TableContainer';
 import Select from 'react-select'
@@ -39,42 +39,6 @@ const MULTI_SELECT_PROPS = {
        position in the viewport instead. */
     menuPosition: "fixed",
 };
-
-// Same TAT-bucket keys the date-wise table columns already use (same_day,
-// 1_day..10_day, 10_plus_day, not_picked) -- labels them the same way the
-// column headers above read, instead of the raw snake_case key.
-const bucketLabel = (key) => {
-    if (key === "not_picked") return "Not Picked";
-    if (key === "10_plus_day") return "10+ Day";
-    const dayMatch = key.match(/^(\d+)_day$/);
-    if (dayMatch) return `${dayMatch[1]} Day`;
-    return key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-};
-
-// The API's pickup_counter/rto_pickup_counter/pickup_percent are each a
-// single aggregate object (one value per TAT bucket, summed across every
-// date) -- not rows a TableContainer fits, so each renders as its own small
-// table instead. Same "Filters/Summary/Notes/Cache" card pattern
-// StatusDailyReport.jsx uses for its own generic object fields.
-const SummaryTable = ({ title, entries, suffix = "" }) => (
-    <Card className="mb-0">
-        <CardBody className="p-0">
-            <Table bordered responsive className="mb-0">
-                <tbody>
-                    <tr className="bg-canvas">
-                        <th colSpan={2} className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">{title}</th>
-                    </tr>
-                    {Object.entries(entries || {}).map(([k, v]) => (
-                        <tr key={k}>
-                            <td className="font-medium text-ink-muted">{bucketLabel(k)}</td>
-                            <td className="text-ink">{v ?? 0}{suffix}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </Table>
-        </CardBody>
-    </Card>
-);
 
 const FirstMileOperation = () => {
     useEffect(() => {
@@ -701,16 +665,9 @@ const FirstMileOperation = () => {
                     </div>
 
                     {Summary && (
-                        <div className="mt-4 flex flex-col gap-3">
-                            <div className="flex flex-wrap gap-3">
-                                <StatsCard label="Total Shipments" value={Summary.total_shipments} />
-                                <StatsCard label="RTO Shipments" value={Summary.rto_shipments} />
-                            </div>
-                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                                <SummaryTable title="Pickup TAT (Forward)" entries={Summary.pickup_counter} />
-                                <SummaryTable title="Pickup TAT % (Forward)" entries={Summary.pickup_percent} suffix="%" />
-                                <SummaryTable title="Pickup TAT (RTO)" entries={Summary.rto_pickup_counter} />
-                            </div>
+                        <div className="mt-4 flex flex-wrap gap-3">
+                            <StatsCard label="Total Shipments" value={Summary.total_shipments} />
+                            <StatsCard label="RTO Shipments" value={Summary.rto_shipments} />
                         </div>
                     )}
                 </div>
