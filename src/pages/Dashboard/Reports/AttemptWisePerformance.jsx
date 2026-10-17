@@ -1,6 +1,6 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Spinner } from "@/components/ui";
-import { Button, Card, CardBody, FormFeedback, Input, Label, Table } from "@/components/ui";
+import { Button, FormFeedback, Input, Label } from "@/components/ui";
 import DateRangeInput from '../../../components/Common/DateRangeInput';
 import TableContainer from '../../../components/Table/TableContainer';
 import Select from 'react-select'
@@ -44,42 +44,6 @@ const MULTI_SELECT_PROPS = {
        position in the viewport instead. */
     menuPosition: "fixed",
 };
-
-// Same attempt-bucket keys the table columns already use (pending,
-// 1_attempt..4_attempt, 5_plus_attempt), labelled the way the column
-// headers read instead of the raw snake_case key.
-const attemptBucketLabel = (key) => {
-    if (key === "pending") return "Pending";
-    if (key === "5_plus_attempt") return "5+ Attempt";
-    const match = key.match(/^(\d+)_attempt$/);
-    if (match) return `${match[1]} Attempt`;
-    return key.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-};
-
-// attempt_counter/attempt_percent are each a single aggregate object (one
-// value per attempt bucket, summed across every row) the API response
-// carries but nothing here used to render -- shown as its own small table,
-// same "Filters/Summary/Notes/Cache" card pattern StatusDailyReport.jsx
-// uses for its own generic object fields.
-const AttemptSummaryTable = ({ title, entries, suffix = "" }) => (
-    <Card className="mb-0">
-        <CardBody className="p-0">
-            <Table bordered responsive className="mb-0">
-                <tbody>
-                    <tr className="bg-canvas">
-                        <th colSpan={2} className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">{title}</th>
-                    </tr>
-                    {Object.entries(entries || {}).map(([k, v]) => (
-                        <tr key={k}>
-                            <td className="font-medium text-ink-muted">{attemptBucketLabel(k)}</td>
-                            <td className="text-ink">{v ?? 0}{suffix}</td>
-                        </tr>
-                    ))}
-                </tbody>
-            </Table>
-        </CardBody>
-    </Card>
-);
 
 const AttemptWisePerformance = () => {
     useEffect(() => {
@@ -727,13 +691,6 @@ const AttemptWisePerformance = () => {
                             {isExportingReport ? "Downloading…" : "Download Report"}
                         </Button>
                     </div>
-
-                    {(AllEntries?.attempt_counter || AllEntries?.attempt_percent) && (
-                        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                            <AttemptSummaryTable title="Attempt Counter" entries={AllEntries.attempt_counter} />
-                            <AttemptSummaryTable title="Attempt Percent" entries={AllEntries.attempt_percent} suffix="%" />
-                        </div>
-                    )}
                 </div>
 
                 <div className="mt-4">
