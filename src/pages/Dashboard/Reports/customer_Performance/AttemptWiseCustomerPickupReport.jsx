@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Row, Col, FormGroup, Spinner } from "@/components/ui";
 import { Button, Card, CardBody, FormFeedback, Input, Label, Table } from "@/components/ui";
-import DateRangePicker from "@paprika/date-range-picker";
+import DateRangeInput from "../../../../components/Common/DateRangeInput";
 import TableContainer from '../../../../components/Table/TableContainer';
 import Select from 'react-select'
 import { customStyles } from '../../../../helpers/CustomStyle';
@@ -1168,13 +1168,14 @@ const AttemptWiseCustomerPickupReport = () => {
                         {/* Date Range Picker */}
                         <Col md={3}>
                             <FormGroup className="mb-2">
-                                <Label>Start Date and End Date</Label>
-                                <div style={{ minWidth: "200px" }}>
-                                    <DateRangePicker
-                                        startDate={selectedRange.startDate}
-                                        endDate={selectedRange.endDate}
+                                <div className="flex w-full flex-col gap-1.5">
+                                    <Label className="form-label m-0 font-bold text-ink-muted">
+                                        Date Range
+                                    </Label>
+                                    <DateRangeInput
+                                        isBorder={true}
+                                        value={selectedRange}
                                         onChange={handleChange}
-                                        className="my-custom-range-picker"
                                     />
                                 </div>
                             </FormGroup>
