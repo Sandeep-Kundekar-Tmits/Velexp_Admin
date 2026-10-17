@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Button, Card, CardBody, Label, Table } from "@/components/ui";
 import DateRangeInput from "../../../components/Common/DateRangeInput";
 import TableContainer from '../../../components/Table/TableContainer';
@@ -85,6 +85,20 @@ const FirstMileOperation = () => {
     // rto_pickup_counter/pickup_percent TAT breakdowns) -- replaces the old
     // final_status_counter the API no longer sends.
     const [Summary, setSummary] = useState(null)
+
+    // The filter row + Pickup TAT summary collapse once the table area is
+    // scrolled, so the rows get that room back -- reappear once scrolled
+    // back near the top. Same pattern as StatusDailyReport.jsx /
+    // AttemptWisePerformance.jsx, including both hard-learned fixes:
+    // natural heights are measured once per fresh result (not live off
+    // el.scrollHeight, which collapsing itself keeps changing), and
+    // collapsing is only allowed when doing so still leaves something to
+    // scroll afterward, so a mid-size result can't force scrollTop back to
+    // 0 and immediately re-expand.
+    const scrollRef = useRef(null)
+    const collapsibleRef = useRef(null)
+    const metricsRef = useRef({ natural: 0, collapsible: 0 })
+    const [filtersCollapsed, setFiltersCollapsed] = useState(false)
     // payment mode options
     const [paymentModeOptions] = useState([
         {
@@ -141,6 +155,27 @@ const FirstMileOperation = () => {
     const [SelectedRegion, setSelectedRegion] = useState()
     // onCheck button click
     const [BookingData, setBookingData] = useState([])
+
+    useLayoutEffect(() => {
+        if (scrollRef.current && collapsibleRef.current) {
+            metricsRef.current = {
+                natural: scrollRef.current.scrollHeight,
+                collapsible: collapsibleRef.current.scrollHeight,
+            }
+        }
+    }, [FirstMiles])
+    useEffect(() => {
+        const el = scrollRef.current
+        if (!el) return undefined
+        const onScroll = () => {
+            const { natural, collapsible } = metricsRef.current
+            const expandedOverflow = natural - el.clientHeight
+            const collapsedOverflow = natural - collapsible - el.clientHeight
+            setFiltersCollapsed(expandedOverflow > 150 && collapsedOverflow > 20 && el.scrollTop > 8)
+        }
+        el.addEventListener("scroll", onScroll, { passive: true })
+        return () => el.removeEventListener("scroll", onScroll)
+    }, [])
 
     // base column config
     const baseColumnConfig = {
@@ -474,6 +509,11 @@ const FirstMileOperation = () => {
 
     // onCheck button click
     const OnCheckClick = async () => {
+        // Always start a fresh result with the filters/summary visible --
+        // see StatusDailyReport.jsx's fix this mirrors: without it, a
+        // collapse left over from a previous, taller result could stay
+        // stuck collapsed on a shorter one.
+        setFiltersCollapsed(false)
         try {
             // Format dates
             const updatedDate = formatDateForPayload(selectedRange);
@@ -563,104 +603,119 @@ const FirstMileOperation = () => {
     }, [SelectedRegion, AllServiceCenterOption]);
 
     return (
-        <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
+        <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
             <MainHeaderComp
                 title="Pickup Strike Rate (FPSR)"
                 subTitle="Region and service-center level pickup TAT."
             />
 
-            <div className="page-fit-body relative z-10 pb-4">
-                {/* Filters -- see LastMileOperations.jsx for the reasoning:
-                    checkboxes in the dropdown replace the chip strip beside
-                    the control, and every field wraps to the next line rather
-                    than push the row past the card. */}
-                <div className="flex flex-wrap items-end gap-3 border-b border-white/8 pb-4">
-                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
-                        <Label className="form-label m-0 font-bold text-ink-muted">
-                            Select Region
-                        </Label>
-                        <Select
-                            options={AllRegions}
-                            placeholder="Search Region"
-                            value={SelectedRegion}
-                            onChange={setSelectedRegion}
-                            {...MULTI_SELECT_PROPS}
-                        />
+            {/* scrollRef is the one thing on this screen that scrolls -- a
+                plain fixed-height box, not the page-fit/fillHeight cascade
+                this used to use (that system needs every ancestor wrapper
+                to opt in, and the Pickup TAT summary tacked onto the chrome
+                above the grid left the grid too little of the leftover
+                height to show its own rows). Same self-contained
+                maxHeight + overflowY approach StatusDailyReport.jsx/
+                AttemptWisePerformance.jsx use for this exact collapse
+                behaviour. */}
+            <div ref={scrollRef} className="scroll-slim relative z-10 pb-4" style={{ maxHeight: "78vh", overflowY: "auto" }}>
+                <div
+                    ref={collapsibleRef}
+                    className="transition-[max-height,opacity] duration-300 ease-out"
+                    style={filtersCollapsed ? { maxHeight: 0, opacity: 0, overflow: "hidden" } : { maxHeight: 900, opacity: 1, overflow: "hidden" }}
+                >
+                    {/* Filters -- see LastMileOperations.jsx for the reasoning:
+                        checkboxes in the dropdown replace the chip strip beside
+                        the control, and every field wraps to the next line rather
+                        than push the row past the card. */}
+                    <div className="flex flex-wrap items-end gap-3 border-b border-white/8 pb-4">
+                        <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                Select Region
+                            </Label>
+                            <Select
+                                options={AllRegions}
+                                placeholder="Search Region"
+                                value={SelectedRegion}
+                                onChange={setSelectedRegion}
+                                {...MULTI_SELECT_PROPS}
+                            />
+                        </div>
+
+                        <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                Select Service Center
+                            </Label>
+                            <Select
+                                options={ServiceCenterOption}
+                                placeholder="Search Service Center"
+                                value={SelectedServiceCenters}
+                                onChange={setSelectedServiceCenters}
+                                {...MULTI_SELECT_PROPS}
+                            />
+                        </div>
+
+                        <div className="flex w-full flex-col gap-1.5 sm:w-60">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                Date Range
+                            </Label>
+                            <DateRangeInput
+                                value={selectedRange}
+                                onChange={handleChange}
+                                isBorder={true}
+                            />
+                        </div>
+
+                        <div className="flex w-full flex-col gap-1.5 sm:w-48">
+                            <Label className="form-label m-0 font-bold text-ink-muted">
+                                Payment Mode
+                            </Label>
+                            <Select
+                                options={paymentModeOptions}
+                                placeholder="Search Customer"
+                                value={PaymentMode}
+                                onChange={setPaymentMode}
+                                isClearable={true}
+                                styles={customStyles}
+                                menuPortalTarget={document.body}
+                                menuPosition="fixed"
+                            />
+                        </div>
+
+                        <Button
+                            color="primary"
+                            disabled={bookingLoading}
+                            className="h-9.5 shrink-0 px-6"
+                            onClick={OnCheckClick}
+                        >
+                            Check
+                        </Button>
+                        <Button
+                            color="secondary"
+                            disabled={isExporting}
+                            className="h-9.5 shrink-0 px-6"
+                            onClick={handleExportExcel}
+                        >
+                            {isExporting ? "Downloading…" : "Download Report"}
+                        </Button>
                     </div>
 
-                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
-                        <Label className="form-label m-0 font-bold text-ink-muted">
-                            Select Service Center
-                        </Label>
-                        <Select
-                            options={ServiceCenterOption}
-                            placeholder="Search Service Center"
-                            value={SelectedServiceCenters}
-                            onChange={setSelectedServiceCenters}
-                            {...MULTI_SELECT_PROPS}
-                        />
-                    </div>
-
-                    <div className="flex w-full flex-col gap-1.5 sm:w-60">
-                        <Label className="form-label m-0 font-bold text-ink-muted">
-                            Date Range
-                        </Label>
-                        <DateRangeInput
-                            value={selectedRange}
-                            onChange={handleChange}
-                            isBorder={true}
-                        />
-                    </div>
-
-                    <div className="flex w-full flex-col gap-1.5 sm:w-48">
-                        <Label className="form-label m-0 font-bold text-ink-muted">
-                            Payment Mode
-                        </Label>
-                        <Select
-                            options={paymentModeOptions}
-                            placeholder="Search Customer"
-                            value={PaymentMode}
-                            onChange={setPaymentMode}
-                            isClearable={true}
-                            styles={customStyles}
-                            menuPortalTarget={document.body}
-                            menuPosition="fixed"
-                        />
-                    </div>
-
-                    <Button
-                        color="primary"
-                        disabled={bookingLoading}
-                        className="h-9.5 shrink-0 px-6"
-                        onClick={OnCheckClick}
-                    >
-                        Check
-                    </Button>
-                    <Button
-                        color="secondary"
-                        disabled={isExporting}
-                        className="h-9.5 shrink-0 px-6"
-                        onClick={handleExportExcel}
-                    >
-                        {isExporting ? "Downloading…" : "Download Report"}
-                    </Button>
+                    {Summary && (
+                        <div className="mt-4 flex flex-col gap-3">
+                            <div className="flex flex-wrap gap-3">
+                                <StatsCard label="Total Shipments" value={Summary.total_shipments} />
+                                <StatsCard label="RTO Shipments" value={Summary.rto_shipments} />
+                            </div>
+                            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                                <SummaryTable title="Pickup TAT (Forward)" entries={Summary.pickup_counter} />
+                                <SummaryTable title="Pickup TAT % (Forward)" entries={Summary.pickup_percent} suffix="%" />
+                                <SummaryTable title="Pickup TAT (RTO)" entries={Summary.rto_pickup_counter} />
+                            </div>
+                        </div>
+                    )}
                 </div>
 
-                {Summary && (
-                    <div className="mt-4 flex flex-col gap-3">
-                        <div className="flex flex-wrap gap-3">
-                            <StatsCard label="Total Shipments" value={Summary.total_shipments} />
-                            <StatsCard label="RTO Shipments" value={Summary.rto_shipments} />
-                        </div>
-                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                            <SummaryTable title="Pickup TAT (Forward)" entries={Summary.pickup_counter} />
-                            <SummaryTable title="Pickup TAT % (Forward)" entries={Summary.pickup_percent} suffix="%" />
-                            <SummaryTable title="Pickup TAT (RTO)" entries={Summary.rto_pickup_counter} />
-                        </div>
-                    </div>
-                )}
-
-                <div className="page-fit-body mt-4">
+                <div className="mt-4">
                     {
                         bookingLoading ? <Loader message="Loading Operation Performance ..." fullscreen={false} /> : (
                             <TableContainer
@@ -676,8 +731,6 @@ const FirstMileOperation = () => {
                                 isStickyHeader={true}
                                 stickyTop={0}
                                 isCustomPageSize={true}
-                                fillHeight
-                                tableHeight="72vh"
                             />
                         )
                     }
