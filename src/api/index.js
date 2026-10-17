@@ -493,6 +493,15 @@ export const GET_CUSTOMER_PERFORMANCE_FPDR_EXPORT = `${BASE_URL}/reports/custome
 // export const GET_CUSTOMER_PERFORMANCE_FPDR = `${BASE_URL}/reports/spu_pud_performance/`
 // export const GET_CUSTOMER_PERFORMANCE_FPDR = `${BASE_URL}/reports/pud_operations_performance/`
 
+// customer attempt wise pickup report -- AttemptWiseCustomerPickupReport.jsx
+// used CUSTOMER_GET_ATTEMPT_WISE_DELIVARY_REPORT (attempt_strike_rate_customer,
+// a delivery-attempt report) for this screen until now because there was no
+// dedicated pickup-attempt endpoint; this is the real one. POST
+// {customer_name, start_date, end_date (dd-mm-yyyy), service_center/region
+// (lists)/product/mode/payment_mode optional}.
+export const CUSTOMER_PICKUP_ATTEMPT_WISE_REPORT = `${BASE_URL}/reports/customer_pickup_attempt_strike_rate/` // POST
+export const CUSTOMER_PICKUP_ATTEMPT_WISE_REPORT_EXPORT = `${BASE_URL}/reports/customer_pickup_attempt_strike_rate/export/` // POST -> xlsx blob
+
 // customer performance fasr
 export const GET_CUSTOMER_PERFORMANCE_FASR = `${BASE_URL}/reports/ofp_pud_performance/`
 
