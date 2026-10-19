@@ -68,6 +68,11 @@ const ROUTES = [
     duration: 30,
     delay: 18,
     staticAt: "1060 600",
+    // Lucide's Ship glyph points bow-first along its own vertical axis, 90
+    // degrees off from the way `rotate="auto"` orients every other vehicle
+    // to the path tangent -- the only icon here that needs its own
+    // correction on top of that auto-rotation.
+    iconRotate: -90,
   },
 ];
 
@@ -141,7 +146,7 @@ const RouteMap = ({ reduceMotion }) => (
       </g>
     ))}
 
-    {ROUTES.map(({ id, Icon, duration, delay, staticAt }) => (
+    {ROUTES.map(({ id, Icon, duration, delay, staticAt, iconRotate }) => (
       <g key={`vehicle-${id}`} className="text-[rgb(var(--ambient-accent))]">
         {/* animateMotion, not Framer Motion: following arbitrary <path>
             geometry needs CSS motion-path, which Safari still does not apply
@@ -154,7 +159,15 @@ const RouteMap = ({ reduceMotion }) => (
         <g transform={reduceMotion ? `translate(${staticAt})` : undefined}>
           <circle r="22" fill="rgb(var(--ambient-accent))" className="opacity-[0.10]" />
           <circle r="22" fill="none" stroke="rgb(var(--ambient-accent))" strokeWidth="1" className="opacity-25" />
-          <Icon x={-14} y={-14} width={28} height={28} strokeWidth={1.7} className="opacity-90" />
+          <Icon
+            x={-14}
+            y={-14}
+            width={28}
+            height={28}
+            strokeWidth={1.7}
+            className="opacity-90"
+            transform={iconRotate ? `rotate(${iconRotate})` : undefined}
+          />
         </g>
       </g>
     ))}
