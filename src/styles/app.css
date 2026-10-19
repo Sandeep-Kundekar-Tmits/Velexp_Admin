@@ -135,32 +135,40 @@
 }
 
 /*
- * "Rosewood" -- the third theme, opt-in via `data-theme="rosewood"`,
+ * "Olive Grove" -- the third theme, opt-in via `data-theme="olive-grove"`,
  * alongside (not replacing) dark and light above. Replaces the earlier
- * "Midnight Ivory" navy palette with a user-given four-color one -- a
- * warm cream (#F3E2D4), dusty lilac (#C5B0CD), slate blue (#415E72) and
- * deep teal-navy (#17313E) -- explicitly as a light theme this time: the
- * cream is the background, not diluted or blended away.
+ * "Rosewood" palette with a user-given four-color one -- pale yellow
+ * (#EBE3A7), forest green (#2C5745), near-black olive-brown (#2E2910) and
+ * a vivid orange (#EB7D00).
  *
- * Built the same direct way the very first "Serene Lavender" pass was
- * (one swatch per token, not that attempt's later diluted-tint rework):
- * surface is the cream itself, canvas one step deeper (cream blended
- * toward the lilac, so cards still lift off the page), line is the lilac,
- * ink is the darkest teal-navy, ink-muted is the slate blue. All four
- * contrast pairings were checked against this surface before picking the
- * mapping -- ink ~10.8:1 (AAA), ink-muted ~5.4:1 (AA, including for the
- * small print the token also covers) -- so nothing here needed a mix to
- * reach a usable ratio, unlike Lavender/Midnight Ivory's muted tokens.
+ * The orange is deliberately not in this mapping: it only measures ~3:1
+ * against the pale yellow and isn't a neutral to begin with -- vivid
+ * enough that it would read as a stray accent wherever a token put it,
+ * not a background or body-text colour. It stays out of the theme swap
+ * the same way brand/accent/status colours already do (untouched by
+ * [data-theme], the same for every theme) -- nothing about this pass
+ * changes that.
+ *
+ * Direct mapping, same approach as Rosewood: surface is the pale yellow
+ * itself, ink is the olive-brown, ink-muted is the forest green --
+ * measurably lighter than ink (L 0.078 vs 0.022) so it still reads as the
+ * dimmer of the two despite being a different hue, and clears ~6.3:1 on
+ * surface (AA) unmixed. canvas and line are the one thing this palette
+ * needed a mix for, both softened versions of that same green: canvas is
+ * mostly the pale yellow with a touch of it (one step deeper than
+ * surface), line is mostly the green with a touch of yellow (lighter
+ * than ink-muted, so it still reads as a hairline rather than a block of
+ * colour).
  */
-[data-theme="rosewood"] {
-  --color-surface: #F3E2D4;
-  --color-canvas: color-mix(in srgb, #F3E2D4 60%, #C5B0CD 40%);
-  --color-line: #C5B0CD;
-  --color-ink: #17313E; /* ~10.8:1 on surface (AAA) */
-  --color-ink-muted: #415E72; /* ~5.4:1 on surface (AA) */
-  --overlay-rgb: 23 49 62; /* Deep teal-navy (ink) -- a dark tint on the light cream, same role 15 23 42 plays for the default light theme */
-  --shadow-elevated: rgb(23 49 62 / 0.1);
-  --shadow-elevated-strong: rgb(23 49 62 / 0.14);
+[data-theme="olive-grove"] {
+  --color-surface: #EBE3A7;
+  --color-canvas: color-mix(in srgb, #EBE3A7 80%, #2C5745 20%);
+  --color-line: color-mix(in srgb, #2C5745 55%, #EBE3A7 45%);
+  --color-ink: #2E2910; /* ~11.2:1 on surface (AAA) */
+  --color-ink-muted: #2C5745; /* ~6.3:1 on surface (AA) */
+  --overlay-rgb: 46 41 16; /* Olive-brown (ink) -- a dark tint on the pale yellow, same role 15 23 42 plays for the default light theme */
+  --shadow-elevated: rgb(46 41 16 / 0.1);
+  --shadow-elevated-strong: rgb(46 41 16 / 0.14);
   --glass-surface: color-mix(in srgb, var(--color-surface) 95%, transparent);
   color-scheme: light;
 }
