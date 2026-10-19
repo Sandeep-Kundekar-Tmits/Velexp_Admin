@@ -135,34 +135,34 @@
 }
 
 /*
- * "Midnight Ivory" -- the third theme, opt-in via
- * `data-theme="midnight-ivory"`, alongside (not replacing) dark and light
- * above. Replaces the earlier "Serene Lavender" attempt with a user-given
- * four-color palette: three dark navies (#010736/#0D1C42/#22396F, darkest
- * to lightest) and one warm ivory (#FCF1D0). Unlike Lavender (a light
- * theme), this one is structurally dark -- so it's built the same way the
- * default dark theme above is, not the diluted-tint approach Lavender
- * used: canvas is the darkest navy, surface one step up (cards lift off
- * the page the same way dark/surface #111827 lifts off canvas #050816
- * above), line is the lightest/most saturated navy, and ink is the ivory.
+ * "Rosewood" -- the third theme, opt-in via `data-theme="rosewood"`,
+ * alongside (not replacing) dark and light above. Replaces the earlier
+ * "Midnight Ivory" navy palette with a user-given four-color one -- a
+ * warm cream (#F3E2D4), dusty lilac (#C5B0CD), slate blue (#415E72) and
+ * deep teal-navy (#17313E) -- explicitly as a light theme this time: the
+ * cream is the background, not diluted or blended away.
  *
- * ink-muted is ivory blended toward the navy line colour (70/30), not the
- * raw ivory -- full-brightness ivory for every secondary label would flatten
- * the hierarchy between primary and muted text that the token exists to
- * carry. The blend still clears ~8.6:1 on surface (comfortably AAA) while
- * reading as a dimmer, dustier ivory rather than plain gray.
+ * Built the same direct way the very first "Serene Lavender" pass was
+ * (one swatch per token, not that attempt's later diluted-tint rework):
+ * surface is the cream itself, canvas one step deeper (cream blended
+ * toward the lilac, so cards still lift off the page), line is the lilac,
+ * ink is the darkest teal-navy, ink-muted is the slate blue. All four
+ * contrast pairings were checked against this surface before picking the
+ * mapping -- ink ~10.8:1 (AAA), ink-muted ~5.4:1 (AA, including for the
+ * small print the token also covers) -- so nothing here needed a mix to
+ * reach a usable ratio, unlike Lavender/Midnight Ivory's muted tokens.
  */
-[data-theme="midnight-ivory"] {
-  --color-surface: #0D1C42;
-  --color-canvas: #010736;
-  --color-line: #22396F;
-  --color-ink: #FCF1D0; /* ~14.8:1 on surface (AAA) */
-  --color-ink-muted: color-mix(in srgb, #FCF1D0 70%, #22396F 30%); /* ~8.6:1 on surface (AAA) */
-  --overlay-rgb: 252 241 208; /* Ivory -- a warm highlight on the dark navy, same role 255 255 255 plays for the default dark theme */
-  --shadow-elevated: rgb(1 7 54 / 0.9);
-  --shadow-elevated-strong: rgb(1 7 54 / 0.95);
-  --glass-surface: color-mix(in srgb, var(--color-surface) 70%, transparent);
-  color-scheme: dark;
+[data-theme="rosewood"] {
+  --color-surface: #F3E2D4;
+  --color-canvas: color-mix(in srgb, #F3E2D4 60%, #C5B0CD 40%);
+  --color-line: #C5B0CD;
+  --color-ink: #17313E; /* ~10.8:1 on surface (AAA) */
+  --color-ink-muted: #415E72; /* ~5.4:1 on surface (AA) */
+  --overlay-rgb: 23 49 62; /* Deep teal-navy (ink) -- a dark tint on the light cream, same role 15 23 42 plays for the default light theme */
+  --shadow-elevated: rgb(23 49 62 / 0.1);
+  --shadow-elevated-strong: rgb(23 49 62 / 0.14);
+  --glass-surface: color-mix(in srgb, var(--color-surface) 95%, transparent);
+  color-scheme: light;
 }
 
 /*
