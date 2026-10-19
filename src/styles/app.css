@@ -136,29 +136,39 @@
 
 /*
  * "Serene Lavender" -- a third theme, opt-in via `data-theme="lavender"`,
- * alongside (not replacing) dark and light above. Same five neutrals
- * re-tinted off a named five-color palette (Lavender Blush/Thistle/Lilac/
- * Dusty Mauve/Space Indigo) in the same light-to-dark order the tokens
- * themselves already run: surface and canvas are the two lightest (cards
- * lift off a slightly deeper-tinted page), line is the mid step, and
- * ink-muted/ink are the two darkest, for text.
+ * alongside (not replacing) dark and light above.
+ *
+ * Second pass, different approach from the first: that version dropped the
+ * palette's five swatches straight into the five tokens (surface = Lavender
+ * Blush, canvas = Thistle, line = Lilac...), which read as a flat wash --
+ * two fully-saturated pastels filling the whole page and card background.
+ * This pass treats the palette as a tint source instead of a paint set:
+ * surface and canvas are each diluted toward white via color-mix (10-15%
+ * of the named swatch, not 100%), so they read as paper -- airy, almost
+ * neutral -- and lift off each other the same small step the original
+ * slate light theme does, rather than as two blocks of visible colour.
+ * Lilac and Dusty Mauve, the two strongest colours in the set, are held
+ * back for line and ink-muted instead, where a *little* saturation reads
+ * as "accent" rather than "filled region." Space Indigo for ink is
+ * unchanged -- a near-black navy was already the right amount of colour
+ * for primary text, in either approach.
  *
  * ink-muted is Dusty Mauve deepened toward Space Indigo (both from this
- * same palette) rather than the raw swatch -- plain Dusty Mauve on
- * Lavender Blush only measures ~3.1:1, fine for an 18px+ label but too
- * low for the small print this token also covers in 600+ places; this
- * mix clears ~5.2:1 (AA) while staying in the same mauve family. Every
- * other value here is the palette's own hex, unmixed.
+ * same palette), not the raw swatch -- plain Dusty Mauve on white-ish
+ * surface clears only ~3.6:1, fine for an 18px+ label but too low for the
+ * small print this token also covers in 600+ places; this mix clears
+ * ~6.2:1 (AA, even with the now-lighter surface) while staying in the same
+ * mauve family.
  */
 [data-theme="lavender"] {
-  --color-surface: #f5e6e8; /* Lavender Blush */
-  --color-canvas: #d5c6e0; /* Thistle */
-  --color-line: #aaa1c8; /* Lilac */
-  --color-ink: #192a51; /* Space Indigo -- 11.6:1 on surface (AAA) */
-  --color-ink-muted: color-mix(in srgb, #192a51 40%, #967aa1 60%); /* Dusty Mauve, deepened -- ~5.2:1 on surface (AA) */
+  --color-surface: color-mix(in srgb, #f5e6e8 12%, white 88%); /* Lavender Blush, diluted to a near-white paper */
+  --color-canvas: color-mix(in srgb, #d5c6e0 22%, white 78%); /* Thistle, diluted -- one step deeper than surface */
+  --color-line: color-mix(in srgb, #aaa1c8 45%, var(--color-canvas) 55%); /* Lilac, softened into a hairline tint */
+  --color-ink: #192a51; /* Space Indigo -- ~13.8:1 on the now near-white surface (AAA) */
+  --color-ink-muted: color-mix(in srgb, #192a51 40%, #967aa1 60%); /* Dusty Mauve, deepened -- ~6.2:1 on surface (AA) */
   --overlay-rgb: 25 42 81; /* Space Indigo */
-  --shadow-elevated: rgb(25 42 81 / 0.1);
-  --shadow-elevated-strong: rgb(25 42 81 / 0.14);
+  --shadow-elevated: rgb(25 42 81 / 0.08);
+  --shadow-elevated-strong: rgb(25 42 81 / 0.12);
   --glass-surface: color-mix(in srgb, var(--color-surface) 95%, transparent);
   color-scheme: light;
 }
