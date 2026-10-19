@@ -44,11 +44,13 @@ const WINDOW_WIDTH = 26;
 /**
  * The scanning symbol on its own -- no overlay, no card, no message.
  *
- * This is what the 60-odd screens still on the light theme drop in place of
- * their old <GridLoader />, so it must read on white as well as on #050816.
- * Both bar layers therefore paint in `currentColor`: the default blue clears
- * contrast on either background, and any caller can retint it with a text
- * colour class rather than needing a new prop.
+ * Both bar layers paint in `currentColor`, driven by text-ink rather than a
+ * literal hex -- it used to be a fixed #3B82F6 blue, chosen only because it
+ * read on both of the app's original two themes (white and #050816). ink is
+ * already guaranteed high contrast against surface/canvas in every theme by
+ * definition, so the loader now matches whichever theme is active instead
+ * of staying the one fixed blue regardless. Any caller can still retint it
+ * with its own text colour class.
  */
 export const LoaderMark = ({ className }) => {
   const reduceMotion = useReducedMotion();
@@ -63,7 +65,7 @@ export const LoaderMark = ({ className }) => {
     <svg
       aria-hidden="true"
       viewBox={`0 0 ${CODE_WIDTH} ${CODE_HEIGHT}`}
-      className={cn("h-10 w-44 text-[#3B82F6]", className)}
+      className={cn("h-10 w-44 text-ink", className)}
     >
       <defs>
         {/* The lit bars are drawn twice and clipped to a moving window, so the
@@ -257,10 +259,8 @@ const Loader = ({ message = "Loading...", fullscreen = true, compact = false, cl
       )}
     >
       <div className="relative rounded-2xl border border-line bg-surface/70 px-6 py-5 backdrop-blur-xl">
-        {/* No color override: LoaderMark's own default (#3B82F6) is the one
-            chosen to read on both a white and a dark card -- see its own
-            comment. The #7DD3FC this used to pass was picked only for the
-            old permanently-dark card and went invisible on a light one. */}
+        {/* No color override: LoaderMark's own default (text-ink) already
+            tracks whichever theme is active -- see its own comment. */}
         <LoaderMark className="h-12 w-56" />
       </div>
 

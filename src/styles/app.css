@@ -88,6 +88,19 @@
   --shadow-elevated: rgb(2 6 23 / 0.9);
   --shadow-elevated-strong: rgb(2 6 23 / 0.95);
 
+  /* AmbientBackground.jsx's route map + glow, as RGB triplets for
+     `rgb(var(--x) / alpha)` -- was three literal hex colours (#38BDF8
+     cyan for the routes/hubs/vehicles/spotlight/top edge, #3B82F6 blue
+     for the top-left gradient, #8B5CF6 violet for the bottom-right one),
+     tuned only for this theme's own near-black canvas. Un-overridden,
+     every other theme below inherits exactly these same three values --
+     dark and light look pixel-identical to before this existed; a theme
+     with its own accent character (Olive Grove's orange, say) overrides
+     them to match instead of clashing against it. */
+  --ambient-accent: 56 189 248; /* #38BDF8 cyan */
+  --ambient-gradient-1: 59 130 246; /* #3B82F6 blue */
+  --ambient-gradient-2: 139 92 246; /* #8B5CF6 violet */
+
   /* --- type & density --- */
   --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --text-base: 0.8125rem; /* 13px */
@@ -141,13 +154,15 @@
  * (#EBE3A7), forest green (#2C5745), near-black olive-brown (#2E2910) and
  * a vivid orange (#EB7D00).
  *
- * The orange is deliberately not in this mapping: it only measures ~3:1
- * against the pale yellow and isn't a neutral to begin with -- vivid
- * enough that it would read as a stray accent wherever a token put it,
- * not a background or body-text colour. It stays out of the theme swap
- * the same way brand/accent/status colours already do (untouched by
- * [data-theme], the same for every theme) -- nothing about this pass
- * changes that.
+ * The orange is deliberately not one of the five neutral tokens: it only
+ * measures ~3:1 against the pale yellow and isn't a neutral to begin
+ * with -- vivid enough that it would read as a stray accent wherever a
+ * token put it, not a background or body-text colour. It does get used
+ * below, though, as this theme's --ambient-* override: AmbientBackground.jsx's
+ * route map and glow are exactly the "accent, not fill" role this orange
+ * is suited for, and every other theme leaves those tokens at the
+ * default dark/light cyan-blue-violet, so Olive Grove gets its own
+ * matching backdrop instead of clashing against it.
  *
  * Direct mapping, same approach as Rosewood: surface is the pale yellow
  * itself, ink is the olive-brown, ink-muted is the forest green --
@@ -170,6 +185,9 @@
   --shadow-elevated: rgb(46 41 16 / 0.1);
   --shadow-elevated-strong: rgb(46 41 16 / 0.14);
   --glass-surface: color-mix(in srgb, var(--color-surface) 95%, transparent);
+  --ambient-accent: 235 125 0; /* #EB7D00 orange -- the route/hub/spotlight colour */
+  --ambient-gradient-1: 235 125 0; /* #EB7D00 orange -- top-left glow */
+  --ambient-gradient-2: 44 87 69; /* #2C5745 forest green -- bottom-right glow */
   color-scheme: light;
 }
 

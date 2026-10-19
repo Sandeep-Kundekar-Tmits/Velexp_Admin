@@ -7,6 +7,14 @@
  *
  * It is purely decorative: `aria-hidden` and `pointer-events-none` throughout,
  * so it never intercepts clicks or reaches assistive tech.
+ *
+ * Every colour here is `rgb(var(--ambient-*))`, not a literal hex -- see
+ * app.css's --ambient-accent/--ambient-gradient-1/--ambient-gradient-2 (next
+ * to --overlay-rgb). The defaults there reproduce this component's
+ * original hardcoded cyan/blue/violet exactly, so the default dark theme
+ * and light theme are unaffected; a theme with its own accent character
+ * (Olive Grove's orange, say) overrides just those three tokens instead
+ * of fighting this component's own colours.
  */
 import PropTypes from "prop-types";
 import {
@@ -95,11 +103,11 @@ const RouteMap = ({ reduceMotion }) => (
         on top whose offset scrolls to suggest traffic along it. */}
     {ROUTES.map((route) => (
       <g key={`line-${route.id}`}>
-        <path d={route.d} fill="none" stroke="#38BDF8" strokeWidth="1.25" className="opacity-[0.08]" />
+        <path d={route.d} fill="none" stroke="rgb(var(--ambient-accent))" strokeWidth="1.25" className="opacity-[0.08]" />
         <motion.path
           d={route.d}
           fill="none"
-          stroke="#38BDF8"
+          stroke="rgb(var(--ambient-accent))"
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeDasharray="8 18"
@@ -112,7 +120,7 @@ const RouteMap = ({ reduceMotion }) => (
 
     {WAYPOINTS.map((point) => (
       <g key={`hub-${point.cx}-${point.cy}`}>
-        <circle cx={point.cx} cy={point.cy} r="3" fill="#38BDF8" className="opacity-40" />
+        <circle cx={point.cx} cy={point.cy} r="3" fill="rgb(var(--ambient-accent))" className="opacity-40" />
         {/* Animating the `r` attribute rather than scale: a scaled circle would
             need a per-waypoint transform-origin, and Tailwind cannot generate
             class names from runtime values. This needs no origin at all. */}
@@ -120,7 +128,7 @@ const RouteMap = ({ reduceMotion }) => (
           cx={point.cx}
           cy={point.cy}
           fill="none"
-          stroke="#38BDF8"
+          stroke="rgb(var(--ambient-accent))"
           strokeWidth="1"
           initial={{ r: 3, opacity: 0.5 }}
           animate={reduceMotion ? undefined : { r: [3, 14], opacity: [0.5, 0] }}
@@ -134,7 +142,7 @@ const RouteMap = ({ reduceMotion }) => (
     ))}
 
     {ROUTES.map(({ id, Icon, duration, delay, staticAt }) => (
-      <g key={`vehicle-${id}`} className="text-[#38BDF8]">
+      <g key={`vehicle-${id}`} className="text-[rgb(var(--ambient-accent))]">
         {/* animateMotion, not Framer Motion: following arbitrary <path>
             geometry needs CSS motion-path, which Safari still does not apply
             reliably to SVG children. SMIL does it natively and everywhere. */}
@@ -144,8 +152,8 @@ const RouteMap = ({ reduceMotion }) => (
           </animateMotion>
         )}
         <g transform={reduceMotion ? `translate(${staticAt})` : undefined}>
-          <circle r="22" fill="#38BDF8" className="opacity-[0.10]" />
-          <circle r="22" fill="none" stroke="#38BDF8" strokeWidth="1" className="opacity-25" />
+          <circle r="22" fill="rgb(var(--ambient-accent))" className="opacity-[0.10]" />
+          <circle r="22" fill="none" stroke="rgb(var(--ambient-accent))" strokeWidth="1" className="opacity-25" />
           <Icon x={-14} y={-14} width={28} height={28} strokeWidth={1.7} className="opacity-90" />
         </g>
       </g>
@@ -192,8 +200,8 @@ const AmbientBackground = ({ className, showSpotlight = true, clearCentre = true
       aria-hidden="true"
       className={cn("pointer-events-none absolute inset-0 overflow-hidden", className)}
     >
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_55%_at_50%_-10%,rgba(59,130,246,0.20),transparent_60%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_85%_110%,rgba(139,92,246,0.18),transparent_60%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_55%_at_50%_-10%,rgb(var(--ambient-gradient-1)/0.20),transparent_60%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_85%_110%,rgb(var(--ambient-gradient-2)/0.18),transparent_60%)]" />
       {/* Faint grid is the "map paper" the routes are drawn on -- see
           .ambient-grid-lines in app.css for why this isn't a Tailwind
           arbitrary value (it needs to reference --overlay-rgb). */}
@@ -214,11 +222,11 @@ const AmbientBackground = ({ className, showSpotlight = true, clearCentre = true
            the gradient itself stays a Tailwind class, since a per-frame value
            cannot be expressed as a static utility. */
         <motion.div
-          className="absolute inset-0 bg-[radial-gradient(240px_circle_at_var(--spot-x)_var(--spot-y),rgba(56,189,248,0.14),transparent_65%)]"
+          className="absolute inset-0 bg-[radial-gradient(240px_circle_at_var(--spot-x)_var(--spot-y),rgb(var(--ambient-accent)/0.14),transparent_65%)]"
           style={{ "--spot-x": spotlightX, "--spot-y": spotlightY }}
         />
       )}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#38BDF8]/30 to-transparent" />
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[rgb(var(--ambient-accent)/0.3)] to-transparent" />
     </div>
   );
 };
