@@ -6,14 +6,15 @@ import { useUiStore } from "@/stores/uiStore";
 const THEMES = [
     { value: "dark", label: "Dark", icon: Moon },
     { value: "light", label: "Light", icon: Sun },
-    { value: "lavender", label: "Serene Lavender", icon: Palette },
+    { value: "midnight-ivory", label: "Midnight Ivory", icon: Palette },
 ];
 
 /**
  * Sidebar footer, next to the collapse control. Opens a small menu to pick
- * one of the app's three themes -- [data-theme="light"|"lavender"] (dark is
- * the no-attribute default) in styles/app.css -- see uiStore.themeMode for
- * the persisted state and the <html> attribute it drives.
+ * one of the app's three themes -- [data-theme="light"|"midnight-ivory"]
+ * (dark is the no-attribute default) in styles/app.css -- see
+ * uiStore.themeMode for the persisted state and the <html> attribute it
+ * drives.
  *
  * The menu is portaled to <body>, not a plain position:absolute popup: the
  * footer sits inside .vertical-menu, which clips to its own rounded panel

@@ -25,11 +25,11 @@ import {
 
 // The app theme is a `data-theme` attribute on <html> -- "dark" (default,
 // no attribute value needed but set explicitly for clarity), "light", or
-// "lavender". See styles/app.css, which redeclares the same five neutral
-// tokens the dark theme defines for each, and index.html, which sets this
-// attribute synchronously from localStorage before React mounts so a
-// returning light/lavender-mode user doesn't see a flash of the dark
-// theme first.
+// "midnight-ivory". See styles/app.css, which redeclares the same five
+// neutral tokens the dark theme defines for each, and index.html, which
+// sets this attribute synchronously from localStorage before React mounts
+// so a returning light/midnight-ivory-mode user doesn't see a flash of
+// the dark theme first.
 const applyThemeAttribute = (mode) => {
   if (typeof document !== "undefined") {
     document.documentElement.setAttribute("data-theme", mode);
@@ -52,7 +52,7 @@ export const useUiStore = create(
       mobileSidebarOpen: false,
       /** link_url (or menu id) -> expanded, for the sidebar accordion. */
       expandedMenus: {},
-      /** "dark" (default, matches the app's original look) | "light" | "lavender". */
+      /** "dark" (default, matches the app's original look) | "light" | "midnight-ivory". */
       themeMode: "dark",
 
       openMobileSidebar: () => {
