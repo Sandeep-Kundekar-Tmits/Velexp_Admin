@@ -89,6 +89,13 @@ const EmployeeList = () => {
     }
 
     const columns = useMemo(() => [
+        {
+            // row.index is the row's position within this page's own data,
+            // not across the whole result set -- the page offset makes page
+            // 2 continue at 51 instead of restarting at 1.
+            header: "Sl. No", id: "slNo", enableSorting: false,
+            cell: ({ row }) => (page - 1) * PAGE_SIZE + row.index + 1,
+        },
         { header: "Employee Code", accessorKey: "employee_code", enableSorting: true, cell: ({ getValue }) => getValue() || "—" },
         {
             header: "Name", id: "name", enableSorting: true,
@@ -125,7 +132,7 @@ const EmployeeList = () => {
                 </div>
             ),
         },
-    ], [handleView, handleEdit, handleMarkExitClick, handleReverseExitClick])
+    ], [page, handleView, handleEdit, handleMarkExitClick, handleReverseExitClick])
 
     return (
         <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
