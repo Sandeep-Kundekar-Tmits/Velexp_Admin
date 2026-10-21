@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Badge, Button, Input, Pagination, PaginationItem, PaginationLink } from "@/components/ui"
+import { useQuery } from "@tanstack/react-query"
+import Select from "react-select"
+import { Badge, Button, Input, Label, Pagination, PaginationItem, PaginationLink } from "@/components/ui"
 import { UserX, UserCheck } from "lucide-react"
 import TableContainer from "../../components/Table/TableContainer"
 import usePostApiCall from "../../hooks/usePostApiCall"
@@ -9,8 +11,25 @@ import MainHeaderComp from "../../components/MainHeaderCom"
 import MarkExitModal from "../../components/UserManagement/MarkExitModal"
 import ReverseExitModal from "../../components/UserManagement/ReverseExitModal"
 import Loader from "@/Loaders/Loader"
+import { qk } from "@/lib/queryKeys"
+import { fetchServiceCenters, toServiceCenterOptions } from "@/services/reference.service"
+import { customStyles, CheckboxOption, SelectedCountValue } from "../../helpers/CustomStyle"
 
 const PAGE_SIZE = 50
+
+/* Checkbox per option + a "N selected" count in the control, instead of a
+   chip strip -- see CustomStyle.jsx for why every multi-select filter in
+   this app uses this contract. */
+const MULTI_SELECT_PROPS = {
+    isMulti: true,
+    isClearable: true,
+    hideSelectedOptions: false,
+    closeMenuOnSelect: false,
+    styles: customStyles,
+    components: { Option: CheckboxOption, ValueContainer: SelectedCountValue },
+    menuPortalTarget: typeof document !== "undefined" ? document.body : undefined,
+    menuPosition: "fixed",
+}
 
 const EmployeeList = () => {
     useEffect(() => { document.title = "Employee Management" }, [])
@@ -25,12 +44,29 @@ const EmployeeList = () => {
     const [page, setPage] = useState(1)
     const [searchInput, setSearchInput] = useState("")
     const [search, setSearch] = useState("")
+    const [selectedServiceCenters, setSelectedServiceCenters] = useState([])
 
-    const load = useCallback((targetPage, targetSearch) => {
-        getEmployees(EMPLOYEE_LIST, { page: String(targetPage), page_size: String(PAGE_SIZE), search: targetSearch })
+    // Cached 30min via react-query instead of refetched on every mount --
+    // same pattern every other service-centre filter in this app uses.
+    const { data: serviceCenterList } = useQuery({
+        queryKey: qk.reference.serviceCenters(),
+        queryFn: fetchServiceCenters,
+        staleTime: 30 * 60_000,
+    })
+    const scOptions = useMemo(() => toServiceCenterOptions(serviceCenterList), [serviceCenterList])
+
+    const load = useCallback((targetPage, targetSearch, targetServiceCenters) => {
+        const payload = { page: String(targetPage), page_size: String(PAGE_SIZE), search: targetSearch }
+        // Default is "All" -- nothing selected means no filter at all,
+        // rather than sending an empty list. Only when specific service
+        // centres are picked does this key go on the request.
+        if (targetServiceCenters?.length) {
+            payload.service_center_code = targetServiceCenters.map((sc) => sc.value)
+        }
+        getEmployees(EMPLOYEE_LIST, payload)
     }, [getEmployees])
 
-    useEffect(() => { load(1, "") }, [load])
+    useEffect(() => { load(1, "", []) }, [load])
 
     // Debounced so typing doesn't fire a request per keystroke -- 500ms
     // matches TableContainer's own search box elsewhere in the app. A new
@@ -41,16 +77,23 @@ const EmployeeList = () => {
             if (searchInput !== search) {
                 setSearch(searchInput)
                 setPage(1)
-                load(1, searchInput)
+                load(1, searchInput, selectedServiceCenters)
             }
         }, 500)
         return () => clearTimeout(timeout)
-    }, [searchInput, search, load])
+    }, [searchInput, search, load, selectedServiceCenters])
+
+    const handleServiceCenterChange = (opts) => {
+        const next = opts || []
+        setSelectedServiceCenters(next)
+        setPage(1)
+        load(1, search, next)
+    }
 
     const goToPage = (targetPage) => {
         if (targetPage < 1) return
         setPage(targetPage)
-        load(targetPage, search)
+        load(targetPage, search, selectedServiceCenters)
     }
 
     useEffect(() => {
@@ -143,15 +186,27 @@ const EmployeeList = () => {
                     extraFields={<Button color="primary" onClick={handleAdd}>+ Add Employee</Button>}
                 />
 
-                {/* Kept outside the loading branch below so the input never
-                    unmounts (and loses focus) while a search request is in flight. */}
-                <div className="flex justify-end mt-3" style={{ maxWidth: 320, marginLeft: "auto" }}>
-                    <Input
-                        type="text"
-                        placeholder="Search employees…"
-                        value={searchInput}
-                        onChange={(e) => setSearchInput(e.target.value)}
-                    />
+                {/* Kept outside the loading branch below so the inputs never
+                    unmount (and lose focus/selection) while a request is in flight. */}
+                <div className="flex items-end justify-end gap-3 mt-3" style={{ marginLeft: "auto" }}>
+                    <div className="flex w-60 flex-col gap-1.5">
+                        <Label className="form-label m-0 font-bold text-ink-muted">Service Center</Label>
+                        <Select
+                            options={scOptions}
+                            value={selectedServiceCenters}
+                            onChange={handleServiceCenterChange}
+                            placeholder="All service centers"
+                            {...MULTI_SELECT_PROPS}
+                        />
+                    </div>
+                    <div style={{ maxWidth: 320 }}>
+                        <Input
+                            type="text"
+                            placeholder="Search employees…"
+                            value={searchInput}
+                            onChange={(e) => setSearchInput(e.target.value)}
+                        />
+                    </div>
                 </div>
 
                 {loading ? (
