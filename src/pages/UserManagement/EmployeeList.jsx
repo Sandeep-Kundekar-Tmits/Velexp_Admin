@@ -10,6 +10,8 @@ import MarkExitModal from "../../components/UserManagement/MarkExitModal"
 import ReverseExitModal from "../../components/UserManagement/ReverseExitModal"
 import Loader from "@/Loaders/Loader"
 
+const PAGE_SIZE = 50
+
 const EmployeeList = () => {
     useEffect(() => { document.title = "Employee Management" }, [])
 
@@ -25,7 +27,7 @@ const EmployeeList = () => {
     const [search, setSearch] = useState("")
 
     const load = useCallback((targetPage, targetSearch) => {
-        getEmployees(EMPLOYEE_LIST, { page: String(targetPage), search: targetSearch })
+        getEmployees(EMPLOYEE_LIST, { page: String(targetPage), page_size: String(PAGE_SIZE), search: targetSearch })
     }, [getEmployees])
 
     useEffect(() => { load(1, "") }, [load])
@@ -60,6 +62,8 @@ const EmployeeList = () => {
     const total = data?.count ?? employees.length
     const hasNext = !!data?.next
     const hasPrevious = !!data?.previous
+    const rangeStart = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1
+    const rangeEnd = Math.min(page * PAGE_SIZE, total)
 
     const handleView = useCallback((rowData) => navigate(`/employees/${rowData?.id}`), [navigate])
     const handleEdit = useCallback((rowData) => navigate(`/employees/edit/${rowData?.id}`), [navigate])
@@ -167,7 +171,9 @@ const EmployeeList = () => {
                             show what happened to be on the current page. */}
                         <div className="flex justify-between items-center mt-3">
                             <span className="text-ink-muted text-sm">
-                                {total} employee{total === 1 ? "" : "s"}{search ? ` matching "${search}"` : ""} — page {page}
+                                {total === 0
+                                    ? `No employees found${search ? ` matching "${search}"` : ""}`
+                                    : `Showing ${rangeStart} to ${rangeEnd} of ${total}${search ? ` matching "${search}"` : ""}`}
                             </span>
                             <Pagination>
                                 <PaginationItem disabled={!hasPrevious}>
