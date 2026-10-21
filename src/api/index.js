@@ -48,6 +48,8 @@ export const GET_ADMIN_BOOKING_DETAILS = `${BASE_URL}/download_shipments/`
 
 // get all Service provider booking api
 export const GET_ALL_SERVICE_PROVIDER_BOOKING = `${BASE_URL}/get_service_provider_bookings/`
+export const SERVICE_PROVIDER_BOOKING_RETRY = `${BASE_URL}/service_provider_booking/`
+export const CANCEL_UNBOOKED_DELHIVERY_BOOKING = `${BASE_URL}/cancel_unbooked_delhivery_booking/`
 
 // delivary b2c label genaration
 export const GET_DELIVARY_B2C_LABEL_GENERATION = `${BASE_URL}/delhivery_b2c_generate_shipping_label/`
