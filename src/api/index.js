@@ -606,6 +606,9 @@ export const GET_ALL_EMPLOYEE_LIST = `${BASE_URL}/api/employee/employees/`
 // values were wrong (missing the /api/employee/ prefix, or singular
 // "employee" instead of "employees").
 export const EMPLOYEE_LIST = `${BASE_URL}/api/employee/employees/get-list/` // POST {page, search}
+// POST {service_center_code?, search?, status?, is_active?} -> xlsx blob, same optional filters as get-list above.
+// A 404 (service centre not found / employee has no service centre) still comes back with an .xlsx-looking response, but its body is the JSON error, not a real file -- check res.ok before saving it.
+export const EMPLOYEE_LIST_DOWNLOAD = `${BASE_URL}/api/employee/employees/get-list-download/`
 export const GET_EMPLOYEE_DETAIL = `${BASE_URL}/api/employee/employees/get-detail/` // POST {id} -> {result: {...}}
 export const ADD_EMPLOYEE = `${BASE_URL}/api/employee/employees/` // POST
 export const UPDATE_EMPLOYEE = `${BASE_URL}/api/employee/employees/` // PATCH {id}/

@@ -6,7 +6,7 @@ import { Badge, Button, Input, Label, Pagination, PaginationItem, PaginationLink
 import { UserX, UserCheck } from "lucide-react"
 import TableContainer from "../../components/Table/TableContainer"
 import usePostApiCall from "../../hooks/usePostApiCall"
-import { EMPLOYEE_LIST } from "../../api"
+import { EMPLOYEE_LIST, EMPLOYEE_LIST_DOWNLOAD } from "../../api"
 import MainHeaderComp from "../../components/MainHeaderCom"
 import MarkExitModal from "../../components/UserManagement/MarkExitModal"
 import ReverseExitModal from "../../components/UserManagement/ReverseExitModal"
@@ -14,6 +14,8 @@ import Loader from "@/Loaders/Loader"
 import { qk } from "@/lib/queryKeys"
 import { fetchServiceCenters, toServiceCenterOptions } from "@/services/reference.service"
 import { customStyles, CheckboxOption, SelectedCountValue } from "../../helpers/CustomStyle"
+import { downloadReportExcel } from "../../helpers/downloadReportExcel"
+import ToasterProvider from "../../helpers/ToasterProvider"
 
 const PAGE_SIZE = 50
 
@@ -45,6 +47,8 @@ const EmployeeList = () => {
     const [searchInput, setSearchInput] = useState("")
     const [search, setSearch] = useState("")
     const [selectedServiceCenters, setSelectedServiceCenters] = useState([])
+    const [isExporting, setIsExporting] = useState(false)
+    const { ErrorToaster } = ToasterProvider()
 
     // Cached 30min via react-query instead of refetched on every mount --
     // same pattern every other service-centre filter in this app uses.
@@ -94,6 +98,24 @@ const EmployeeList = () => {
         if (targetPage < 1) return
         setPage(targetPage)
         load(targetPage, search, selectedServiceCenters)
+    }
+
+    // Same optional filters as the list itself -- search and (if anything
+    // but "All" is picked) service_center_code. No page/page_size: this
+    // downloads every matching row, not one page's worth.
+    const handleDownload = async () => {
+        const payload = { search }
+        if (selectedServiceCenters.length) {
+            payload.service_center_code = selectedServiceCenters.map((sc) => sc.value)
+        }
+        setIsExporting(true)
+        try {
+            await downloadReportExcel(EMPLOYEE_LIST_DOWNLOAD, payload, "Employees.xlsx")
+        } catch (err) {
+            ErrorToaster(err.message || "Download failed")
+        } finally {
+            setIsExporting(false)
+        }
     }
 
     useEffect(() => {
@@ -183,7 +205,14 @@ const EmployeeList = () => {
                 <MainHeaderComp
                     title="Employee Management"
                     subTitle="Employee directory — KYC, bank details and vehicle assignments."
-                    extraFields={<Button color="primary" onClick={handleAdd}>+ Add Employee</Button>}
+                    extraFields={
+                        <div className="flex gap-2">
+                            <Button color="success" disabled={isExporting} onClick={handleDownload}>
+                                {isExporting ? "Downloading…" : "Download Report"}
+                            </Button>
+                            <Button color="primary" onClick={handleAdd}>+ Add Employee</Button>
+                        </div>
+                    }
                 />
 
                 {/* Kept outside the loading branch below so the inputs never
