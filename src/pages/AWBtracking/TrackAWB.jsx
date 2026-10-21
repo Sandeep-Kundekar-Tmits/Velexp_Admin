@@ -187,6 +187,8 @@ const TrackAWB = () => {
             booking: {
                 "AWB No": bookingData.awbno,
                 "Order ID": bookingData.orderid,
+                "Ref No": bookingData.refno,
+                "Customer Ref No": bookingData.customer_ref_no,
                 Customer: bookingData.customer_name,
                 "Booking Date": formatDate(bookingData.booking_date || bookingData.booked_date),
                 // Its own real field, not a guessed fallback off Booking

@@ -221,6 +221,14 @@ const ShipmentTraceDetail = () => {
                                 <p className="mb-0 font-semibold">{booking?.orderid}</p>
                             </div>
                             <div className="col-md-3">
+                                <small className="text-ink-muted">Ref No</small>
+                                <p className="mb-0 font-semibold">{booking?.refno || "--"}</p>
+                            </div>
+                            <div className="col-md-3">
+                                <small className="text-ink-muted">Customer Ref No</small>
+                                <p className="mb-0 font-semibold">{booking?.customer_ref_no || "--"}</p>
+                            </div>
+                            <div className="col-md-3">
                                 <small className="text-ink-muted">Product</small>
                                 <p className="mb-0 font-semibold">{booking?.product}</p>
                             </div>
