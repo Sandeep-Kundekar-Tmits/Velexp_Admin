@@ -138,8 +138,11 @@
   --color-surface: #f8fafc;
   --color-canvas: #f1f5f9;
   --color-line: #e2e8f0;
-  --color-ink: #1e293b;
-  --color-ink-muted: #475569;
+  /* Ink and ink-muted darkened one step (slate-800 -> slate-900,
+     slate-600 -> slate-700) so body text, labels and the ~650 muted call
+     sites stay clearly legible on the light surface (~10:1 for muted). */
+  --color-ink: #0f172a;
+  --color-ink-muted: #334155;
   --overlay-rgb: 15 23 42;
   --shadow-elevated: rgb(15 23 42 / 0.1);
   --shadow-elevated-strong: rgb(15 23 42 / 0.14);

@@ -176,6 +176,8 @@
 .btn-light { background: color-mix(in srgb, var(--color-surface) 60%, var(--color-canvas)); color: var(--color-ink); }
 .form-control, .form-select { background: color-mix(in srgb, var(--color-surface) 60%, var(--color-canvas)); }
 .form-control::placeholder { color: color-mix(in srgb, var(--color-ink-muted) 70%, transparent); }
+/* Light theme: a 70% mix reads washed out on a pale field, so use the full muted ink */
+[data-theme="light"] .form-control::placeholder { color: var(--color-ink-muted); }
 
 /* Options in a native <select>.
  *

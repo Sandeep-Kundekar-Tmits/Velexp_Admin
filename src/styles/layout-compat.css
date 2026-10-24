@@ -1590,6 +1590,9 @@ thead.table-light th {
 .grid-shell .table-toolbar .table-search .form-control::placeholder {
   color: color-mix(in srgb, var(--color-ink-muted) 75%, transparent);
 }
+[data-theme="light"] .grid-shell .table-toolbar .table-search .form-control::placeholder {
+  color: var(--color-ink-muted);
+}
 
 /* Search icon, then the clear button -- nth-of-type(2) rather than
    last-of-type because the clear button only renders once there is a value,
