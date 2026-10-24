@@ -175,10 +175,24 @@ const AwbAdminLookup = () => {
     const visibleTrackingRows = showDeleted ? trackingRows : trackingRows.filter((r) => !r.is_deleted)
 
     return (
-        <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
+        <div className="page-content relative min-h-full overflow-x-clip py-0 antialiased">
             <MainHeaderComp title="AWB Admin Lookup" subTitle="Look up one AWB's full booking record and tracking history, and correct either." />
 
             <div className="container-fluid relative z-10 px-4 pb-4">
+                <div className="sticky top-0 z-20 -mx-4 mb-4 bg-canvas px-4 py-2">
+                    <div className="flex gap-2" style={{ maxWidth: 420 }}>
+                        <Input
+                            placeholder="AWB number"
+                            value={awbno}
+                            onChange={(e) => setAwbno(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                        />
+                        <Button color="primary" onClick={handleSearch} disabled={searching}>
+                            {searching ? <Spinner size="sm" /> : <><Search size={16} className="mr-1" />Search</>}
+                        </Button>
+                    </div>
+                </div>
+
                 <Card className="mb-4">
                     <CardBody>
                         <Alert color="info" className="mb-4 flex items-start gap-2">
@@ -188,18 +202,6 @@ const AwbAdminLookup = () => {
                                 customer SMS or Vecom notification fires, and every change is audit-logged.
                             </div>
                         </Alert>
-
-                        <div className="flex gap-2" style={{ maxWidth: 420 }}>
-                            <Input
-                                placeholder="AWB number"
-                                value={awbno}
-                                onChange={(e) => setAwbno(e.target.value)}
-                                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                            />
-                            <Button color="primary" onClick={handleSearch} disabled={searching}>
-                                {searching ? <Spinner size="sm" /> : <><Search size={16} className="mr-1" />Search</>}
-                            </Button>
-                        </div>
                     </CardBody>
                 </Card>
 

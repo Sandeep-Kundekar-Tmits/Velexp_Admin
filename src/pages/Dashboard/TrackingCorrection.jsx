@@ -113,10 +113,24 @@ const TrackingCorrection = () => {
     }
 
     return (
-        <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
+        <div className="page-content relative min-h-full overflow-x-clip py-0 antialiased">
             <MainHeaderComp title="Tracking Correction" subTitle="Fix a mistake in an AWB's tracking history — status, date/time, or service center" />
 
             <div className="container-fluid relative z-10 px-4 pb-4">
+                <div className="sticky top-0 z-20 -mx-4 mb-4 bg-canvas px-4 py-2">
+                    <div className="flex gap-2" style={{ maxWidth: 420 }}>
+                        <Input
+                            placeholder="AWB number"
+                            value={awbno}
+                            onChange={(e) => setAwbno(e.target.value)}
+                            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                        />
+                        <Button color="primary" onClick={handleSearch} disabled={searching}>
+                            {searching ? <Spinner size="sm" /> : <><Search size={16} className="mr-1" />Search</>}
+                        </Button>
+                    </div>
+                </div>
+
                 <Card>
                     <CardBody>
                         <Alert color="info" className="mb-4 flex items-start gap-2">
@@ -126,18 +140,6 @@ const TrackingCorrection = () => {
                                 the same AWB, so look up the rows below and pick the exact one to fix.
                             </div>
                         </Alert>
-
-                        <div className="mb-4 flex gap-2" style={{ maxWidth: 420 }}>
-                            <Input
-                                placeholder="AWB number"
-                                value={awbno}
-                                onChange={(e) => setAwbno(e.target.value)}
-                                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                            />
-                            <Button color="primary" onClick={handleSearch} disabled={searching}>
-                                {searching ? <Spinner size="sm" /> : <><Search size={16} className="mr-1" />Search</>}
-                            </Button>
-                        </div>
 
                         {searched && (
                             <>

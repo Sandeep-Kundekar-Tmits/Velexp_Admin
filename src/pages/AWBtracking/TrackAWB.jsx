@@ -129,11 +129,19 @@ const TrackAWB = () => {
         } else {
             const res = await trackShipment(GET_AWB_TRACKING, { awbno: trackingNo })
             setHasSearched(true)
-            if (res?.track_data && Object.keys(res.track_data).length > 0) {
+            // A shipment that is booked but not scanned yet comes back with
+            // booking_data and an empty track_data ({}) -- that is still a hit,
+            // the booking panels just have no timeline under them.
+            const trackKeys = res?.track_data ? Object.keys(res.track_data) : []
+            const hasBooking = !!res?.booking_data && Object.keys(res.booking_data).length > 0
+            if (trackKeys.length > 0 || hasBooking) {
                 setBookingData(res.booking_data || null)
-                setTrackData(res.track_data)
-                const keys = Object.keys(res.track_data)
-                setActiveAwb(keys.includes(trackingNo) ? trackingNo : keys[0])
+                setTrackData(res.track_data || {})
+                setActiveAwb(
+                    trackKeys.includes(trackingNo)
+                        ? trackingNo
+                        : trackKeys[0] || res.booking_data?.awbno || trackingNo,
+                )
                 logTrackScan(trackingNo, "Shipment Tracking")
             } else {
                 setBookingData(null)
@@ -257,7 +265,9 @@ const TrackAWB = () => {
     }
 
     return (
-        <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
+        // overflow-x-clip, not -hidden: hidden turns this div into its own scroll container,
+        // which would pin the sticky search bar to it instead of the layout's scrolling box.
+        <div className="page-content relative min-h-full overflow-x-clip py-0 antialiased">
             <MainHeaderComp
                 title="Shipment & Bag Tracking"
                 subTitle="Look up a shipment's checkpoints, or trace a bag's movement."
@@ -286,8 +296,8 @@ const TrackAWB = () => {
             {/* No height:90vh with its own scrollbar: the layout's box already scrolls. */}
             <div className="container-fluid relative z-10 px-4 pb-4">
 
-                {/* search bar */}
-                <div className="filter-row">
+                {/* search bar -- sticky so the AWB input stays put while the results scroll */}
+                <div className="filter-row sticky top-0 z-20 bg-canvas py-2">
                     <div className="filter-group">
                         <div className="flex w-full flex-col gap-1.5 sm:w-64">
                             <Input
@@ -405,7 +415,7 @@ const TrackAWB = () => {
                                     AWB No
                                 </div>
                                 <div className="flex flex-wrap md:flex-col">
-                                    {Object.keys(trackData).map((key) => {
+                                    {(Object.keys(trackData).length > 0 ? Object.keys(trackData) : [activeAwb].filter(Boolean)).map((key) => {
                                         const active = key === activeAwb
                                         return (
                                             <div
