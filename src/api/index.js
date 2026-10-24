@@ -49,6 +49,8 @@ export const GET_ADMIN_BOOKING_DETAILS = `${BASE_URL}/download_shipments/`
 // get all Service provider booking api
 export const GET_ALL_SERVICE_PROVIDER_BOOKING = `${BASE_URL}/get_service_provider_bookings/`
 export const SERVICE_PROVIDER_BOOKING_RETRY = `${BASE_URL}/service_provider_booking/`
+// GET ?awb_number&customer_name&type=MANUAL|LATE&date_from&date_to&page&page_size
+export const ADDITIONAL_CHARGES_LIST = `${BASE_URL}/corporate-billing/extra-charges-report/`
 export const CANCEL_UNBOOKED_DELHIVERY_BOOKING = `${BASE_URL}/cancel_unbooked_delhivery_booking/`
 
 // delivary b2c label genaration

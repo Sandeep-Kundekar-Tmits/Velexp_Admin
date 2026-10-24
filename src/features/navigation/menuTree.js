@@ -431,6 +431,10 @@ export const MENU = [
       {
         label: "All Booking",
         url: "/all-booking"
+      },
+      {
+        label: "Additional Charges",
+        url: "/additional-charges"
       }
     ]
   },
