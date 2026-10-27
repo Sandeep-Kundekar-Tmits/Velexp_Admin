@@ -205,18 +205,31 @@ export const useOperationFDSR = () => {
                         const normalizeKey = (key) =>
                             key.toLowerCase().replace(/[^a-z0-9]/g, "");
 
+                        // Normalising every key of every row for every header was
+                        // O(rows x headers x keys) regex calls -- millions for 10k
+                        // bookings, enough to freeze the tab. Each distinct key is
+                        // normalised once, and each row is indexed once.
+                        const normCache = new Map();
+                        const norm = (k) => {
+                            let n = normCache.get(k);
+                            if (n === undefined) {
+                                n = normalizeKey(k);
+                                normCache.set(k, n);
+                            }
+                            return n;
+                        };
+                        const normHeaders = extraSheet.headers.map(norm);
+
                         const extraSheetData = [
                             extraSheet.headers,
-                            ...extraSheet.rows.map(row =>
-                                extraSheet.headers.map(h => {
-                                    const normalizedHeader = normalizeKey(h);
-                                    return (
-                                        Object.entries(row).find(
-                                            ([k]) => normalizeKey(k) === normalizedHeader
-                                        )?.[1] ?? ""
-                                    );
-                                })
-                            )
+                            ...extraSheet.rows.map(row => {
+                                const byNorm = {};
+                                for (const k in row) {
+                                    const n = norm(k);
+                                    if (!(n in byNorm)) byNorm[n] = row[k];
+                                }
+                                return normHeaders.map(n => byNorm[n] ?? "");
+                            })
                         ];
 
                         const extraWs = XLSX.utils.aoa_to_sheet(extraSheetData);

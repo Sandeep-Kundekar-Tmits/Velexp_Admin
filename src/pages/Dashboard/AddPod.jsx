@@ -23,6 +23,7 @@ import { downloadExcel } from "../../helpers/downloadExcel";
 import CollapsibleSideBar from "../../components/CollapsibleSideBar";
 import MainHeaderComp from "../../components/MainHeaderCom";
 import Loader from "@/Loaders/Loader";
+import { formatDisplayDate } from "../../helpers/formatDisplayDate";
 import { Eye, FileSearch, Plus } from "lucide-react";
 const AddPod = () => {
 
@@ -97,6 +98,7 @@ const AddPod = () => {
       {
         header: 'Created Date',
         accessorKey: 'createddate',
+        cell: ({ getValue }) => formatDisplayDate(getValue()) || "--",
         enableColumnFilter: false,
         enableSorting: true,
       },
@@ -289,7 +291,7 @@ const AddPod = () => {
       'AWB No': item.awbno,
       'POD': item.pod,
       'User': item.user,
-      'Created Date': item.createddate
+      'Created Date': formatDisplayDate(item.createddate)
     }));
 
     downloadExcel(exportData, 'pod_Detils.xlsx');

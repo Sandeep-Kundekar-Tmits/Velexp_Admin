@@ -6,6 +6,7 @@ import TableContainer from "../../../components/Table/TableContainer"
 import usePostApiCall from "../../../hooks/usePostApiCall"
 import { BILLING_BATCH_BASE, BILLING_BATCH_LIST } from "../../../api"
 import { getBatchStatusColor } from "./statusBadge"
+import { formatDisplayDate } from "../../../helpers/formatDisplayDate"
 
 // Only a batch that hasn't finished one way or another can be cancelled.
 const CANCELABLE_STATUSES = new Set(["PENDING", "CREATED", "PROCESSING"])
@@ -46,8 +47,8 @@ const HistoryTab = ({ onOpenBatch }) => {
             accessorKey: "status",
             cell: (c) => <Badge color={getBatchStatusColor(c.getValue())} className="p-2">{c.getValue()?.toUpperCase()}</Badge>,
         },
-        { header: "Period Start", accessorKey: "billing_period_start" },
-        { header: "Period End", accessorKey: "billing_period_end" },
+        { header: "Period Start", accessorKey: "billing_period_start", cell: (c) => formatDisplayDate(c.getValue()) || "—" },
+        { header: "Period End", accessorKey: "billing_period_end", cell: (c) => formatDisplayDate(c.getValue()) || "—" },
         {
             header: "Progress",
             id: "progress",
@@ -56,7 +57,7 @@ const HistoryTab = ({ onOpenBatch }) => {
                 return `${r.processed_customers ?? 0} / ${r.total_customers ?? 0}`
             },
         },
-        { header: "Created", accessorKey: "created_at", cell: (c) => c.getValue() || "—" },
+        { header: "Created", accessorKey: "created_at", cell: (c) => formatDisplayDate(c.getValue()) || "—" },
         {
             header: "Action",
             id: "action",
@@ -89,6 +90,7 @@ const HistoryTab = ({ onOpenBatch }) => {
                     </Button>
                 </div>
                 <TableContainer
+                    headerAlign="left"
                     columns={columns}
                     data={batches}
                     isGlobalFilter={true}

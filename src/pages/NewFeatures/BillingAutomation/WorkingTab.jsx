@@ -233,6 +233,7 @@ const WorkingTab = () => {
                         </div>
                     </div>
                     <TableContainer
+                        headerAlign="left"
                         columns={runColumns}
                         data={runs}
                         isGlobalFilter={true}

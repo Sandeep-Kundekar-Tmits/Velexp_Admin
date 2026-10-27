@@ -118,6 +118,7 @@ const UploadPreviewModal = ({ isOpen, toggle, onGenerated }) => {
 
                 {bills.length > 0 && (
                     <TableContainer
+                        headerAlign="left"
                         columns={billColumns}
                         data={bills}
                         isGlobalFilter={true}

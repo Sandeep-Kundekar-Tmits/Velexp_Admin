@@ -3,6 +3,7 @@ import Select, { components } from "react-select";
 import { Button, Col, FormGroup, Input, Label, Row } from "@/components/ui";
 import Loader from "@/Loaders/Loader";
 import TableContainer from "../../../components/Table/TableContainer";
+import ServerPager from "../../../components/Common/ServerPager";
 import MainHeaderComp from "../../../components/MainHeaderCom";
 import DateRangeInput from "../../../components/Common/DateRangeInput";
 import {
@@ -102,9 +103,12 @@ const PickupPendingReport = () => {
         };
         if (selectedSCs.length) payload.service_center = selectedSCs.map((s) => s.value).join(",");
 
+        // Sent for every user, not just admins
+        const authUser = JSON.parse(localStorage.getItem("authUser") || "{}");
+        const userId = authUser?.user?.id ?? authUser?.user_id ?? authUser?.id;
+        if (userId != null) payload.user_id = userId;
+
         if (useAdmin) {
-            const authUser = JSON.parse(localStorage.getItem("authUser") || "{}");
-            payload.user_id = authUser?.user?.id;
             payload.page = page;
             payload.page_size = page_size;
             if (selectedRegion?.value) payload.region = selectedRegion.value;
@@ -314,9 +318,9 @@ const PickupPendingReport = () => {
                                 columns={columns}
                                 data={reportData}
                                 isGlobalFilter={true}
-                                isCustomPageSize={true}
+                                isCustomPageSize={!useAdmin}
                                 isDownloadExcle={true}
-                                isPagination={true}
+                                isPagination={!useAdmin}
                                 onDownloadExcle={downloadExcel}
                                 ExcleLoading={isExporting}
                                 SearchPlaceholder="Search from table..."
@@ -327,39 +331,20 @@ const PickupPendingReport = () => {
                                 isStickyHeader={true}
                                 stickyTop={0}
                                 fillHeight
-                                tableHeight="65vh"
-                                defaultPageSize={50}
+                                tableHeight={useAdmin ? "58vh" : "65vh"}
+                                // Admin: show every row the server sent for this page (200, not the grid's
+                                // default 50). key remounts the grid per page so the size is re-read.
+                                key={`${currentPage}-${reportData.length}`}
+                                defaultPageSize={useAdmin ? Math.max(reportData.length, 50) : 50}
                             />
 
-                            {/* Server-side pager -- admin view only, the ops
-                                endpoint isn't paginated. */}
-                            {useAdmin && totalPages > 1 && (
-                                <div className="mt-2 flex items-center justify-between rounded-xl border border-white/8 bg-[rgba(17,24,39,0.70)] px-4 py-2 backdrop-blur-xl">
-                                    <span className="text-ink-muted text-xs">
-                                        Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong>
-                                        &nbsp;·&nbsp;{totalCount.toLocaleString()} total records
-                                    </span>
-                                    <div className="flex gap-2">
-                                        <Button
-                                            size="sm"
-                                            color="secondary"
-                                            outline
-                                            disabled={currentPage <= 1}
-                                            onClick={() => fetchReport(currentPage - 1)}
-                                        >
-                                            ‹ Prev
-                                        </Button>
-                                        <Button
-                                            size="sm"
-                                            color="secondary"
-                                            outline
-                                            disabled={currentPage >= totalPages}
-                                            onClick={() => fetchReport(currentPage + 1)}
-                                        >
-                                            Next ›
-                                        </Button>
-                                    </div>
-                                </div>
+                            {useAdmin && (
+                                <ServerPager
+                                    currentPage={currentPage}
+                                    totalPages={totalPages}
+                                    totalCount={totalCount}
+                                    onPageChange={fetchReport}
+                                />
                             )}
                         </>
                     )}

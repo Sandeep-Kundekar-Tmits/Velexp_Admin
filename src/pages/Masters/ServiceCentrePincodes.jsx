@@ -102,6 +102,26 @@ const ServiceCentrePincodes = () => {
         setParsedPincodes(pincodes)
     }
 
+    // paste -> parse -> same preview list as the file upload
+    const [pasteText, setPasteText] = useState("")
+
+    const handlePasteAdd = () => {
+        const tokens = pasteText.split(/[\s,;|]+/).map((t) => t.trim()).filter(Boolean)
+        if (!tokens.length) {
+            ErrorToaster("Paste at least one pincode")
+            return
+        }
+        const valid = tokens.filter((t) => /^\d{6}$/.test(t))
+        const invalid = [...new Set(tokens.filter((t) => !/^\d{6}$/.test(t)))]
+        if (invalid.length) {
+            ErrorToaster(`Ignored ${invalid.length} invalid value(s): ${invalid.slice(0, 5).join(", ")}${invalid.length > 5 ? "…" : ""} (pincodes must be 6 digits)`)
+        }
+        if (!valid.length) return
+        // merge with anything already uploaded/pasted, de-duplicated
+        setParsedPincodes((prev) => [...new Set([...prev, ...valid])])
+        setPasteText("")
+    }
+
     // assign -- bulk-assign either upserts (mode "add") or upserts + deactivates
     // everything else mapped to this centre (mode "replace")
     const [assignLoading, setAssignLoading] = useState(false)
@@ -137,7 +157,7 @@ const ServiceCentrePincodes = () => {
 
     const handleAssignClick = () => {
         if (!selectedCentre) { ErrorToaster("Select a service centre first"); return }
-        if (!parsedPincodes.length) { ErrorToaster("Upload a pincode file first"); return }
+        if (!parsedPincodes.length) { ErrorToaster("Upload a pincode file or paste pincodes first"); return }
         if (mode === "replace") { setShowReplaceConfirm(true); return }
         submitAssign()
     }
@@ -219,6 +239,22 @@ const ServiceCentrePincodes = () => {
                     </div>
 
                     {parsing && <Spinner size="sm">loading...</Spinner>}
+                </div>
+
+                <div className="mt-3 flex flex-col gap-1.5">
+                    <Label className="form-label m-0 font-bold text-ink-muted">Or paste pincodes</Label>
+                    <div className="flex flex-wrap items-start gap-3">
+                        <textarea
+                            className="form-control w-full sm:w-[28rem]"
+                            rows={3}
+                            value={pasteText}
+                            onChange={(e) => setPasteText(e.target.value)}
+                            placeholder="Paste multiple pincodes separated by commas, spaces or new lines, e.g. 560001, 560002 560003"
+                        />
+                        <Button color="primary" onClick={handlePasteAdd} disabled={!pasteText.trim()}>
+                            Add Pincodes
+                        </Button>
+                    </div>
                 </div>
 
                 <p className="mt-2 text-xs text-ink-muted">

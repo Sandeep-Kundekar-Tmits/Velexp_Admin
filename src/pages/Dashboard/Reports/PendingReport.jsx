@@ -3,6 +3,7 @@ import Select, { components } from "react-select";
 import { Button, Col, FormGroup, Label, Row } from "@/components/ui";
 import Loader from "@/Loaders/Loader";
 import TableContainer from "../../../components/Table/TableContainer";
+import ServerPager from "../../../components/Common/ServerPager";
 import MainHeaderComp from "../../../components/MainHeaderCom";
 import DateRangeInput from "../../../components/Common/DateRangeInput";
 import {
@@ -285,9 +286,9 @@ const PendingReport = () => {
                                 columns={columns}
                                 data={reportData}
                                 isGlobalFilter={true}
-                                isCustomPageSize={true}
+                                isCustomPageSize={false}
                                 isDownloadExcle={true}
-                                isPagination={true}
+                                isPagination={false}
                                 onDownloadExcle={downloadExcel}
                                 ExcleLoading={isExporting}
                                 SearchPlaceholder="Search from table..."
@@ -305,43 +306,19 @@ const PendingReport = () => {
                                 fillHeight
                                 /* The sub-992px cap only; fillHeight drops it
                                    above that, where there is height to give. */
-                                tableHeight="65vh"
-                                defaultPageSize={50}
+                                tableHeight="58vh"
+                                // Show every row the server sent for this page, not the
+                                // grid's default 50; key remounts the grid per page.
+                                key={`${currentPage}-${reportData.length}`}
+                                defaultPageSize={Math.max(reportData.length, 50)}
                             />
 
-                            {/* ── Server-side page navigation ──
-                                Its own panel rather than a bare bordered strip:
-                                it sits directly under the grid's glass panel,
-                                and `border-top` alone read as a stray rule
-                                floating on the canvas. */}
-                            {totalPages > 1 && (
-                                <div className="mt-2 flex items-center justify-between rounded-xl border border-white/8 bg-[rgba(17,24,39,0.70)] px-4 py-2 backdrop-blur-xl">
-                                    <span className="text-ink-muted text-xs">
-                                        Page <strong>{currentPage}</strong> of <strong>{totalPages}</strong>
-                                        &nbsp;·&nbsp;{totalCount.toLocaleString()} total records
-                                    </span>
-                                    <div className="flex gap-2">
-                                        <Button
-                                            size="sm"
-                                            color="secondary"
-                                            outline
-                                            disabled={currentPage <= 1}
-                                            onClick={() => fetchReport(currentPage - 1)}
-                                        >
-                                            ‹ Prev
-                                        </Button>
-                                        <Button
-                                            size="sm"
-                                            color="secondary"
-                                            outline
-                                            disabled={currentPage >= totalPages}
-                                            onClick={() => fetchReport(currentPage + 1)}
-                                        >
-                                            Next ›
-                                        </Button>
-                                    </div>
-                                </div>
-                            )}
+                            <ServerPager
+                                currentPage={currentPage}
+                                totalPages={totalPages}
+                                totalCount={totalCount}
+                                onPageChange={fetchReport}
+                            />
                         </>
                     )}
                 </div>

@@ -148,6 +148,7 @@ const InvoicesTab = () => {
                         </Button>
                     </div>
                     <TableContainer
+                        headerAlign="left"
                         columns={invoiceColumns}
                         data={invoices}
                         isGlobalFilter={true}

@@ -73,6 +73,8 @@ export const GET_SERVICE_CENTRE_DETAIL = `${BASE_URL}/service-centers/get-detail
 // /api/admin-panel/ -- unlike every endpoint above, which is a bespoke
 // "get-list"/POST-envelope action -- so callers read the {ok} flag from
 // rawRequest directly instead of relying on a {status:1}/{msg} body shape.
+// all pincode -> service centre mapping (read-only, paginated via `next`)
+export const GET_PINCODE_SERVICE_CENTERS = `${BASE_URL}/pincode-service-centers/`
 export const SERVICE_CENTRE_PINCODE_LIST = `${BASE_URL}/api/admin-panel/service-center-pincodes/` // GET ?service_center=&active=
 export const BULK_ASSIGN_SERVICE_CENTRE_PINCODES = `${BASE_URL}/api/admin-panel/service-center-pincodes/bulk-assign/` // POST {service_center, pincodes, mode, region?, state?}
 
@@ -773,8 +775,8 @@ export const DOWNLOAD_OPS_PENDING_REPORT = `${BASE_URL}/api/admin-reports/pendin
 // user_id, not paginated); admin-reports is all-India, paginated, and needs an
 // explicit user_id. Both enforce a 60-day start_date/end_date span server-side
 // and reject end_date without start_date.
-export const OPS_PICKUP_PENDING_REPORT = `${BASE_URL}/api/ops-reports/pickup-pending-shipments/`; // POST {service_center?, start_date, end_date, include_wab?}
-export const DOWNLOAD_OPS_PICKUP_PENDING_REPORT = `${BASE_URL}/api/ops-reports/pickup-pending-shipments/download/`; // POST same body -> xlsx blob
+export const OPS_PICKUP_PENDING_REPORT = `${BASE_URL}/api/admin-reports/pickup-pending-shipments/`; // POST {service_center?, start_date, end_date, include_wab?}
+export const DOWNLOAD_OPS_PICKUP_PENDING_REPORT = `${BASE_URL}/api/admin-reports/pickup-pending-shipments/download/`; // POST same body -> xlsx blob
 export const ADMIN_PICKUP_PENDING_REPORT = `${BASE_URL}/api/admin-reports/pickup-pending-shipments/`; // POST {user_id, service_center?, region?, start_date, end_date, page, page_size}
 export const DOWNLOAD_ADMIN_PICKUP_PENDING_REPORT = `${BASE_URL}/api/admin-reports/pickup-pending-shipments/download/`; // POST {user_id, start_date, end_date, ...filters} -> xlsx blob
 

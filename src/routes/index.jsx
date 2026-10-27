@@ -26,6 +26,7 @@ const AddServiceCentre = lazy(() => import("../pages/Masters/AddServiceCentre"))
 const EditServiceCentre = lazy(() => import("../pages/Masters/EditServiceCentre"));
 const ServiceCentrePincodes = lazy(() => import("../pages/Masters/ServiceCentrePincodes"));
 const RiderStoreRoutes = lazy(() => import("../pages/Masters/RiderStoreRoutes"));
+const AllPincodes = lazy(() => import("../pages/Masters/AllPincodes"));
 const PincodeMasterHome = lazy(() => import("../pages/Masters/PincodeMasterHome"));
 const VehicleMaster = lazy(() => import("../pages/Masters/VehicleMaster"));
 const DailyMisReport = lazy(() => import("../pages/Masters/DailyMisReport"));
@@ -106,6 +107,7 @@ const BillingAutomation = lazy(() => import("../pages/NewFeatures/BillingAutomat
 const InvoiceFlow = lazy(() => import("../pages/NewFeatures/InvoiceFlow"));
 const AllBooking = lazy(() => import("../pages/NewFeatures/AllBooking"));
 const AdditionalCharges = lazy(() => import("../pages/Dashboard/Billing/AdditionalCharges"));
+const CompanyAddress = lazy(() => import("../pages/Dashboard/Billing/CompanyAddress"));
 const CancelShipments = lazy(() => import("../pages/NewFeatures/CancelShipments"));
 const BillMaster = lazy(() => import("../pages/NewFeatures/BillMaster"));
 const UpdateWeight = lazy(() => import("../pages/NewFeatures/UpdateWeight"));
@@ -208,6 +210,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/service-centres/pincodes", component: <ServiceCentrePincodes /> },
     { path: "/rider-store-routes", component: <RiderStoreRoutes /> },
     { path: "/pincode-master", component: <PincodeMasterHome /> },
+    { path: "/pincode-service-centers", component: <AllPincodes /> },
     { path: "/vehicle-master", component: <VehicleMaster /> },
     { path: "/daily-mis-report", component: <DailyMisReport /> },
     // User Management - Employee Management
@@ -233,6 +236,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/invoice-flow", component: <InvoiceFlow /> },
     { path: "/all-booking", component: <AllBooking /> },
     { path: "/additional-charges", component: <AdditionalCharges /> },
+    { path: "/company-address", component: <CompanyAddress /> },
     { path: "/cancel-shipments", component: <CancelShipments /> },
     { path: "/bill-master", component: <BillMaster /> },
     { path: "/update-weight", component: <UpdateWeight /> },

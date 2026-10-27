@@ -867,6 +867,17 @@ body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-brand-collapsed {
   background: rgb(var(--overlay-rgb) / 0.06);
 }
 
+/* Hovering the selected item must not lose the blue pill: the hover fill above
+   would replace the gradient while the label stays white, leaving white text
+   on a pale tint (invisible on the light themes). Declared after the hover
+   rules so it wins. */
+.metismenu li>a.active:hover,
+.metismenu .sub-menu li>a.active:hover,
+.metismenu .sub-menu .sub-menu li>a.active:hover {
+  color: #fff;
+  background: linear-gradient(135deg, #2f6fe0, #2558b8);
+}
+
 /* Third level: one step down from its parent rather than the same colour, so
    the depth is legible without another indent eating the rail's width. */
 .metismenu .sub-menu .sub-menu li>a {
@@ -2280,4 +2291,169 @@ thead.table-light th {
 #status-daily-datepicker-portal {
   position: relative;
   z-index: 99999;
+}
+
+/*
+ * Light theme legibility.
+ *
+ * Menu: hovering any row, selected or not, must leave a readable label. The
+ * hover fill is a pale tint, so the label (and its icon/span, which carry
+ * their own colour) is forced dark on it; the selected pill keeps its blue
+ * fill with white text.
+ *
+ * Tables: no pale text on the pale surface. Muted/secondary/grey utilities
+ * inside a table are pulled to the dark ink so nothing in a cell, header or
+ * hover row reads as washed out.
+ */
+[data-theme="light"] .metismenu li>a:not(.active):hover,
+[data-theme="light"] .metismenu li>a:not(.active):hover>i,
+[data-theme="light"] .metismenu li>a:not(.active):hover>span,
+[data-theme="light"] .metismenu li.mm-active>a:not(.active):hover,
+[data-theme="light"] .metismenu li.mm-active>a:not(.active):hover>i,
+[data-theme="light"] .metismenu li.mm-active>a:not(.active):hover>span {
+  color: var(--color-ink) !important;
+}
+
+[data-theme="light"] .metismenu li>a.active:hover,
+[data-theme="light"] .metismenu li>a.active:hover>i,
+[data-theme="light"] .metismenu li>a.active:hover>span {
+  color: #fff !important;
+}
+
+[data-theme="light"] table th,
+[data-theme="light"] table td,
+[data-theme="light"] .grid-shell thead th,
+[data-theme="light"] .grid-shell tbody td[colspan] {
+  color: var(--color-ink);
+}
+
+[data-theme="light"] table .text-muted,
+[data-theme="light"] table .text-secondary,
+[data-theme="light"] table .text-ink-muted,
+[data-theme="light"] table small,
+[data-theme="light"] table [class*="text-slate-"],
+[data-theme="light"] table [class*="text-gray-"],
+[data-theme="light"] table [class*="text-zinc-"],
+[data-theme="light"] table [class*="text-neutral-"],
+[data-theme="light"] table [class*="text-white/"],
+[data-theme="light"] table [class*="text-ink/"] {
+  color: var(--color-ink) !important;
+}
+
+[data-theme="light"] table [style*="color: #888"],
+[data-theme="light"] table [style*="color: rgb(136, 136, 136)"] {
+  color: var(--color-ink-muted) !important;
+}
+
+[data-theme="light"] table tbody tr:hover td {
+  color: var(--color-ink);
+}
+
+/*
+ * Table actions and tags stand out.
+ *
+ * Buttons, action icons and status badges inside any table get a visible
+ * edge, weight and lift, so they read as controls/labels against the row
+ * instead of blending into it. Done once here for every table (TableContainer
+ * and hand-written <table>s alike) rather than per call site. Colours are left
+ * to each button/badge, so success/danger/primary still mean what they did.
+ */
+table tbody td button:not(.btn-close),
+table tbody td a.btn,
+table tbody td .btn {
+  font-weight: 600;
+  border: 1px solid color-mix(in srgb, currentColor 45%, transparent);
+  box-shadow: 0 1px 3px rgb(var(--overlay-rgb) / 0.28);
+  transition: box-shadow 0.15s ease, filter 0.15s ease, transform 0.15s ease;
+}
+
+table tbody td button:not(:disabled):not(.btn-close):hover,
+table tbody td a.btn:hover,
+table tbody td .btn:hover {
+  box-shadow: 0 3px 8px rgb(var(--overlay-rgb) / 0.35);
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+table tbody td button:disabled {
+  box-shadow: none;
+  opacity: 0.55;
+}
+
+table tbody td .badge,
+table tbody td span[class*="text-[11px]"] {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: inset 0 0 0 1px rgb(var(--overlay-rgb) / 0.28), 0 1px 2px rgb(var(--overlay-rgb) / 0.2);
+}
+
+/*
+ * Light theme: table buttons and tags that vanished.
+ *
+ * The outline buttons borrow the bright brand tokens as text colour (cyan,
+ * amber, green), which is fine on the dark surface but only ~1.5-3:1 on the
+ * pale light one; the "light"/transparent variants are near-white on a
+ * near-white row. Darker equivalents of the same hues for text and border,
+ * and a real edge on the pale ones, so every action stays legible.
+ */
+[data-theme="light"] table button[class*="text-accent-500"],
+[data-theme="light"] table a[class*="text-accent-500"],
+[data-theme="light"] table [class*="rounded"][class*="text-accent-500"] {
+  color: #0e7490 !important;
+  border-color: #0e7490 !important;
+}
+
+[data-theme="light"] table button[class*="text-warning-500"],
+[data-theme="light"] table a[class*="text-warning-500"],
+[data-theme="light"] table [class*="rounded"][class*="text-warning-500"] {
+  color: #b45309 !important;
+  border-color: #b45309 !important;
+}
+
+[data-theme="light"] table button[class*="text-success-500"],
+[data-theme="light"] table a[class*="text-success-500"],
+[data-theme="light"] table [class*="rounded"][class*="text-success-500"] {
+  color: #15803d !important;
+  border-color: #15803d !important;
+}
+
+[data-theme="light"] table button[class*="text-danger-500"],
+[data-theme="light"] table a[class*="text-danger-500"],
+[data-theme="light"] table [class*="rounded"][class*="text-danger-500"] {
+  color: #b91c1c !important;
+  border-color: #b91c1c !important;
+}
+
+[data-theme="light"] table button[class*="text-brand-500"],
+[data-theme="light"] table a[class*="text-brand-500"] {
+  color: var(--color-brand-600) !important;
+  border-color: var(--color-brand-600) !important;
+}
+
+/* Pale / transparent fills: dark label and a clear edge. */
+[data-theme="light"] table button[class*="bg-slate-100"],
+[data-theme="light"] table button[class*="bg-transparent"],
+[data-theme="light"] table button[class*="bg-white"],
+[data-theme="light"] table [class*="rounded"][class*="bg-slate-100"],
+[data-theme="light"] table [class*="rounded"][class*="bg-slate-50"] {
+  background: #e2e8f0 !important;
+  color: var(--color-ink) !important;
+  border: 1px solid #64748b !important;
+}
+
+/* Soft tinted tags (bg-*-50/100 with a pale -300/-400 label). */
+[data-theme="light"] table [class*="rounded"][class*="text-green-"] { color: #14532d !important; }
+[data-theme="light"] table [class*="rounded"][class*="text-red-"] { color: #7f1d1d !important; }
+[data-theme="light"] table [class*="rounded"][class*="text-amber-"],
+[data-theme="light"] table [class*="rounded"][class*="text-yellow-"],
+[data-theme="light"] table [class*="rounded"][class*="text-orange-"] { color: #78350f !important; }
+[data-theme="light"] table [class*="rounded"][class*="text-sky-"],
+[data-theme="light"] table [class*="rounded"][class*="text-cyan-"],
+[data-theme="light"] table [class*="rounded"][class*="text-blue-"] { color: #0c4a6e !important; }
+
+/* Icon-only actions drawn with a bare icon colour. */
+[data-theme="light"] table td button>i,
+[data-theme="light"] table td button>svg {
+  color: inherit;
+  opacity: 1;
 }

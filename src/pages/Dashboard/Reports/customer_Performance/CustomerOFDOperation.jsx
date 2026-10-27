@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Row, Col, FormGroup, Spinner } from "@/components/ui";
 import { Button, FormFeedback, Input, Label, Table } from "@/components/ui";
 import DateRangeInput from "../../../../components/Common/DateRangeInput";
@@ -21,6 +21,7 @@ import { qk } from "@/lib/queryKeys";
 import { fetchServiceCenters } from "@/services/reference.service";
 import { useOFDExcel } from '../../../../hooks/useOFDExcel';
 import { useOperationFDSR } from '../../../../hooks/useOperationFDSR';
+import renderCountWithPercent from '../../../../components/renderCountWithPercent';
 const CustomerOFDOperation = () => {
     // select user option
     const [UserListOptions, setUserListOption] = useState([])
@@ -41,7 +42,9 @@ const CustomerOFDOperation = () => {
     });
 
     const [OFDOperations, setOFDOperations] = useState([])
-    const [Bookings, setBookings] = useState([])
+    // The 10k+ booking rows are only needed for the Excel export, never rendered.
+    // Kept in a ref so they don't sit in React state and re-trigger renders.
+    const BookingsRef = useRef([])
     const handleChange = (range) => {
         setSelectedRange(range);
     };
@@ -378,7 +381,7 @@ const CustomerOFDOperation = () => {
             const records = await GetOFDOperationPerformance(GET_CUSTOMER_PERFORMANCE_FASR, payload);
 
             if (records?.bookings) {
-                setBookings(records?.bookings)
+                BookingsRef.current = records.bookings
                 setOFDOperations(records?.date_wise_summary)
             } else {
 
@@ -545,10 +548,8 @@ const CustomerOFDOperation = () => {
                                         isCustomPageSize={true}
                                         isDownloadExcle={true}
                                         onDownloadExcle={async () => {
-                                            let rowData = Bookings;
-                                            let newHeaders = Object.keys(Bookings[0]).map(ele => {
-                                                return ele
-                                            })
+                                            const rowData = BookingsRef.current;
+                                            const newHeaders = rowData.length ? Object.keys(rowData[0]) : [];
                                             let OFDOperationsReportUpdate = [...OFDOperations].map(ele => {
                                                 return {
                                                     ...ele,

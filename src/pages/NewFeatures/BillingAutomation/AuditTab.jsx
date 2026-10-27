@@ -124,6 +124,7 @@ const AuditTab = ({ batchCtl }) => {
                             )}
                             {issueRows.length > 0 && (
                                 <TableContainer
+                                    headerAlign="left"
                                     columns={issueColumns}
                                     data={issueRows}
                                     isGlobalFilter={true}
@@ -151,6 +152,7 @@ const AuditTab = ({ batchCtl }) => {
                         </Button>
                     </div>
                     <TableContainer
+                        headerAlign="left"
                         columns={reportColumns}
                         data={reports}
                         isGlobalFilter={true}

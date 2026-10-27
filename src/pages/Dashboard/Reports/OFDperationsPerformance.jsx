@@ -370,11 +370,11 @@ const OFDperationsPerformance = () => {
             // API call
             const records = await GetOFDOperationPerformance(OFD_OPERATIONS_PERFORMANCE, payload);
 
-            if (records?.bookings) {
-                setBookings(records?.bookings)
-                setOFDOperations(records?.date_wise_summary)
-            } else {
-
+            // The summary alone is enough to fill the table; the response may or
+            // may not carry the raw bookings (those only feed the Excel sheet).
+            if (Array.isArray(records?.date_wise_summary)) {
+                setBookings(records?.bookings || [])
+                setOFDOperations(records.date_wise_summary)
             }
         } catch (error) {
             console.error("Error in OnCheckClick:", error);
@@ -539,9 +539,7 @@ const OFDperationsPerformance = () => {
                                         isDownloadExcle={true}
                                         onDownloadExcle={async () => {
                                             let rowData = Bookings;
-                                            let newHeaders = Object.keys(Bookings[0]).map(ele => {
-                                                return ele
-                                            })
+                                            let newHeaders = rowData.length ? Object.keys(rowData[0]) : []
                                             await downloadExcel(OFDOperations, "Ofd_Operation_Performance", {
                                                 sheetName: "Operation_Performance",
                                                 headers: newHeaders,

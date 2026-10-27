@@ -7,6 +7,7 @@ import { MdFileDownload, MdStop } from "react-icons/md"
 import TableContainer from "../../../components/Table/TableContainer"
 import { CORPORATE_BILLING_RUNS } from "../../../api"
 import { getBatchStatusColor, getStageStatusColor, reasonChips } from "./statusBadge"
+import { formatDisplayDate } from "../../../helpers/formatDisplayDate"
 
 const BatchProgressPanel = ({ batch, isPolling, onStop }) => {
     const batchType = batch?.batch_type
@@ -101,7 +102,7 @@ const BatchProgressPanel = ({ batch, isPolling, onStop }) => {
                 <div className="mb-4">
                     <div className="flex justify-between mb-1">
                         <span className="text-ink-muted text-xs">
-                            {batch.billing_period_start || "—"} to {batch.billing_period_end || "—"}
+                            {formatDisplayDate(batch.billing_period_start) || "—"} to {formatDisplayDate(batch.billing_period_end) || "—"}
                         </span>
                         <span className="text-xs font-semibold">{processed} / {total} customers</span>
                     </div>
@@ -124,6 +125,8 @@ const BatchProgressPanel = ({ batch, isPolling, onStop }) => {
                 )}
 
                 <TableContainer
+
+                    headerAlign="left"
                     columns={columns}
                     data={batch.progress || []}
                     isGlobalFilter={true}

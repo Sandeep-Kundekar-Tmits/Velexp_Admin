@@ -435,6 +435,10 @@ export const MENU = [
       {
         label: "Additional Charges",
         url: "/additional-charges"
+      },
+      {
+        label: "Company Address",
+        url: "/company-address"
       }
     ]
   },
@@ -550,7 +554,8 @@ export const MENU = [
       { label: "Employee", url: "/employees" },
       { label: "Exit History", url: "/exit-history" },
       { label: "Rider Store Routes", url: "/rider-store-routes" },
-      { label: "Pincode Master", url: "/pincode-master" }
+      { label: "Pincode Master", url: "/pincode-master" },
+      { label: "All Pincodes", url: "/pincode-service-centers" }
     ]
   },
   {

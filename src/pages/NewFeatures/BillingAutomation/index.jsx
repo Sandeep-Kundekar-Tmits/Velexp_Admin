@@ -188,16 +188,16 @@ const BillingAutomation = () => {
                     <Card className="shadow-sm border-0 mb-4">
                         <CardBody>
                             <Row className="items-end">
-                                <Col md={4} className="mb-2 mb-md-0">
-                                    <Label className="font-bold">Date Range</Label>
+                                <Col md={4} className="flex flex-col gap-1.5">
+                                    <Label className="form-label m-0 font-bold">Date Range</Label>
                                     <DateRangeInput
                                         value={selectedRange}
                                         onChange={setSelectedRange}
                                         isBorder={true}
                                     />
                                 </Col>
-                                <Col md={8}>
-                                    <Label className="font-bold">Customers</Label>
+                                <Col md={8} className="flex flex-col gap-1.5">
+                                    <Label className="form-label m-0 font-bold">Customers</Label>
                                     {loadingCustomers ? (
                                         <div className="flex items-center gap-2">
                                             <Spinner size="sm" />

@@ -86,6 +86,7 @@ const DebouncedInput = ({
 };
 
 const TableContainer = ({
+    headerAlign = "center",
     onDownloadExcle,
     isDownloadExcle,
     columns,
@@ -410,7 +411,7 @@ const TableContainer = ({
                                                 style={{
                                                     border: 'solid var(--color-line) 1px',
                                                     verticalAlign: 'middle',
-                                                    textAlign: 'center',
+                                                    textAlign: headerAlign,
                                                     backgroundColor: 'var(--color-surface)',
                                                     cursor: header.column.getCanSort() ? "pointer" : "default",
                                                     // Under table-layout:fixed the header row is what
@@ -420,7 +421,7 @@ const TableContainer = ({
                                                 }}
                                                 onClick={header.column.getToggleSortingHandler()}
                                             >
-                                                <div className="flex items-center justify-center">
+                                                <div className={`flex items-center ${headerAlign === "left" ? "justify-start" : "justify-center"}`}>
                                                     {flexRender(
                                                         header.column.columnDef.header,
                                                         header.getContext()
