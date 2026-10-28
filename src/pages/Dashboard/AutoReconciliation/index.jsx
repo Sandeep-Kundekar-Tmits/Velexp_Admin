@@ -9,6 +9,8 @@ import { FaFileExcel } from "react-icons/fa";
 import MainHeaderComp from "../../../components/MainHeaderCom";
 import UnmatchedTransactions from "./UnmatchedTransactions";
 import CodPendingReport from "./CodPendingReport";
+import RrnLink from "./RrnLink";
+import { checkCustomerPermissions } from "../../../helpers/checkCustomerPermissions";
 import {
     BANK_STATEMENT_UPLOAD, BANK_STATEMENT_BASE, PENDING_MANIFESTS } from "../../../api";
 import { authFetch } from "@/lib/http";
@@ -17,6 +19,7 @@ const TAB_UPLOAD = "upload";
 const TAB_MANIFESTS = "manifests";
 const TAB_UNMATCHED = "unmatched";
 const TAB_COD_PENDING = "cod_pending";
+const TAB_RRN_LINK = "rrn_link";
 
 const fmtCurrency = (v) =>
     v == null ? "—" : `₹${Number(v).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`;
@@ -316,6 +319,7 @@ const AutoReconciliation = () => {
     useEffect(() => { document.title = "Auto Reconciliation"; }, []);
 
     const [activeTab, setActiveTab] = useState(TAB_UPLOAD);
+    const { isSuperUser } = checkCustomerPermissions();
 
     // ══════════════════════════════════════════════════════════════
     // TAB 1 – Upload Statement
@@ -478,6 +482,8 @@ const AutoReconciliation = () => {
                         { id: TAB_MANIFESTS, label: "Pending Manifests" },
                         { id: TAB_UNMATCHED, label: "Unmatched Transactions" },
                         { id: TAB_COD_PENDING, label: "COD Pending Report" },
+                        // Links ICICI QR payments to AWBs; the API is HO-only too.
+                        ...(isSuperUser ? [{ id: TAB_RRN_LINK, label: "RRN Link" }] : []),
                     ].map(({ id, label }) => (
                         <NavItem key={id}>
                             <NavLink
@@ -739,6 +745,9 @@ const AutoReconciliation = () => {
 
                 {/* ══ TAB 4: COD Pending Report ════════════════════════════ */}
                 {activeTab === TAB_COD_PENDING && <CodPendingReport />}
+
+                {/* ══ TAB 5: RRN Link (superuser only) ═════════════════════ */}
+                {activeTab === TAB_RRN_LINK && isSuperUser && <RrnLink />}
             </div>
 
             <style>{`.spin{animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}`}</style>

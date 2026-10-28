@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import {
-  Offcanvas,
-  OffcanvasHeader,
-  OffcanvasBody,
+  Modal,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
   Button,
   Input,
   FormFeedback,
@@ -110,20 +111,15 @@ const EditEDD = ({ isOpen, toggle, shipmentDetails, onSuccess }) => {
   };
 
   return (
-    <Offcanvas
-      isOpen={isOpen}
-      toggle={toggle}
-      direction="end"
-      style={{ width: "500px" }}
-    >
-      <OffcanvasHeader toggle={toggle} className="border-bottom">
+    <Modal isOpen={isOpen} toggle={toggle} centered>
+      <ModalHeader toggle={toggle}>
         {safeShipmentDetails.awbno ? `Edit EDD for AWB: ${safeShipmentDetails.awbno}` : "Edit Estimated Delivery Date"}
-      </OffcanvasHeader>
+      </ModalHeader>
 
-      <OffcanvasBody>
+      <ModalBody>
 
-        <div className="" style={{ height: "75vh" }}>
-          <div className="mb-6 w-full flex flex-col justify-center items-center">
+        <div>
+          <div className="w-full flex flex-col justify-center items-center">
             <h6 className="font-bold pb-2 mb-1 mt-4">
               Select New Estimated Delivery Date
             </h6>
@@ -161,19 +157,17 @@ const EditEDD = ({ isOpen, toggle, shipmentDetails, onSuccess }) => {
           </div>
         </div>
 
-        {/* Footer Buttons */}
-        <div className="flex justify-end gap-2 mt-6">
-          <Button color="secondary" onClick={toggle} disabled={loading}>
-            Cancel
-          </Button>
-          <Button color="primary" onClick={handleSubmit} disabled={loading}>
-            {loading ? "Saving..." : "Save Changes"}
-          </Button>
-        </div>
+      </ModalBody>
 
-      </OffcanvasBody>
-
-    </Offcanvas>
+      <ModalFooter>
+        <Button color="secondary" onClick={toggle} disabled={loading}>
+          Cancel
+        </Button>
+        <Button color="primary" onClick={handleSubmit} disabled={loading}>
+          {loading ? "Saving..." : "Save Changes"}
+        </Button>
+      </ModalFooter>
+    </Modal>
   );
 };
 

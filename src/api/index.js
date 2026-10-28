@@ -31,6 +31,8 @@ export const UPDATE_USER_API = `${BASE_URL}/users`
 
 // getting velexp address
 export const GET_ADDRESS = `${BASE_URL}/company_address/`
+// ICICI QR payment -> AWB reconciliation (HO only). GET ?awbno=&window_hours= lists candidates; POST {awbno, rrn?, amount?, dry_run?} links
+export const ICICI_RRN_LINK = `${BASE_URL}/icici-rrn-link/`
 
 // verify the awb no
 
