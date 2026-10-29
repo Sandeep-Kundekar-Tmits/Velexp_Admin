@@ -5,7 +5,7 @@ import Barcode from "react-barcode";
 
 // const formatted = format(new Date(), "dd-MM-yyyy");
 
-const AirwayBillMiniTable = React.forwardRef(({ data }, ref) => {
+const AirwayBillMiniTable = React.forwardRef(({ data, pieceLabel = "" }, ref) => {
   const {
     dateTime = "",
     packages = "",
@@ -25,6 +25,7 @@ const AirwayBillMiniTable = React.forwardRef(({ data }, ref) => {
       data-print-surface=""
       className="border flex justify-center"
       style={{
+        position: "relative",
         width: "75mm",
         height: "85mm", // from  75mm  to 95mm
         paddingTop: "8mm",
@@ -33,6 +34,19 @@ const AirwayBillMiniTable = React.forwardRef(({ data }, ref) => {
         border: "solid black 1px"
       }}
     >
+      {pieceLabel && (
+        <div
+          style={{
+            position: "absolute",
+            top: "1mm",
+            right: "2mm",
+            fontSize: "11px",
+            fontWeight: "bold",
+          }}
+        >
+          {pieceLabel}
+        </div>
+      )}
       <div style={{ width: "60mm" }}>
         <div className="mx-auto ">
           <Barcode

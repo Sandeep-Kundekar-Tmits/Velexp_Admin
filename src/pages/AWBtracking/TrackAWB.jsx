@@ -10,6 +10,7 @@ import { GET_AWB_TRACKING, GET_BAG_TRACKING, ITRACK_SCANS } from "../../api"
 import ToasterProvider from "../../helpers/ToasterProvider"
 import EditEDD from "../../components/AWBTracking/EditEDD"
 import BagTrackingResult from "../../components/AWBTracking/BagTrackingResult"
+import BookingInfoPanels, { buildBookingInfo } from "../../components/AWBTracking/BookingInfoPanels"
 
 const formatDate = (iso) => {
     if (!iso) return "-"
@@ -54,34 +55,6 @@ const logTrackScan = async (awb, screenName) => {
 // pastel-on-pale-tint pairing goes low-contrast, so it's the theme's own
 // ink token instead.
 const ACCENT = { border: "rgba(59,130,246,0.3)", tint: "rgba(59,130,246,0.15)", text: "var(--color-ink)", solid: "#3B82F6" }
-
-const ACCENTS = {
-    blue: { header: "bg-[#3B82F6]/12", text: "text-ink" },
-    green: { header: "bg-success-500/12", text: "text-success-500" },
-    red: { header: "bg-danger-500/12", text: "text-danger-500" },
-}
-
-/*
- * Same glass panel as the rest of the app (see the "Section" this replaced),
- * now with a colour-coded header so Booking / Shipper / Consignee read apart
- * at a glance -- matching the convention ShipmentTraceDetail already set for
- * this same three-way split.
- */
-const Section = ({ title, accent = "blue", children }) => (
-    <div className="flex h-full flex-col overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[var(--glass-surface)] backdrop-blur-xl">
-        <div className={`border-b border-[rgb(var(--overlay-rgb)/0.08)] px-4 py-2.5 ${ACCENTS[accent].header}`}>
-            <h6 className={`m-0 text-[11px] font-semibold uppercase tracking-wider ${ACCENTS[accent].text}`}>{title}</h6>
-        </div>
-        <div className="grid grid-cols-2 gap-3 p-4">{children}</div>
-    </div>
-)
-
-const Pair = ({ label, value, full }) => (
-    <div className={full ? "col-span-2 min-w-0" : "min-w-0"}>
-        <div className="break-words text-[13px] font-semibold text-ink">{value || "-"}</div>
-        <div className="text-[11px] capitalize text-ink-muted">{label}</div>
-    </div>
-)
 
 const TrackAWB = () => {
     const navigate = useNavigate()
@@ -184,76 +157,11 @@ const TrackAWB = () => {
         ? trackData[activeAwb]
         : "No tracking data available"
 
+    // Same panels (and data mapping) as the Shipment Trace detail screen.
+    // EDD isn't on booking_data -- it rides on the checkpoint events of the active AWB.
     const headerInfo = useMemo(() => {
         if (!bookingData) return null
-        // EDD isn't on booking_data at all -- it rides along on every
-        // checkpoint event instead (same value on each one, in this API), so
-        // it's read off the first event in track_data for the active AWB
-        // rather than a booking-level field.
-        const firstEventEdd = trackData?.[activeAwb]?.[0]?.EDD
-        return {
-            booking: {
-                "AWB No": bookingData.awbno,
-                "Order ID": bookingData.orderid,
-                "Ref No": bookingData.refno,
-                "Customer Ref No": bookingData.customer_ref_no,
-                Customer: bookingData.customer_name,
-                "Booking Date": formatDate(bookingData.booking_date || bookingData.booked_date),
-                // Its own real field, not a guessed fallback off Booking
-                // Date -- confirmed from a live GET_AWB_TRACKING response:
-                // booking_data.awb_date is a distinct timestamp (when the
-                // AWB itself was generated, not when the order was booked).
-                "Airway Bill Date": formatDate(bookingData.awb_date),
-                Product: bookingData.product,
-                Weight: bookingData.weight != null ? `${bookingData.weight} Kg` : null,
-                "Vol. Weight": bookingData.volumetric_weight != null ? `${bookingData.volumetric_weight} Kg` : null,
-                Pieces: bookingData.no_of_pieces,
-                Attempts: bookingData.attempt_count,
-                "RTO AWB No": bookingData.RTO_awbno,
-                // Omitted entirely (not just a blank Pair) when there's no EDD
-                // yet, rather than a row that always shows and falls back to
-                // "-" like every other field here -- Object.entries below never
-                // sees the key at all, so nothing renders for it.
-                ...(firstEventEdd ? { EDD: formatDate(firstEventEdd) } : {}),
-                ...(bookingData.payment_mode ? { "Payment Mode": bookingData.payment_mode } : {}),
-                ...(bookingData.cod_amount != null && Number(bookingData.cod_amount) > 0
-                    ? { "COD Amount": `₹ ${Number(bookingData.cod_amount).toFixed(2)}` }
-                    : {}),
-                // otp_verified is a real false, not an absence -- shown whenever
-                // the backend sends it at all (not just when truthy, which is
-                // why this checks !== undefined/null rather than the usual
-                // `? :` guard every other optional field here uses).
-                ...(bookingData.otp_verified !== undefined && bookingData.otp_verified !== null
-                    ? { "OTP Verified": bookingData.otp_verified ? "Yes" : "No" }
-                    : {}),
-                // The backend sometimes sends the literal string "null" instead
-                // of a real null, so a plain truthy check isn't enough.
-                ...(bookingData.shipment_flag && bookingData.shipment_flag !== "null"
-                    ? { "Shipment Flag": bookingData.shipment_flag }
-                    : {}),
-            },
-            shipper: {
-                Name: bookingData.shipper_name,
-                Mobile: bookingData.shipper_mobile,
-                Location: (bookingData.shipper_city && bookingData.shipper_state)
-                    ? `${bookingData.shipper_city}, ${bookingData.shipper_state} (${bookingData.shipper_pincode || ""})`
-                    : null,
-                Address: bookingData.shipper_address,
-            },
-            consignee: {
-                Name: bookingData.consignee_name,
-                Mobile: bookingData.consignee_mobile,
-                // Location and Destination SC are both half-width (not `full`
-                // below) and adjacent here, so the 2-col grid places them side
-                // by side in the same row; Address comes after so it doesn't
-                // land in that row's second slot instead.
-                Location: (bookingData.consignee_city && bookingData.consignee_state)
-                    ? `${bookingData.consignee_city}, ${bookingData.consignee_state} (${bookingData.consignee_pincode || ""})`
-                    : null,
-                "Destination SC": bookingData.destination_sc,
-                Address: bookingData.consignee_address,
-            },
-        }
+        return buildBookingInfo(bookingData, trackData?.[activeAwb]?.[0])
     }, [bookingData, trackData, activeAwb])
 
     const handleDetailView = () => {
@@ -384,29 +292,7 @@ const TrackAWB = () => {
                             </div>
                         )}
 
-                        <div className="row gap-y-3">
-                            <div className="col-12 col-lg-4">
-                                <Section title="Booking Info" accent="blue">
-                                    {Object.entries(headerInfo.booking).map(([label, value]) => (
-                                        <Pair key={label} label={label} value={value} />
-                                    ))}
-                                </Section>
-                            </div>
-                            <div className="col-12 col-lg-4">
-                                <Section title="Shipper Details" accent="green">
-                                    {Object.entries(headerInfo.shipper).map(([label, value]) => (
-                                        <Pair key={label} label={label} value={value} full={label === "Location" || label === "Address"} />
-                                    ))}
-                                </Section>
-                            </div>
-                            <div className="col-12 col-lg-4">
-                                <Section title="Consignee Details" accent="red">
-                                    {Object.entries(headerInfo.consignee).map(([label, value]) => (
-                                        <Pair key={label} label={label} value={value} full={label === "Address"} />
-                                    ))}
-                                </Section>
-                            </div>
-                        </div>
+                        <BookingInfoPanels info={headerInfo} awb={activeAwb} />
 
                         {/* --------- multipiece AWB tabs + timeline --------- */}
                         <div className="mt-3 flex flex-col gap-3 md:flex-row">
@@ -414,7 +300,8 @@ const TrackAWB = () => {
                                 <div className="border-b border-[rgb(var(--overlay-rgb)/0.08)] px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-ink-muted">
                                     AWB No
                                 </div>
-                                <div className="flex flex-wrap md:flex-col">
+                                {/* 10 AWBs are visible at a time on desktop; the rest scroll */}
+                                <div className="flex flex-wrap md:flex-col md:flex-nowrap md:max-h-[355px] md:overflow-y-auto">
                                     {(Object.keys(trackData).length > 0 ? Object.keys(trackData) : [activeAwb].filter(Boolean)).map((key) => {
                                         const active = key === activeAwb
                                         return (

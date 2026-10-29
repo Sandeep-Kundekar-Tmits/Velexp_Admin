@@ -8,6 +8,7 @@ import { SHIPMENT_TRACE, GET_IN_DETAILED_TRACKING } from "../../api"
 import ToasterProvider from "../../helpers/ToasterProvider"
 import { useParams, useNavigate } from "react-router-dom"
 import axios from 'axios'
+import BookingInfoPanels, { buildBookingInfo } from "../../components/AWBTracking/BookingInfoPanels"
 
 const formatDate = (dateString) => {
     if (!dateString) return "-"
@@ -150,6 +151,11 @@ const ShipmentTraceDetail = () => {
             .sort((a, b) => new Date(b.status_date) - new Date(a.status_date))
     }, [shipmentTrace, awbno])
 
+    const bookingInfo = useMemo(() => {
+        if (!booking) return null
+        return buildBookingInfo(booking, trackEvents.find((ev) => ev?.EDD) || null)
+    }, [booking, trackEvents])
+
     if (loading) {
         return (
             <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
@@ -209,134 +215,11 @@ const ShipmentTraceDetail = () => {
                     )}
                 </div>
 
-                {/* Booking Info */}
-                <div className="mb-4 overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[var(--glass-surface)] backdrop-blur-xl">
-                    <div className="card-header border-b border-[rgb(var(--overlay-rgb)/0.08)] bg-[#3B82F6]/12">
-                        <h6 className="mb-0 font-bold text-ink">Booking Information</h6>
+                {bookingInfo && (
+                    <div className="mb-4">
+                        <BookingInfoPanels info={bookingInfo} awb={awbno} />
                     </div>
-                    <div className="card-body">
-                        <div className="row gap-4">
-                            <div className="col-md-3">
-                                <small className="text-ink-muted">Order ID</small>
-                                <p className="mb-0 font-semibold">{booking?.orderid}</p>
-                            </div>
-                            <div className="col-md-3">
-                                <small className="text-ink-muted">Ref No</small>
-                                <p className="mb-0 font-semibold">{booking?.refno || "--"}</p>
-                            </div>
-                            <div className="col-md-3">
-                                <small className="text-ink-muted">Customer Ref No</small>
-                                <p className="mb-0 font-semibold">{booking?.customer_ref_no || "--"}</p>
-                            </div>
-                            <div className="col-md-3">
-                                <small className="text-ink-muted">Product</small>
-                                <p className="mb-0 font-semibold">{booking?.product}</p>
-                            </div>
-                            <div className="col-md-3">
-                                <small className="text-ink-muted">Weight</small>
-                                <p className="mb-0 font-semibold">{booking?.weight} kg</p>
-                            </div>
-                            <div className="col-md-3">
-                                <small className="text-ink-muted">Pieces</small>
-                                <p className="mb-0 font-semibold">{booking?.no_of_pieces}</p>
-                            </div>
-                            <div className="col-md-3">
-                                <small className="text-ink-muted">Booked Date</small>
-                                <p className="mb-0 font-semibold">{formatDate(booking?.booked_date || booking?.booking_date)}</p>
-                            </div>
-                            <div className="col-md-3">
-                                <small className="text-ink-muted">Vol. Weight</small>
-                                <p className="mb-0 font-semibold">{booking?.volumetric_weight} kg</p>
-                            </div>
-                            <div className="col-md-3">
-                                <small className="text-ink-muted">Customer</small>
-                                <p className="mb-0 font-semibold">{booking?.customer_name}</p>
-                            </div>
-                            <div className="col-md-3">
-                                <small className="text-ink-muted">Multipiece Type</small>
-                                <p className="mb-0"><span className="badge border border-[#3B82F6]/30 bg-[#3B82F6]/15 capitalize text-ink">{booking?.multipiece_type}</span></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Shipper Details */}
-                <div className="mb-4 overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[var(--glass-surface)] backdrop-blur-xl">
-                    <div className="card-header border-b border-[rgb(var(--overlay-rgb)/0.08)] bg-success-500/12">
-                        <h6 className="mb-0 font-bold text-ink">Shipper Details</h6>
-                    </div>
-                    <div className="card-body">
-                        <div className="row gap-4">
-                            <div className="col-md-6">
-                                <small className="text-ink-muted">Name</small>
-                                <p className="mb-0 font-semibold">{booking?.shipper_name}</p>
-                            </div>
-                            <div className="col-md-6">
-                                <small className="text-ink-muted">Mobile</small>
-                                <p className="mb-0 font-semibold">
-                                    <a href={`tel:${booking?.shipper_mobile}`} className="no-underline">
-                                        {booking?.shipper_mobile}
-                                    </a>
-                                </p>
-                            </div>
-                            <div className="col-12">
-                                <small className="text-ink-muted">Address</small>
-                                <p className="mb-0">{booking?.shipper_address}</p>
-                            </div>
-                            <div className="col-md-4">
-                                <small className="text-ink-muted">City</small>
-                                <p className="mb-0 font-semibold">{booking?.shipper_city}</p>
-                            </div>
-                            <div className="col-md-4">
-                                <small className="text-ink-muted">State</small>
-                                <p className="mb-0 font-semibold">{booking?.shipper_state}</p>
-                            </div>
-                            <div className="col-md-4">
-                                <small className="text-ink-muted">Pincode</small>
-                                <p className="mb-0 font-semibold">{booking?.shipper_pincode}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Consignee Details */}
-                <div className="mb-4 overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[var(--glass-surface)] backdrop-blur-xl">
-                    <div className="card-header border-b border-[rgb(var(--overlay-rgb)/0.08)] bg-danger-500/12">
-                        <h6 className="mb-0 font-bold text-ink">Consignee Details</h6>
-                    </div>
-                    <div className="card-body">
-                        <div className="row gap-4">
-                            <div className="col-md-6">
-                                <small className="text-ink-muted">Name</small>
-                                <p className="mb-0 font-semibold">{booking?.consignee_name}</p>
-                            </div>
-                            <div className="col-md-6">
-                                <small className="text-ink-muted">Mobile</small>
-                                <p className="mb-0 font-semibold">
-                                    <a href={`tel:${booking?.consignee_mobile}`} className="no-underline">
-                                        {booking?.consignee_mobile}
-                                    </a>
-                                </p>
-                            </div>
-                            <div className="col-12">
-                                <small className="text-ink-muted">Address</small>
-                                <p className="mb-0">{booking?.consignee_address}</p>
-                            </div>
-                            <div className="col-md-4">
-                                <small className="text-ink-muted">City</small>
-                                <p className="mb-0 font-semibold">{booking?.consignee_city}</p>
-                            </div>
-                            <div className="col-md-4">
-                                <small className="text-ink-muted">State</small>
-                                <p className="mb-0 font-semibold">{booking?.consignee_state}</p>
-                            </div>
-                            <div className="col-md-4">
-                                <small className="text-ink-muted">Pincode</small>
-                                <p className="mb-0 font-semibold">{booking?.consignee_pincode}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                )}
 
                 {/* Tracking History — click a status to see its bag movement chain */}
                 <div className="overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[var(--glass-surface)] backdrop-blur-xl">

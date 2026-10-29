@@ -7,6 +7,19 @@ import { Button } from "@/components/ui";
 import Loader from "@/Loaders/Loader";
 
 import { authFetch } from "@/lib/http";
+// Piece number / total for the label, e.g. "2/4". The total comes from the API's
+// total_boxes (falling back to the number of bookings returned). A single-box
+// shipment prints "1/1"; a child's piece number is its last 3 AWB digits + 1.
+const getPieceLabel = (item, fallbackTotal) => {
+  const total = Number(item?.total_boxes) || fallbackTotal || 1;
+  if (item?.multipiece_type === "child") {
+    const suffix = parseInt(String(item?.awbno || "").slice(-3), 10);
+    return isNaN(suffix) ? "" : `${suffix + 1}/${total}`;
+  }
+  if (item?.multipiece_type === "parent") return `1/${total}`;
+  return total <= 1 ? "1/1" : "";
+};
+
 const AWBPage = ({ awbNo = "", onBack }) => {
   const [labels, setLabels] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -151,6 +164,7 @@ const AWBPage = ({ awbNo = "", onBack }) => {
           {labels.map((item) => (
             <div className="label-item" key={item.id}>
               <AirwayBillMiniTable
+                pieceLabel={getPieceLabel(item, labels.length)}
                 data={{
                   dateTime: item.scheduleddate,
                   packages: item.quantity,
