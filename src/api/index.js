@@ -768,6 +768,7 @@ export const SHIPMENT_TRACE = `https://velexp.com/shipment-trace/`
 // Shipment & Bag Tracking (same endpoints as the Velocity-Ops "/tracking" screen)
 export const GET_AWB_TRACKING = `${BASE_URL}/awb-tracking/` // POST { awbno } -> { booking_data, track_data: { <awbno>: [...] } }
 export const GET_BAG_TRACKING = `${BASE_URL}/bag-tracking/` // POST { bag_no }
+export const GET_POD_BY_AWB = (awbno) => `${BASE_URL}/get-pod/${encodeURIComponent(awbno)}/` // GET -> { awbno, pod_url }
 export const GET_IN_DETAILED_TRACKING = `${BASE_URL}/detailed-tracking/` // POST { awbno } -> { booking_data, tracking: { <awbno>: { track_data: [...] } } }, each track_data entry can carry bag_data.parent_bag_data.bag_tracking
 
 // Ops pending report

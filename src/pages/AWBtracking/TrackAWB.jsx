@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { Button, Input, Label } from "@/components/ui"
 import { useNavigate } from "react-router-dom"
-import { AlertCircle, CalendarClock, FileSearch, RefreshCcw } from "lucide-react"
+import { AlertCircle, CalendarClock, FileSearch, Monitor, RefreshCcw, Smartphone } from "lucide-react"
 import MainHeaderComp from "../../components/MainHeaderCom"
 import Loader from "@/Loaders/Loader"
 import usePostApiCall from "../../hooks/usePostApiCall"
@@ -11,6 +11,7 @@ import ToasterProvider from "../../helpers/ToasterProvider"
 import EditEDD from "../../components/AWBTracking/EditEDD"
 import BagTrackingResult from "../../components/AWBTracking/BagTrackingResult"
 import BookingInfoPanels, { buildBookingInfo } from "../../components/AWBTracking/BookingInfoPanels"
+import PodViewer from "../../components/AWBTracking/PodViewer"
 
 const formatDate = (iso) => {
     if (!iso) return "-"
@@ -149,6 +150,7 @@ const TrackAWB = () => {
                 manifest_destination: ele.manifest_destination,
                 employee_id: ele.employee_id,
                 employee_name: ele.employee_name,
+                updated_via: ele.updated_via || "",
                 active: index === 0,
             }))
     }, [activeAwb, trackData])
@@ -182,6 +184,7 @@ const TrackAWB = () => {
                 extraFields={
                     bookingData && (
                         <div className="flex items-center gap-2">
+                            <PodViewer awbNo={activeAwb} />
                             <Button
                                 className="table-action-btn table-action-btn-ghost"
                                 onClick={() => setActiveComponent("edit_edd")}
@@ -292,7 +295,7 @@ const TrackAWB = () => {
                             </div>
                         )}
 
-                        <BookingInfoPanels info={headerInfo} awb={activeAwb} />
+                        <BookingInfoPanels info={headerInfo} awb={activeAwb} showWeight={false} />
 
                         {/* --------- multipiece AWB tabs + timeline --------- */}
                         <div className="mt-3 flex flex-col gap-3 md:flex-row">
@@ -334,6 +337,20 @@ const TrackAWB = () => {
                                             >
                                                 {item.status}
                                             </span>
+                                            {item.updated_via && (
+                                                <div className="mt-1">
+                                                    <span
+                                                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium capitalize ${
+                                                            item.updated_via.toLowerCase() === "mobile"
+                                                                ? "bg-success-500/15 text-success-500"
+                                                                : "bg-[rgb(var(--overlay-rgb)/0.06)] text-ink-muted"
+                                                        }`}
+                                                    >
+                                                        {item.updated_via.toLowerCase() === "mobile" ? <Smartphone size={11} /> : <Monitor size={11} />}
+                                                        via {item.updated_via}
+                                                    </span>
+                                                </div>
+                                            )}
                                             <div className="mt-1 text-[12px] font-semibold text-ink">{item.date}</div>
                                             <div className="text-[11px] text-ink-muted">At {item.time}</div>
                                         </div>

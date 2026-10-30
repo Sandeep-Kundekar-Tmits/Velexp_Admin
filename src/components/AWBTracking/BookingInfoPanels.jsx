@@ -201,10 +201,10 @@ const SLIP_COLUMNS = [
 
 const EMPTY = { booking: {}, shipper: {}, consignee: {}, weight: {}, payment: {}, depositSlips: [], iciciPayments: [] }
 
-const BookingInfoPanels = ({ info = EMPTY, awb = "" }) => {
+const BookingInfoPanels = ({ info = EMPTY, awb = "", showWeight = true }) => {
     // "More" on Payment & Collection opens the deposit slips
     const [depositOpen, setDepositOpen] = useState(false)
-    const hasWeight = Object.keys(info.weight || {}).length > 0
+    const hasWeight = showWeight && Object.keys(info.weight || {}).length > 0
     const hasPayment = Object.keys(info.payment || {}).length > 0
     const hasDeposits = info.depositSlips?.length > 0 || info.iciciPayments?.length > 0
     const iciciColumns = Object.keys(info.iciciPayments?.[0] || {})

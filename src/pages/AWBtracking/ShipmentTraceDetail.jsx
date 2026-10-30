@@ -217,7 +217,7 @@ const ShipmentTraceDetail = () => {
 
                 {bookingInfo && (
                     <div className="mb-4">
-                        <BookingInfoPanels info={bookingInfo} awb={awbno} />
+                        <BookingInfoPanels info={bookingInfo} awb={awbno} showWeight={false} />
                     </div>
                 )}
 
