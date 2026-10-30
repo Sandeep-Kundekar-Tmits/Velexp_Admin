@@ -111,6 +111,10 @@ export const MENU = [
           {
             label: "Performance Report",
             url: "/performance-report"
+          },
+          {
+            label: "Login Locations",
+            url: "/login-locations"
           }
         ]
       },

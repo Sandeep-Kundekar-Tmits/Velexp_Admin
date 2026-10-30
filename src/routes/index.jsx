@@ -95,6 +95,7 @@ const RtoApproval = lazy(() => import("../pages/RTO_Approval/RtoApproval"));
 const InternationRateData = lazy(() => import("../pages/Dashboard/RateData/InternationRateData"));
 const InternationPincode = lazy(() => import("../pages/Dashboard/RateData/InternationPincode"));
 const PerformanceReport = lazy(() => import("../pages/performance/PerformanceReport"));
+const LoginLocations = lazy(() => import("../pages/Dashboard/Reports/LoginLocations"));
 const StatusUpdateAudit = lazy(() => import("../pages/Dashboard/Reports/StatusUpdateAudit"));
 const ProductivityReport = lazy(() => import("../pages/Dashboard/Reports/ProductivityReport"));
 const CorporateBilling = lazy(() => import("../pages/NewFeatures/CorporateBilling"));
@@ -188,6 +189,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/ofd-operations-performance", component: <OFDperationsPerformance /> },
     { path: "/attempt-wise-delivery-performance", component: <AttemptWisePerformance /> },
     { path: "/performance-report", component: <PerformanceReport /> },
+    { path: "/login-locations", component: <LoginLocations /> },
     { path: "/status-update-audit", component: <StatusUpdateAudit /> },
     { path: "/operation-attempt-wise-pickup-performance", component: <AttemptWiseOperationPickupReport /> },
     { path: "/productivity-report", component: <ProductivityReport /> },
