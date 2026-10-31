@@ -21,12 +21,12 @@ export const PageHeaderContext = createContext(() => {});
  * screen's cleanup before the incoming screen's effect, so a navigation cannot
  * leave the header blank.
  */
-export function usePageHeaderTitle(title, subTitle) {
+export function usePageHeaderTitle(title, subTitle, badgeText = "", badgeTone = "muted", onRefresh = null, refreshing = false) {
   const setPageHeader = useContext(PageHeaderContext);
 
   useEffect(() => {
     if (!title) return undefined;
-    setPageHeader({ title, subTitle });
+    setPageHeader({ title, subTitle, badgeText, badgeTone, onRefresh, refreshing });
     return () => setPageHeader(null);
-  }, [setPageHeader, title, subTitle]);
+  }, [setPageHeader, title, subTitle, badgeText, badgeTone, onRefresh, refreshing]);
 }

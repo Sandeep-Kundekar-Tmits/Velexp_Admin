@@ -25,10 +25,11 @@ const ToolButton = ({ onClick, title, disabled, children }) => (
 // "View POD" button + image popup (zoom / rotate / pan / download) for one AWB.
 // Renders nothing when the AWB has no POD. The lookup is silent on purpose:
 // most AWBs have no POD yet, so a failed lookup must not raise an error toast.
-const PodViewer = ({ awbNo }) => {
+const PodViewer = ({ awbNo, thumbnail = false }) => {
     const [podUrl, setPodUrl] = useState(null)
     const [open, setOpen] = useState(false)
     const [imgFailed, setImgFailed] = useState(false)
+    const [thumbFailed, setThumbFailed] = useState(false)
     const [zoom, setZoom] = useState(1)
     const [rotation, setRotation] = useState(0)
     const [offset, setOffset] = useState({ x: 0, y: 0 })
@@ -38,6 +39,7 @@ const PodViewer = ({ awbNo }) => {
     useEffect(() => {
         let cancelled = false
         setPodUrl(null)
+        setThumbFailed(false)
         if (!awbNo) return undefined
         rawRequest(GET_POD_BY_AWB(awbNo), { method: "GET" })
             .then(({ ok, data }) => {
@@ -101,10 +103,39 @@ const PodViewer = ({ awbNo }) => {
 
     return (
         <>
-            <Button className="table-action-btn table-action-btn-ghost" onClick={openViewer}>
-                <FileImage aria-hidden="true" size={15} />
-                View POD
-            </Button>
+            {thumbnail ? (
+                <button
+                    type="button"
+                    onClick={openViewer}
+                    title="View POD"
+                    aria-label="View POD"
+                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-[rgb(var(--overlay-rgb)/0.2)] bg-[rgb(var(--overlay-rgb)/0.04)] py-1 pl-1 pr-3 text-left hover:border-[#3B82F6]"
+                >
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-md bg-[#3B82F6]/15">
+                        {thumbFailed ? (
+                            <FileImage aria-hidden="true" size={18} className="text-ink" />
+                        ) : (
+                            <img
+                                src={podUrl}
+                                alt=""
+                                draggable={false}
+                                className="h-full w-full object-cover"
+                                onError={() => setThumbFailed(true)}
+                            />
+                        )}
+                    </span>
+                    <span className="flex flex-col leading-tight">
+                        <span className="text-[13px] font-semibold text-ink">POD image</span>
+                        <span className="text-[11px] text-ink-muted">Click to enlarge</span>
+                    </span>
+                    <Maximize2 aria-hidden="true" size={14} className="ml-2 shrink-0 text-ink-muted" />
+                </button>
+            ) : (
+                <Button className="table-action-btn table-action-btn-ghost" onClick={openViewer}>
+                    <FileImage aria-hidden="true" size={15} />
+                    POD
+                </Button>
+            )}
 
             {open &&
                 createPortal(

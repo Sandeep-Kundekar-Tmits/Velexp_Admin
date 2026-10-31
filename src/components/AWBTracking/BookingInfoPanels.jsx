@@ -99,19 +99,6 @@ const ACCENTS = {
     red: { header: "bg-danger-500/12", text: "text-danger-500" },
 }
 
-/*
- * Same glass panel as the rest of the app, with a colour-coded header so
- * Booking / Shipper / Consignee read apart at a glance.
- */
-const Section = ({ title, accent = "blue", children }) => (
-    <div className="flex h-full flex-col overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[var(--glass-surface)] backdrop-blur-xl">
-        <div className={`border-b border-[rgb(var(--overlay-rgb)/0.08)] px-4 py-2.5 ${ACCENTS[accent].header}`}>
-            <h6 className={`m-0 text-[11px] font-semibold uppercase tracking-wider ${ACCENTS[accent].text}`}>{title}</h6>
-        </div>
-        <div className="grid grid-cols-2 gap-3 p-4">{children}</div>
-    </div>
-)
-
 const valueTone = (label, value) => {
     const v = String(value || "")
     if (label === "Shipment Flag") return "text-danger-500"
@@ -125,43 +112,46 @@ const valueTone = (label, value) => {
     return "text-ink"
 }
 
-const Pair = ({ label, value, full }) => (
-    <div className={full ? "col-span-2 min-w-0" : "min-w-0"}>
-        <div className={`break-words text-[13px] font-semibold ${valueTone(label, value)}`}>{value || "-"}</div>
-        <div className="text-[11px] capitalize text-ink-muted">{label}</div>
+const LINE = "border-[rgb(var(--overlay-rgb)/0.08)]"
+const LABEL_CELL = `w-[13%] whitespace-nowrap bg-[rgb(var(--overlay-rgb)/0.04)] px-3 py-1 text-left text-[12px] font-medium capitalize text-ink-muted border-b ${LINE}`
+const VALUE_CELL = `break-words px-3 py-1 text-[13px] font-semibold border-b ${LINE}`
+
+const Panel = ({ title, accent = "blue", action = null, children }) => (
+    <div className="flex h-full flex-col overflow-hidden rounded border border-[rgb(var(--overlay-rgb)/0.08)] bg-[var(--glass-surface)] backdrop-blur-xl">
+        <div className={`flex items-center justify-between border-b px-3 py-1 ${LINE} ${ACCENTS[accent].header}`}>
+            <h6 className={`m-0 text-[11px] font-semibold uppercase tracking-wider ${ACCENTS[accent].text}`}>{title}</h6>
+            {action}
+        </div>
+        {/* fixed 180px body: the rest of the rows scroll inside the card */}
+        <div className="scroll-slim h-[180px] overflow-y-auto">{children}</div>
     </div>
 )
 
-// Renders every entry as a Pair in the 2-column grid. `full` labels span both columns, and a
-// Pair left alone in its row (before a full-width one, or last) is stretched across both columns.
-const Pairs = ({ obj = {}, full = [] }) => {
-    const items = Object.entries(obj).map(([label, value]) => ({ label, value, wide: full.includes(label) }))
-    let pending = null
-    items.forEach((it) => {
-        if (!it.wide) {
-            pending = pending ? null : it
-        } else if (pending) {
-            pending.wide = true
-            pending = null
-        }
-    })
-    if (pending) pending.wide = true
-    return items.map((it) => <Pair key={it.label} label={it.label} value={it.value} full={it.wide} />)
-}
+const KvRows = ({ obj = {} }) =>
+    Object.entries(obj).map(([label, value]) => (
+        <tr key={label}>
+            <th scope="row" className={`${LABEL_CELL} !w-[38%]`}>{label}</th>
+            <td className={`${VALUE_CELL} ${valueTone(label, value)}`}>{value || "-"}</td>
+        </tr>
+    ))
 
-const SubHead = ({ children, onMore }) => (
-    <div className="col-span-2 mt-1 flex items-center justify-between border-t border-[rgb(var(--overlay-rgb)/0.08)] pt-3">
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-success-500">{children}</span>
-        {onMore && (
-            <button
-                type="button"
-                onClick={onMore}
-                className="inline-flex items-center gap-0.5 border-0 bg-transparent p-0 text-[11px] font-semibold text-success-500 hover:underline"
-            >
-                More <ChevronRight size={14} />
-            </button>
-        )}
-    </div>
+const SubHeadRow = ({ children, onMore }) => (
+    <tr>
+        <td colSpan={2} className={`border-b ${LINE} bg-success-500/10 px-3 py-1`}>
+            <div className="flex items-center justify-between">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-success-500">{children}</span>
+                {onMore && (
+                    <button
+                        type="button"
+                        onClick={onMore}
+                        className="inline-flex items-center gap-0.5 border-0 bg-transparent p-0 text-[11px] font-semibold text-success-500 hover:underline"
+                    >
+                        More <ChevronRight size={14} />
+                    </button>
+                )}
+            </div>
+        </td>
+    </tr>
 )
 
 const Table = ({ columns, rows }) => (
@@ -201,7 +191,7 @@ const SLIP_COLUMNS = [
 
 const EMPTY = { booking: {}, shipper: {}, consignee: {}, weight: {}, payment: {}, depositSlips: [], iciciPayments: [] }
 
-const BookingInfoPanels = ({ info = EMPTY, awb = "", showWeight = true }) => {
+const BookingInfoPanels = ({ info = EMPTY, awb = "", showWeight = true, rtoApproved = null }) => {
     // "More" on Payment & Collection opens the deposit slips
     const [depositOpen, setDepositOpen] = useState(false)
     const hasWeight = showWeight && Object.keys(info.weight || {}).length > 0
@@ -213,34 +203,58 @@ const BookingInfoPanels = ({ info = EMPTY, awb = "", showWeight = true }) => {
 
     return (
         <>
-            <div className="row gap-y-3">
-                <div className="col-12 col-lg-4">
-                    <Section title="Booking Info" accent="blue">
-                        <Pairs obj={info.booking} />
-                    </Section>
-                </div>
-                <div className="col-12 col-lg-4">
-                    <Section title="Shipper Details" accent="green">
-                        <Pairs obj={info.shipper} full={["Location", "Address"]} />
-                        {hasWeight && (
-                            <>
-                                <SubHead>Weight &amp; Pieces</SubHead>
-                                <Pairs obj={info.weight} />
-                            </>
-                        )}
-                        {hasPayment && (
-                            <>
-                                <SubHead onMore={hasDeposits ? () => setDepositOpen(true) : null}>Payment &amp; Collection</SubHead>
-                                <Pairs obj={info.payment} />
-                            </>
-                        )}
-                    </Section>
-                </div>
-                <div className="col-12 col-lg-4">
-                    <Section title="Consignee Details" accent="red">
-                        <Pairs obj={info.consignee} full={["Address"]} />
-                    </Section>
-                </div>
+            <div className="grid grid-cols-1 gap-2 lg:grid-cols-3">
+                <Panel
+                    title="Booking Info"
+                    accent="blue"
+                    action={
+                        rtoApproved === null ? null : (
+                            <span
+                                className={`rounded-full border px-2 py-px text-[10px] font-semibold ${
+                                    rtoApproved
+                                        ? "border-success-500/40 bg-success-500/15 text-success-500"
+                                        : "border-[rgb(var(--overlay-rgb)/0.15)] bg-[rgb(var(--overlay-rgb)/0.05)] text-ink-muted"
+                                }`}
+                            >
+                                {rtoApproved ? "RTO Approved" : "Not RTO Approved"}
+                            </span>
+                        )
+                    }
+                >
+                    <table className="w-full">
+                        <tbody>
+                            <KvRows obj={info.booking} />
+                            {hasPayment && (
+                                <>
+                                    <SubHeadRow onMore={hasDeposits ? () => setDepositOpen(true) : null}>Payment &amp; Collection</SubHeadRow>
+                                    <KvRows obj={info.payment} />
+                                </>
+                            )}
+                        </tbody>
+                    </table>
+                </Panel>
+
+                <Panel title="Shipper Details" accent="green">
+                    <table className="w-full">
+                        <tbody>
+                            <KvRows obj={info.shipper} />
+                            {hasWeight && (
+                                <>
+                                    <SubHeadRow>Weight &amp; Pieces</SubHeadRow>
+                                    <KvRows obj={info.weight} />
+                                </>
+                            )}
+                        </tbody>
+                    </table>
+                </Panel>
+
+                <Panel title="Consignee Details" accent="red">
+                    <table className="w-full">
+                        <tbody>
+                            <KvRows obj={info.consignee} />
+                        </tbody>
+                    </table>
+                </Panel>
             </div>
 
             <Modal isOpen={depositOpen} toggle={() => setDepositOpen(false)} centered size="lg">

@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import { useLocation } from "react-router-dom";
-import { Menu } from "lucide-react";
+import { Menu, RefreshCcw } from "lucide-react";
 
 import { pageTitleFor } from "@/features/navigation/pageTitle";
 import { PAGE_HEADER_ACTIONS_ID } from "./PageHeaderActions";
@@ -54,7 +54,35 @@ const PageHeader = ({ isMobile, onMobileToggle, override }) => {
         {!subTitle && fromRoute.section && (
           <p className="page-header-eyebrow">{fromRoute.section}</p>
         )}
-        <h1 className="page-header-title" title={title}>{title}</h1>
+        {override?.badgeText || override?.onRefresh ? (
+          <div className="flex min-w-0 items-center gap-2">
+            <h1 className="page-header-title" title={title}>{title}</h1>
+            {override.onRefresh && (
+              <button
+                type="button"
+                onClick={override.onRefresh}
+                className="shrink-0 border-0 bg-transparent p-0 text-ink-muted hover:text-ink"
+                title="Refresh"
+                aria-label="Refresh"
+              >
+                <RefreshCcw aria-hidden="true" size={16} className={override.refreshing ? "spin" : ""} />
+              </button>
+            )}
+            {override.badgeText && (
+            <span
+              className={`badge shrink-0 border ${
+                override.badgeTone === "success"
+                  ? "border-success-500/30 bg-success-500/15 text-success-500"
+                  : "border-[rgb(var(--overlay-rgb)/0.15)] bg-[rgb(var(--overlay-rgb)/0.05)] text-ink-muted"
+              }`}
+            >
+              {override.badgeText}
+            </span>
+            )}
+          </div>
+        ) : (
+          <h1 className="page-header-title" title={title}>{title}</h1>
+        )}
         {subTitle && (
           <p className="page-header-subtitle" title={subTitle}>{subTitle}</p>
         )}
@@ -75,6 +103,10 @@ PageHeader.propTypes = {
   override: PropTypes.shape({
     title: PropTypes.string,
     subTitle: PropTypes.string,
+    badgeText: PropTypes.string,
+    badgeTone: PropTypes.string,
+    onRefresh: PropTypes.func,
+    refreshing: PropTypes.bool,
   }),
 };
 
