@@ -293,7 +293,7 @@ const BillingAutomation = () => {
                             ))}
                         </Nav>
                         <Button color="success" size="sm" onClick={() => setRegisterOpen(true)} className="flex shrink-0 items-center gap-2">
-                            <FileSpreadsheet size={15} /> Download Pre-Invoice Register (Excel)
+                            <FileSpreadsheet size={15} /> Pre-Invoice Excel
                         </Button>
                     </div>
 
