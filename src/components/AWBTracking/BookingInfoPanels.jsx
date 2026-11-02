@@ -1,5 +1,6 @@
 import { useState } from "react"
-import { ChevronRight } from "lucide-react"
+import { Link } from "react-router-dom"
+import { ChevronRight, Search } from "lucide-react"
 import { Modal, ModalHeader, ModalBody } from "@/components/ui"
 
 /*
@@ -36,10 +37,9 @@ export const buildBookingInfo = (b, eddEvent = null) => ({
     booking: compact({
         "AWB No": b.awbno || "-",
         "Order ID": b.orderid,
+        "RTO AWB No": b.RTO_awbno,
         Customer: b.customer_name || "-",
         "Ref No": b.refno,
-        "Customer Ref No": b.customer_ref_no,
-        "Booking Date": formatDate(b.booking_date || b.booked_date),
         // booking_data.awb_date is when the AWB itself was generated, not when the order was booked
         "Airway Bill Date": formatDate(b.awb_date),
         EDD: eddEvent?.EDD ? formatDate(eddEvent.EDD) : null,
@@ -52,9 +52,10 @@ export const buildBookingInfo = (b, eddEvent = null) => ({
         // real booleans: false is an answer, not an absence
         Delivered: yesNo(b.delivered),
         "OTP Verified": yesNo(b.otp_verified),
-        "RTO AWB No": b.RTO_awbno,
+        "Booking Date": formatDate(b.booking_date || b.booked_date),
         // the backend sometimes sends the literal string "null"
         "Shipment Flag": b.shipment_flag,
+        "Customer Ref No": b.customer_ref_no,
     }),
     shipper: {
         Name: b.shipper_name || "-",
@@ -127,11 +128,36 @@ const Panel = ({ title, accent = "blue", action = null, children }) => (
     </div>
 )
 
+// values that can be looked up on the tracking screen; the icon opens /tracking?awb=<value>
+const TRACKABLE = new Set(["AWB No", "Order ID", "RTO AWB No"])
+
+const TrackLink = ({ value, label }) => (
+    <Link
+        to={`/tracking?awb=${encodeURIComponent(value)}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        title={`Track ${label} ${value}`}
+        aria-label={`Track ${label} ${value}`}
+        className="inline-flex shrink-0 items-center text-[#60A5FA] hover:text-[#93C5FD]"
+    >
+        <Search aria-hidden="true" size={14} />
+    </Link>
+)
+
 const KvRows = ({ obj = {} }) =>
     Object.entries(obj).map(([label, value]) => (
         <tr key={label}>
             <th scope="row" className={`${LABEL_CELL} !w-[38%]`}>{label}</th>
-            <td className={`${VALUE_CELL} ${valueTone(label, value)}`}>{value || "-"}</td>
+            <td className={`${VALUE_CELL} ${valueTone(label, value)}`}>
+                {TRACKABLE.has(label) && value && value !== "-" ? (
+                    <span className="flex items-center justify-between gap-2">
+                        {value}
+                        <TrackLink value={value} label={label} />
+                    </span>
+                ) : (
+                    value || "-"
+                )}
+            </td>
         </tr>
     ))
 
@@ -191,12 +217,39 @@ const SLIP_COLUMNS = [
 
 const EMPTY = { booking: {}, shipper: {}, consignee: {}, weight: {}, payment: {}, depositSlips: [], iciciPayments: [] }
 
+// Title-bar tags: solid tinted pill, a status dot and a coloured border so they read at a glance
+const TAG_TONES = {
+    success: "border-success-500/60 bg-success-500/20 text-success-500",
+    warning: "border-warning-500/60 bg-warning-500/20 text-warning-500",
+    danger: "border-danger-500/60 bg-danger-500/20 text-danger-500",
+    info: "border-[#3B82F6]/60 bg-[#3B82F6]/20 text-[#60A5FA]",
+    neutral: "border-[rgb(var(--overlay-rgb)/0.3)] bg-[rgb(var(--overlay-rgb)/0.1)] text-ink",
+}
+
+const Tag = ({ tone = "neutral", children }) => (
+    <span className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-[11px] font-bold uppercase leading-none tracking-wide ${TAG_TONES[tone]}`}>
+        <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
+        {children}
+    </span>
+)
+
+// COD is money still to collect, prepaid/paid modes are settled, RTO is a return
+const payModeTone = (mode) => {
+    const m = String(mode).toLowerCase()
+    if (/rto|return/.test(m)) return "danger"
+    if (/cod|cash/.test(m)) return "warning"
+    if (/pop|paid|prepaid|online|credit|tbb/.test(m)) return "success"
+    return "info"
+}
+
 const BookingInfoPanels = ({ info = EMPTY, awb = "", showWeight = true, rtoApproved = null }) => {
     // "More" on Payment & Collection opens the deposit slips
     const [depositOpen, setDepositOpen] = useState(false)
     const hasWeight = showWeight && Object.keys(info.weight || {}).length > 0
     const hasPayment = Object.keys(info.payment || {}).length > 0
-    const hasDeposits = info.depositSlips?.length > 0 || info.iciciPayments?.length > 0
+    // payment mode as a tag beside the RTO tag: COD, POP, PAID, RTO ...
+    const payMode = info.payment?.["Payment Mode"] || ""
+    const hasDeposits =info.depositSlips?.length > 0 || info.iciciPayments?.length > 0
     const iciciColumns = Object.keys(info.iciciPayments?.[0] || {})
         .slice(0, 5)
         .map((k) => ({ label: k.replace(/_/g, " "), get: (r) => (typeof r[k] === "object" ? JSON.stringify(r[k]) : r[k]) }))
@@ -208,15 +261,12 @@ const BookingInfoPanels = ({ info = EMPTY, awb = "", showWeight = true, rtoAppro
                     title="Booking Info"
                     accent="blue"
                     action={
-                        rtoApproved === null ? null : (
-                            <span
-                                className={`rounded-full border px-2 py-px text-[10px] font-semibold ${
-                                    rtoApproved
-                                        ? "border-success-500/40 bg-success-500/15 text-success-500"
-                                        : "border-[rgb(var(--overlay-rgb)/0.15)] bg-[rgb(var(--overlay-rgb)/0.05)] text-ink-muted"
-                                }`}
-                            >
-                                {rtoApproved ? "RTO Approved" : "Not RTO Approved"}
+                        rtoApproved === null && !payMode ? null : (
+                            <span className="flex items-center gap-1.5">
+                                {payMode && <Tag tone={payModeTone(payMode)}>{payMode}</Tag>}
+                                {rtoApproved !== null && (
+                                    <Tag tone={rtoApproved ? "success" : "neutral"}>{rtoApproved ? "RTO Approved" : "Not RTO Approved"}</Tag>
+                                )}
                             </span>
                         )
                     }

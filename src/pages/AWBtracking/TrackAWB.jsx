@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { Button, Input, Label } from "@/components/ui"
-import { useNavigate } from "react-router-dom"
-import { AlertCircle, CalendarClock, Eye, Monitor, Smartphone } from "lucide-react"
+import { Link, useNavigate, useSearchParams } from "react-router-dom"
+import { AlertCircle, CalendarClock, Eye, MapPin, Monitor, Search, Smartphone } from "lucide-react"
 import MainHeaderComp from "../../components/MainHeaderCom"
 import Loader from "@/Loaders/Loader"
 import usePostApiCall from "../../hooks/usePostApiCall"
@@ -13,6 +13,7 @@ import BagTrackingResult from "../../components/AWBTracking/BagTrackingResult"
 import BookingInfoPanels, { buildBookingInfo } from "../../components/AWBTracking/BookingInfoPanels"
 import AwbSelect from "../../components/AWBTracking/AwbSelect"
 import PodViewer from "../../components/AWBTracking/PodViewer"
+import CallRecordings, { normalizeRecordings } from "../../components/AWBTracking/CallRecordings"
 
 const formatDate = (iso) => {
     if (!iso) return "-"
@@ -58,6 +59,31 @@ const logTrackScan = async (awb, screenName) => {
 // ink token instead.
 const ACCENT = { border: "rgba(59,130,246,0.3)", tint: "rgba(59,130,246,0.15)", text: "var(--color-ink)", solid: "#3B82F6" }
 
+const hasText = (v) => v !== null && v !== undefined && String(v).trim() !== ""
+const ICON_BTN = "inline-flex size-6 items-center justify-center rounded-full border"
+const ICON_ON = "border-[#3B82F6]/50 bg-[#3B82F6]/20 text-[#60A5FA] hover:bg-[#3B82F6]/35"
+
+// Where the status was updated from (lat/long), opened in Google Maps.
+const LocationLink = ({ lat, lng, url, place }) => {
+    const href = hasText(url) ? url : hasText(lat) && hasText(lng) ? `https://www.google.com/maps?q=${lat},${lng}` : null
+    if (!href) {
+        return null // no location on this status: no icon
+    }
+    return (
+        <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={hasText(place) ? `Updated at ${place} (${lat}, ${lng})` : hasText(lat) && hasText(lng) ? `Updated at ${lat}, ${lng}` : "Open update location"}
+            aria-label="Open update location in Google Maps"
+            className={`${ICON_BTN} ${ICON_ON}`}
+        >
+            <MapPin aria-hidden="true" size={13} />
+        </a>
+    )
+}
+
+
 const TrackAWB = () => {
     const navigate = useNavigate()
     const [trackingNo, setTrackingNo] = useState("")
@@ -68,6 +94,8 @@ const TrackAWB = () => {
     const [trackData, setTrackData] = useState({}) // { awbno: [events] | "message" }
     const [activeAwb, setActiveAwb] = useState(null)
     const [bagInfo, setBagInfo] = useState(null)
+    // call recordings ride on booking_data.call_records (one entry per call), not on each status
+    const [callRecordings, setCallRecordings] = useState(null)
     const [hasSearched, setHasSearched] = useState(false)
 
     const timelineRef = useRef(null)
@@ -83,27 +111,31 @@ const TrackAWB = () => {
 
     const isLoading = shipmentLoading || bagLoading
 
-    const onTrack = async () => {
-        if (!trackingNo) {
-            ErrorToaster(searchType === "bag" ? "Please enter a Bag number" : "Please enter an AWB number")
+    // `no` / `type` default to what is typed in the header; the URL passes its own.
+    const track = async (rawNo = trackingNo, type = searchType) => {
+        // numbers are stored in capitals: "ve123 " is looked up as "VE123"
+        const no = String(rawNo || "").trim().toUpperCase()
+        if (!no) {
+            ErrorToaster(type === "bag" ? "Please enter a Bag number" : "Please enter an AWB number")
             return
         }
 
-        if (searchType === "bag") {
-            const res = await trackBag(GET_BAG_TRACKING, { bag_no: trackingNo })
+        if (type === "bag") {
+            const res = await trackBag(GET_BAG_TRACKING, { bag_no: no })
             setHasSearched(true)
             if (res?.parent_bag_data) {
                 setBagInfo(res)
-                logTrackScan(trackingNo, "Bag Tracking")
+                logTrackScan(no, "Bag Tracking")
             } else {
                 setBagInfo(null)
                 ErrorToaster(res?.message || "Bag not found")
             }
             setBookingData(null)
             setTrackData({})
+            setCallRecordings(null)
             setActiveAwb(null)
         } else {
-            const res = await trackShipment(GET_AWB_TRACKING, { awbno: trackingNo })
+            const res = await trackShipment(GET_AWB_TRACKING, { awbno: no })
             setHasSearched(true)
             // A shipment that is booked but not scanned yet comes back with
             // booking_data and an empty track_data ({}) -- that is still a hit,
@@ -113,21 +145,39 @@ const TrackAWB = () => {
             if (trackKeys.length > 0 || hasBooking) {
                 setBookingData(res.booking_data || null)
                 setTrackData(res.track_data || {})
+                setCallRecordings(res.booking_data?.call_records ?? null)
                 setActiveAwb(
-                    trackKeys.includes(trackingNo)
-                        ? trackingNo
-                        : trackKeys[0] || res.booking_data?.awbno || trackingNo,
+                    trackKeys.includes(no)
+                        ? no
+                        : trackKeys[0] || res.booking_data?.awbno || no,
                 )
-                logTrackScan(trackingNo, "Shipment Tracking")
+                logTrackScan(no, "Shipment Tracking")
             } else {
                 setBookingData(null)
                 setTrackData({})
+                setCallRecordings(null)
                 setActiveAwb(null)
                 ErrorToaster(res?.message || "AWB not found")
             }
             setBagInfo(null)
         }
     }
+
+    const onTrack = () => track()
+
+    // /tracking?awb=<no> or ?bag=<no>: fill the header and look it up straight away.
+    const [searchParams] = useSearchParams()
+    const urlAwb = searchParams.get("awb")
+    const urlBag = searchParams.get("bag")
+    useEffect(() => {
+        const no = (urlBag || urlAwb || "").trim().toUpperCase()
+        if (!no) return
+        const type = urlBag ? "bag" : "shipment"
+        setSearchType(type)
+        setTrackingNo(no)
+        track(no, type)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [urlAwb, urlBag])
 
     // The history fills whatever screen height is left under the fixed cards and scrolls inside it.
     useLayoutEffect(() => {
@@ -180,9 +230,16 @@ const TrackAWB = () => {
                 employee_id: ele.employee_id,
                 employee_name: ele.employee_name,
                 updated_via: ele.updated_via || "",
+                // where the status was updated from: the API's `location` object, with the flat fields as fallback
+                latitude: ele.location?.latitude ?? ele.latitude,
+                longitude: ele.location?.longitude ?? ele.longitude,
+                map_url: ele.location?.map_url,
+                scanned_location: ele.scanned_location,
                 active: index === 0,
             }))
     }, [activeAwb, trackData])
+
+    const recordingList = useMemo(() => normalizeRecordings(callRecordings, activeAwb), [callRecordings, activeAwb])
 
     // One entry per AWB (piece) in the shipment, each with its latest status for the picker.
     const awbOptions = useMemo(() => {
@@ -292,6 +349,7 @@ const TrackAWB = () => {
                             <div className="mb-1.5 flex items-center gap-2">
                                 <AwbSelect options={awbOptions} value={activeAwb || ""} onChange={setActiveAwb} />
                                 <PodViewer awbNo={activeAwb} thumbnail />
+                                <CallRecordings recordings={recordingList} />
                             </div>
 
                             <div ref={timelineRef} className="scroll-slim min-w-0 flex-1" style={{ height: histHeight, overflowY: "auto" }}>
@@ -322,19 +380,24 @@ const TrackAWB = () => {
                                             )}
                                         </div>
 
-                                        <div className="relative mb-4 grid flex-1 self-start grid-cols-2 gap-3 rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[var(--glass-surface)] backdrop-blur-xl p-3 md:grid-cols-4">
-                                            {item.updated_via && (
-                                                <span
-                                                    className={`absolute right-2 top-2 inline-flex items-center gap-1 rounded-full border px-2 py-px text-[10px] font-semibold capitalize ${
-                                                        item.updated_via.toLowerCase() === "mobile"
-                                                            ? "border-success-500/50 bg-success-500/20 text-success-500"
-                                                            : "border-[#3B82F6]/50 bg-[#3B82F6]/20 text-ink"
-                                                    }`}
-                                                >
-                                                    {item.updated_via.toLowerCase() === "mobile" ? <Smartphone size={10} /> : <Monitor size={10} />}
-                                                    {item.updated_via}
-                                                </span>
-                                            )}
+                                        <div className="relative mb-4 grid flex-1 self-start grid-cols-2 gap-3 rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[var(--glass-surface)] backdrop-blur-xl p-3 md:grid-cols-4 md:pr-28">
+                                            <div className="absolute right-2 top-2 flex items-center gap-1.5">
+                                                {item.updated_via && (
+                                                    <span
+                                                        className={`inline-flex items-center gap-1 rounded-full border px-2 py-px text-[10px] font-semibold capitalize ${
+                                                            item.updated_via.toLowerCase() === "mobile"
+                                                                ? "border-success-500/50 bg-success-500/20 text-success-500"
+                                                                : "border-[#3B82F6]/50 bg-[#3B82F6]/20 text-ink"
+                                                        }`}
+                                                    >
+                                                        {item.updated_via.toLowerCase() === "mobile" ? <Smartphone size={10} /> : <Monitor size={10} />}
+                                                        {item.updated_via}
+                                                    </span>
+                                                )}
+                                                <div className="flex items-center gap-1.5">
+                                                                                    <LocationLink lat={item.latitude} lng={item.longitude} url={item.map_url} place={item.scanned_location} />
+                                                </div>
+                                            </div>
                                                                                         <div>
                                                 <div className="text-[11px] font-medium uppercase tracking-wide text-ink-muted">Service Center</div>
                                                 <div className="text-[13px] font-semibold text-ink">
@@ -349,7 +412,19 @@ const TrackAWB = () => {
                                             {item.bag_no?.trim?.() && (
                                                 <div>
                                                     <div className="text-[11px] font-medium uppercase tracking-wide text-ink-muted">Bag No</div>
-                                                    <div className="text-[13px] font-semibold text-ink">{item.bag_no}</div>
+                                                    <div className="flex items-center gap-1.5 text-[13px] font-semibold text-ink">
+                                                        {item.bag_no}
+                                                        <Link
+                                                            to={`/tracking?bag=${encodeURIComponent(item.bag_no.trim())}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            title={`Track bag ${item.bag_no}`}
+                                                            aria-label={`Track bag ${item.bag_no}`}
+                                                            className="inline-flex shrink-0 items-center text-[#60A5FA] hover:text-[#93C5FD]"
+                                                        >
+                                                            <Search aria-hidden="true" size={14} />
+                                                        </Link>
+                                                    </div>
                                                 </div>
                                             )}
                                             {item.manifest_no?.trim?.() && (

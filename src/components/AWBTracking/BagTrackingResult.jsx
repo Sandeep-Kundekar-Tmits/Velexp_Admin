@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Spinner } from "@/components/ui"
-import { ChevronDown } from "lucide-react"
+import { Link } from "react-router-dom"
+import { ChevronDown, Search } from "lucide-react"
 import usePostApiCall from "../../hooks/usePostApiCall"
 import { GET_BAG_TRACKING } from "../../api"
 
@@ -74,7 +75,23 @@ const ShipmentIdTable = ({ ids = [] }) => (
             </thead>
             <tbody>
                 {ids.length > 0 ? ids.map((awb, i) => (
-                    <tr key={i}><td className="text-center">{awb}</td></tr>
+                    <tr key={i}>
+                        <td>
+                            <div className="flex items-center gap-2">
+                                <span className="flex-1 text-center">{awb}</span>
+                                <Link
+                                    to={`/tracking?awb=${encodeURIComponent(String(awb).trim())}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    title={`Track ${awb}`}
+                                    aria-label={`Track ${awb}`}
+                                    className="inline-flex shrink-0 items-center text-[#60A5FA] hover:text-[#93C5FD]"
+                                >
+                                    <Search aria-hidden="true" size={14} />
+                                </Link>
+                            </div>
+                        </td>
+                    </tr>
                 )) : (
                     <tr><td className="text-center text-ink-muted">No shipments</td></tr>
                 )}
