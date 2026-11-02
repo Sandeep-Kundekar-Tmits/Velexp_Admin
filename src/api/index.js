@@ -362,7 +362,8 @@ export const BILLING_BATCH_BASE = `${BASE_URL}/corporate-billing/billing/batch/`
 export const BILLING_BATCH_CANCEL = (id) => `${BASE_URL}/corporate-billing/billing/batch/${id}/cancel/`        // POST
 export const BILLING_BATCH_LIST = `${BASE_URL}/corporate-billing/billing/batch/list/`                         // POST
 export const BILLING_AUDIT_REPORTS = `${BASE_URL}/corporate-billing/billing/audit-reports/`                   // GET (list / <id>/ / <id>/download/)
-export const BILLING_CONFIGURED_CUSTOMERS = `${BASE_URL}/corporate-billing/billing/configured-customers/`      // GET
+export const BILLING_PRE_INVOICE_REGISTER = `${BASE_URL}/corporate-billing/billing/pre-invoice-register/`        // GET ?start_date=&end_date= (JSON); add &download=1 for xlsx
+export const BILLING_CONFIGURED_CUSTOMERS =`${BASE_URL}/corporate-billing/billing/configured-customers/`      // GET
 
 // Main Pincode Master — canonical pincode/state/city/alias reference data.
 // Plain DRF REST resource (not the legacy "get-list"/{status:1} envelope):

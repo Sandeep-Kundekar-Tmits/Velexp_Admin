@@ -1,8 +1,8 @@
 // Billing Automation — one page, 4 tabs (Dashboard, Audit, Working & Invoices, History).
 // A shared period picker feeds the three one-click batch triggers.
 import React, { useState, useEffect, useCallback, useRef } from "react"
-import { Card, CardBody, Col, Label, Nav, NavItem, NavLink, Row, TabContent, TabPane, Spinner } from "@/components/ui"
-import { Check } from "lucide-react"
+import { Button, Card, CardBody, Col, Label, Modal, ModalBody, ModalFooter, ModalHeader, Nav, NavItem, NavLink, Row, TabContent, TabPane, Spinner } from "@/components/ui"
+import { Check, FileSpreadsheet } from "lucide-react"
 import Select from "react-select"
 import { toast } from "react-toastify"
 import { cn } from "@/lib/cn"
@@ -10,7 +10,7 @@ import MainHeaderComp from "../../../components/MainHeaderCom"
 import DateRangeInput from "../../../components/Common/DateRangeInput"
 import { customStyles } from "../../../helpers/CustomStyle"
 import YMD_DateFormate from "../../../helpers/YMD_DateFormate"
-import { BILLING_CONFIGURED_CUSTOMERS } from "../../../api"
+import { BILLING_CONFIGURED_CUSTOMERS, BILLING_PRE_INVOICE_REGISTER } from "../../../api"
 import useBatchPolling from "./useBatchPolling"
 import AutomationDashboardTab from "./AutomationDashboardTab"
 import AuditTab from "./AuditTab"
@@ -144,6 +144,38 @@ const BillingAutomation = () => {
         fetchCustomers()
     }, [fetchCustomers])
 
+    const [registerOpen, setRegisterOpen] = useState(false)
+    const [registerRange, setRegisterRange] = useState({ startDate: null, endDate: null })
+    const [registerDownloading, setRegisterDownloading] = useState(false)
+
+    const downloadPreInvoiceRegister = async () => {
+        if (!registerRange.startDate || !registerRange.endDate) {
+            toast.error("Select a date range to download the Pre-Invoice Register", { autoClose: 5000 })
+            return
+        }
+        const { from_date, to_date } = YMD_DateFormate(registerRange)
+        setRegisterDownloading(true)
+        try {
+            const res = await authFetch(
+                `${BILLING_PRE_INVOICE_REGISTER}?start_date=${from_date}&end_date=${to_date}&download=1`,
+                { credentials: "include" }
+            )
+            if (!res.ok) throw new Error(`Error ${res.status}`)
+            const blob = await res.blob()
+            const url = window.URL.createObjectURL(blob)
+            const a = document.createElement("a")
+            a.href = url
+            a.download = `pre_invoice_register_${from_date}_to_${to_date}.xlsx`
+            a.click()
+            window.URL.revokeObjectURL(url)
+            setRegisterOpen(false)
+        } catch (err) {
+            toast.error(err.message || "Pre-Invoice Register download failed", { autoClose: 5000 })
+        } finally {
+            setRegisterDownloading(false)
+        }
+    }
+
     const handleOpenBatch = (batchId) => {
         batchCtl.openBatch(batchId)
         setActiveTab("dashboard")
@@ -235,7 +267,7 @@ const BillingAutomation = () => {
                                     )}
                                 </Col>
                             </Row>
-                            <Row className="mt-2">
+                            <Row className="mt-2 items-center">
                                 <Col>
                                     <small className="text-ink-muted">
                                         Leave dates blank to default to the last calendar month. Selected: {selectedCustomers.length === customerOptions.length ? "All customers" : `${selectedCustomers.length} customer${selectedCustomers.length !== 1 ? "s" : ""}`}
@@ -246,19 +278,24 @@ const BillingAutomation = () => {
                     </Card>
 
                     {/* Tabs */}
-                    <Nav tabs className="mb-4">
-                        {TABS.map((t) => (
-                            <NavItem key={t.id}>
-                                <NavLink
-                                    active={activeTab === t.id}
-                                    onClick={() => setActiveTab(t.id)}
-                                    style={{ cursor: "pointer" }}
-                                >
-                                    {t.label}
-                                </NavLink>
-                            </NavItem>
-                        ))}
-                    </Nav>
+                    <div className="mb-4 flex items-end justify-between gap-3">
+                        <Nav tabs className="mb-0! flex-1">
+                            {TABS.map((t) => (
+                                <NavItem key={t.id}>
+                                    <NavLink
+                                        active={activeTab === t.id}
+                                        onClick={() => setActiveTab(t.id)}
+                                        style={{ cursor: "pointer" }}
+                                    >
+                                        {t.label}
+                                    </NavLink>
+                                </NavItem>
+                            ))}
+                        </Nav>
+                        <Button color="success" size="sm" onClick={() => setRegisterOpen(true)} className="flex shrink-0 items-center gap-2">
+                            <FileSpreadsheet size={15} /> Download Pre-Invoice Register (Excel)
+                        </Button>
+                    </div>
 
                     <TabContent activeTab={activeTab}>
                         <TabPane tabId="dashboard">
@@ -281,6 +318,25 @@ const BillingAutomation = () => {
                     </TabContent>
                 </div>
             </div>
+
+            <Modal isOpen={registerOpen} toggle={() => setRegisterOpen(false)} centered>
+                <ModalHeader toggle={() => setRegisterOpen(false)}>Pre-Invoice Register</ModalHeader>
+                <ModalBody>
+                    <Label className="form-label font-bold">Date Range</Label>
+                    <DateRangeInput value={registerRange} onChange={setRegisterRange} isBorder={true} />
+                </ModalBody>
+                <ModalFooter>
+                    <Button color="secondary" outline onClick={() => setRegisterOpen(false)}>Cancel</Button>
+                    <Button
+                        color="success"
+                        disabled={registerDownloading || !registerRange.startDate || !registerRange.endDate}
+                        onClick={downloadPreInvoiceRegister}
+                        className="flex items-center gap-2"
+                    >
+                        {registerDownloading ? <Spinner size="sm" /> : <FileSpreadsheet size={15} />} Download
+                    </Button>
+                </ModalFooter>
+            </Modal>
         </React.Fragment>
     )
 }
