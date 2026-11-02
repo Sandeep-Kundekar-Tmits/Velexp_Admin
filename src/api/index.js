@@ -26,6 +26,11 @@ export const CUSTOMER_360 = `${BASE_URL}/api/accounts/customer-360/`
 //post the user
 export const POST_USER_API = `${BASE_URL}/users/`
 
+// customer documents (account creation)
+export const CUSTOMER_DOCUMENTS_UPLOAD = `${BASE_URL}/customer-documents/upload/`  // POST multipart: customer_id, files[], document_types[] (same order), remarks
+export const CUSTOMER_DOCUMENTS_BASE = `${BASE_URL}/customer-documents/`          // GET ?customer_id=&include_removed=1&document_type= ; `${base}<id>/download/` GET ; `${base}<id>/remove/` POST
+export const CUSTOMER_DOCUMENT_TYPES = `${BASE_URL}/customer-documents/types/`     // GET types already used
+
 //  update user
 export const UPDATE_USER_API = `${BASE_URL}/users`
 

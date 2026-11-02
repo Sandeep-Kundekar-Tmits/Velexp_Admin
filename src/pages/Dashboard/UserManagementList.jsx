@@ -7,9 +7,10 @@ import { GET_ALL_USER_LIST, GET_USER_API } from "../../api";
 import usePostApiCall from "../../hooks/usePostApiCall";
 import Loader from "../../Loaders/Loader";
 import { motion } from "framer-motion";
-import { Building2, Copy, Eye, Handshake, Pencil, Store, UserPlus, Users } from "lucide-react";
+import { Building2, Copy, Eye, FileUp, Handshake, Pencil, Store, UserPlus, Users } from "lucide-react";
 import MainHeaderCom from "../../components/MainHeaderCom";
 import Customer360Modal from "../../components/UserManagement/Customer360Modal";
+import CustomerDocumentsModal from "../../components/UserManagement/CustomerDocumentsModal";
 import { cn } from "@/lib/cn";
 import ToasterProvider from "../../helpers/ToasterProvider";
 import SimpleModal from "../../components/SimpleModal";
@@ -103,6 +104,7 @@ const UserManagementList = () => {
 
     /* Row the Copy modal is open for, plus the two fields it can't fill in
        from the record itself (null when the modal is closed). */
+    const [docsTarget, setDocsTarget] = useState(null);
     const [copyTarget, setCopyTarget] = useState(null);
     const [copyPassword, setCopyPassword] = useState("");
     const [copyServiceType, setCopyServiceType] = useState("");
@@ -213,7 +215,7 @@ const UserManagementList = () => {
                labelled buttons plus the cell padding need ~230px, which is what
                this share of the 1010 total works out to at the widths this
                screen renders at. */
-            size: 230,
+            size: 300,
             cell: ({ row }) => (
                 /* nowrap + shrink-0: this column holds controls, so it may
                    overflow before it lets a button break across two lines or
@@ -248,6 +250,17 @@ const UserManagementList = () => {
                     >
                         <Copy aria-hidden="true" className="size-3.5" />
                         Copy
+                    </Button>
+                    <Button
+                        color="secondary"
+                        size="sm"
+                        onClick={(e) => { e.stopPropagation(); setDocsTarget(row.original); }}
+                        aria-label={`Documents of ${row.original?.customer_name || "customer"}`}
+                        title="Upload / view documents"
+                        className="shrink-0 gap-1.5 rounded-lg border border-[#22C55E]/30 bg-[#22C55E]/15 text-ink transition-all duration-200 hover:bg-[#22C55E]/25 hover:text-ink hover:shadow-[0_0_18px_-4px_rgba(34,197,94,0.9)]"
+                    >
+                        <FileUp aria-hidden="true" className="size-3.5" />
+                        Docs
                     </Button>
                 </div>
             ),
@@ -433,6 +446,7 @@ const UserManagementList = () => {
                     onClose={() => setDetailCustomer(null)}
                 />
             )}
+            <CustomerDocumentsModal customer={docsTarget} onClose={() => setDocsTarget(null)} />
 
             <SimpleModal
                 isOpen={!!copyTarget}

@@ -2,10 +2,11 @@ import { useEffect, useState } from "react"
 import TabProvider from "../../components/Table/TabProvider"
 import AddFranchiseeForm from "../../components/UserManagement/AddFranchiseeForm"
 import AddUserForm from "../../components/UserManagement/AddUserForm"
+import CustomerDocumentsForm, { newRow } from "../../components/UserManagement/CustomerDocumentsForm"
 import MultipleAddressForm from "../../components/UserManagement/MultipleAddressForm"
 import usePostFileApicall from "../../hooks/usePostFileApicall"
 import { Alert, Button, Modal, ModalBody, ModalFooter, ModalHeader } from "@/components/ui"
-import { POST_USER_API } from "../../api"
+import { POST_USER_API, CUSTOMER_DOCUMENTS_UPLOAD } from "../../api"
 import Loader from "@/Loaders/Loader";
 import { useNavigate } from "react-router-dom"
 import usePostApiCall from "../../hooks/usePostApiCall"
@@ -21,7 +22,10 @@ const AddUser = () => {
     const [showError, setShowError] = useState(false)
     const { apifunc: addNewUserWithFile, data: FormUserData, error: FormDataError, loading: FormDataLoading } = usePostFileApicall()
     // const { apifunc: addNewJsonUser, data: JsonUserData, error: JsonDataError, loading: JsonDataLoading } = usePostApiCall()
+    const { apifunc: uploadCustomerDocs } = usePostFileApicall()
     const navigate = useNavigate()
+    const [documents, setDocuments] = useState(() => [newRow()])
+    const [documentRemarks, setDocumentRemarks] = useState("")
     const [formData, setFormData] = useState({
         first_name: '',
         last_name: '',
@@ -117,6 +121,8 @@ const AddUser = () => {
 
     // reset the form
     const formRest = () => {
+        setDocuments([newRow()])
+        setDocumentRemarks("")
         setFormData({
             first_name: '',
             last_name: '',
@@ -286,6 +292,31 @@ const AddUser = () => {
 
 
 
+    // Queued documents go up once the customer exists; the upload API needs its id.
+    const uploadQueuedDocuments = async (created) => {
+        const queued = documents.filter((d) => d.file)
+        if (!queued.length) return
+        if (queued.some((d) => !d.type.trim())) {
+            ErrorToaster("User added, but documents were not uploaded: every file needs a document type")
+            return
+        }
+        const customerId = created?.id ?? created?.customer_id ?? created?.customer?.id ?? created?.user?.id ?? created?.data?.id
+        if (!customerId) {
+            ErrorToaster("User added, but documents were not uploaded: customer id missing in the response")
+            return
+        }
+        const body = new FormData()
+        body.append("customer_id", customerId)
+        queued.forEach((d) => {
+            body.append("files", d.file)
+            body.append("document_types", d.type.trim())
+        })
+        if (documentRemarks.trim()) body.append("remarks", documentRemarks.trim())
+        const res = await uploadCustomerDocs(CUSTOMER_DOCUMENTS_UPLOAD, body)
+        if (res?.status) SucceesToaster(`${queued.length} document(s) uploaded`)
+        else ErrorToaster("User added, but document upload failed")
+    }
+
     //  api call
     const SumitAddUserForm = async () => {
         if (formData.cust_type !== "3") {
@@ -296,6 +327,7 @@ const AddUser = () => {
                 let isSucces = await addNewUserWithFile(POST_USER_API, formatedData.body)
                 if (isSucces.status) {
                     SucceesToaster("User Added Successfully")
+                    await uploadQueuedDocuments(isSucces.data)
                     formRest()
                     setActiveTab(1)
                 }
@@ -315,6 +347,7 @@ const AddUser = () => {
                 if (isSucces.status) {
 
                     SucceesToaster("User Added Successfully")
+                    await uploadQueuedDocuments(isSucces.data)
                     formRest()
                     setActiveTab(1)
                 }
@@ -366,10 +399,21 @@ const AddUser = () => {
 
 
 
+    const documentsTab = {
+        id: 4,
+        title: 'Customer Documents',
+        content: <CustomerDocumentsForm
+            documents={documents}
+            setDocuments={setDocuments}
+            remarks={documentRemarks}
+            setRemarks={setDocumentRemarks}
+        />
+    };
+
     // Combine tabs based on condition
     const tabs = formData.cust_type === "3"
-        ? [...baseTabs, franchiseTab]
-        : baseTabs;
+        ? [...baseTabs, franchiseTab, documentsTab]
+        : [...baseTabs, documentsTab];
 
 
 
