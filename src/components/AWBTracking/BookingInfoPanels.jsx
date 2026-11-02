@@ -1,5 +1,6 @@
 import { useState } from "react"
-import { ChevronRight } from "lucide-react"
+import { Link } from "react-router-dom"
+import { ChevronRight, Search } from "lucide-react"
 import { Modal, ModalHeader, ModalBody } from "@/components/ui"
 
 /*
@@ -36,10 +37,9 @@ export const buildBookingInfo = (b, eddEvent = null) => ({
     booking: compact({
         "AWB No": b.awbno || "-",
         "Order ID": b.orderid,
+        "RTO AWB No": b.RTO_awbno,
         Customer: b.customer_name || "-",
         "Ref No": b.refno,
-        "Customer Ref No": b.customer_ref_no,
-        "Booking Date": formatDate(b.booking_date || b.booked_date),
         // booking_data.awb_date is when the AWB itself was generated, not when the order was booked
         "Airway Bill Date": formatDate(b.awb_date),
         EDD: eddEvent?.EDD ? formatDate(eddEvent.EDD) : null,
@@ -52,9 +52,10 @@ export const buildBookingInfo = (b, eddEvent = null) => ({
         // real booleans: false is an answer, not an absence
         Delivered: yesNo(b.delivered),
         "OTP Verified": yesNo(b.otp_verified),
-        "RTO AWB No": b.RTO_awbno,
+        "Booking Date": formatDate(b.booking_date || b.booked_date),
         // the backend sometimes sends the literal string "null"
         "Shipment Flag": b.shipment_flag,
+        "Customer Ref No": b.customer_ref_no,
     }),
     shipper: {
         Name: b.shipper_name || "-",
@@ -99,19 +100,6 @@ const ACCENTS = {
     red: { header: "bg-danger-500/12", text: "text-danger-500" },
 }
 
-/*
- * Same glass panel as the rest of the app, with a colour-coded header so
- * Booking / Shipper / Consignee read apart at a glance.
- */
-const Section = ({ title, accent = "blue", children }) => (
-    <div className="flex h-full flex-col overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[var(--glass-surface)] backdrop-blur-xl">
-        <div className={`border-b border-[rgb(var(--overlay-rgb)/0.08)] px-4 py-2.5 ${ACCENTS[accent].header}`}>
-            <h6 className={`m-0 text-[11px] font-semibold uppercase tracking-wider ${ACCENTS[accent].text}`}>{title}</h6>
-        </div>
-        <div className="grid grid-cols-2 gap-3 p-4">{children}</div>
-    </div>
-)
-
 const valueTone = (label, value) => {
     const v = String(value || "")
     if (label === "Shipment Flag") return "text-danger-500"
@@ -125,43 +113,71 @@ const valueTone = (label, value) => {
     return "text-ink"
 }
 
-const Pair = ({ label, value, full }) => (
-    <div className={full ? "col-span-2 min-w-0" : "min-w-0"}>
-        <div className={`break-words text-[13px] font-semibold ${valueTone(label, value)}`}>{value || "-"}</div>
-        <div className="text-[11px] capitalize text-ink-muted">{label}</div>
+const LINE = "border-[rgb(var(--overlay-rgb)/0.08)]"
+const LABEL_CELL = `w-[13%] whitespace-nowrap bg-[rgb(var(--overlay-rgb)/0.04)] px-3 py-1 text-left text-[12px] font-medium capitalize text-ink-muted border-b ${LINE}`
+const VALUE_CELL = `break-words px-3 py-1 text-[13px] font-semibold border-b ${LINE}`
+
+const Panel = ({ title, accent = "blue", action = null, children }) => (
+    <div className="flex h-full flex-col overflow-hidden rounded border border-[rgb(var(--overlay-rgb)/0.08)] bg-[var(--glass-surface)] backdrop-blur-xl">
+        <div className={`flex items-center justify-between border-b px-3 py-1 ${LINE} ${ACCENTS[accent].header}`}>
+            <h6 className={`m-0 text-[11px] font-semibold uppercase tracking-wider ${ACCENTS[accent].text}`}>{title}</h6>
+            {action}
+        </div>
+        {/* fixed 180px body: the rest of the rows scroll inside the card */}
+        <div className="scroll-slim h-[180px] overflow-y-auto">{children}</div>
     </div>
 )
 
-// Renders every entry as a Pair in the 2-column grid. `full` labels span both columns, and a
-// Pair left alone in its row (before a full-width one, or last) is stretched across both columns.
-const Pairs = ({ obj = {}, full = [] }) => {
-    const items = Object.entries(obj).map(([label, value]) => ({ label, value, wide: full.includes(label) }))
-    let pending = null
-    items.forEach((it) => {
-        if (!it.wide) {
-            pending = pending ? null : it
-        } else if (pending) {
-            pending.wide = true
-            pending = null
-        }
-    })
-    if (pending) pending.wide = true
-    return items.map((it) => <Pair key={it.label} label={it.label} value={it.value} full={it.wide} />)
-}
+// values that can be looked up on the tracking screen; the icon opens /tracking?awb=<value>
+const TRACKABLE = new Set(["AWB No", "Order ID", "RTO AWB No"])
 
-const SubHead = ({ children, onMore }) => (
-    <div className="col-span-2 mt-1 flex items-center justify-between border-t border-[rgb(var(--overlay-rgb)/0.08)] pt-3">
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-success-500">{children}</span>
-        {onMore && (
-            <button
-                type="button"
-                onClick={onMore}
-                className="inline-flex items-center gap-0.5 border-0 bg-transparent p-0 text-[11px] font-semibold text-success-500 hover:underline"
-            >
-                More <ChevronRight size={14} />
-            </button>
-        )}
-    </div>
+const TrackLink = ({ value, label }) => (
+    <Link
+        to={`/tracking?awb=${encodeURIComponent(value)}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        title={`Track ${label} ${value}`}
+        aria-label={`Track ${label} ${value}`}
+        className="inline-flex shrink-0 items-center text-[#60A5FA] hover:text-[#93C5FD]"
+    >
+        <Search aria-hidden="true" size={14} />
+    </Link>
+)
+
+const KvRows = ({ obj = {} }) =>
+    Object.entries(obj).map(([label, value]) => (
+        <tr key={label}>
+            <th scope="row" className={`${LABEL_CELL} !w-[38%]`}>{label}</th>
+            <td className={`${VALUE_CELL} ${valueTone(label, value)}`}>
+                {TRACKABLE.has(label) && value && value !== "-" ? (
+                    <span className="flex items-center justify-between gap-2">
+                        {value}
+                        <TrackLink value={value} label={label} />
+                    </span>
+                ) : (
+                    value || "-"
+                )}
+            </td>
+        </tr>
+    ))
+
+const SubHeadRow = ({ children, onMore }) => (
+    <tr>
+        <td colSpan={2} className={`border-b ${LINE} bg-success-500/10 px-3 py-1`}>
+            <div className="flex items-center justify-between">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-success-500">{children}</span>
+                {onMore && (
+                    <button
+                        type="button"
+                        onClick={onMore}
+                        className="inline-flex items-center gap-0.5 border-0 bg-transparent p-0 text-[11px] font-semibold text-success-500 hover:underline"
+                    >
+                        More <ChevronRight size={14} />
+                    </button>
+                )}
+            </div>
+        </td>
+    </tr>
 )
 
 const Table = ({ columns, rows }) => (
@@ -201,46 +217,94 @@ const SLIP_COLUMNS = [
 
 const EMPTY = { booking: {}, shipper: {}, consignee: {}, weight: {}, payment: {}, depositSlips: [], iciciPayments: [] }
 
-const BookingInfoPanels = ({ info = EMPTY, awb = "", showWeight = true }) => {
+// Title-bar tags: solid tinted pill, a status dot and a coloured border so they read at a glance
+const TAG_TONES = {
+    success: "border-success-500/60 bg-success-500/20 text-success-500",
+    warning: "border-warning-500/60 bg-warning-500/20 text-warning-500",
+    danger: "border-danger-500/60 bg-danger-500/20 text-danger-500",
+    info: "border-[#3B82F6]/60 bg-[#3B82F6]/20 text-[#60A5FA]",
+    neutral: "border-[rgb(var(--overlay-rgb)/0.3)] bg-[rgb(var(--overlay-rgb)/0.1)] text-ink",
+}
+
+const Tag = ({ tone = "neutral", children }) => (
+    <span className={`inline-flex items-center gap-1 whitespace-nowrap rounded-full border px-2.5 py-0.5 text-[11px] font-bold uppercase leading-none tracking-wide ${TAG_TONES[tone]}`}>
+        <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
+        {children}
+    </span>
+)
+
+// COD is money still to collect, prepaid/paid modes are settled, RTO is a return
+const payModeTone = (mode) => {
+    const m = String(mode).toLowerCase()
+    if (/rto|return/.test(m)) return "danger"
+    if (/cod|cash/.test(m)) return "warning"
+    if (/pop|paid|prepaid|online|credit|tbb/.test(m)) return "success"
+    return "info"
+}
+
+const BookingInfoPanels = ({ info = EMPTY, awb = "", showWeight = true, rtoApproved = null }) => {
     // "More" on Payment & Collection opens the deposit slips
     const [depositOpen, setDepositOpen] = useState(false)
     const hasWeight = showWeight && Object.keys(info.weight || {}).length > 0
     const hasPayment = Object.keys(info.payment || {}).length > 0
-    const hasDeposits = info.depositSlips?.length > 0 || info.iciciPayments?.length > 0
+    // payment mode as a tag beside the RTO tag: COD, POP, PAID, RTO ...
+    const payMode = info.payment?.["Payment Mode"] || ""
+    const hasDeposits =info.depositSlips?.length > 0 || info.iciciPayments?.length > 0
     const iciciColumns = Object.keys(info.iciciPayments?.[0] || {})
         .slice(0, 5)
         .map((k) => ({ label: k.replace(/_/g, " "), get: (r) => (typeof r[k] === "object" ? JSON.stringify(r[k]) : r[k]) }))
 
     return (
         <>
-            <div className="row gap-y-3">
-                <div className="col-12 col-lg-4">
-                    <Section title="Booking Info" accent="blue">
-                        <Pairs obj={info.booking} />
-                    </Section>
-                </div>
-                <div className="col-12 col-lg-4">
-                    <Section title="Shipper Details" accent="green">
-                        <Pairs obj={info.shipper} full={["Location", "Address"]} />
-                        {hasWeight && (
-                            <>
-                                <SubHead>Weight &amp; Pieces</SubHead>
-                                <Pairs obj={info.weight} />
-                            </>
-                        )}
-                        {hasPayment && (
-                            <>
-                                <SubHead onMore={hasDeposits ? () => setDepositOpen(true) : null}>Payment &amp; Collection</SubHead>
-                                <Pairs obj={info.payment} />
-                            </>
-                        )}
-                    </Section>
-                </div>
-                <div className="col-12 col-lg-4">
-                    <Section title="Consignee Details" accent="red">
-                        <Pairs obj={info.consignee} full={["Address"]} />
-                    </Section>
-                </div>
+            <div className="grid grid-cols-1 gap-2 lg:grid-cols-3">
+                <Panel
+                    title="Booking Info"
+                    accent="blue"
+                    action={
+                        rtoApproved === null && !payMode ? null : (
+                            <span className="flex items-center gap-1.5">
+                                {payMode && <Tag tone={payModeTone(payMode)}>{payMode}</Tag>}
+                                {rtoApproved !== null && (
+                                    <Tag tone={rtoApproved ? "success" : "neutral"}>{rtoApproved ? "RTO Approved" : "Not RTO Approved"}</Tag>
+                                )}
+                            </span>
+                        )
+                    }
+                >
+                    <table className="w-full">
+                        <tbody>
+                            <KvRows obj={info.booking} />
+                            {hasPayment && (
+                                <>
+                                    <SubHeadRow onMore={hasDeposits ? () => setDepositOpen(true) : null}>Payment &amp; Collection</SubHeadRow>
+                                    <KvRows obj={info.payment} />
+                                </>
+                            )}
+                        </tbody>
+                    </table>
+                </Panel>
+
+                <Panel title="Shipper Details" accent="green">
+                    <table className="w-full">
+                        <tbody>
+                            <KvRows obj={info.shipper} />
+                            {hasWeight && (
+                                <>
+                                    <SubHeadRow>Weight &amp; Pieces</SubHeadRow>
+                                    <KvRows obj={info.weight} />
+                                </>
+                            )}
+                        </tbody>
+                    </table>
+                </Panel>
+
+                <Panel title="Consignee Details" accent="red">
+                    <table className="w-full">
+                        <tbody>
+                            <KvRows obj={info.consignee} />
+                        </tbody>
+                    </table>
+                </Panel>
             </div>
 
             <Modal isOpen={depositOpen} toggle={() => setDepositOpen(false)} centered size="lg">

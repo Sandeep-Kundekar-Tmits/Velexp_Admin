@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react"
 import { Button, Input, Label } from "@/components/ui"
-import { useNavigate } from "react-router-dom"
-import { AlertCircle, CalendarClock, FileSearch, Monitor, RefreshCcw, Smartphone } from "lucide-react"
+import { Link, useNavigate, useSearchParams } from "react-router-dom"
+import { AlertCircle, CalendarClock, Eye, MapPin, Monitor, Search, Smartphone } from "lucide-react"
 import MainHeaderComp from "../../components/MainHeaderCom"
 import Loader from "@/Loaders/Loader"
 import usePostApiCall from "../../hooks/usePostApiCall"
@@ -11,7 +11,9 @@ import ToasterProvider from "../../helpers/ToasterProvider"
 import EditEDD from "../../components/AWBTracking/EditEDD"
 import BagTrackingResult from "../../components/AWBTracking/BagTrackingResult"
 import BookingInfoPanels, { buildBookingInfo } from "../../components/AWBTracking/BookingInfoPanels"
+import AwbSelect from "../../components/AWBTracking/AwbSelect"
 import PodViewer from "../../components/AWBTracking/PodViewer"
+import CallRecordings, { normalizeRecordings } from "../../components/AWBTracking/CallRecordings"
 
 const formatDate = (iso) => {
     if (!iso) return "-"
@@ -57,6 +59,31 @@ const logTrackScan = async (awb, screenName) => {
 // ink token instead.
 const ACCENT = { border: "rgba(59,130,246,0.3)", tint: "rgba(59,130,246,0.15)", text: "var(--color-ink)", solid: "#3B82F6" }
 
+const hasText = (v) => v !== null && v !== undefined && String(v).trim() !== ""
+const ICON_BTN = "inline-flex size-6 items-center justify-center rounded-full border"
+const ICON_ON = "border-[#3B82F6]/50 bg-[#3B82F6]/20 text-[#60A5FA] hover:bg-[#3B82F6]/35"
+
+// Where the status was updated from (lat/long), opened in Google Maps.
+const LocationLink = ({ lat, lng, url, place }) => {
+    const href = hasText(url) ? url : hasText(lat) && hasText(lng) ? `https://www.google.com/maps?q=${lat},${lng}` : null
+    if (!href) {
+        return null // no location on this status: no icon
+    }
+    return (
+        <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={hasText(place) ? `Updated at ${place} (${lat}, ${lng})` : hasText(lat) && hasText(lng) ? `Updated at ${lat}, ${lng}` : "Open update location"}
+            aria-label="Open update location in Google Maps"
+            className={`${ICON_BTN} ${ICON_ON}`}
+        >
+            <MapPin aria-hidden="true" size={13} />
+        </a>
+    )
+}
+
+
 const TrackAWB = () => {
     const navigate = useNavigate()
     const [trackingNo, setTrackingNo] = useState("")
@@ -67,9 +94,12 @@ const TrackAWB = () => {
     const [trackData, setTrackData] = useState({}) // { awbno: [events] | "message" }
     const [activeAwb, setActiveAwb] = useState(null)
     const [bagInfo, setBagInfo] = useState(null)
+    // call recordings ride on booking_data.call_records (one entry per call), not on each status
+    const [callRecordings, setCallRecordings] = useState(null)
     const [hasSearched, setHasSearched] = useState(false)
 
     const timelineRef = useRef(null)
+    const [histHeight, setHistHeight] = useState(360)
 
     useEffect(() => {
         document.title = "Shipment & Bag Tracking"
@@ -81,27 +111,31 @@ const TrackAWB = () => {
 
     const isLoading = shipmentLoading || bagLoading
 
-    const onTrack = async () => {
-        if (!trackingNo) {
-            ErrorToaster(searchType === "bag" ? "Please enter a Bag number" : "Please enter an AWB number")
+    // `no` / `type` default to what is typed in the header; the URL passes its own.
+    const track = async (rawNo = trackingNo, type = searchType) => {
+        // numbers are stored in capitals: "ve123 " is looked up as "VE123"
+        const no = String(rawNo || "").trim().toUpperCase()
+        if (!no) {
+            ErrorToaster(type === "bag" ? "Please enter a Bag number" : "Please enter an AWB number")
             return
         }
 
-        if (searchType === "bag") {
-            const res = await trackBag(GET_BAG_TRACKING, { bag_no: trackingNo })
+        if (type === "bag") {
+            const res = await trackBag(GET_BAG_TRACKING, { bag_no: no })
             setHasSearched(true)
             if (res?.parent_bag_data) {
                 setBagInfo(res)
-                logTrackScan(trackingNo, "Bag Tracking")
+                logTrackScan(no, "Bag Tracking")
             } else {
                 setBagInfo(null)
                 ErrorToaster(res?.message || "Bag not found")
             }
             setBookingData(null)
             setTrackData({})
+            setCallRecordings(null)
             setActiveAwb(null)
         } else {
-            const res = await trackShipment(GET_AWB_TRACKING, { awbno: trackingNo })
+            const res = await trackShipment(GET_AWB_TRACKING, { awbno: no })
             setHasSearched(true)
             // A shipment that is booked but not scanned yet comes back with
             // booking_data and an empty track_data ({}) -- that is still a hit,
@@ -111,21 +145,66 @@ const TrackAWB = () => {
             if (trackKeys.length > 0 || hasBooking) {
                 setBookingData(res.booking_data || null)
                 setTrackData(res.track_data || {})
+                setCallRecordings(res.booking_data?.call_records ?? null)
                 setActiveAwb(
-                    trackKeys.includes(trackingNo)
-                        ? trackingNo
-                        : trackKeys[0] || res.booking_data?.awbno || trackingNo,
+                    trackKeys.includes(no)
+                        ? no
+                        : trackKeys[0] || res.booking_data?.awbno || no,
                 )
-                logTrackScan(trackingNo, "Shipment Tracking")
+                logTrackScan(no, "Shipment Tracking")
             } else {
                 setBookingData(null)
                 setTrackData({})
+                setCallRecordings(null)
                 setActiveAwb(null)
                 ErrorToaster(res?.message || "AWB not found")
             }
             setBagInfo(null)
         }
     }
+
+    const onTrack = () => track()
+
+    // /tracking?awb=<no> or ?bag=<no>: fill the header and look it up straight away.
+    const [searchParams] = useSearchParams()
+    const urlAwb = searchParams.get("awb")
+    const urlBag = searchParams.get("bag")
+    useEffect(() => {
+        const no = (urlBag || urlAwb || "").trim().toUpperCase()
+        if (!no) return
+        const type = urlBag ? "bag" : "shipment"
+        setSearchType(type)
+        setTrackingNo(no)
+        track(no, type)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [urlAwb, urlBag])
+
+    // The history fills whatever screen height is left under the fixed cards and scrolls inside it.
+    useLayoutEffect(() => {
+        const scrollParent = (node) => {
+            for (let n = node?.parentElement; n; n = n.parentElement) {
+                const oy = getComputedStyle(n).overflowY
+                if (oy === "auto" || oy === "scroll") return n
+            }
+            return null
+        }
+        const fit = () => {
+            const el = timelineRef.current
+            if (!el) return
+            // Offset of the history inside its scroll box, independent of the current scroll position,
+            // so the bottom edge always lands inside the visible area.
+            const parent = scrollParent(el)
+            const viewH = parent ? parent.clientHeight : window.innerHeight
+            const offset = parent
+                ? el.getBoundingClientRect().top - parent.getBoundingClientRect().top + parent.scrollTop
+                : el.getBoundingClientRect().top + window.scrollY
+            // 32px: breathing room for the container's bottom padding
+            setHistHeight(Math.max(240, Math.floor(viewH - offset - 32)))
+        }
+        fit()
+        window.addEventListener("resize", fit)
+        return () => window.removeEventListener("resize", fit)
+    }, [bookingData, activeAwb, isLoading, searchType])
 
     // whenever the selected AWB tab changes, scroll its timeline back to the top
     useLayoutEffect(() => {
@@ -151,9 +230,27 @@ const TrackAWB = () => {
                 employee_id: ele.employee_id,
                 employee_name: ele.employee_name,
                 updated_via: ele.updated_via || "",
+                // where the status was updated from: the API's `location` object, with the flat fields as fallback
+                latitude: ele.location?.latitude ?? ele.latitude,
+                longitude: ele.location?.longitude ?? ele.longitude,
+                map_url: ele.location?.map_url,
+                scanned_location: ele.scanned_location,
                 active: index === 0,
             }))
     }, [activeAwb, trackData])
+
+    const recordingList = useMemo(() => normalizeRecordings(callRecordings, activeAwb), [callRecordings, activeAwb])
+
+    // One entry per AWB (piece) in the shipment, each with its latest status for the picker.
+    const awbOptions = useMemo(() => {
+        const keys = Object.keys(trackData || {})
+        const list = keys.length > 0 ? keys : [activeAwb].filter(Boolean)
+        return list.map((key) => {
+            const events = Array.isArray(trackData?.[key]) ? trackData[key] : []
+            const latest = [...events].sort((x, y) => new Date(y.status_date) - new Date(x.status_date))[0]
+            return { value: key, status: latest?.status || "" }
+        })
+    }, [trackData, activeAwb])
 
     const noDataMessage = activeAwb && trackData?.[activeAwb] && !Array.isArray(trackData[activeAwb])
         ? trackData[activeAwb]
@@ -174,6 +271,8 @@ const TrackAWB = () => {
         navigate(`/track-awb/${activeAwb}/details`)
     }
 
+    const showShipment = searchType === "shipment" && !!bookingData
+
     return (
         // overflow-x-clip, not -hidden: hidden turns this div into its own scroll container,
         // which would pin the sticky search bar to it instead of the layout's scrolling box.
@@ -181,181 +280,93 @@ const TrackAWB = () => {
             <MainHeaderComp
                 title="Shipment & Bag Tracking"
                 subTitle="Look up a shipment's checkpoints, or trace a bag's movement."
+                onRefresh={showShipment ? onTrack : null}
+                refreshing={isLoading}
                 extraFields={
-                    bookingData && (
-                        <div className="flex items-center gap-2">
-                            <PodViewer awbNo={activeAwb} />
-                            <Button
-                                className="table-action-btn table-action-btn-ghost"
-                                onClick={() => setActiveComponent("edit_edd")}
-                            >
-                                <CalendarClock aria-hidden="true" size={15} />
-                                Edit Estimated Delivery Date
-                            </Button>
-                            <Button
-                                className="table-action-btn table-action-btn-primary"
-                                onClick={handleDetailView}
-                            >
-                                <FileSearch aria-hidden="true" size={15} />
-                                View Full Trace
+                    <div className="flex flex-wrap items-center gap-3">
+                        <div className="flex flex-wrap items-center gap-3">
+                            <Input
+                                type="text"
+                                placeholder="AWB / Bag Number"
+                                className="w-56"
+                                value={trackingNo}
+                                onChange={(e) => setTrackingNo(e.target.value ? e.target.value.toUpperCase() : "")}
+                                onKeyDown={(e) => { if (e.key === "Enter") onTrack() }}
+                            />
+                            {/* Real radio inputs: a single either/or choice, not two more actions. */}
+                            <div className="flex flex-col gap-0.5">
+                                <div className="flex items-center gap-1.5">
+                                    <Input type="radio" id="search-type-shipment" name="searchType"
+                                        checked={searchType === "shipment"} onChange={() => setSearchType("shipment")} />
+                                    <Label for="search-type-shipment" className="mb-0 cursor-pointer text-[13px] font-medium">Shipment</Label>
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                    <Input type="radio" id="search-type-bag" name="searchType"
+                                        checked={searchType === "bag"} onChange={() => setSearchType("bag")} />
+                                    <Label for="search-type-bag" className="mb-0 cursor-pointer text-[13px] font-medium">Bag</Label>
+                                </div>
+                            </div>
+                            <Button className="table-action-btn table-action-btn-primary" onClick={onTrack} disabled={!trackingNo || isLoading}>
+                                {isLoading ? "Tracking..." : "Track"}
                             </Button>
                         </div>
-                    )
+                        {bookingData && (
+                            <div className="flex flex-wrap items-center gap-2">
+                                <Button
+                                    className="table-action-btn table-action-btn-ghost"
+                                    onClick={() => setActiveComponent("edit_edd")}
+                                >
+                                    <CalendarClock aria-hidden="true" size={15} />
+                                    EDD
+                                </Button>
+                            </div>
+                        )}
+                    </div>
                 }
             />
 
             {/* No height:90vh with its own scrollbar: the layout's box already scrolls. */}
             <div className="container-fluid relative z-10 px-4 pb-4">
 
-                {/* search bar -- sticky so the AWB input stays put while the results scroll */}
-                <div className="filter-row sticky top-0 z-20 bg-canvas py-2">
-                    <div className="filter-group">
-                        <div className="flex w-full flex-col gap-1.5 sm:w-64">
-                            <Input
-                                type="text"
-                                placeholder="AWB / Bag Number"
-                                value={trackingNo}
-                                onChange={(e) => setTrackingNo(e.target.value ? e.target.value.toUpperCase() : "")}
-                                onKeyDown={(e) => { if (e.key === "Enter") onTrack() }}
-                            />
-                        </div>
-
-                        {/* Real radio inputs, not more buttons -- next to the solid
-                            "Track" button, button-styled Shipment/Bag toggles read as
-                            two more actions rather than "pick a mode, then act." A
-                            radio pair reads unambiguously as a single either/or choice. */}
-                        <div className="flex items-center gap-4">
-                            <div className="flex items-center gap-1.5">
-                                <Input
-                                    type="radio"
-                                    id="search-type-shipment"
-                                    name="searchType"
-                                    checked={searchType === "shipment"}
-                                    onChange={() => setSearchType("shipment")}
-                                />
-                                <Label for="search-type-shipment" className="mb-0 cursor-pointer text-[13px] font-medium">
-                                    Shipment
-                                </Label>
-                            </div>
-                            <div className="flex items-center gap-1.5">
-                                <Input
-                                    type="radio"
-                                    id="search-type-bag"
-                                    name="searchType"
-                                    checked={searchType === "bag"}
-                                    onChange={() => setSearchType("bag")}
-                                />
-                                <Label for="search-type-bag" className="mb-0 cursor-pointer text-[13px] font-medium">
-                                    Bag
-                                </Label>
-                            </div>
-                        </div>
-
-                        <Button
-                            className="table-action-btn table-action-btn-primary"
-                            onClick={onTrack}
-                            disabled={!trackingNo || isLoading}
-                        >
-                            {isLoading ? "Tracking..." : "Track"}
-                        </Button>
-                    </div>
-                </div>
-
                 {isLoading ? (
                     <Loader message="Tracking shipment…" fullscreen={false} />
                 ) : searchType === "bag" ? (
                     bagInfo && <BagTrackingResult bagInfo={bagInfo} bagNo={trackingNo} />
                 ) : bookingData && (
-                    <div className="mt-3">
-                        {/* --------- header info --------- */}
-                        <div className="mb-3 flex items-center gap-2 border-b border-[rgb(var(--overlay-rgb)/0.08)] pb-2">
-                            <span className="font-semibold text-ink" style={{ fontSize: 18 }}>
-                                Shipment Details - AWB : {activeAwb}
-                            </span>
-                            <RefreshCcw
-                                size={16}
-                                className={`text-ink-muted ${isLoading ? "spin" : ""}`}
-                                style={{ cursor: "pointer" }}
-                                onClick={onTrack}
+                    <div>
+                        {/* sticky: the three cards stay put while the history scrolls underneath */}
+                        <div className="sticky top-0 z-20 bg-canvas pb-2">
+                            <BookingInfoPanels
+                                info={headerInfo}
+                                awb={activeAwb}
+                                showWeight={false}
+                                rtoApproved={bookingData.rto_approval === true && !!bookingData.shipment_flag}
                             />
-                            {bookingData.rto_approval === true && bookingData.shipment_flag ? (
-                                <span className="badge border border-success-500/30 bg-success-500/15 text-success-500">
-                                    RTO Approved
-                                </span>
-                            ) : (
-                                <span className="badge border border-[rgb(var(--overlay-rgb)/0.15)] bg-[rgb(var(--overlay-rgb)/0.05)] text-ink-muted">Not RTO Approved</span>
-                            )}
                         </div>
 
-                        {/* The backend sometimes sends the literal string "null" instead of a real null. */}
-                        {bookingData.rto_approval === true && bookingData.shipment_flag && bookingData.shipment_flag !== "null" && (
-                            <div className="mb-3 flex items-center gap-2 rounded-lg border border-danger-500/30 bg-danger-500/10 px-3 py-2 text-[13px] font-semibold text-danger-500">
-                                <AlertCircle size={16} className="shrink-0" />
-                                RTO Approved — {bookingData.shipment_flag}
-                            </div>
-                        )}
-
-                        <BookingInfoPanels info={headerInfo} awb={activeAwb} showWeight={false} />
-
                         {/* --------- multipiece AWB tabs + timeline --------- */}
-                        <div className="mt-3 flex flex-col gap-3 md:flex-row">
-                            <div className="overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[var(--glass-surface)] backdrop-blur-xl md:w-44 md:flex-shrink-0">
-                                <div className="border-b border-[rgb(var(--overlay-rgb)/0.08)] px-3 py-2 text-[11px] font-semibold uppercase tracking-wider text-ink-muted">
-                                    AWB No
-                                </div>
-                                {/* 10 AWBs are visible at a time on desktop; the rest scroll */}
-                                <div className="flex flex-wrap md:flex-col md:flex-nowrap md:max-h-[355px] md:overflow-y-auto">
-                                    {(Object.keys(trackData).length > 0 ? Object.keys(trackData) : [activeAwb].filter(Boolean)).map((key) => {
-                                        const active = key === activeAwb
-                                        return (
-                                            <div
-                                                key={key}
-                                                onClick={() => setActiveAwb(key)}
-                                                className="whitespace-nowrap border-l-4 px-3 py-2 text-[13px]"
-                                                style={{
-                                                    cursor: "pointer",
-                                                    backgroundColor: active ? ACCENT.tint : "transparent",
-                                                    borderColor: active ? ACCENT.solid : "transparent",
-                                                    color: active ? ACCENT.text : undefined,
-                                                    fontWeight: active ? 600 : 400,
-                                                }}
-                                            >
-                                                {key}
-                                            </div>
-                                        )
-                                    })}
-                                </div>
+                        <div className="mt-2 flex flex-col gap-1">
+                            <div className="mb-1.5 flex items-center gap-2">
+                                <AwbSelect options={awbOptions} value={activeAwb || ""} onChange={setActiveAwb} />
+                                <PodViewer awbNo={activeAwb} thumbnail />
+                                <CallRecordings recordings={recordingList} />
                             </div>
 
-                            <div ref={timelineRef} className="scroll-slim flex-1" style={{ maxHeight: "55vh", overflowY: "auto" }}>
+                            <div ref={timelineRef} className="scroll-slim min-w-0 flex-1" style={{ height: histHeight, overflowY: "auto" }}>
                                 {dataList.map((item, index) => (
-                                    <div key={index} className="relative flex items-start gap-3 pb-4">
-                                        <div className="text-center" style={{ minWidth: 110 }}>
+                                    <div key={index} className="relative flex items-stretch gap-1.5">
+                                        <div className="self-start pb-4 text-center" style={{ minWidth: 110 }}>
                                             <span
-                                                className="badge px-2 py-1"
-                                                style={{ borderRadius: 999, backgroundColor: ACCENT.tint, border: `1px solid ${ACCENT.border}`, color: ACCENT.text }}
+                                                className="badge px-3 py-1 text-[12px] font-bold tracking-wide text-white shadow-sm"
+                                                style={{ borderRadius: 999, backgroundColor: ACCENT.solid, border: `1px solid ${ACCENT.solid}` }}
                                             >
                                                 {item.status}
                                             </span>
-                                            {item.updated_via && (
-                                                <div className="mt-1">
-                                                    <span
-                                                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium capitalize ${
-                                                            item.updated_via.toLowerCase() === "mobile"
-                                                                ? "bg-success-500/15 text-success-500"
-                                                                : "bg-[rgb(var(--overlay-rgb)/0.06)] text-ink-muted"
-                                                        }`}
-                                                    >
-                                                        {item.updated_via.toLowerCase() === "mobile" ? <Smartphone size={11} /> : <Monitor size={11} />}
-                                                        via {item.updated_via}
-                                                    </span>
-                                                </div>
-                                            )}
-                                            <div className="mt-1 text-[12px] font-semibold text-ink">{item.date}</div>
-                                            <div className="text-[11px] text-ink-muted">At {item.time}</div>
+                                            <div className="mt-1.5 text-[13px] font-bold text-ink">{item.date}</div>
+                                            <div className="text-[12px] font-medium text-ink">At {item.time}</div>
                                         </div>
 
-                                        <div className="flex flex-col items-center" style={{ width: 24 }}>
+                                        <div className="flex flex-col items-center" style={{ width: 20 }}>
                                             <div
                                                 className="flex-shrink-0 rounded-full border-4"
                                                 style={{
@@ -365,50 +376,79 @@ const TrackAWB = () => {
                                                 }}
                                             />
                                             {index < dataList.length - 1 && (
-                                                <div style={{ width: 2, flex: 1, borderRight: `2px dashed ${ACCENT.border}`, minHeight: 40 }} />
+                                                <div style={{ flex: 1, minHeight: 16, borderRight: `2px dashed ${ACCENT.border}` }} />
                                             )}
                                         </div>
 
-                                        <div className="grid flex-1 grid-cols-2 gap-3 rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[rgb(var(--overlay-rgb)/0.02)] p-3 md:grid-cols-3">
-                                            <div>
-                                                <div className="text-[12px] font-semibold text-ink">Service Center</div>
-                                                <div className="text-[12px] text-ink-muted">
+                                        <div className="relative mb-4 grid flex-1 self-start grid-cols-2 gap-3 rounded-xl border border-[rgb(var(--overlay-rgb)/0.08)] bg-[var(--glass-surface)] backdrop-blur-xl p-3 md:grid-cols-4 md:pr-28">
+                                            <div className="absolute right-2 top-2 flex items-center gap-1.5">
+                                                {item.updated_via && (
+                                                    <span
+                                                        className={`inline-flex items-center gap-1 rounded-full border px-2 py-px text-[10px] font-semibold capitalize ${
+                                                            item.updated_via.toLowerCase() === "mobile"
+                                                                ? "border-success-500/50 bg-success-500/20 text-success-500"
+                                                                : "border-[#3B82F6]/50 bg-[#3B82F6]/20 text-ink"
+                                                        }`}
+                                                    >
+                                                        {item.updated_via.toLowerCase() === "mobile" ? <Smartphone size={10} /> : <Monitor size={10} />}
+                                                        {item.updated_via}
+                                                    </span>
+                                                )}
+                                                <div className="flex items-center gap-1.5">
+                                                                                    <LocationLink lat={item.latitude} lng={item.longitude} url={item.map_url} place={item.scanned_location} />
+                                                </div>
+                                            </div>
+                                                                                        <div>
+                                                <div className="text-[11px] font-medium uppercase tracking-wide text-ink-muted">Service Center</div>
+                                                <div className="text-[13px] font-semibold text-ink">
                                                     {item.service_center}
                                                     {item.service_center_city?.trim?.() ? `-${item.service_center_city}` : ""}
                                                 </div>
                                             </div>
                                             <div>
-                                                <div className="text-[12px] font-semibold text-ink">Remark</div>
-                                                <div className="text-[12px] text-ink-muted">{item.remark}</div>
+                                                <div className="text-[11px] font-medium uppercase tracking-wide text-ink-muted">Remark</div>
+                                                <div className="text-[13px] font-semibold text-ink">{item.remark}</div>
                                             </div>
                                             {item.bag_no?.trim?.() && (
                                                 <div>
-                                                    <div className="text-[12px] font-semibold text-ink">Bag No</div>
-                                                    <div className="text-[12px] text-ink-muted">{item.bag_no}</div>
+                                                    <div className="text-[11px] font-medium uppercase tracking-wide text-ink-muted">Bag No</div>
+                                                    <div className="flex items-center gap-1.5 text-[13px] font-semibold text-ink">
+                                                        {item.bag_no}
+                                                        <Link
+                                                            to={`/tracking?bag=${encodeURIComponent(item.bag_no.trim())}`}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            title={`Track bag ${item.bag_no}`}
+                                                            aria-label={`Track bag ${item.bag_no}`}
+                                                            className="inline-flex shrink-0 items-center text-[#60A5FA] hover:text-[#93C5FD]"
+                                                        >
+                                                            <Search aria-hidden="true" size={14} />
+                                                        </Link>
+                                                    </div>
                                                 </div>
                                             )}
                                             {item.manifest_no?.trim?.() && (
                                                 <div>
-                                                    <div className="text-[12px] font-semibold text-ink">Manifest No</div>
-                                                    <div className="text-[12px] text-ink-muted">{item.manifest_no}</div>
+                                                    <div className="text-[11px] font-medium uppercase tracking-wide text-ink-muted">Manifest No</div>
+                                                    <div className="text-[13px] font-semibold text-ink">{item.manifest_no}</div>
                                                 </div>
                                             )}
                                             {item.manifest_destination?.trim?.() && (
                                                 <div>
-                                                    <div className="text-[12px] font-semibold text-ink">Manifest Destination</div>
-                                                    <div className="text-[12px] text-ink-muted">{item.manifest_destination}</div>
+                                                    <div className="text-[11px] font-medium uppercase tracking-wide text-ink-muted">Manifest Destination</div>
+                                                    <div className="text-[13px] font-semibold text-ink">{item.manifest_destination}</div>
                                                 </div>
                                             )}
                                             {String(item.employee_id ?? "").trim() && (
                                                 <div>
-                                                    <div className="text-[12px] font-semibold text-ink">Employee ID</div>
-                                                    <div className="text-[12px] text-ink-muted">{item.employee_id}</div>
+                                                    <div className="text-[11px] font-medium uppercase tracking-wide text-ink-muted">Employee ID</div>
+                                                    <div className="text-[13px] font-semibold text-ink">{item.employee_id}</div>
                                                 </div>
                                             )}
                                             {String(item.employee_name ?? "").trim() && (
                                                 <div>
-                                                    <div className="text-[12px] font-semibold text-ink">Employee Name</div>
-                                                    <div className="text-[12px] text-ink-muted">{item.employee_name}</div>
+                                                    <div className="text-[11px] font-medium uppercase tracking-wide text-ink-muted">Employee Name</div>
+                                                    <div className="text-[13px] font-semibold text-ink">{item.employee_name}</div>
                                                 </div>
                                             )}
                                         </div>
@@ -431,8 +471,21 @@ const TrackAWB = () => {
                 )}
             </div>
 
+            {showShipment && !isLoading && (
+                <button
+                    type="button"
+                    onClick={handleDetailView}
+                    title="View Detail"
+                    aria-label="View Detail"
+                    className="fixed bottom-6 right-6 z-30 flex h-12 w-12 items-center justify-center rounded-full border-0 bg-brand-500 text-white shadow-lg hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
+                >
+                    <Eye aria-hidden="true" size={22} />
+                </button>
+            )}
+
             <EditEDD
                 shipmentDetails={{ awbno: activeAwb }}
+                currentEdd={headerInfo?.booking?.EDD || ""}
                 isOpen={activeComponent === "edit_edd"}
                 toggle={() => setActiveComponent("")}
                 onSuccess={(newEdd) => {

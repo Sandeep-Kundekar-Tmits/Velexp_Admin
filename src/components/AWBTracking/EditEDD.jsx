@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Modal,
   ModalHeader,
@@ -14,19 +14,7 @@ import { UPDATE_BOOKING_EDD } from "../../api";
 import usePostApiCall from "../../hooks/usePostApiCall";
 import ToasterProvider from "../../helpers/ToasterProvider";
 
-const Detail = ({ label, value, fullWidth }) => (
-  <div className={fullWidth ? "col-12 mb-2" : "col-4 mb-2"}>
-    <div className="font-semibold text-xs text-ink text-break">
-      {value || "-"}
-    </div>
-    <div className=" text-xs">
-      {label}
-    </div>
-  </div>
-);
-
-
-const EditEDD = ({ isOpen, toggle, shipmentDetails, onSuccess }) => {
+const EditEDD = ({ isOpen, toggle, shipmentDetails, onSuccess, currentEdd = "" }) => {
   const [newEdd, setNewEdd] = useState("");
   const [remark, setRemark] = useState("");
   const [errors, setErrors] = useState({});
@@ -111,52 +99,51 @@ const EditEDD = ({ isOpen, toggle, shipmentDetails, onSuccess }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} toggle={toggle} centered>
+    <Modal isOpen={isOpen} toggle={toggle} centered size="sm">
       <ModalHeader toggle={toggle}>
         {safeShipmentDetails.awbno ? `Edit EDD for AWB: ${safeShipmentDetails.awbno}` : "Edit Estimated Delivery Date"}
       </ModalHeader>
 
       <ModalBody>
-
-        <div>
-          <div className="w-full flex flex-col justify-center items-center">
-            <h6 className="font-bold pb-2 mb-1 mt-4">
-              Select New Estimated Delivery Date
-            </h6>
-            <div className="row w-3/4 mt-4" >
-              <FormGroup>
-                <Label>New EDD <span className="text-danger-500">*</span></Label>
-                <Input
-                  type="date"
-                  value={newEdd}
-                  min={getTomorrowDateString()}
-                  onChange={(e) => {
-                    setNewEdd(e.target.value);
-                    setErrors({ ...errors, new_edd: "" });
-                  }}
-                  invalid={!!errors.new_edd}
-                />
-                {errors.new_edd && <FormFeedback>{errors.new_edd}</FormFeedback>}
-              </FormGroup>
-
-              <FormGroup className="mt-0">
-                <Label>Remark <span className="text-danger-500">*</span></Label>
-                <Input
-                  type="textarea"
-                  value={remark}
-                  onChange={(e) => {
-                    setRemark(e.target.value);
-                    setErrors({ ...errors, remark: "" });
-                  }}
-                  invalid={!!errors.remark}
-                  placeholder="Enter remark here"
-                />
-                {errors.remark && <FormFeedback>{errors.remark}</FormFeedback>}
-              </FormGroup>
+        <div className="flex flex-col gap-3">
+          {currentEdd && (
+            <div className="flex items-center justify-between rounded-lg border border-[rgb(var(--overlay-rgb)/0.12)] bg-[rgb(var(--overlay-rgb)/0.04)] px-3 py-2 text-[13px]">
+              <span className="text-ink-muted">Current EDD</span>
+              <span className="font-semibold text-ink">{currentEdd}</span>
             </div>
-          </div>
-        </div>
+          )}
 
+          <FormGroup className="mb-0">
+            <Label className="mb-1 text-[12px] font-semibold">New EDD <span className="text-danger-500">*</span></Label>
+            <Input
+              type="date"
+              value={newEdd}
+              min={getTomorrowDateString()}
+              onChange={(e) => {
+                setNewEdd(e.target.value);
+                setErrors({ ...errors, new_edd: "" });
+              }}
+              invalid={!!errors.new_edd}
+            />
+            {errors.new_edd && <FormFeedback>{errors.new_edd}</FormFeedback>}
+          </FormGroup>
+
+          <FormGroup className="mb-0">
+            <Label className="mb-1 text-[12px] font-semibold">Remark <span className="text-danger-500">*</span></Label>
+            <Input
+              type="textarea"
+              rows={3}
+              value={remark}
+              onChange={(e) => {
+                setRemark(e.target.value);
+                setErrors({ ...errors, remark: "" });
+              }}
+              invalid={!!errors.remark}
+              placeholder="Reason for changing the delivery date"
+            />
+            {errors.remark && <FormFeedback>{errors.remark}</FormFeedback>}
+          </FormGroup>
+        </div>
       </ModalBody>
 
       <ModalFooter>
