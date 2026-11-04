@@ -279,9 +279,12 @@ const RiderStoreRoutes = () => {
                 subTitle="Assign or replace the ordered list of stores a rider covers out of a dark store."
             />
 
-            <div className="page-fit-body relative z-10 pb-4">
-                <div className="flex flex-wrap items-end gap-4 border-b border-white/8 pb-4">
-                    <div className="flex w-full flex-col gap-1.5 sm:w-64">
+            <div className="page-fit-body relative z-10 pb-2">
+                <div className="page-fit-body gap-3 lg:!grid lg:grid-cols-[40%_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)]">
+                <div className="flex min-w-0 flex-col gap-3 lg:max-h-full lg:self-start lg:overflow-y-auto">
+                <div className="rounded-md border border-white/8 p-2.5">
+                <div className="flex flex-col gap-2">
+                    <div className="flex min-w-0 flex-col gap-1">
                         <Label className="form-label m-0 font-bold text-ink-muted">Dark Store</Label>
                         <Select
                             options={centreOptions}
@@ -294,7 +297,7 @@ const RiderStoreRoutes = () => {
                         />
                     </div>
 
-                    <div className="flex w-full flex-col gap-1.5 sm:w-72">
+                    <div className="flex min-w-0 flex-col gap-1">
                         <Label className="form-label m-0 font-bold text-ink-muted">Rider</Label>
                         <Select
                             options={riderOptions}
@@ -315,6 +318,9 @@ const RiderStoreRoutes = () => {
                         />
                     </div>
 
+                </div>
+
+                <div className="mt-2 flex flex-wrap items-end gap-3">
                     <div className="flex flex-col gap-1.5">
                         <Label className="form-label m-0 font-bold text-ink-muted">Mode</Label>
                         <div className="flex h-9 items-center gap-4">
@@ -334,22 +340,23 @@ const RiderStoreRoutes = () => {
                     </Button>
                 </div>
 
-                <p className="mt-2 text-xs text-ink-muted">
-                    <strong className="text-ink">Add</strong> only upserts the stores listed below and leaves the rest of this rider&apos;s route at this dark store untouched.{" "}
-                    <strong className="text-ink">Replace</strong> also deactivates any store currently on their route that isn&apos;t listed below.
+                <p className="mt-2 mb-0 text-xs leading-snug text-ink-muted">
+                    <strong className="text-ink">Add</strong> only upserts the stores listed and leaves the rest of this rider&apos;s route at this dark store untouched.{" "}
+                    <strong className="text-ink">Replace</strong> also deactivates any store currently on their route that isn&apos;t listed.
                 </p>
+                </div>
 
-                <div className="mt-3 rounded-md border border-white/8 p-3">
-                    <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                <div className="rounded-md border border-white/8 p-2.5">
+                    <div className="mb-1.5 flex flex-wrap items-center justify-between gap-2">
                         <span className="text-sm font-semibold text-ink">Route stores, in delivery order</span>
                         <Button color="secondary" size="sm" onClick={addStoreRow}>+ Add Store</Button>
                     </div>
 
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-1.5">
                         {storeRows.map((row, index) => (
                             <div key={row.key} className="flex items-center gap-2">
                                 <span className="w-5 text-xs text-ink-muted">{index + 1}.</span>
-                                <div className="w-64">
+                                <div className="min-w-0 flex-1">
                                     <Select
                                         options={centreOptions}
                                         value={row.storeOption}
@@ -370,14 +377,15 @@ const RiderStoreRoutes = () => {
                         ))}
                     </div>
 
-                    <div className="mt-3 flex justify-end">
+                    <div className="mt-2 flex justify-end">
                         <Button color="primary" size="sm" onClick={handleAssignClick} disabled={assignLoading}>
                             {assignLoading ? "Assigning..." : "Assign Route"}
                         </Button>
                     </div>
                 </div>
+                </div>
 
-                <div className="page-fit-body mt-4">
+                <div className="page-fit-body min-w-0">
                     {!hasLoadedRoutes ? (
                         <p className="text-ink-muted">Select a rider and/or dark store, then click View Route to load its routes.</p>
                     ) : routesLoading ? (
@@ -397,9 +405,10 @@ const RiderStoreRoutes = () => {
                             isStickyHeader={true}
                             stickyTop={0}
                             fillHeight
-                            tableHeight="50vh"
+                            tableHeight="60vh"
                         />
                     )}
+                </div>
                 </div>
             </div>
 
