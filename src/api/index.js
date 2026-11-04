@@ -392,6 +392,9 @@ export const PINCODE_MASTER_ALIASES_API = `${BASE_URL}/corporate-billing/main-pi
 // Automated MIS — billed shipments Excel (backend generates the file)
 export const BILLED_SHIPMENTS_EXCEL = `${BASE_URL}/corporate-billing/billing/billed-shipments-excel/`          // POST { start_date, end_date } -> Excel blob
 
+// Billing Status — unbilled shipments Excel (backend generates the file)
+export const UNBILLED_SHIPMENTS_EXCEL = `${BASE_URL}/corporate-billing/billing/unbilled-shipments-excel/`      // POST { start_date, end_date } -> Excel blob (same body as billed; confirm)
+
 // Raw MIS — full shipment report Excel (backend generates the file)
 export const FULL_SHIPMENT_REPORT = `${BASE_URL}/corporate-billing/billing/full-shipment-report/`              // GET ?month=&year= -> Excel blob
 

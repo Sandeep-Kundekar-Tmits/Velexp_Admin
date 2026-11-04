@@ -187,12 +187,12 @@ const UserManagementList = () => {
             accessorKey: 'cust_type',
             enableColumnFilter: false,
             enableSorting: true,
-            size: 130,
+            size: 170,
             cell: ({ row }) => {
                 const type = row.original.cust_type?.type_of_cust?.trim();
                 if (!type) return "--";
                 return (
-                    <span className="inline-flex items-center rounded-full border border-[rgb(var(--overlay-rgb)/0.1)] bg-[rgb(var(--overlay-rgb)/0.06)] px-2.5 py-0.5 text-[11px] font-medium text-ink">
+                    <span className="inline-flex items-center whitespace-nowrap rounded-full border border-[rgb(var(--overlay-rgb)/0.1)] bg-[rgb(var(--overlay-rgb)/0.06)] px-2.5 py-0.5 text-[11px] font-medium text-ink">
                         {type}
                     </span>
                 );

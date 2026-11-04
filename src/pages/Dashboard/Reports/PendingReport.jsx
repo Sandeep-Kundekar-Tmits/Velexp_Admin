@@ -61,16 +61,17 @@ const PendingReport = () => {
         setSelectedSCs(chosen.some((o) => o.value === "__all__") ? scOptions : chosen);
     };
 
-    // ── Date range: picker, defaulting to the last 7 days ──────────────────
-    // Was a fixed, hidden 01-01-2025 → today -- every query scanned nearly
-    // the whole table's history. A visible, editable range narrows that to
-    // a sensible default while still letting a wider lookup be chosen.
-    const [selectedRange, setSelectedRange] = useState(() => {
+    // ── Date range: the picker starts empty ─────────────────────────────────
+    // Nothing is shown selected. If the user doesn't pick a range, the request
+    // uses 1 Sept → today (previous year's 1 Sept before September); a picked
+    // range is sent as chosen.
+    const [selectedRange, setSelectedRange] = useState({ startDate: null, endDate: null });
+    const effectiveRange = useCallback(() => {
+        if (selectedRange.startDate && selectedRange.endDate) return selectedRange;
         const endDate = new Date();
-        const startDate = new Date();
-        startDate.setDate(startDate.getDate() - 7);
-        return { startDate, endDate };
-    });
+        const year = endDate.getMonth() >= 8 ? endDate.getFullYear() : endDate.getFullYear() - 1;
+        return { startDate: new Date(year, 8, 1), endDate };
+    }, [selectedRange]);
 
     // ── Report data ────────────────────────────────────────────────────────
     const SERVER_PAGE_SIZE = 1000;
@@ -82,7 +83,7 @@ const PendingReport = () => {
     const [isExporting, setIsExporting] = useState(false);
 
     const buildPayload = useCallback((page = 1, page_size = SERVER_PAGE_SIZE) => {
-        const fmt = YMD_DateFormate(selectedRange);
+        const fmt = YMD_DateFormate(effectiveRange());
         const authUser = JSON.parse(localStorage.getItem("authUser") || "{}");
         const payload = {
             user_id: authUser?.user?.id,
@@ -93,7 +94,7 @@ const PendingReport = () => {
             end_date: fmt.to_date || undefined,
         };
         return payload;
-    }, [selectedSCs, selectedRange]);
+    }, [selectedSCs, effectiveRange]);
 
     const fetchReport = async (page = 1) => {
         if (selectedSCs.length === 0) { alert("Please select at least one Service Center."); return; }
@@ -122,7 +123,7 @@ const PendingReport = () => {
     const downloadExcel = async () => {
         setIsExporting(true);
         try {
-            const fmt = YMD_DateFormate(selectedRange);
+            const fmt = YMD_DateFormate(effectiveRange());
             const res = await authFetch(DOWNLOAD_OPS_PENDING_REPORT, {
                 method: "POST",
                 credentials: "include",

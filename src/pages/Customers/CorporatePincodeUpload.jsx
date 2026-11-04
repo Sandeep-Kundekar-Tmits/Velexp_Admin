@@ -411,7 +411,8 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                 ]
             });
             fetchPincodes(selectedCustomer.id);
-        } else {
+        } else if (!Array.isArray(response) && !response?.error && !response?.msg && !response?.detail) {
+            // error bodies (array / error / msg / detail) were already toasted by the API hook
             ErrorToaster(response?.message || "Failed to save pincode.");
         }
     };

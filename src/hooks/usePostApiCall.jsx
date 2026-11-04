@@ -28,7 +28,9 @@ const usePostApiCall = (toggle = null, successMessage = null) => {
 
       if (!ok) {
         setError(result);
-        ErrorToaster(result?.msg || result?.error);
+        // DRF validation errors can be a bare array (["Pincode already exists ..."]) or a string
+        const arrayMsg = Array.isArray(result) ? result.filter(Boolean).join(", ") : null;
+        ErrorToaster(arrayMsg || (typeof result === "string" ? result : null) || result?.msg || result?.error || result?.detail);
         console.log(result);
         return result;
       }

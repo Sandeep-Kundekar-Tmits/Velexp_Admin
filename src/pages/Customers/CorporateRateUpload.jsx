@@ -205,6 +205,7 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
         if (!editingRate) return;
 
         const payload = {
+            product_id: editingRate.product_id?.value,
             base_rate: parseFloat(editingRate.base_rate),
             incremental_rate: parseFloat(editingRate.incremental_rate),
             base_weight: parseFloat(editingRate.base_weight),
@@ -820,11 +821,13 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
                         <Row>
                             <Col md={12}>
                                 <FormGroup>
-                                    <Label>Product (Read-only)</Label>
-                                    <Input
-                                        type="text"
-                                        value={editingRate.product_name}
-                                        disabled
+                                    <Label>Product</Label>
+                                    <SearchableDropdown
+                                        locations={productOptions}
+                                        placeholder="Select Product"
+                                        value={editingRate.product_id?.name || "select"}
+                                        onChange={(val) => setEditingRate({ ...editingRate, product_id: val, product_name: val?.name })}
+                                        className="w-full"
                                     />
                                 </FormGroup>
                             </Col>

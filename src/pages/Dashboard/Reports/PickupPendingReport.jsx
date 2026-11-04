@@ -5,7 +5,6 @@ import Loader from "@/Loaders/Loader";
 import TableContainer from "../../../components/Table/TableContainer";
 import ServerPager from "../../../components/Common/ServerPager";
 import MainHeaderComp from "../../../components/MainHeaderCom";
-import DateRangeInput from "../../../components/Common/DateRangeInput";
 import {
     OPS_PICKUP_PENDING_REPORT,
     DOWNLOAD_OPS_PICKUP_PENDING_REPORT,
@@ -51,41 +50,50 @@ const PickupPendingReport = () => {
     // token -- no user_id needed, and the backend doesn't paginate it).
     const useAdmin = isAdmin || isSuperUser;
 
+    // ── Region first (admin only): it narrows the all-India results and the Service Center list ──
+    const { data: regionOptions = [] } = useRegions({ enabled: useAdmin });
+    const [selectedRegion, setSelectedRegion] = useState(null);
+
     // ── Service Centers (cached 30min via react-query) ──────────────────────
     const { data: serviceCenterList, isLoading: scLoading } = useQuery({
         queryKey: qk.reference.serviceCenters(),
         queryFn: fetchServiceCenters,
         staleTime: 30 * 60_000,
     });
-    const [scOptions, setScOptions] = useState([]);
     const [selectedSCs, setSelectedSCs] = useState([]);
 
-    useEffect(() => {
-        if (serviceCenterList) {
-            const opts = serviceCenterList
-                .map((e) => ({ value: e.ec_code, label: e.ec_code }))
-                .filter((item, idx, self) => idx === self.findIndex((t) => t.value === item.value));
-            setScOptions(opts);
-        }
-    }, [serviceCenterList]);
+    // Only the centres of the chosen region (all of them while no region is picked).
+    const scOptions = useMemo(() => {
+        const norm = (v) => String(v ?? "").toLowerCase().trim();
+        const wanted = selectedRegion?.value ? norm(selectedRegion.value) : null;
+        return (serviceCenterList || [])
+            .filter((e) => !wanted || norm(e.region) === wanted)
+            .map((e) => ({ value: e.ec_code, label: e.ec_code }))
+            .filter((item, idx, self) => idx === self.findIndex((t) => t.value === item.value));
+    }, [serviceCenterList, selectedRegion]);
+
+    // Changing the region drops centres picked under the previous one.
+    const handleRegionChange = (opt) => {
+        setSelectedRegion(opt);
+        setSelectedSCs([]);
+    };
 
     const handleSCChange = (chosen) => {
         if (!chosen) { setSelectedSCs([]); return; }
         setSelectedSCs(chosen.some((o) => o.value === "__all__") ? scOptions : chosen);
     };
 
-    // ── Region (admin only -- narrows all-India results instead of by SC) ──
-    const { data: regionOptions = [] } = useRegions({ enabled: useAdmin });
-    const [selectedRegion, setSelectedRegion] = useState(null);
-
     // ── Include WAB (ops only, per this endpoint's own spec) ────────────────
     const [includeWab, setIncludeWab] = useState(false);
 
-    // ── Date range -- defaults to the last 7 days, well under the 60-day cap ─
+    // ── Date range -- defaults to 1 October (latest one not in the future) through today.
+    // Note the server caps a range at 60 days, so Search will ask for a shorter range
+    // once today is more than 60 days past that 1 October.
     const today = new Date();
-    const weekAgo = new Date();
-    weekAgo.setDate(today.getDate() - 6);
-    const [selectedRange, setSelectedRange] = useState({ startDate: weekAgo, endDate: today });
+    const oct1 = new Date(today.getFullYear(), 9, 1);
+    if (oct1 > today) oct1.setFullYear(today.getFullYear() - 1);
+    // no picker: the report always covers this fixed range
+    const [selectedRange] = useState({ startDate: oct1, endDate: today });
 
     // ── Report data ────────────────────────────────────────────────────────
     const [reportData, setReportData] = useState([]);
@@ -228,18 +236,29 @@ const PickupPendingReport = () => {
             <MainHeaderComp
                 title="Pickup Pending Report"
                 subTitle={useAdmin
-                    ? "Shipments awaiting pickup, all-India."
-                    : "Shipments awaiting pickup at your service centres."}
+                    ? `Shipments awaiting pickup, all-India. Covers ${oct1.toLocaleDateString("en-GB")} to today.`
+                    : `Shipments awaiting pickup at your service centres. Covers ${oct1.toLocaleDateString("en-GB")} to today.`}
             />
 
             <div className="container-fluid page-fit-body px-2">
                 <Row className="gx-2 items-end flex-wrap pt-2 border-bottom pb-2">
-                    <Col xs="auto" style={{ minWidth: 220 }}>
-                        <FormGroup className="mb-2">
-                            <Label className="mb-1 text-xs font-semibold">Date Range</Label>
-                            <DateRangeInput value={selectedRange} onChange={setSelectedRange} isBorder />
-                        </FormGroup>
-                    </Col>
+                    {useAdmin && (
+                        <Col xs="auto" style={{ minWidth: 200 }}>
+                            <FormGroup className="mb-2">
+                                <Label className="mb-1 text-xs font-semibold">Region</Label>
+                                <Select
+                                    isClearable
+                                    placeholder="All Regions"
+                                    options={regionOptions}
+                                    value={selectedRegion}
+                                    onChange={handleRegionChange}
+                                    styles={customStyles}
+                                    menuPortalTarget={document.body}
+                                    menuPosition="fixed"
+                                />
+                            </FormGroup>
+                        </Col>
+                    )}
 
                     <Col xs="auto" style={{ minWidth: 280 }}>
                         <FormGroup className="mb-2">
@@ -261,24 +280,6 @@ const PickupPendingReport = () => {
                             />
                         </FormGroup>
                     </Col>
-
-                    {useAdmin && (
-                        <Col xs="auto" style={{ minWidth: 200 }}>
-                            <FormGroup className="mb-2">
-                                <Label className="mb-1 text-xs font-semibold">Region</Label>
-                                <Select
-                                    isClearable
-                                    placeholder="All Regions"
-                                    options={regionOptions}
-                                    value={selectedRegion}
-                                    onChange={setSelectedRegion}
-                                    styles={customStyles}
-                                    menuPortalTarget={document.body}
-                                    menuPosition="fixed"
-                                />
-                            </FormGroup>
-                        </Col>
-                    )}
 
                     {!useAdmin && (
                         <Col xs="auto" className="mb-2">

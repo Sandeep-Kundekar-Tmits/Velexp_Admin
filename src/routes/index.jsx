@@ -106,13 +106,13 @@ const ShipmentBilling = lazy(() => import("../pages/NewFeatures/ShipmentBilling"
 const BillingWorking = lazy(() => import("../pages/NewFeatures/BillingWorking"));
 const BillingAutomation = lazy(() => import("../pages/NewFeatures/BillingAutomation"));
 const InvoiceFlow = lazy(() => import("../pages/NewFeatures/InvoiceFlow"));
+const BillingStatus = lazy(() => import("../pages/NewFeatures/BillingStatus"));
 const AllBooking = lazy(() => import("../pages/NewFeatures/AllBooking"));
 const AdditionalCharges = lazy(() => import("../pages/Dashboard/Billing/AdditionalCharges"));
 const CompanyAddress = lazy(() => import("../pages/Dashboard/Billing/CompanyAddress"));
 const CancelShipments = lazy(() => import("../pages/NewFeatures/CancelShipments"));
 const BillMaster = lazy(() => import("../pages/NewFeatures/BillMaster"));
 const UpdateWeight = lazy(() => import("../pages/NewFeatures/UpdateWeight"));
-const AutomatedMIS = lazy(() => import("../pages/NewFeatures/AutomatedMIS"));
 const RawMIS = lazy(() => import("../pages/NewFeatures/RawMIS"));
 const CODReconciliation = lazy(() => import("../pages/Dashboard/CODReconciliation"));
 const AutoReconciliation = lazy(() => import("../pages/Dashboard/AutoReconciliation"));
@@ -236,13 +236,13 @@ const getAuthProtectedRoutes = () => {
     { path: "/billing-working", component: <BillingWorking /> },
     { path: "/billing-automation", component: <BillingAutomation /> },
     { path: "/invoice-flow", component: <InvoiceFlow /> },
+    { path: "/billing-status", component: <BillingStatus /> },
     { path: "/all-booking", component: <AllBooking /> },
     { path: "/additional-charges", component: <AdditionalCharges /> },
     { path: "/company-address", component: <CompanyAddress /> },
     { path: "/cancel-shipments", component: <CancelShipments /> },
     { path: "/bill-master", component: <BillMaster /> },
     { path: "/update-weight", component: <UpdateWeight /> },
-    { path: "/automated-mis", component: <AutomatedMIS /> },
     { path: "/raw-mis", component: <RawMIS /> },
     { path: "/intl-pincode", component: <InternationPincode /> },
 

@@ -433,6 +433,10 @@ export const MENU = [
         url: "/invoice-flow"
       },
       {
+        label: "Billing Status",
+        url: "/billing-status"
+      },
+      {
         label: "All Booking",
         url: "/all-booking"
       },
@@ -490,11 +494,6 @@ export const MENU = [
     label: "Cancel Shipments",
     icon: "bx bx-x-circle",
     url: "/cancel-shipments"
-  },
-  {
-    label: "Automated MIS",
-    icon: "bx bx-spreadsheet",
-    url: "/automated-mis"
   },
   {
     label: "Raw MIS",
