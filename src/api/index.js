@@ -366,6 +366,7 @@ export const BILLING_BATCH_DIRECT_INVOICE = `${BASE_URL}/corporate-billing/billi
 export const BILLING_BATCH_BASE = `${BASE_URL}/corporate-billing/billing/batch/`                              // GET <id>/  (poll)
 export const BILLING_BATCH_CANCEL = (id) => `${BASE_URL}/corporate-billing/billing/batch/${id}/cancel/`        // POST
 export const BILLING_BATCH_LIST = `${BASE_URL}/corporate-billing/billing/batch/list/`                         // POST
+export const BILLING_BATCH_DOWNLOAD = (id) => `${BASE_URL}/corporate-billing/billing/batch/${id}/download/`    // GET -> zip of the batch's invoices
 export const BILLING_AUDIT_REPORTS = `${BASE_URL}/corporate-billing/billing/audit-reports/`                   // GET (list / <id>/ / <id>/download/)
 export const BILLING_PRE_INVOICE_REGISTER = `${BASE_URL}/corporate-billing/billing/pre-invoice-register/`        // GET ?start_date=&end_date= (JSON); add &download=1 for xlsx
 export const BILLING_CONFIGURED_CUSTOMERS =`${BASE_URL}/corporate-billing/billing/configured-customers/`      // GET
@@ -900,3 +901,6 @@ export const TRACKING_CORRECTION = `${BASE_URL}/tracking-correction/`; // POST {
 // convention this deployment actually answers on for the sibling tracking-correction routes.
 export const AWB_ADMIN_LOOKUP = `${BASE_URL}/awb-admin-lookup/`; // GET ?awbno=
 export const AWB_ADMIN_BOOKING_CORRECTION = `${BASE_URL}/awb-admin-lookup/booking-correction/`; // POST { awbno, remark, fields: {...} }
+
+// Invoice config - per-customer invoice line layout (Bill Master, Invoice Config tab)
+export const BILLING_INVOICE_CONFIG = `${BASE_URL}/corporate-billing/billing/invoice-config/`; // GET list | GET ?customer_id= | POST { customer_id, invoice_line_mode: SINGLE|SC_WISE, single_line_description } | DELETE ?customer_id=

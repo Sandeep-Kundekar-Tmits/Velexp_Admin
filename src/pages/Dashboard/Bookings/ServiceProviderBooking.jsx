@@ -13,6 +13,8 @@ import { useExcelExport } from "../../../hooks/useExcelExport";
 import { useNavigate } from "react-router-dom";
 import { customStyles } from "../../../helpers/CustomStyle";
 import { authFetch } from "@/lib/http";
+import { MdInfoOutline } from "react-icons/md";
+import { createPortal } from "react-dom";
 // Updated formatDateLocal to handle both Date objects and strings
 function formatDateLocal(d) {
     if (!d) return '';
@@ -68,6 +70,23 @@ const ServiceProviderBooking = () => {
     const [cancelRow, setCancelRow] = useState(null);
     const [cancelReason, setCancelReason] = useState("");
     const [cancellingAwb, setCancellingAwb] = useState(null);
+    // Floating remarks bubble: { id, text, top, left } anchored under the clicked status badge
+    const [remarksPop, setRemarksPop] = useState(null);
+
+    // Close the bubble on Esc, scroll or resize (position is fixed to the viewport)
+    useEffect(() => {
+        if (!remarksPop) return;
+        const close = () => setRemarksPop(null);
+        const onKey = (e) => { if (e.key === "Escape") close(); };
+        window.addEventListener("keydown", onKey);
+        window.addEventListener("resize", close);
+        window.addEventListener("scroll", close, true);
+        return () => {
+            window.removeEventListener("keydown", onKey);
+            window.removeEventListener("resize", close);
+            window.removeEventListener("scroll", close, true);
+        };
+    }, [remarksPop]);
 
     // Service center options come from the B2C warehouses only, one entry per center code
     const centerOptions = useMemo(() => {
@@ -345,10 +364,49 @@ const ServiceProviderBooking = () => {
                 accessorKey: 'status',
                 enableColumnFilter: false,
                 enableSorting: true,
-                cell: ({ getValue }) => {
+                cell: ({ getValue, row }) => {
                     const status = getValue();
                     if (!status) return "--";
                     const s = String(status).toLowerCase();
+                    const remarks = row.original.package_remarks;
+                    const rowKey = row.original.id;
+                    // Error rows with remarks: the badge becomes a button (info icon) that
+                    // expands the remarks right under it. No popup.
+                    if (/error|fail/.test(s) && remarks) {
+                        const open = remarksPop?.id === rowKey;
+                        return (
+                            <button
+                                type="button"
+                                title={open ? "Hide remarks" : "Show remarks"}
+                                aria-expanded={open}
+                                data-remarks-trigger=""
+                                onClick={(e) => {
+                                    if (open) { setRemarksPop(null); return; }
+                                    const r = e.currentTarget.getBoundingClientRect();
+                                    const width = 340;
+                                    const left = Math.max(8, Math.min(r.left, window.innerWidth - width - 8));
+                                    setRemarksPop({ id: rowKey, text: remarks, top: r.bottom + 6, left, width });
+                                }}
+                                style={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: 5,
+                                    padding: "2px 10px",
+                                    borderRadius: 999,
+                                    fontSize: 12,
+                                    fontWeight: 600,
+                                    lineHeight: 1.4,
+                                    backgroundColor: "#e51b2b",
+                                    color: "#ffffff",
+                                    cursor: "pointer",
+                                    border: 0,
+                                }}
+                            >
+                                {status}
+                                <MdInfoOutline size={14} />
+                            </button>
+                        );
+                    }
                     // success -> green, cancelled -> amber, anything else that failed -> red
                     // Explicit inline colours (solid fill + fixed text colour) rather than the
                     // Badge theme tokens, which rendered the text unreadable inside the grid.
@@ -426,6 +484,7 @@ const ServiceProviderBooking = () => {
             SelectedLabel,
             retryingAwb,
             cancellingAwb,
+            remarksPop,
             selectedRange,
             selectedOption,
         ] // Add handler functions here if they're defined outside the component
@@ -516,6 +575,44 @@ const ServiceProviderBooking = () => {
                     }
                 </div>
             </div>
+
+            {remarksPop && createPortal(
+                <div
+                    role="dialog"
+                    aria-label="Remarks"
+                    style={{
+                        position: "fixed",
+                        top: remarksPop.top,
+                        left: remarksPop.left,
+                        width: remarksPop.width,
+                        maxWidth: "calc(100vw - 16px)",
+                        zIndex: 2000,
+                        padding: "10px 12px",
+                        borderRadius: 8,
+                        fontSize: 12,
+                        lineHeight: 1.45,
+                        backgroundColor: "#fff1f2",
+                        border: "1px solid #e51b2b",
+                        color: "#7f1d1d",
+                        boxShadow: "0 10px 25px rgba(0,0,0,0.25)",
+                        wordBreak: "break-word",
+                    }}
+                >
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                        <strong style={{ color: "#b91c1c" }}>Remarks</strong>
+                        <button
+                            type="button"
+                            aria-label="Close remarks"
+                            onClick={() => setRemarksPop(null)}
+                            style={{ border: 0, background: "transparent", color: "#b91c1c", fontSize: 16, lineHeight: 1, cursor: "pointer" }}
+                        >
+                            &times;
+                        </button>
+                    </div>
+                    <div style={{ fontWeight: 600 }}>{remarksPop.text}</div>
+                </div>,
+                document.body
+            )}
 
             <Modal isOpen={!!retryRow} toggle={() => setRetryRow(null)} centered>
                 <ModalHeader toggle={() => setRetryRow(null)}>Check Warehouse</ModalHeader>

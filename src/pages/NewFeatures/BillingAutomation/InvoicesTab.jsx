@@ -1,429 +1,140 @@
-// Invoices — generated invoice list with view (preview/PDF) and edit.
+// Invoices -- recent direct-invoice runs, from the batch list API
+// (POST batch/list/ { batch_type: "DIRECT_INVOICE", limit: 50 }).
+// A row is a batch; the eye opens its progress panel, same as History.
 import { useEffect, useMemo, useState } from "react"
-import {
-    Button, Card, CardBody, Col, Container, FormGroup, Input, Label,
-    Modal, ModalBody, ModalFooter, ModalHeader, Row, Spinner, Table,
-} from "@/components/ui"
-import { MdDelete, MdEdit, MdRefresh, MdRemoveRedEye, MdSave } from "react-icons/md"
-import axios from "axios"
+import PropTypes from "prop-types"
+import { Badge, Button, Card, CardBody, Spinner } from "@/components/ui"
+import { MdFolderZip, MdRefresh, MdVisibility } from "react-icons/md"
 import TableContainer from "../../../components/Table/TableContainer"
 import usePostApiCall from "../../../hooks/usePostApiCall"
-import { useGetApiCall } from "../../../hooks/useGetApiCall"
+import { BILLING_BATCH_DOWNLOAD, BILLING_BATCH_LIST } from "../../../api"
+import { authFetch } from "@/lib/http"
 import ToasterProvider from "../../../helpers/ToasterProvider"
-import ViewInvoice from "../../../components/Invoices/ViewInvoice"
-import { CORPORATE_INVOICES_LIST, CORPORATE_INVOICE_BASE } from "../../../api"
+import { getBatchStatusColor } from "./statusBadge"
+import { formatDisplayDate } from "../../../helpers/formatDisplayDate"
 
-const InvoicesTab = () => {
+const InvoicesTab = ({ onOpenBatch }) => {
+    const { apifunc: fetchBatches, loading } = usePostApiCall()
     const { SuccessToaster, ErrorToaster } = ToasterProvider()
-    const { apifunc: fetchInvoices, loading: invoicesLoading } = usePostApiCall()
-    const { apifunc: apiGet } = useGetApiCall()
+    const [batches, setBatches] = useState([])
+    const [zipBusyId, setZipBusyId] = useState(null)
 
-    const [invoices, setInvoices] = useState([])
+    // Download the batch's invoices as one zip
+    const downloadZip = async (id) => {
+        setZipBusyId(id)
+        try {
+            const res = await authFetch(BILLING_BATCH_DOWNLOAD(id), { method: "GET", credentials: "include" })
+            if (!res.ok) {
+                let msg = `Error ${res.status}`
+                try {
+                    const err = await res.json()
+                    msg = (Array.isArray(err) ? err.join(", ") : err?.error || err?.msg || err?.message || err?.detail) || msg
+                } catch { /* non-JSON error body */ }
+                throw new Error(msg)
+            }
+            const blob = await res.blob()
+            // a zip starts with "PK"; anything else would only open as a corrupt file
+            const head = new Uint8Array(await blob.slice(0, 2).arrayBuffer())
+            if (!(head[0] === 0x50 && head[1] === 0x4b)) {
+                const text = (await blob.text()).trim()
+                let msg = ""
+                try { const j = JSON.parse(text); msg = j?.error || j?.msg || j?.message || j?.detail || "" } catch { /* not JSON */ }
+                throw new Error(msg || "The server did not return a zip file")
+            }
+            const url = window.URL.createObjectURL(blob)
+            const a = document.createElement("a")
+            a.href = url
+            a.download = `batch_${id}_invoices.zip`
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+            window.URL.revokeObjectURL(url)
+            SuccessToaster(`Batch ${id} invoices downloaded`)
+        } catch (err) {
+            ErrorToaster(err.message || "Download failed")
+        } finally {
+            setZipBusyId(null)
+        }
+    }
 
-    // Edit modal state
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false)
-    const [currentInvoice, setCurrentInvoice] = useState(null)
-    const [editLoading, setEditLoading] = useState(false)
-
-    // View/preview modal state
-    const [isViewModalOpen, setIsViewModalOpen] = useState(false)
-    const [viewInvoiceData, setViewInvoiceData] = useState(null)
-    const [viewBusyId, setViewBusyId] = useState(null)
-
-    const normalizeList = (res) =>
-        res?.result || res?.results || (Array.isArray(res) ? res : [])
-
-    const loadInvoices = async () => {
-        const res = await fetchInvoices(CORPORATE_INVOICES_LIST, {})
-        setInvoices(normalizeList(res))
+    const loadBatches = async () => {
+        const res = await fetchBatches(BILLING_BATCH_LIST, { batch_type: "DIRECT_INVOICE", limit: 50 })
+        const list = res?.result || res?.results || res?.batches || (Array.isArray(res) ? res : [])
+        setBatches(Array.isArray(list) ? list : [])
     }
 
     useEffect(() => {
-        loadInvoices()
+        loadBatches()
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
-    // ── Edit handlers (mirrored from InvoiceFlow) ─────────────────
-    const handleEditInvoice = async (invoice) => {
-        setEditLoading(true)
-        const result = await apiGet(`${CORPORATE_INVOICE_BASE}${invoice.id}/`)
-        if (result) {
-            setCurrentInvoice(result)
-            setIsEditModalOpen(true)
-        }
-        setEditLoading(false)
-    }
-
-    const handleViewInvoice = async (invoice) => {
-        setViewBusyId(invoice.id)
-        const result = await apiGet(`${CORPORATE_INVOICE_BASE}${invoice.id}/`)
-        if (result) {
-            setViewInvoiceData(result)
-            setIsViewModalOpen(true)
-        }
-        setViewBusyId(null)
-    }
-
-    const handleUpdateInvoice = async () => {
-        if (!currentInvoice) return
-        try {
-            const result = await axios.patch(
-                `${CORPORATE_INVOICE_BASE}${currentInvoice.id}/update/`,
-                currentInvoice,
-                { withCredentials: true }
-            )
-            if (result.data) {
-                SuccessToaster("Invoice updated")
-                setIsEditModalOpen(false)
-                loadInvoices()
-            }
-        } catch (err) {
-            ErrorToaster(err.response?.data?.message || "Update failed")
-        }
-    }
-
-    const handleDeleteItem = async (itemId) => {
-        if (!window.confirm("Delete this item?")) return
-        try {
-            const result = await axios.delete(
-                `${CORPORATE_INVOICE_BASE}${currentInvoice.id}/delete-item/${itemId}/`,
-                { withCredentials: true }
-            )
-            if (result.status === 204 || result.data) {
-                SuccessToaster("Item removed")
-                const updated = await apiGet(`${CORPORATE_INVOICE_BASE}${currentInvoice.id}/`)
-                setCurrentInvoice(updated)
-                loadInvoices()
-            }
-        } catch (err) {
-            ErrorToaster(err.response?.data?.message || "Delete failed")
-        }
-    }
-
-    const invoiceColumns = useMemo(() => [
-        { header: "Invoice No", accessorKey: "invoice_no", cell: (c) => c.getValue() || "—" },
+    const columns = useMemo(() => [
+        { header: "Batch ID", accessorKey: "id" },
         {
-            header: "Invoice Date",
-            accessorKey: "invoice_date",
-            cell: (c) => {
-                const v = c.getValue()
-                if (!v) return "—"
-                return (
-                    <div>
-                        <div>{v.slice(0, 10).split("-").reverse().join("-")}</div>
-                        <div className="text-ink-muted text-xs">{v.slice(11, 16)}</div>
-                    </div>
-                )
-            },
+            header: "Status",
+            accessorKey: "status",
+            cell: (c) => <Badge color={getBatchStatusColor(c.getValue())} className="p-2">{c.getValue()?.toUpperCase()}</Badge>,
         },
-        { header: "Customer", accessorKey: "customer_name", cell: (c) => c.getValue() || "—" },
-        { header: "Amount", accessorKey: "total_amount", cell: (c) => c.getValue() ?? "—" },
+        { header: "Period Start", accessorKey: "billing_period_start", cell: (c) => formatDisplayDate(c.getValue()) || "—" },
+        { header: "Period End", accessorKey: "billing_period_end", cell: (c) => formatDisplayDate(c.getValue()) || "—" },
         {
-            header: "Actions",
-            id: "actions",
+            header: "Progress",
+            id: "progress",
             cell: (cell) => {
-                const inv = cell.row.original
-                const viewBusy = viewBusyId === inv.id
-                return (
-                    <div className="flex gap-2 justify-center">
-                        <Button color="secondary" size="sm" outline title="View Invoice" disabled={viewBusy} onClick={() => handleViewInvoice(inv)}>
-                            {viewBusy ? <Spinner size="sm" /> : <MdRemoveRedEye size={16} />}
-                        </Button>
-                        <Button color="info" size="sm" outline title="Edit Invoice" disabled={editLoading} onClick={() => handleEditInvoice(inv)}>
-                            {editLoading ? <Spinner size="sm" /> : <MdEdit size={16} />}
-                        </Button>
-                    </div>
-                )
+                const r = cell.row.original
+                return `${r.processed_customers ?? 0} / ${r.total_customers ?? 0}`
             },
         },
-    ], [editLoading, viewBusyId])
+        { header: "Created", accessorKey: "created_at", cell: (c) => formatDisplayDate(c.getValue()) || "—" },
+        {
+            header: "Action",
+            id: "action",
+            cell: (cell) => (
+                <div className="flex gap-2 justify-center">
+                    <Button color="info" size="sm" outline title="View progress" onClick={() => onOpenBatch?.(cell.row.original.id)}>
+                        <MdVisibility size={16} />
+                    </Button>
+                    <Button
+                        color="success"
+                        size="sm"
+                        outline
+                        title="Download invoices (zip)"
+                        disabled={zipBusyId === cell.row.original.id}
+                        onClick={() => downloadZip(cell.row.original.id)}
+                    >
+                        {zipBusyId === cell.row.original.id ? <Spinner size="sm" /> : <MdFolderZip size={16} />}
+                    </Button>
+                </div>
+            ),
+        },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    ], [onOpenBatch, zipBusyId])
 
     return (
-        <div>
-            <Card className="shadow-sm border-0">
-                <CardBody className="p-0">
-                    <div className="p-4 bg-canvas border-bottom flex justify-between items-center">
-                        <h5 className="mb-0 font-bold">Invoices</h5>
-                        <Button color="secondary" size="sm" onClick={loadInvoices} disabled={invoicesLoading}>
-                            {invoicesLoading ? <Spinner size="sm" /> : <><MdRefresh size={16} /> Refresh</>}
-                        </Button>
-                    </div>
-                    <TableContainer
-                        headerAlign="left"
-                        columns={invoiceColumns}
-                        data={invoices}
-                        isGlobalFilter={true}
-                        isPagination={true}
-                        SearchPlaceholder="Search invoices..."
-                        pagination="pagination pagination-rounded justify-content-end mb-2"
-                        paginationWrapper="dataTables_paginate paging_simple_numbers"
-                        tableClass="table-hover mb-0"
-                    />
-                </CardBody>
-            </Card>
-
-            {/* ── Edit Invoice Modal (same as InvoiceFlow) ── */}
-            <Modal isOpen={isEditModalOpen} toggle={() => setIsEditModalOpen(false)} size="xl" centered>
-                <ModalHeader toggle={() => setIsEditModalOpen(false)}>
-                    Invoice Details — {currentInvoice?.invoice_no || currentInvoice?.invoice_number}
-                </ModalHeader>
-                <ModalBody>
-                    {currentInvoice && (
-                        <Container fluid>
-                            <h6 className="font-bold mb-4 border-bottom pb-2 text-brand-500">Invoice Metadata</h6>
-                            <Row className="mb-4">
-                                <Col md={3}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">Invoice No</Label>
-                                        <Input type="text" value={currentInvoice.invoice_no || ""} onChange={(e) => setCurrentInvoice({ ...currentInvoice, invoice_no: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                                <Col md={3}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">Invoice Date</Label>
-                                        <Input type="date" value={currentInvoice.invoice_date?.split("T")[0] || ""} onChange={(e) => setCurrentInvoice({ ...currentInvoice, invoice_date: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                                <Col md={2}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">From Date</Label>
-                                        <Input type="date" value={currentInvoice.from_date?.split("T")[0] || ""} onChange={(e) => setCurrentInvoice({ ...currentInvoice, from_date: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                                <Col md={2}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">To Date</Label>
-                                        <Input type="date" value={currentInvoice.to_date?.split("T")[0] || ""} onChange={(e) => setCurrentInvoice({ ...currentInvoice, to_date: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                                <Col md={2}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">Status</Label>
-                                        <Input type="select" value={currentInvoice.status || "PENDING"} onChange={(e) => setCurrentInvoice({ ...currentInvoice, status: e.target.value })}>
-                                            <option value="PENDING">PENDING</option>
-                                            <option value="PAID">PAID</option>
-                                            <option value="CANCELLED">CANCELLED</option>
-                                        </Input>
-                                    </FormGroup>
-                                </Col>
-                            </Row>
-
-                            <h6 className="font-bold mb-4 border-bottom pb-2 text-brand-500 mt-6">Sender Details (From)</h6>
-                            <Row className="mb-4">
-                                <Col md={6}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">From Name</Label>
-                                        <Input type="text" value={currentInvoice.from_name || ""} onChange={(e) => setCurrentInvoice({ ...currentInvoice, from_name: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                                <Col md={6}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">From Address</Label>
-                                        <Input type="textarea" rows={1} value={currentInvoice.from_address || ""} onChange={(e) => setCurrentInvoice({ ...currentInvoice, from_address: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                            </Row>
-                            <Row className="mb-4">
-                                <Col md={3}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">From City</Label>
-                                        <Input type="text" value={currentInvoice.from_city || ""} onChange={(e) => setCurrentInvoice({ ...currentInvoice, from_city: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                                <Col md={3}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">From State</Label>
-                                        <Input type="text" value={currentInvoice.from_state || ""} onChange={(e) => setCurrentInvoice({ ...currentInvoice, from_state: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                                <Col md={2}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">From PIN</Label>
-                                        <Input type="text" value={currentInvoice.from_pincode || ""} onChange={(e) => setCurrentInvoice({ ...currentInvoice, from_pincode: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                                <Col md={2}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">From State-Code</Label>
-                                        <Input type="text" value={currentInvoice.from_state_code || ""} onChange={(e) => setCurrentInvoice({ ...currentInvoice, from_state_code: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                                <Col md={2}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">Batch ID</Label>
-                                        <Input type="text" value={currentInvoice.batch_id || ""} onChange={(e) => setCurrentInvoice({ ...currentInvoice, batch_id: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                            </Row>
-                            <Row className="mb-4">
-                                <Col md={6}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">From GST No</Label>
-                                        <Input type="text" value={currentInvoice.from_gst_no || ""} onChange={(e) => setCurrentInvoice({ ...currentInvoice, from_gst_no: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                                <Col md={6}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">From PAN No</Label>
-                                        <Input type="text" value={currentInvoice.from_pan_no || ""} onChange={(e) => setCurrentInvoice({ ...currentInvoice, from_pan_no: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                            </Row>
-
-                            <h6 className="font-bold mb-4 border-bottom pb-2 text-brand-500 mt-6">Recipient Details (To)</h6>
-                            <Row className="mb-4">
-                                <Col md={6}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">To Name</Label>
-                                        <Input type="text" value={currentInvoice.to_name || ""} onChange={(e) => setCurrentInvoice({ ...currentInvoice, to_name: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                                <Col md={6}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">To Address</Label>
-                                        <Input type="textarea" rows={1} value={currentInvoice.to_address || ""} onChange={(e) => setCurrentInvoice({ ...currentInvoice, to_address: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                            </Row>
-                            <Row className="mb-4">
-                                <Col md={3}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">To City</Label>
-                                        <Input type="text" value={currentInvoice.to_city || ""} onChange={(e) => setCurrentInvoice({ ...currentInvoice, to_city: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                                <Col md={3}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">To State</Label>
-                                        <Input type="text" value={currentInvoice.to_state || ""} onChange={(e) => setCurrentInvoice({ ...currentInvoice, to_state: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                                <Col md={3}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">To PINCODE</Label>
-                                        <Input type="text" value={currentInvoice.to_pincode || ""} onChange={(e) => setCurrentInvoice({ ...currentInvoice, to_pincode: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                                <Col md={3}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">To State-Code</Label>
-                                        <Input type="text" value={currentInvoice.to_state_code || ""} onChange={(e) => setCurrentInvoice({ ...currentInvoice, to_state_code: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                            </Row>
-                            <Row className="mb-4">
-                                <Col md={6}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">To GST No</Label>
-                                        <Input type="text" value={currentInvoice.to_gst_no || ""} onChange={(e) => setCurrentInvoice({ ...currentInvoice, to_gst_no: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                                <Col md={6}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">To PAN No</Label>
-                                        <Input type="text" value={currentInvoice.to_pan_no || ""} onChange={(e) => setCurrentInvoice({ ...currentInvoice, to_pan_no: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                            </Row>
-
-                            <h6 className="font-bold mb-4 border-bottom pb-2 text-brand-500 mt-6">Financial Summary</h6>
-                            <Row className="mb-4">
-                                <Col md={2}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">Total Qty</Label>
-                                        <Input type="number" value={currentInvoice.total_quantity || 0} onChange={(e) => setCurrentInvoice({ ...currentInvoice, total_quantity: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                                <Col md={2}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">Total Freight</Label>
-                                        <Input type="number" value={currentInvoice.total_freight || 0} onChange={(e) => setCurrentInvoice({ ...currentInvoice, total_freight: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                                <Col md={2}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">CGST</Label>
-                                        <Input type="number" value={currentInvoice.total_cgst || 0} onChange={(e) => setCurrentInvoice({ ...currentInvoice, total_cgst: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                                <Col md={2}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">SGST</Label>
-                                        <Input type="number" value={currentInvoice.total_sgst || 0} onChange={(e) => setCurrentInvoice({ ...currentInvoice, total_sgst: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                                <Col md={2}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">IGST</Label>
-                                        <Input type="number" value={currentInvoice.total_igst || 0} onChange={(e) => setCurrentInvoice({ ...currentInvoice, total_igst: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                                <Col md={2}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">Grand Total</Label>
-                                        <Input type="number" value={currentInvoice.total_amount || 0} onChange={(e) => setCurrentInvoice({ ...currentInvoice, total_amount: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                            </Row>
-                            <Row className="mb-6">
-                                <Col md={12}>
-                                    <FormGroup>
-                                        <Label className="text-xs font-bold">Amount In Words</Label>
-                                        <Input type="text" value={currentInvoice.amount_in_words || ""} onChange={(e) => setCurrentInvoice({ ...currentInvoice, amount_in_words: e.target.value })} />
-                                    </FormGroup>
-                                </Col>
-                            </Row>
-
-                            <h6 className="font-bold mb-4 border-bottom pb-2 text-brand-500 mt-6">Invoice Origins / Items</h6>
-                            <div className="table-responsive" style={{ maxHeight: "400px" }}>
-                                <Table striped bordered hover size="sm">
-                                    <thead className="table-light sticky-top text-center">
-                                        <tr>
-                                            <th>Origin</th>
-                                            <th>Shipments</th>
-                                            <th>Freight</th>
-                                            <th>CGST</th>
-                                            <th>SGST</th>
-                                            <th>IGST</th>
-                                            <th>Total</th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {currentInvoice.items?.map((item, idx) => (
-                                            <tr key={item.id || idx}>
-                                                <td><Input type="text" bsSize="sm" className="text-center" value={item.origin || ""} onChange={(e) => { const ni = [...currentInvoice.items]; ni[idx].origin = e.target.value; setCurrentInvoice({ ...currentInvoice, items: ni }) }} /></td>
-                                                <td><Input type="number" bsSize="sm" className="text-center" value={item.shipments || 0} onChange={(e) => { const ni = [...currentInvoice.items]; ni[idx].shipments = parseFloat(e.target.value) || 0; setCurrentInvoice({ ...currentInvoice, items: ni }) }} /></td>
-                                                <td><Input type="number" bsSize="sm" className="text-center" value={item.freight || 0} onChange={(e) => { const ni = [...currentInvoice.items]; ni[idx].freight = parseFloat(e.target.value) || 0; ni[idx].total = (parseFloat(e.target.value) || 0) + (item.cgst || 0) + (item.sgst || 0) + (item.igst || 0); setCurrentInvoice({ ...currentInvoice, items: ni }) }} /></td>
-                                                <td><Input type="number" bsSize="sm" className="text-center text-accent-500" value={item.cgst || 0} onChange={(e) => { const ni = [...currentInvoice.items]; ni[idx].cgst = parseFloat(e.target.value) || 0; ni[idx].total = (item.freight || 0) + (parseFloat(e.target.value) || 0) + (item.sgst || 0) + (item.igst || 0); setCurrentInvoice({ ...currentInvoice, items: ni }) }} /></td>
-                                                <td><Input type="number" bsSize="sm" className="text-center text-accent-500" value={item.sgst || 0} onChange={(e) => { const ni = [...currentInvoice.items]; ni[idx].sgst = parseFloat(e.target.value) || 0; ni[idx].total = (item.freight || 0) + (item.cgst || 0) + (parseFloat(e.target.value) || 0) + (item.igst || 0); setCurrentInvoice({ ...currentInvoice, items: ni }) }} /></td>
-                                                <td><Input type="number" bsSize="sm" className="text-center text-accent-500" value={item.igst || 0} onChange={(e) => { const ni = [...currentInvoice.items]; ni[idx].igst = parseFloat(e.target.value) || 0; ni[idx].total = (item.freight || 0) + (item.cgst || 0) + (item.sgst || 0) + (parseFloat(e.target.value) || 0); setCurrentInvoice({ ...currentInvoice, items: ni }) }} /></td>
-                                                <td><Input type="number" bsSize="sm" className="text-center font-bold text-brand-500" value={item.total || 0} onChange={(e) => { const ni = [...currentInvoice.items]; ni[idx].total = parseFloat(e.target.value) || 0; setCurrentInvoice({ ...currentInvoice, items: ni }) }} /></td>
-                                                <td className="text-center"><Button color="danger" size="sm" outline onClick={() => handleDeleteItem(item.id)}><MdDelete size={16} /></Button></td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </Table>
-                            </div>
-                        </Container>
-                    )}
-                </ModalBody>
-                <ModalFooter>
-                    <span className="mr-auto text-ink-muted text-xs">* Row totals recalculate when freight/GST changes.</span>
-                    <Button color="secondary" onClick={() => setIsEditModalOpen(false)}>Close</Button>
-                    <Button color="primary" onClick={handleUpdateInvoice}>
-                        <MdSave size={18} className="mr-2" /> Save Changes
+        <Card className="shadow-sm border-0">
+            <CardBody className="p-0">
+                <div className="p-4 bg-canvas border-bottom flex justify-between items-center">
+                    <h5 className="mb-0 font-bold">Invoices</h5>
+                    <Button color="secondary" size="sm" onClick={loadBatches} disabled={loading}>
+                        {loading ? <Spinner size="sm" /> : <><MdRefresh size={16} /> Refresh</>}
                     </Button>
-                </ModalFooter>
-            </Modal>
-
-            {/* ── View Invoice Preview Modal (same as EditInvoice) — client-rendered download, no download-pdf API call ── */}
-            <ViewInvoice
-                isOpen={isViewModalOpen}
-                toggle={() => setIsViewModalOpen(false)}
-                invoiceData={viewInvoiceData}
-            />
-        </div>
+                </div>
+                <TableContainer
+                    headerAlign="left"
+                    columns={columns}
+                    data={batches}
+                    isGlobalFilter={true}
+                    isPagination={true}
+                    SearchPlaceholder="Search invoices..."
+                    pagination="pagination pagination-rounded justify-content-end mb-2"
+                    paginationWrapper="dataTables_paginate paging_simple_numbers"
+                    tableClass="table-hover mb-0"
+                />
+            </CardBody>
+        </Card>
     )
 }
+
+InvoicesTab.propTypes = { onOpenBatch: PropTypes.func }
 
 export default InvoicesTab

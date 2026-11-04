@@ -310,7 +310,7 @@ const BillingAutomation = () => {
                             {activeTab === "working" && <WorkingTab />}
                         </TabPane>
                         <TabPane tabId="invoices">
-                            {activeTab === "invoices" && <InvoicesTab />}
+                            {activeTab === "invoices" && <InvoicesTab onOpenBatch={handleOpenBatch} />}
                         </TabPane>
                         <TabPane tabId="history">
                             {activeTab === "history" && <HistoryTab selectedCustomers={selectedCustomers} onOpenBatch={handleOpenBatch} />}

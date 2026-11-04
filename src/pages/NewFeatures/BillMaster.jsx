@@ -32,6 +32,7 @@ import CustomerProductConfig from "./CustomerProductConfig";
 import CorporatePincode from "../Customers/CorporatePincodeUpload";
 import CorporateRateData from "../Customers/CorporateRateUpload";
 import VASConfig from "./VASConfig";
+import InvoiceConfig from "./InvoiceConfig";
 import SearchableDropdown from "../../components/Common/SearchableDropdown";
 import { FaFileExcel } from "react-icons/fa";
 
@@ -59,6 +60,7 @@ const BillMaster = () => {
                         name: `${ele?.customer_name || ""} - ${ele?.username}`,
                         label: `${ele?.customer_name || ""} - ${ele?.username}`,
                         id: ele?.id,
+                        username: ele?.username,
                         value: ele?.customer_name || ele?.username
                     }));
                 setCustomerOptions(options);
@@ -246,6 +248,16 @@ const BillMaster = () => {
                                 <span className="hidden sm:block">VAS</span>
                             </NavLink>
                         </NavItem>
+                        <NavItem>
+                            <NavLink
+                                active={activeTab === "5"}
+                                onClick={() => toggleTab("5")}
+                                style={{ cursor: "pointer" }}
+                            >
+                                <span className="block sm:hidden"><i className="fas fa-file-invoice"></i></span>
+                                <span className="hidden sm:block">Invoice Config</span>
+                            </NavLink>
+                        </NavItem>
                     </Nav>
 
                     <TabContent activeTab={activeTab} className="p-0">
@@ -275,6 +287,13 @@ const BillMaster = () => {
                                 externalCustomerId={selectedCustomer?.id || ""} 
                                 onCustomerChange={handleCustomerChange}
                                 hideHeader={true}
+                            />
+                        </TabPane>
+                        <TabPane tabId="5">
+                            <InvoiceConfig
+                                externalCustomer={selectedCustomer}
+                                onCustomerChange={handleCustomerChange}
+                                customerOptions={customerOptions}
                             />
                         </TabPane>
                     </TabContent>
