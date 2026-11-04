@@ -43,6 +43,9 @@ const CorporateInvoiceGenerate = React.forwardRef(({ invoiceData }, ref) => {
     { quantity: 0, freight: 0, cgst: 0, sgst: 0, igst: 0, total: 0 }
   );
 
+  // Show a Description column when any line carries one (e.g. "Courier charges for Oct 26")
+  const showDescription = (invoiceData?.items || []).some((it) => it?.description)
+
   // Format date
   const formatDate = (dateString) => {
     if (!dateString) return '';
@@ -113,7 +116,7 @@ const CorporateInvoiceGenerate = React.forwardRef(({ invoiceData }, ref) => {
             <thead style={{ border: "solid black 1px" }}>
               <tr>
                 <th style={{ border: "solid black 1px" }}>S.No.</th>
-                {/* <th className="w-1/4" style={{ border: "solid black 1px" }}>Description</th> */}
+                {showDescription && <th className="w-1/4" style={{ border: "solid black 1px" }}>Description</th>}
                 <th style={{ border: "solid black 1px" }}>Quantity</th>
                 <th style={{ border: "solid black 1px" }}>Total</th>
 
@@ -135,6 +138,7 @@ const CorporateInvoiceGenerate = React.forwardRef(({ invoiceData }, ref) => {
               {invoiceData?.items?.map((item, index) => (
                 <tr key={item.id}>
                   <td style={{ border: "solid black 1px" }}>{index + 1}.</td>
+                  {showDescription && <td style={{ border: "solid black 1px" }}>{item?.description || item?.origin || ""}</td>}
                   <td style={{ border: "solid black 1px" }}>{item?.quantity || 0}</td>
                   <td style={{ border: "solid black 1px" }}>{item?.freight?.toFixed(2) || "0.00"}</td>
                   
@@ -152,7 +156,7 @@ const CorporateInvoiceGenerate = React.forwardRef(({ invoiceData }, ref) => {
               ))}
               
               <tr className="font-bold">
-                <td colSpan={1} className="text-right" style={{ border: "solid black 1px" }}>
+                <td colSpan={showDescription ? 2 : 1} className="text-right" style={{ border: "solid black 1px" }}>
                   Grand Total
                 </td>
                 <td style={{ border: "solid black 1px" }}>{invoiceData?.total_quantity || 0}</td>

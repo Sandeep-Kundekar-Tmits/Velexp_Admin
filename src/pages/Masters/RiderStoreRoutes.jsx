@@ -118,7 +118,7 @@ const RiderStoreRoutes = () => {
     const [hasLoadedRoutes, setHasLoadedRoutes] = useState(false)
 
     const loadRoutes = useCallback(async (employeeCode, darkstoreCode) => {
-        if (!employeeCode && !darkstoreCode) { setRouteRows([]); return }
+        if (!employeeCode && !darkstoreCode) { setRouteRows([]); return [] }
         setRoutesLoading(true)
         setHasLoadedRoutes(true)
         try {
@@ -126,14 +126,18 @@ const RiderStoreRoutes = () => {
             if (employeeCode) params.set("employee", employeeCode)
             if (darkstoreCode) params.set("darkstore", darkstoreCode)
             const { ok, data } = await rawRequest(`${RIDER_STORE_ROUTES}?${params.toString()}`, { method: "GET" })
-            if (ok) setRouteRows(Array.isArray(data) ? data : Array.isArray(data?.results) ? data.results : [])
-            else {
-                setRouteRows([])
-                ErrorToaster(data?.detail || data?.error || "Failed to load routes")
+            if (ok) {
+                const rows = Array.isArray(data) ? data : Array.isArray(data?.results) ? data.results : []
+                setRouteRows(rows)
+                return rows
             }
+            setRouteRows([])
+            ErrorToaster(data?.detail || data?.error || "Failed to load routes")
+            return []
         } catch {
             setRouteRows([])
             ErrorToaster("Failed to load routes")
+            return []
         } finally {
             setRoutesLoading(false)
         }
@@ -155,9 +159,6 @@ const RiderStoreRoutes = () => {
     const addStoreRow = () => {
         setStoreRows((prev) => [...prev, { key: storeRowKeySeq++, storeOption: null, sequence: prev.length + 1 }])
     }
-    const removeStoreRow = (key) => {
-        setStoreRows((prev) => (prev.length > 1 ? prev.filter((r) => r.key !== key) : prev))
-    }
     const updateStoreRow = (key, field, value) => {
         setStoreRows((prev) => prev.map((r) => (r.key === key ? { ...r, [field]: value } : r)))
     }
@@ -167,10 +168,10 @@ const RiderStoreRoutes = () => {
 
     // Prefills the builder from what's currently assigned, so "Replace" can
     // start from the live route instead of being typed from scratch.
-    const loadCurrentIntoBuilder = () => {
-        if (!routeRows.length) return
+    const fillBuilderFromRoutes = (rows) => {
+        if (!rows.length) return
         setStoreRows(
-            routeRows
+            rows
                 .slice()
                 .sort((a, b) => (a.sequence ?? 0) - (b.sequence ?? 0))
                 .map((r) => ({
@@ -179,6 +180,24 @@ const RiderStoreRoutes = () => {
                     sequence: r.sequence ?? 1,
                 }))
         )
+    }
+
+    // Picking a rider (or changing the dark store while a rider is picked)
+    // loads that rider's current route and drops it into the builder, so it
+    // can be edited/replaced without pressing View Route + Load Current Route.
+    const loadRiderRoute = async (rider, darkstore) => {
+        if (!rider) { clearBuilder(); return }
+        const rows = await loadRoutes(rider.value, darkstore?.value)
+        if (rows.length) fillBuilderFromRoutes(rows)
+        else clearBuilder()
+    }
+    const handleRiderChange = (opt) => {
+        setSelectedRider(opt)
+        loadRiderRoute(opt, selectedDarkstore)
+    }
+    const handleDarkstoreChange = (opt) => {
+        setSelectedDarkstore(opt)
+        if (selectedRider) loadRiderRoute(selectedRider, opt)
     }
 
     const [assignLoading, setAssignLoading] = useState(false)
@@ -262,12 +281,25 @@ const RiderStoreRoutes = () => {
 
             <div className="page-fit-body relative z-10 pb-4">
                 <div className="flex flex-wrap items-end gap-4 border-b border-white/8 pb-4">
+                    <div className="flex w-full flex-col gap-1.5 sm:w-64">
+                        <Label className="form-label m-0 font-bold text-ink-muted">Dark Store</Label>
+                        <Select
+                            options={centreOptions}
+                            value={selectedDarkstore}
+                            onChange={handleDarkstoreChange}
+                            placeholder="Select Dark Store"
+                            styles={customStyles}
+                            isLoading={centresLoading}
+                            isClearable
+                        />
+                    </div>
+
                     <div className="flex w-full flex-col gap-1.5 sm:w-72">
                         <Label className="form-label m-0 font-bold text-ink-muted">Rider</Label>
                         <Select
                             options={riderOptions}
                             value={selectedRider}
-                            onChange={setSelectedRider}
+                            onChange={handleRiderChange}
                             onInputChange={(val, meta) => { if (meta.action === "input-change") setRiderSearchInput(val) }}
                             onMenuOpen={handleRiderMenuOpen}
                             onMenuScrollToBottom={handleRiderMenuScrollToBottom}
@@ -279,19 +311,6 @@ const RiderStoreRoutes = () => {
                             placeholder="Search rider by employee code or name"
                             noOptionsMessage={() => (riderLoading ? "Loading…" : "No riders found")}
                             styles={customStyles}
-                            isClearable
-                        />
-                    </div>
-
-                    <div className="flex w-full flex-col gap-1.5 sm:w-64">
-                        <Label className="form-label m-0 font-bold text-ink-muted">Dark Store</Label>
-                        <Select
-                            options={centreOptions}
-                            value={selectedDarkstore}
-                            onChange={setSelectedDarkstore}
-                            placeholder="Select Dark Store"
-                            styles={customStyles}
-                            isLoading={centresLoading}
                             isClearable
                         />
                     </div>
@@ -323,16 +342,7 @@ const RiderStoreRoutes = () => {
                 <div className="mt-3 rounded-md border border-white/8 p-3">
                     <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                         <span className="text-sm font-semibold text-ink">Route stores, in delivery order</span>
-                        <div className="flex gap-2">
-                            <Button color="secondary" size="sm" onClick={loadCurrentIntoBuilder} disabled={!routeRows.length}>
-                                Load Current Route
-                            </Button>
-                            <Button color="secondary" size="sm" onClick={addStoreRow}>+ Add Store</Button>
-                            <Button color="secondary" size="sm" onClick={clearBuilder}>Clear</Button>
-                            <Button color="primary" size="sm" onClick={handleAssignClick} disabled={assignLoading}>
-                                {assignLoading ? "Assigning..." : "Assign Route"}
-                            </Button>
-                        </div>
+                        <Button color="secondary" size="sm" onClick={addStoreRow}>+ Add Store</Button>
                     </div>
 
                     <div className="flex flex-col gap-2">
@@ -356,11 +366,14 @@ const RiderStoreRoutes = () => {
                                     value={row.sequence}
                                     onChange={(e) => updateStoreRow(row.key, "sequence", e.target.value)}
                                 />
-                                <Button color="danger" size="sm" onClick={() => removeStoreRow(row.key)} disabled={storeRows.length === 1}>
-                                    Remove
-                                </Button>
                             </div>
                         ))}
+                    </div>
+
+                    <div className="mt-3 flex justify-end">
+                        <Button color="primary" size="sm" onClick={handleAssignClick} disabled={assignLoading}>
+                            {assignLoading ? "Assigning..." : "Assign Route"}
+                        </Button>
                     </div>
                 </div>
 

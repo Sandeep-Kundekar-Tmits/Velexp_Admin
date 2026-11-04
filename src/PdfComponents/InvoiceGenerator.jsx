@@ -164,6 +164,9 @@ const InvoiceGenerator = ({ invoiceData, downloadUrl, autoDownload, onDownloaded
 
 
     const labelColSpan = getLabelColSpan();
+    // Corporate lines: origin is often blank now (e.g. config-driven lines such as
+    // "Courier charges for Oct 26"), so the column falls back to the description.
+    const hasOrigin = (invoiceData?.items || []).some((it) => it?.origin)
     // console.log(labelColSpan, "labelColSpan")
 
     return (
@@ -172,7 +175,7 @@ const InvoiceGenerator = ({ invoiceData, downloadUrl, autoDownload, onDownloaded
           <tr>
             {isVisible('srno') && <th className='text-center' style={{ border: "solid black 1px" }}>S.No.</th>}
             {isVisible('description') && <th className='text-center w-1/4' style={{ border: "solid black 1px" }}>Description</th>}
-            {isVisible('origin') && <th className='text-center w-1/4' style={{ border: "solid black 1px" }}>Origin</th>}
+            {isVisible('origin') && <th className='text-center w-1/4' style={{ border: "solid black 1px" }}>{hasOrigin ? "Origin" : "Description"}</th>}
             {isVisible('shipments') && <th className='text-center' style={{ border: "solid black 1px" }}> Shipments</th>}
             {isVisible('quantity') && <th className='text-center' style={{ border: "solid black 1px" }}>Quantity</th>}
             {/* {isVisible('rate') && <th>Rate</th>} */}
@@ -192,7 +195,7 @@ const InvoiceGenerator = ({ invoiceData, downloadUrl, autoDownload, onDownloaded
             <tr key={item.id}>
               {isVisible('srno') && <td style={{ border: "solid black 1px" }}>{index + 1}.</td>}
               {isVisible('description') && <td style={{ border: "solid black 1px" }}>{item?.description}</td>}
-              {isVisible('origin') && <td style={{ border: "solid black 1px" }}>{item?.origin}</td>}
+              {isVisible('origin') && <td style={{ border: "solid black 1px" }}>{item?.origin || item?.description}</td>}
               {isVisible('shipments') && <td className='text-right text-black' style={{ border: "solid black 1px" }}>{item?.shipments || 0}</td>}
               {isVisible('quantity') && <td className='text-right text-black' style={{ border: "solid black 1px" }}>{item?.quantity}</td>}
               {/* {isVisible('rate') && <td>{item?.rate?.toFixed(2)}</td>} */}
