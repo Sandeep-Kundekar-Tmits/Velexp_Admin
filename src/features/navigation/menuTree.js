@@ -495,6 +495,13 @@ export const MENU = [
     icon: "bx bx-x-circle",
     url: "/cancel-shipments"
   },
+  // Moves AWBs from one customer to another (admin-panel API). Needs a matching privileges
+  // menu row with link_url "/shipment-transfer", like every other screen on this list.
+  {
+    label: "Shipment Transfer",
+    icon: "bx bx-transfer",
+    url: "/shipment-transfer"
+  },
   {
     label: "Raw MIS",
     icon: "bx bx-table",

@@ -904,3 +904,8 @@ export const AWB_ADMIN_BOOKING_CORRECTION = `${BASE_URL}/awb-admin-lookup/bookin
 
 // Invoice config - per-customer invoice line layout (Bill Master, Invoice Config tab)
 export const BILLING_INVOICE_CONFIG = `${BASE_URL}/corporate-billing/billing/invoice-config/`; // GET list | GET ?customer_id= | POST { customer_id, invoice_line_mode: SINGLE|SC_WISE, single_line_description } | DELETE ?customer_id=
+
+// Shipment transfer - move AWBs between customers (admin-panel JWT). Omit apply for a dry run; apply:true writes and needs reason
+export const SHIPMENT_TRANSFER = `${BASE_URL}/api/admin-panel/shipment-transfer/`; // POST { awbs | rows:[{awb,to_user_id|to_username}], to_user_id|to_username, reason, move_wallet, apply }
+export const SHIPMENT_TRANSFER_UPLOAD = `${BASE_URL}/api/admin-panel/shipment-transfer/upload/`; // POST multipart: file, [to_user_id, reason, move_wallet, apply]
+export const SHIPMENT_TRANSFER_LOGS = `${BASE_URL}/api/admin-panel/shipment-transfer/logs/`; // GET ?awb= | ?user_id=&page=&page_size= | ?batch_id=

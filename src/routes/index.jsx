@@ -107,6 +107,7 @@ const BillingWorking = lazy(() => import("../pages/NewFeatures/BillingWorking"))
 const BillingAutomation = lazy(() => import("../pages/NewFeatures/BillingAutomation"));
 const InvoiceFlow = lazy(() => import("../pages/NewFeatures/InvoiceFlow"));
 const BillingStatus = lazy(() => import("../pages/NewFeatures/BillingStatus"));
+const ShipmentTransfer = lazy(() => import("../pages/NewFeatures/ShipmentTransfer"));
 const AllBooking = lazy(() => import("../pages/NewFeatures/AllBooking"));
 const AdditionalCharges = lazy(() => import("../pages/Dashboard/Billing/AdditionalCharges"));
 const CompanyAddress = lazy(() => import("../pages/Dashboard/Billing/CompanyAddress"));
@@ -237,6 +238,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/billing-automation", component: <BillingAutomation /> },
     { path: "/invoice-flow", component: <InvoiceFlow /> },
     { path: "/billing-status", component: <BillingStatus /> },
+    { path: "/shipment-transfer", component: <ShipmentTransfer /> },
     { path: "/all-booking", component: <AllBooking /> },
     { path: "/additional-charges", component: <AdditionalCharges /> },
     { path: "/company-address", component: <CompanyAddress /> },
