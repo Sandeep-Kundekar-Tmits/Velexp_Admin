@@ -1,0 +1,381 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Courier Invoice</title>
+    <style>
+        body {
+            font-family: Segoe UI, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #000000;
+            font-size: 12px;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            /* Adds space between the divs */
+        }
+
+        .side {
+            width: 50%;
+            border: 0px solid #ccc;
+            margin-bottom: 20px;
+        }
+
+        h4,
+        p {
+            margin: 0;
+            padding: 0;
+        }
+
+        .invoice-container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header img {
+            max-width: 120px;
+        }
+
+        .header h1 {
+            margin: 10px 0;
+            color: #000000;
+        }
+
+        .header p {
+            font-size: 14px;
+            color: #000000;
+        }
+
+        .details {
+            margin-bottom: 20px;
+        }
+
+        .details .row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .details .row span {
+            font-size: 14px;
+            color: #000000;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .table th,
+        .table td {
+            padding: 4px 6px;
+            text-align: left;
+            border: 0px solid #ddd;
+        }
+
+        .table th {
+            background-color: #f8f8f8;
+            color: #000000;
+            font-size: 0.7rem;
+        }
+
+        .table td {
+            color: #000000;
+            font-size: 0.7rem;
+        }
+
+        .total {
+            text-align: right;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #000000;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="invoice-container">
+        <table class="table" border="0" style="width: 100%; border:0px; margin-bottom: 20px;">
+            <tr>
+                <td style="width:50%;">
+                    <img src="https://velexp.com/static/imgs/vellocity-express-logo.svg" alt="Velocity Express"
+                        style="width:50%;">
+                </td>
+                <td style="width:50%; text-align:right;">
+                    <h1 style="margin:0; padding:0;"> TAX INVOICE </h1>
+                    <h4 style="margin:0; padding:0;"> Inv. No: <b>{{invoice_no}}</b></h4>
+                    <h4 style="margin:0; padding:0;"> Inv.Date: <b>{{invoice_date}}</b></h4>
+                    <!--                    <h4> &nbsp; </h4>-->
+                    <!--                    <h4 style="margin:0; padding:0;">From: <b>{{start_date}} - {{end_date}}</b></h4>-->
+                </td>
+            </tr>
+        </table>
+        <!-- <div style="display: flex; justify-content: space-between;">
+            <div style="width: 50%; border: 0px solid #ccc; margin-bottom:20px;">
+                <img src="{% static '/backend/images/vellocity-express-logo.png' %}" alt="Velocity Express" style="width:50%;">
+            </div>
+            <div style="width: 50%; border: 0px solid #ccc; margin-bottom:20px; text-align:right;">
+                <h2 style="margin:0; padding:0;"> TAX INVOICE </h2>
+                <h6 style="margin:0; padding:0;"> Inv. No: <b>{{invoice_no}}</b></h6>
+                <h6 style="margin:0; padding:0;"> Inv.Date: <b>{{invoice_date}}</b></h6>
+            </div>
+        </div> -->
+
+        <table class="table" border="0" style="width: 100%; border:0px; margin-bottom: 20px;">
+            <tr>
+                <td style="width:50%; text-align: left;">
+                    <p>To, </p>
+                    <h4 style="margin:0; padding:0;">
+                        {{to_company_name}}
+                    </h4>
+                    <p style="word-wrap: break-word; overflow-wrap: break-word;  width: 200px; white-space: normal;">
+                        Reg Office: {{to_company_address}} </p>
+                    {% if to_state_code %}
+                    <p> STATE CODE: <b> {{to_state_code}} </b> </p>
+                    {% endif %}
+
+                    {% if to_gst_no %}
+                    <p> GST NO: <b> {{to_gst_no}} </b> </p>
+                    {% endif %}
+
+                    {% if to_pan_no %}
+                    <p> PAN NO: <b> {{to_pan_no}}</b> </p>
+                    {% endif %}
+                </td>
+
+                <td style="width:50%; text-align: right;">
+                    <p>From, </p>
+                    <h4 style="margin:0; padding:0;">
+                        {{from_company_name}}
+                    </h4>
+                    <p
+                        style="margin:0; padding:0; word-wrap: break-word; overflow-wrap: break-word;  width: 200px; white-space: normal;">
+                        {{from_company_address}}</p>
+                    <p>STATE CODE: <b> {{from_state_code}}</b></p>
+                    <p>GST NO: <b> {{from_gst_no}}</b> </p>
+                    <p>PAN NO: <b> {{from_pan_no}}</b> </p>
+                </td>
+            </tr>
+        </table>
+
+        <!-- <div style="display: flex; justify-content: space-between;">
+            <div style="width: 50%; border: 0px solid #ccc; margin-bottom:20px;">
+                <small>To, <br/></small>
+                <h4 style="margin:0; padding:0;">
+                    {{to_company_name}}
+                </h4>
+                <small>
+                    Reg Office: {{to_company_address}}
+                    STATE CODE: <b> {{to_state_code}} </b> <br/>
+                    GST NO: <b> {{to_gst_no}} </b> <br/>
+                    PAN NO: <b> {{to_pan_no}}</b>
+                </small>
+            </div>
+            <div style="width: 50%; border: 0px solid #ccc; margin-bottom:20px; text-align:right;">
+                <small>From, </small>
+                <h4 style="margin:0; padding:0;">
+                    {{from_company_name}}
+                </h4>
+                <small>
+                    <p style="margin:0; padding:0;">{{from_company_address}}</p>
+                    STATE CODE: <b> {{from_state_code}}</b> <br/>
+                    GST NO: <b> {{from_gst_no}}</b> <br/>
+                    PAN NO: <b> {{from_pan_no}}</b>
+                </small>
+            </div>
+        </div> -->
+
+        {% if isCGST_active %}
+        <table class="table"
+            style="width: 100%; border-collapse: collapse; margin-bottom: 20px; border: 1px solid #ddd;">
+            <thead>
+                <tr>
+                    <th style="border: 1px solid #ddd; ">S.No.</th>
+                    <th style="border: 1px solid #ddd; ">{{ line_header|default:"Origin" }}</th>
+                    <th style="border: 1px solid #ddd; ">Shipments. </th>
+                    <th style="text-align:right; border: 1px solid #ddd;">Total Freight (Rs)</th>
+                    <th style="text-align:right; border: 1px solid #ddd;">CGST 9%</th>
+                    <th style="text-align:right; border: 1px solid #ddd;">SGST 9%</th>
+                    <th style="text-align:right; border: 1px solid #ddd;">Total.Inv. Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for orgsc, stats in booking.items %}
+                <tr>
+                    <td style="border: 1px solid #ddd;">{{forloop.counter}}</td>
+                    <td style="">{{orgsc}}</td>
+                    <td style="text-align: right; border: 1px solid #ddd;">{{stats.count}}</td>
+                    <td style="text-align:right; border: 1px solid #ddd;">
+                        <p> {{stats.total_freight|floatformat:2}} </p>
+                        <!-- <p> CGST: {{total_cgst}} </p>
+                            <p> SGST: {{total_sgst}} </p> -->
+                    </td>
+                    <td style="text-align:right; border: 1px solid #ddd;">{{stats.total_cgst|floatformat:2}}</td>
+                    <td style="text-align:right; border: 1px solid #ddd;">{{stats.total_sgst|floatformat:2}}</td>
+                    <td style="text-align:right; border: 1px solid #ddd;">{{stats.total_amount|floatformat:2}}</td>
+                </tr>
+                {% endfor%}
+
+                <!-- <tr>
+                    <th style="border: 1px solid #ddd;">S.No.</th>
+                    <th style="border: 1px solid #ddd; ">Shipments. </th>
+                    <th style="text-align:right; border: 1px solid #ddd;">Total Freight (Rs)</th>
+                    <th style="text-align:right; border: 1px solid #ddd;">Total.Inv. Amount</th>
+                </tr> -->
+                <!-- <th style="text-align:right; border: 1px solid #ddd;">CGST 9%</th> -->
+                <!-- <th style="text-align:right; border: 1px solid #ddd;">SGST 9%</th> -->
+
+                <tr>
+                    <td style="border: 1px solid #ddd;" colspan="2">
+                        <p align="right">
+                        <h3>Grand Total</h3>
+                    </td>
+                    <td style="text-align:right; border: 1px solid #ddd;"><b>{{total_shipments}}</b></td>
+                    <td style="text-align:right; border: 1px solid #ddd;"><b>{{total_freight}}</b></td>
+                    <td style="text-align:right; border: 1px solid #ddd;"><b>{{total_cgst}}</b></td>
+                    <td style="text-align:right; border: 1px solid #ddd;"><b>{{total_sgst}}</b></td>
+                    <td style="text-align:right; border: 1px solid #ddd;"><b>{{sum_total_amount}}</b></td>
+                </tr>
+
+                <tr>
+                    <td style="border: 1px solid #ddd;" colspan="7">
+                        <p>Amount in words : {{amount_in_words}}</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        {% else %}
+        <table class="table"
+            style="width: 100%; border-collapse: collapse; margin-bottom: 20px; border: 1px solid #ddd;">
+            <thead>
+                <tr>
+                    <th style="border: 1px solid #ddd; ">S.No.</th>
+                    <th style="border: 1px solid #ddd; ">{{ line_header|default:"Origin" }}</th>
+                    <th style="border: 1px solid #ddd; ">Shipments </th>
+                    <th style="text-align:right; border: 1px solid #ddd;">Total Freight (Rs)</th>
+                    <th style="text-align:right; border: 1px solid #ddd;">IGST 18%</th>
+                    <th style="text-align:right; border: 1px solid #ddd;">Total.Inv. Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for orgsc, stats in booking.items %}
+                <tr>
+                    <td style="border: 1px solid #ddd;">{{forloop.counter}}</td>
+                    <td style="border: 1px solid #ddd;">{{orgsc}}</td>
+                    <td style="text-align:right; border: 1px solid #ddd;">{{stats.count}}</td>
+                    <td style="text-align:right; border: 1px solid #ddd;">
+                        <p> {{stats.total_freight|floatformat:2}} </p>
+                        <!-- <p> IGST: {{total_igst}} </p> -->
+                    </td>
+                    <td style="text-align:right; border: 1px solid #ddd;">{{stats.total_igst|floatformat:2}}</td>
+                    <td style="text-align:right; border: 1px solid #ddd;">{{stats.total_amount|floatformat:2}}</td>
+                </tr>
+                {% endfor %}
+                <!-- <tr>
+                    <td style="border:none;">&nbsp;</td>
+                    <td style="border:none;">&nbsp;</td>
+                    <td style="border:none;">&nbsp;</td>
+                    <td style="border:none;">&nbsp;</td>
+                </tr> -->
+                <!-- <tr>
+                    <th style="border: 1px solid #ddd;">S.No.</th>
+                    <th style="border: 1px solid #ddd;">Shipments</th>
+                    <th style="text-align:right; border: 1px solid #ddd;">Total Freight (Rs)</th>
+                    <th style="text-align:right; border: 1px solid #ddd;">Total.Inv. Amount</th>
+                </tr> -->
+                <!-- <th style="text-align:right; border: 1px solid #ddd;">IGST 18%</th> -->
+
+                <tr>
+                    <td style="border: 1px solid #ddd;" colspan="2">
+                        <p align="right">
+                        <h3>Grand Total</h3>
+                    </td>
+                    <td style="text-align:right; border: 1px solid #ddd;"><b>{{total_shipments}}</b></td>
+                    <td style="text-align:right; border: 1px solid #ddd;"><b>{{total_freight}}</b></td>
+                    <td style="text-align:right; border: 1px solid #ddd;"><b>{{total_igst}}</b></td>
+                    <td style="text-align:right; border: 1px solid #ddd;"><b>{{sum_total_amount}}</b></td>
+                </tr>
+
+                <tr>
+                    <td style="border: 1px solid #ddd;" colspan="6">
+                        <p>Amount in words : {{amount_in_words}}</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        {% endif %}
+
+        <!--<div class="total">
+            <p>Total Amount: <span>$35.00</span></p>
+        </div>-->
+
+        <table class="table" border="0" style="width: 100%; border:0px; margin-bottom: 20px;">
+            <tr>
+                <td style="width:30%; text-align: left;">
+                    <p>Kindly acknowledge the receipt.</p>
+                    <p>Thanking You, </p>
+                    <img src="https://velexp.com/static/imgs/rohit-sign.jpg" alt="Signature">
+                    <p>Authorised Signatory</p>
+                </td>
+                <td style="40%">&nbsp;</td>
+
+                <td style="width:30%; text-align: left; border: 1px solid #ddd;">
+                    <p><b>Bank Detail for Payment</b></p>
+                    <p><b>Account Title: PNSO Technology Private Limited</b></p>
+                    <p><b>Bank Name: HDFC Bank</b> </p>
+                    <p><b>Bank Branch: Sahar Road, Mumbai</b> </p>
+                    <p><b>A/c No: 50200098503993 </b> </p>
+                    <p><b>A/c Type: Current</b> </p>
+                    <p><b>IFSC Code: HDFC0000668</b> </p>
+                    <p><b>Bank Name: HDFC Bank</b> </p>
+                </td>
+            </tr>
+        </table>
+
+        <table class="table" border="0" style="width: 100%; border:0px; margin-bottom: 20px;">
+            <tr>
+                <td style="width:70%; text-align: left;">
+                    <p><b> GST No : {{from_gst_no}} </b></p>
+                    <p><b> Service Tax No : </b></p>
+                    <p><b> Category : COURIER SERVICE </b></p>
+                    <p><b> PAN No : AAOCP7860J </b></p>
+                    <p><b> Enterprenuer Memorandum Number - Part - II : </b></p>
+                    <p><b> Corporate Identity Number : U53200PN2024PTC231459 </b></p>
+                    <p><b> SAC CODE : 996812 </b></p>
+                    <p> Whether the tax is payable on reverse charge basis - NO</p>
+                    <p><b>* This is a Computer Generated Invoice * For inquiries, contact us at <a
+                                href="mailto:info@velexp.com">velexp.com</a> </b></p>
+                </td>
+            </tr>
+        </table>
+
+        <!-- <div class="footer">
+            <p>This is a Computer Generated Invoice. For inquiries, contact us at <a href="mailto:info@velexp.com">velexp.com</a></p>
+        </div> -->
+    </div>
+</body>
+
+</html>

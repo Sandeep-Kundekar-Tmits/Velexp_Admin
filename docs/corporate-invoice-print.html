@@ -1,0 +1,312 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tax Invoice {{invoice_no}}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 12mm;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Segoe UI, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #000000;
+            background: #ffffff;
+            font-size: 13px;
+        }
+
+        h1, h4, h5, p {
+            margin: 0;
+            padding: 0;
+        }
+
+        p {
+            margin-bottom: 0;
+        }
+
+        .invoice-container {
+            max-width: none;
+            width: 100%;
+            margin: 0;
+            padding: 8px;
+            background: #ffffff;
+        }
+
+        /* layout helpers (tables only, so every PDF engine renders the same) */
+        table.layout {
+            width: 100%;
+            border: 0;
+            border-collapse: collapse;
+            margin-bottom: 14px;
+        }
+
+        table.layout td {
+            vertical-align: top;
+            padding: 0;
+        }
+
+        .right { text-align: right; }
+        .left { text-align: left; }
+
+        .logo {
+            width: 220px;
+            height: auto;
+        }
+
+        .doc-title {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 0;
+            padding: 0;
+        }
+
+        .section-label {
+            font-size: 12px;
+            font-weight: normal;
+            margin-bottom: 0;
+        }
+
+        .party-name {
+            font-size: 1em;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .addr {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
+            width: 260px;
+        }
+
+        .right .addr {
+            margin-left: auto;
+        }
+
+        /* NOTE: the invoice table below carries its borders, widths and
+           alignment INLINE on every cell (same as the original template).
+           Class-based table CSS was being mis-sized by the PDF engine
+           (stray empty columns, squashed headers). */
+
+        .signature {
+            width: 180px;
+            height: auto;
+            margin: 0;
+        }
+
+        .qr {
+            width: 150px;
+            height: 150px;
+            display: block;
+            margin: 4px 0;
+        }
+
+        .muted {
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        @media print {
+            .invoice-container {
+                padding: 0;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="invoice-container">
+
+        <!-- Header -->
+        <table class="layout" width="100%">
+            <tr>
+                <td width="50%" style="width:50%;">
+                    <img class="logo" width="220" src="https://velexp.com/static/imgs/vellocity-express-logo.svg"
+                        alt="Velocity Express">
+                </td>
+                <td class="right" width="50%" style="width:50%;">
+                    <div class="doc-title">TAX INVOICE</div>
+                    <p><b>Inv. No:</b> {{invoice_no}}</p>
+                    <p><b>Inv. Date:</b> {{invoice_date}}</p>
+                </td>
+            </tr>
+        </table>
+
+        <!-- To / From -->
+        <table class="layout" width="100%">
+            <tr>
+                <td class="left" width="50%" style="width:50%;">
+                    <div class="section-label">To,</div>
+                    <div class="party-name">{{to_company_name|default:"(Name not provided)"}}</div>
+                    <p class="addr">Reg Office: {{to_company_address}}</p>
+                    <p><b>STATE CODE:</b> {{to_state_code|default:"(Not Available)"}}</p>
+                    <p><b>GST NO:</b> {{to_gst_no|default:"(Not Provided)"}}</p>
+                    <p><b>PAN NO:</b> {{to_pan_no|default:"(Not Provided)"}}</p>
+                </td>
+                <td class="right" width="50%" style="width:50%;">
+                    <div class="section-label">From,</div>
+                    <div class="party-name">{{from_company_name}}</div>
+                    <p class="addr">{{from_company_address}}</p>
+                    {% if from_state_code %}
+                    <p><b>STATE CODE:</b> {{from_state_code}}</p>
+                    {% endif %}
+                    {% if from_gst_no %}
+                    <p><b>GST NO:</b> {{from_gst_no}}</p>
+                    {% endif %}
+                    {% if from_pan_no %}
+                    <p><b>PAN NO:</b> {{from_pan_no}}</p>
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+
+        <!-- Invoice table (same structure as the original template): S.No. | Description (falls back to origin) | Shipments | Total Freight | taxes | Total.Inv. Amount -->
+        {% if isCGST_active %}
+        <table width="100%" style="width: 100%; border-collapse: collapse; margin-bottom: 12px; border: 1px solid #ddd;">
+            <thead>
+                <tr>
+                    <th width="7%" style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; background-color: #f8f8f8; text-align: left;">S.No.</th>
+                    <th width="27%" style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; background-color: #f8f8f8; text-align: left;">{{ line_header|default:"Description" }}</th>
+                    <th width="11%" style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; background-color: #f8f8f8; text-align: left;">Shipments</th>
+                    <th width="15%" style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; background-color: #f8f8f8; text-align: right;">Total Freight (Rs)</th>
+                    <th width="13%" style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; background-color: #f8f8f8; text-align: right;">CGST 9%</th>
+                    <th width="13%" style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; background-color: #f8f8f8; text-align: right;">SGST 9%</th>
+                    <th width="14%" style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; background-color: #f8f8f8; text-align: right;">Total.Inv. Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for orgsc, stats in booking.items %}
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; text-align: left;">{{forloop.counter}}</td>
+                    <td style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; text-align: left;">{% if stats.description %}{{stats.description}}{% else %}{{orgsc}}{% endif %}</td>
+                    <td style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; text-align: right;">{% if stats.count %}{{stats.count}}{% else %}&nbsp;{% endif %}</td>
+                    <td style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; text-align: right;">{{stats.total_freight|floatformat:2}}</td>
+                    <td style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; text-align: right;">{{stats.total_cgst|floatformat:2}}</td>
+                    <td style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; text-align: right;">{{stats.total_sgst|floatformat:2}}</td>
+                    <td style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; text-align: right;">{{stats.total_amount|floatformat:2}}</td>
+                </tr>
+                {% endfor %}
+
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; text-align: right;" colspan="2"><h3 style="margin:0; padding:0; font-size:1.1em; text-align:right;">Grand Total</h3></td>
+                    <td style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; text-align: right; font-weight: bold;">{% if total_shipments %}{{total_shipments}}{% else %}&nbsp;{% endif %}</td>
+                    <td style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; text-align: right; font-weight: bold;">{% if total_freight %}{{total_freight}}{% else %}&nbsp;{% endif %}</td>
+                    <td style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; text-align: right; font-weight: bold;">{% if total_cgst %}{{total_cgst}}{% else %}&nbsp;{% endif %}</td>
+                    <td style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; text-align: right; font-weight: bold;">{% if total_sgst %}{{total_sgst}}{% else %}&nbsp;{% endif %}</td>
+                    <td style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; text-align: right; font-weight: bold;">{% if sum_total_amount %}{{sum_total_amount}}{% else %}&nbsp;{% endif %}</td>
+                </tr>
+
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000;" colspan="7">
+                        <p>Amount in words : {{amount_in_words}}</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        {% else %}
+        <table width="100%" style="width: 100%; border-collapse: collapse; margin-bottom: 12px; border: 1px solid #ddd;">
+            <thead>
+                <tr>
+                    <th width="7%" style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; background-color: #f8f8f8; text-align: left;">S.No.</th>
+                    <th width="33%" style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; background-color: #f8f8f8; text-align: left;">{{ line_header|default:"Description" }}</th>
+                    <th width="12%" style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; background-color: #f8f8f8; text-align: left;">Shipments</th>
+                    <th width="18%" style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; background-color: #f8f8f8; text-align: right;">Total Freight (Rs)</th>
+                    <th width="14%" style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; background-color: #f8f8f8; text-align: right;">IGST 18%</th>
+                    <th width="16%" style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; background-color: #f8f8f8; text-align: right;">Total.Inv. Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for orgsc, stats in booking.items %}
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; text-align: left;">{{forloop.counter}}</td>
+                    <td style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; text-align: left;">{% if stats.description %}{{stats.description}}{% else %}{{orgsc}}{% endif %}</td>
+                    <td style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; text-align: right;">{% if stats.count %}{{stats.count}}{% else %}&nbsp;{% endif %}</td>
+                    <td style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; text-align: right;">{{stats.total_freight|floatformat:2}}</td>
+                    <td style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; text-align: right;">{{stats.total_igst|floatformat:2}}</td>
+                    <td style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; text-align: right;">{{stats.total_amount|floatformat:2}}</td>
+                </tr>
+                {% endfor %}
+
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; text-align: right;" colspan="2"><h3 style="margin:0; padding:0; font-size:1.1em; text-align:right;">Grand Total</h3></td>
+                    <td style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; text-align: right; font-weight: bold;">{% if total_shipments %}{{total_shipments}}{% else %}&nbsp;{% endif %}</td>
+                    <td style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; text-align: right; font-weight: bold;">{% if total_freight %}{{total_freight}}{% else %}&nbsp;{% endif %}</td>
+                    <td style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; text-align: right; font-weight: bold;">{% if total_igst %}{{total_igst}}{% else %}&nbsp;{% endif %}</td>
+                    <td style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000; text-align: right; font-weight: bold;">{% if sum_total_amount %}{{sum_total_amount}}{% else %}&nbsp;{% endif %}</td>
+                </tr>
+
+                <tr>
+                    <td style="border: 1px solid #ddd; padding: 7px 6px 3px 6px; font-size: 0.85rem; color: #000000;" colspan="6">
+                        <p>Amount in words : {{amount_in_words}}</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        {% endif %}
+
+        <!-- Footer row 1: acknowledgement + signature | bank details -->
+        <table class="layout" width="100%" style="width:100%; margin-bottom:10px;">
+            <tr>
+                <td class="left" width="55%" style="width:55%; padding-right:16px;">
+                    <p>Kindly acknowledge the receipt.</p>
+                    <p>Thanking You,</p>
+                    <img class="signature" width="180" src="https://velexp.com/static/imgs/rohit-sign.png" alt="Signature">
+                    <p style="margin-top:4px;"><b>Authorised Signatory</b></p>
+                </td>
+                <td class="left" width="45%" style="width:45%;">
+                    <table width="100%" cellspacing="0" cellpadding="0" style="width:100%; border-collapse:collapse; border:1px solid #cccccc;">
+                        <tr>
+                            <td style="padding:8px 12px; line-height:1.5; font-size:13px;">
+                                Bank Detail for Payment<br>
+                                <b>Account Title:</b> PNSO Technology Private Limited<br>
+                                <b>Bank Name:</b> HDFC Bank<br>
+                                <b>Bank Branch:</b> Sahar Road, Mumbai<br>
+                                <b>A/c No:</b> 50200098503993<br>
+                                <b>A/c Type:</b> Current<br>
+                                <b>IFSC Code:</b> HDFC0000668
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Footer row 2: statutory info | payment QR -->
+        <table class="layout" width="100%" style="width:100%; margin-bottom:0;">
+            <tr>
+                <td class="left" width="55%" style="width:55%; padding-right:16px;">
+                    <p style="margin-bottom:3px;"><b>GST No:</b> {{from_gst_no}}</p>
+                    <p style="margin-bottom:3px;"><b>Category:</b> COURIER SERVICE</p>
+                    <p style="margin-bottom:3px;"><b>PAN No:</b> {{from_pan_no|default:"(Not Provided)"}}</p>
+                    <p style="margin-bottom:3px;"><b>Corporate Identity Number:</b> U53200PN2024PTC231459</p>
+                    <p style="margin-bottom:3px;"><b>SAC CODE:</b> 996812</p>
+                    <p style="margin-bottom:3px;"><b>Whether the tax is payable on reverse charge basis:</b> NO</p>
+                    <p><i>* This is a Computer Generated Invoice * For inquiries, contact us at velexp.com</i></p>
+                </td>
+                <td class="left" width="45%" style="width:45%;">
+                    <p><b>Scan for Payment</b></p>
+                    <img class="qr" width="150" height="150"
+                        src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&amp;data=upi%3A%2F%2Fpay%3Fpa%3DVyapar.171035895923%40hdfcbank%26pn%3DPNSO%2520TECHNOLOGY%2520PRIVATE%26cu%3DINR%26mc%3D4215%26mode%3D02%26mam%3DSTQD4554092172622489623%26tid%3DSTQD4554092172622489623%26tn%3DInv%2520{{invoice_no|urlencode}}"
+                        alt="Payment QR">
+                    <p><b>UPI:</b> Vyapar.171035895923@hdfcbank</p>
+                    <p class="muted">INV: {{invoice_no}}</p>
+                </td>
+            </tr>
+        </table>
+
+    </div>
+</body>
+
+</html>
