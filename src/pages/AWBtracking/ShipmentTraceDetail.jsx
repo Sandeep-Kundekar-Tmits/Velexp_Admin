@@ -208,10 +208,8 @@ const ShipmentTraceDetail = () => {
                 {/* Same "Shipment Details - AWB : ..." sub-heading TrackAWB shows */}
                 <div className="mb-3 flex items-center gap-2 border-b border-[rgb(var(--overlay-rgb)/0.08)] pb-2 font-semibold text-ink" style={{ fontSize: 18 }}>
                     Shipment Details - AWB : {awbno}
-                    {booking?.rto_approval === true && booking?.shipment_flag ? (
-                        <span className="badge border border-success-500/30 bg-success-500/15 text-success-500">RTO Approved</span>
-                    ) : (
-                        <span className="badge border border-[rgb(var(--overlay-rgb)/0.15)] bg-[rgb(var(--overlay-rgb)/0.05)] text-ink-muted">Not RTO Approved</span>
+                    {booking?.rto_approval === true && booking?.shipment_flag && (
+                        <span className="badge border border-[#15803d] bg-[#16a34a] text-white">RTO Approved</span>
                     )}
                 </div>
 

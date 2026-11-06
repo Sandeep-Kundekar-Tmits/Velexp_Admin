@@ -218,11 +218,13 @@ const SLIP_COLUMNS = [
 const EMPTY = { booking: {}, shipper: {}, consignee: {}, weight: {}, payment: {}, depositSlips: [], iciciPayments: [] }
 
 // Title-bar tags: solid tinted pill, a status dot and a coloured border so they read at a glance
+// Solid fills with fixed text colours, not tinted pills: a pale tint plus the theme's own amber/green text
+// washed out on the light theme (the COD tag was unreadable). These read the same on both themes.
 const TAG_TONES = {
-    success: "border-success-500/60 bg-success-500/20 text-success-500",
-    warning: "border-warning-500/60 bg-warning-500/20 text-warning-500",
-    danger: "border-danger-500/60 bg-danger-500/20 text-danger-500",
-    info: "border-[#3B82F6]/60 bg-[#3B82F6]/20 text-[#60A5FA]",
+    success: "border-[#15803d] bg-[#16a34a] text-white",
+    warning: "border-[#d97706] bg-[#fbbf24] text-[#1a1a1a]",
+    danger: "border-[#b91c1c] bg-[#e51b2b] text-white",
+    info: "border-[#1d4ed8] bg-[#2563eb] text-white",
     neutral: "border-[rgb(var(--overlay-rgb)/0.3)] bg-[rgb(var(--overlay-rgb)/0.1)] text-ink",
 }
 
@@ -261,12 +263,11 @@ const BookingInfoPanels = ({ info = EMPTY, awb = "", showWeight = true, rtoAppro
                     title="Booking Info"
                     accent="blue"
                     action={
-                        rtoApproved === null && !payMode ? null : (
+                        // the RTO tag only shows when the RTO is approved; no "Not RTO Approved" tag
+                        rtoApproved !== true && !payMode ? null : (
                             <span className="flex items-center gap-1.5">
                                 {payMode && <Tag tone={payModeTone(payMode)}>{payMode}</Tag>}
-                                {rtoApproved !== null && (
-                                    <Tag tone={rtoApproved ? "success" : "neutral"}>{rtoApproved ? "RTO Approved" : "Not RTO Approved"}</Tag>
-                                )}
+                                {rtoApproved === true && <Tag tone="success">RTO Approved</Tag>}
                             </span>
                         )
                     }

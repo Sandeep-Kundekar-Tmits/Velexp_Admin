@@ -170,13 +170,8 @@ const CallRecordings = ({ recordings = [] }) => {
         }
     }, [open])
 
-    if (recordings.length === 0) {
-        return (
-            <span className={`${BTN} cursor-not-allowed border-[rgb(var(--overlay-rgb)/0.15)] bg-[rgb(var(--overlay-rgb)/0.05)] text-ink-muted opacity-60`} title="No call recordings">
-                <Headphones aria-hidden="true" size={16} />
-            </span>
-        )
-    }
+    // no recording on this shipment: no icon at all
+    if (recordings.length === 0) return null
 
     return (
         <div ref={boxRef} className="relative">
