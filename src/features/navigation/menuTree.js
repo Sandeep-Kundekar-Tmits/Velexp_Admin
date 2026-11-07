@@ -157,6 +157,10 @@ export const MENU = [
         url: "/status-daily-report"
       },
       {
+        label: "Exceptions",
+        url: "/exceptions"
+      },
+      {
         label: "MIS Run",
         url: "/mis-report"
       },

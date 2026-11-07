@@ -909,3 +909,9 @@ export const BILLING_INVOICE_CONFIG = `${BASE_URL}/corporate-billing/billing/inv
 export const SHIPMENT_TRANSFER = `${BASE_URL}/api/admin-panel/shipment-transfer/`; // POST { awbs | rows:[{awb,to_user_id|to_username}], to_user_id|to_username, reason, move_wallet, apply }
 export const SHIPMENT_TRANSFER_UPLOAD = `${BASE_URL}/api/admin-panel/shipment-transfer/upload/`; // POST multipart: file, [to_user_id, reason, move_wallet, apply]
 export const SHIPMENT_TRANSFER_LOGS = `${BASE_URL}/api/admin-panel/shipment-transfer/logs/`; // GET ?awb= | ?user_id=&page=&page_size= | ?batch_id=
+
+// Shipment exceptions (OPS Reports > Exceptions)
+export const SHIPMENT_EXCEPTION_LIST = `${BASE_URL}/shipment-exception/get-list/` // POST { exception_category, exception_status, service_center_ids, start_date, end_date, page, page_size }
+export const SHIPMENT_EXCEPTION_DETAIL = `${BASE_URL}/shipment-exception/get-detail/` // POST { id }
+export const SHIPMENT_EXCEPTION_STATUSES = `${BASE_URL}/shipment-exception/statuses/` // GET -> [{ code, label }]
+export const EXCEPTION_CATEGORY_LIST = `${BASE_URL}/exception-category/get-list/` // POST
