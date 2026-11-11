@@ -209,8 +209,10 @@ const ExceptionList = () => {
                 status_code: updateStatus,
                 status_message: updateMessage.trim(),
             });
-            // usePostApiCall returns the parsed error body on a failed call (and shows its own toast)
-            if (res && !res.detail && !res.error && !res.status_code && !Array.isArray(res)) {
+            // usePostApiCall returns the parsed error body on a failed call (and shows its own toast).
+            // A saved status comes back as the new record ({ id, exception, status_code, ... }), so `status_code`
+            // is NOT an error marker; the new record's id is what says it worked.
+            if (res && !Array.isArray(res) && !res.detail && !res.error && (res.id !== undefined || res.exception !== undefined)) {
                 SucceesToaster(`Exception #${updateRow.id} marked ${UPDATE_STATUSES.find((s) => s.code === updateStatus)?.label}`);
                 setUpdateRow(null);
                 load();
