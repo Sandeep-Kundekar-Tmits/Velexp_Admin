@@ -100,8 +100,13 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
             const res = await authFetch(`${VERIFY_GSTIN}?gstin=${encodeURIComponent(gstin)}`);
             const json = await res.json();
 
-            // Case 1: GST already exists in the system
-            if (json.already_exists) {
+            const data = json.data || null;
+            // A GSTIN already in the verification logs comes back with its details (already_exists: true plus data):
+            // use those, as for a fresh verification. Without details, it is the old "already exists" notice.
+            const hasDetails = !!(data && (data.legal_name || data.trade_name));
+
+            // Case 1: GST already exists in the system and there is nothing to fill in
+            if (json.already_exists && !hasDetails) {
                 setGstAlreadyExistsMsg(
                     json.message || `GST number "${gstin}" already exists in the system.`
                 );
@@ -110,19 +115,22 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
                 return;
             }
 
-            // Case 2: Successfully verified and Active
-            if (json.success && json.data?.status === 'Active') {
+            // Case 2: details found (verified now, or found in the logs) and Active: fill the form
+            if ((json.success || json.already_exists) && hasDetails && (!data.status || data.status === 'Active')) {
+                const name = data.legal_name || data.trade_name || '';
+                // chars 3-12 of a GSTIN are the PAN
+                const panFromGst = /^\d{2}[A-Z]{5}\d{4}[A-Z]/i.test(gstin) ? gstin.slice(2, 12).toUpperCase() : '';
                 setGstVerified(true);
-                setGstVerifyData(json.data);
-                // Auto-fill customer name with legal_name
+                setGstVerifyData(data);
                 setFormData((prev) => ({
                     ...prev,
-                    customer_name: json.data.legal_name || prev.customer_name
+                    customer_name: name || prev.customer_name,
+                    pan_no: prev.pan_no || panFromGst,
                 }));
-                setCustomerCharCount((json.data.legal_name || '').trim().length);
-            } else if (json.success && json.data?.status !== 'Active') {
+                setCustomerCharCount(name.trim().length);
+            } else if ((json.success || json.already_exists) && hasDetails) {
                 setGstVerifyError(
-                    `GST is not active. Current status: "${json.data?.status || 'Unknown'}". Please use an active GST number.`
+                    `GST is not active. Current status: "${data?.status || 'Unknown'}". Please use an active GST number.`
                 );
             } else {
                 setGstVerifyError(json.message || json.error || 'GST verification failed. Please try again.');

@@ -909,3 +909,27 @@ export const BILLING_INVOICE_CONFIG = `${BASE_URL}/corporate-billing/billing/inv
 export const SHIPMENT_TRANSFER = `${BASE_URL}/api/admin-panel/shipment-transfer/`; // POST { awbs | rows:[{awb,to_user_id|to_username}], to_user_id|to_username, reason, move_wallet, apply }
 export const SHIPMENT_TRANSFER_UPLOAD = `${BASE_URL}/api/admin-panel/shipment-transfer/upload/`; // POST multipart: file, [to_user_id, reason, move_wallet, apply]
 export const SHIPMENT_TRANSFER_LOGS = `${BASE_URL}/api/admin-panel/shipment-transfer/logs/`; // GET ?awb= | ?user_id=&page=&page_size= | ?batch_id=
+
+// Shipment exceptions (OPS Reports > Exceptions)
+export const SHIPMENT_EXCEPTION_LIST = `${BASE_URL}/shipment-exception/get-list/` // POST { exception_category, exception_status, service_center_ids, start_date, end_date, page, page_size }
+export const SHIPMENT_EXCEPTION_DETAIL = `${BASE_URL}/shipment-exception/get-detail/` // POST { id }
+export const SHIPMENT_EXCEPTION_STATUSES = `${BASE_URL}/shipment-exception/statuses/` // GET -> [{ code, label }]
+export const SHIPMENT_EXCEPTION_STATUS_UPDATE = `${BASE_URL}/shipment-exception-status/` // POST { exception: <id>, status_code, status_message }
+export const EXCEPTION_CATEGORY_LIST = `${BASE_URL}/exception-category/get-list/` // POST
+
+// Darkstore conversion - change the pick / drop store of shipments (admin-panel JWT). Omit apply for a dry run; apply:true writes and needs reason
+export const DARKSTORE_CONVERSION = `${BASE_URL}/api/admin-panel/darkstore-conversion/`; // POST { awbs, pick_store, drop_store | rows:[{awb,pick_store,drop_store}], apply, reason }
+export const DARKSTORE_CONVERSION_STORES = `${BASE_URL}/api/admin-panel/darkstore-conversion/stores/`; // GET ?type=DARK_STORE|LOCAL_STORE&search=
+
+// Corporate customer onboarding wizard (admin-panel user). See CUSTOMER_ONBOARDING_FLOW.md
+export const ONBOARDING_BASE = `${BASE_URL}/corporate-billing/onboarding/`;
+export const ONBOARDING_CUSTOMERS = `${ONBOARDING_BASE}customers/`; // GET ?status=PENDING|LIVE
+export const ONBOARDING_DEFAULTS = `${ONBOARDING_BASE}defaults/`; // GET what corporatedefault holds per product
+export const ONBOARDING_APPLY_DEFAULTS = `${ONBOARDING_BASE}apply-defaults/`; // POST { customer_id, products?, components?, replace? }
+export const ONBOARDING_CHECKLIST = `${ONBOARDING_BASE}checklist/`; // POST { customer_id, test_routes?, test_weight_kg? }
+export const ONBOARDING_EMAIL_PREVIEW = `${ONBOARDING_BASE}email-preview/`; // GET ?customer_id=
+export const ONBOARDING_GO_LIVE = `${ONBOARDING_BASE}go-live/`; // POST { customer_id, acknowledge_warnings, password?, test_routes?, test_weight_kg? }
+export const ONBOARDING_RESEND_CREDENTIALS = `${ONBOARDING_BASE}resend-credentials/`; // POST { customer_id, password? }
+export const ONBOARDING_EMAIL_HISTORY = `${ONBOARDING_BASE}email-history/`; // GET ?customer_id=
+export const ONBOARDING_ADD_LOGIN = `${ONBOARDING_BASE}add-login/`; // POST { customer_id, username, password, email?, first_name?, last_name?, phone? }
+export const ONBOARDING_LOGINS = `${ONBOARDING_BASE}logins/`; // GET ?customer_id=

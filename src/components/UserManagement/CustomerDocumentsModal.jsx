@@ -19,7 +19,9 @@ const docDate = (d) => {
  * Documents of one customer: existing files (download / remove) plus an upload
  * area to add more, so documents can be added or replaced after account creation.
  */
-const CustomerDocumentsModal = ({ customer, onClose }) => {
+// inline: render the same content in the page instead of a popup (the onboarding wizard does); onChanged runs after an
+// upload or a removal.
+const CustomerDocumentsModal = ({ customer, onClose, inline = false, onChanged }) => {
     const { SucceesToaster, ErrorToaster } = ToasterProvider()
     const [docs, setDocs] = useState([])
     const [loading, setLoading] = useState(false)
@@ -27,6 +29,7 @@ const CustomerDocumentsModal = ({ customer, onClose }) => {
     const [remarks, setRemarks] = useState("")
     const [uploading, setUploading] = useState(false)
     const [busyId, setBusyId] = useState(null)
+    const [addOpen, setAddOpen] = useState(false) // inline mode: the Add documents popup
 
     const customerId = customer?.id
 
@@ -73,7 +76,9 @@ const CustomerDocumentsModal = ({ customer, onClose }) => {
             SucceesToaster(`${queued.length} document(s) uploaded`)
             setRows([newRow()])
             setRemarks("")
+            setAddOpen(false)
             load()
+            onChanged?.()
         } catch (err) {
             ErrorToaster(err.message || "Upload failed")
         } finally {
@@ -108,6 +113,7 @@ const CustomerDocumentsModal = ({ customer, onClose }) => {
             if (!res.ok) throw new Error(`Error ${res.status}`)
             SucceesToaster("Document removed")
             load()
+            onChanged?.()
         } catch (err) {
             ErrorToaster(err.message || "Remove failed")
         } finally {
@@ -115,11 +121,29 @@ const CustomerDocumentsModal = ({ customer, onClose }) => {
         }
     }
 
-    return (
-        <Modal isOpen={!!customer} toggle={onClose} size="lg" centered scrollable>
-            <ModalHeader toggle={onClose}>Customer Documents — {customer?.customer_name || customer?.username || ""}</ModalHeader>
-            <ModalBody>
-                <h5 className="mb-2 text-[14px] font-semibold">Uploaded documents</h5>
+    const uploadButton = (
+        <Button color="success" disabled={uploading} onClick={upload} className="flex items-center gap-2">
+            {uploading ? <Spinner size="sm" /> : <Upload size={15} />} Upload
+        </Button>
+    )
+
+    const addForm = (
+        <CustomerDocumentsForm
+            documents={rows}
+            setDocuments={setRows}
+            remarks={remarks}
+            setRemarks={setRemarks}
+            title="Add documents"
+            hint="Pick a type and a file for each new document, then press Upload."
+        />
+    )
+
+    const content = (
+        <>
+                <div className="mb-2 flex items-center justify-between gap-2">
+                    <h5 className="m-0 text-[14px] font-semibold">Uploaded documents</h5>
+                    {inline && <Button size="sm" color="primary" onClick={() => setAddOpen(true)}>Add documents</Button>}
+                </div>
                 {loading ? (
                     <div className="flex items-center gap-2 text-ink-muted"><Spinner size="sm" /> Loading…</div>
                 ) : docs.length === 0 ? (
@@ -156,21 +180,34 @@ const CustomerDocumentsModal = ({ customer, onClose }) => {
                     </div>
                 )}
 
-                <hr className="my-4 border-line" />
-                <CustomerDocumentsForm
-                    documents={rows}
-                    setDocuments={setRows}
-                    remarks={remarks}
-                    setRemarks={setRemarks}
-                    title="Add documents"
-                    hint="Pick a type and a file for each new document, then press Upload."
-                />
-            </ModalBody>
+                {!inline && <hr className="my-4 border-line" />}
+                {!inline && addForm}
+        </>
+    )
+
+    if (inline) {
+        return (
+            <div>
+                {content}
+                <Modal isOpen={addOpen} toggle={() => setAddOpen(false)} size="lg" centered scrollable>
+                    <ModalHeader toggle={() => setAddOpen(false)}>Add documents</ModalHeader>
+                    <ModalBody>{addForm}</ModalBody>
+                    <ModalFooter>
+                        <Button color="secondary" outline onClick={() => setAddOpen(false)}>Cancel</Button>
+                        {uploadButton}
+                    </ModalFooter>
+                </Modal>
+            </div>
+        )
+    }
+
+    return (
+        <Modal isOpen={!!customer} toggle={onClose} size="lg" centered scrollable>
+            <ModalHeader toggle={onClose}>Customer Documents — {customer?.customer_name || customer?.username || ""}</ModalHeader>
+            <ModalBody>{content}</ModalBody>
             <ModalFooter>
                 <Button color="secondary" outline onClick={onClose}>Close</Button>
-                <Button color="success" disabled={uploading} onClick={upload} className="flex items-center gap-2">
-                    {uploading ? <Spinner size="sm" /> : <Upload size={15} />} Upload
-                </Button>
+                {uploadButton}
             </ModalFooter>
         </Modal>
     )
@@ -178,7 +215,9 @@ const CustomerDocumentsModal = ({ customer, onClose }) => {
 
 CustomerDocumentsModal.propTypes = {
     customer: PropTypes.object,
-    onClose: PropTypes.func.isRequired,
+    onClose: PropTypes.func,
+    inline: PropTypes.bool,
+    onChanged: PropTypes.func,
 }
 
 export default CustomerDocumentsModal

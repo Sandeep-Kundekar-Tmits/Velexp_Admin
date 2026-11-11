@@ -5,14 +5,17 @@ import TransferResult from "./TransferResult"
 
 const MAX_ROWS = 1000
 
-const ResultPanel = ({ title, data, footer = null }) => {
+const ResultPanel = ({ title, data, footer = null, plain = false }) => {
     if (data === null || data === undefined) return null
 
     // preview / apply responses get the purpose-built view; logs and anything unexpected use the generic table
-    if (isTransferResponse(data)) return <TransferResult title={title} data={data} footer={footer} />
+    // `plain` skips that view (other screens, e.g. Darkstore Conversion, reuse this panel for their own responses)
+    if (!plain && isTransferResponse(data)) return <TransferResult title={title} data={data} footer={footer} />
 
     const list = extractList(data)
     const chips = scalarEntries(data)
+    // { summary: { CONVERTIBLE: 3, NOT_FOUND: 1 } } -> one coloured chip per outcome
+    const summary = data && typeof data.summary === "object" && !Array.isArray(data.summary) && data.summary ? Object.entries(data.summary) : []
     const columns = list ? columnsOf(list) : []
     const primitiveRows = list && columns.length === 0
     const shown = list ? list.slice(0, MAX_ROWS) : []
@@ -32,6 +35,16 @@ const ResultPanel = ({ title, data, footer = null }) => {
                             className={`rounded-full border px-2.5 py-0.5 text-xs ${k === "batch_id" ? "border-brand-500 font-bold text-brand-500" : "border-white/15 text-ink"}`}
                         >
                             <span className="text-ink-muted">{humanize(k)}:</span> <strong>{cellText(v)}</strong>
+                        </span>
+                    ))}
+                </div>
+            )}
+
+            {summary.length > 0 && (
+                <div className="mb-2 flex flex-wrap gap-2">
+                    {summary.map(([code, n]) => (
+                        <span key={code} className={`rounded-full border border-current px-2.5 py-0.5 text-xs font-semibold ${toneOf("result", code)}`}>
+                            {humanize(String(code).toLowerCase())}: {cellText(n)}
                         </span>
                     ))}
                 </div>
@@ -79,6 +92,7 @@ ResultPanel.propTypes = {
     title: PropTypes.string.isRequired,
     data: PropTypes.any,
     footer: PropTypes.node,
+    plain: PropTypes.bool,
 }
 
 export default ResultPanel

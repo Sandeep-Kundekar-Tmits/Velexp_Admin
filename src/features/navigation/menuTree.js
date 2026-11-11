@@ -157,6 +157,10 @@ export const MENU = [
         url: "/status-daily-report"
       },
       {
+        label: "Exceptions",
+        url: "/exceptions"
+      },
+      {
         label: "MIS Run",
         url: "/mis-report"
       },
@@ -185,6 +189,12 @@ export const MENU = [
       {
         label: "Add User",
         url: "/add-user"
+      },
+      // New corporate customers: setup wizard, go-live and credentials email.
+      // Needs a privileges menu row with link_url "/customer-onboarding" (the wizard route /customer-onboarding/:customerId shares it).
+      {
+        label: "Customer Onboarding",
+        url: "/customer-onboarding"
       },
       {
         label: "Add Franchisee",
@@ -564,6 +574,7 @@ export const MENU = [
       { label: "Employee", url: "/employees" },
       { label: "Exit History", url: "/exit-history" },
       { label: "Rider Store Routes", url: "/rider-store-routes" },
+      { label: "Darkstore Conversion", url: "/darkstore-conversion" },
       { label: "Pincode Master", url: "/pincode-master" },
       { label: "All Pincodes", url: "/pincode-service-centers" }
     ]

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     Button,
     Alert,
@@ -14,6 +14,7 @@ import EditAddress from '../../components/UserManagement/UpdateUser/EditAddress'
 import EditFranchisee from '../../components/UserManagement/UpdateUser/EditFranchisee';
 import { getModifiedFields, renderUpdatedDataJSX } from '../../helpers/formHelper';
 import { useGetApiCall } from '../../hooks/useGetApiCall';
+import PropTypes from 'prop-types';
 import { useNavigate, useParams } from 'react-router-dom';
 import { GET_USER_API, UPDATE_USER_API } from '../../api';
 import { usePutApiCall } from '../../hooks/usePutApuCall';
@@ -21,9 +22,14 @@ import MainHeaderComp from '../../components/MainHeaderCom';
 import Loader from '@/Loaders/Loader';
 import { ArrowLeft } from 'lucide-react';
 
-const UpdateUser = () => {
+// Props are for the onboarding wizard, which hosts this form inside a step: customerId replaces the route id,
+// embedded hides the page header, onSaved replaces the redirect to the customer page.
+// highlight {fields, color}: field names (input name attributes) to ring, for checks that point at them.
+// showPostpaid: adds a "Postpaid payment" checkbox (the onboarding Payment mode step) that is sent as postpaid_payment.
+const UpdateUser = ({ customerId, embedded = false, onSaved, highlight, showPostpaid = false } = {}) => {
+    const wrapRef = useRef(null);
     useEffect(() => {
-        document.title = "Edit User";
+        if (!embedded) document.title = "Edit User";
     }, []);
 
     const userUpdateSuccessMessage = "User updated successfully";
@@ -33,7 +39,8 @@ const UpdateUser = () => {
     const [isUpdated, setIsUpdated] = useState(false);
     const toggle = () => setModal(!modal);
     const { apifunc: updateUserFunc, loading: updateUserLoading, error: updateErrors } = usePutApiCall(userUpdateSuccessMessage, toggle);
-    const { id } = useParams();
+    const params = useParams();
+    const id = customerId ?? params.id;
 
     const initialAddressState = {
         address: '',
@@ -58,6 +65,9 @@ const UpdateUser = () => {
     useEffect(() => {
         if (selectedUserData) {
             const initialData = { ...selectedUserData };
+            if (showPostpaid) {
+                initialData.postpaid_payment = !!(initialData.postpaid_payment ?? initialData.franchise_profile?.postpaid_payment);
+            }
             if (Array.isArray(initialData.finance_emails)) {
                 initialData.finance_emails = initialData.finance_emails.join(', ');
             }
@@ -67,15 +77,37 @@ const UpdateUser = () => {
         }
     }, [selectedUserData]);
 
+    // what the customer looked like when loaded (with the postpaid flag filled in, so only a real change shows in Confirm)
+    const baseline = showPostpaid && selectedUserData
+        ? { ...selectedUserData, postpaid_payment: !!(selectedUserData.postpaid_payment ?? selectedUserData.franchise_profile?.postpaid_payment) }
+        : selectedUserData;
+
+    const hlFields = highlight?.fields || [];
+    const hlKey = hlFields.join(',');
+    // bring the first highlighted field into view once the customer has loaded
+    useEffect(() => {
+        if (!hlFields.length || !selectedUserData || selectedUserLoading) return;
+        const t = setTimeout(() => {
+            const el = wrapRef.current?.querySelector(hlFields.map((f) => `[name="${f}"]`).join(','));
+            el?.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
+        }, 150);
+        return () => clearTimeout(t);
+    }, [hlKey, selectedUserData, selectedUserLoading]);
+
     const prepareFormData = (data) => {
         const formDataToSend = new FormData();
 
         // Append basic user info
         Object.entries(data).forEach(([key, value]) => {
-            if (key !== 'addresses' && key !== 'franchise_profile' && key !== 'kyc_document' && key !== 'customer_agreement_doc' && key !== 'finance_emails') {
+            if (key !== 'addresses' && key !== 'franchise_profile' && key !== 'kyc_document' && key !== 'customer_agreement_doc' && key !== 'finance_emails' && !(showPostpaid && key === 'postpaid_payment')) {
                 formDataToSend.append(key, value || '');
             }
         });
+
+        // Postpaid flag: always sent as the words true / false (the generic loop above would turn false into an empty string)
+        if (showPostpaid) {
+            formDataToSend.append('postpaid_payment', data?.postpaid_payment ? 'true' : 'false');
+        }
 
         // Append file if it exists
         if (data?.kyc_document instanceof File) {
@@ -98,7 +130,11 @@ const UpdateUser = () => {
         }
 
         if (data?.franchise_profile) {
-            formDataToSend.append('franchise_profile_input', JSON.stringify(data.franchise_profile));
+            // a franchise keeps the same flag inside its profile: keep both in step
+            const profile = showPostpaid && Object.keys(data.franchise_profile).length
+                ? { ...data.franchise_profile, postpaid_payment: !!data.postpaid_payment }
+                : data.franchise_profile;
+            formDataToSend.append('franchise_profile_input', JSON.stringify(profile));
         }
 
         return {
@@ -122,7 +158,7 @@ const UpdateUser = () => {
 
             if (updatedValue) {
                 setIsUpdated(false);
-                navigate(`/user/${id}`);
+                if (onSaved) onSaved(); else navigate(`/user/${id}`);
             }
         }
         console.log(selectedUserData, updatedData)
@@ -174,7 +210,7 @@ const UpdateUser = () => {
     /* Rendered in both branches: the loading state was a bare fixed-position
        spinner over an empty screen, with no title and no way back to the list
        except the browser's own button. */
-    const header = (
+    const header = embedded ? null : (
         <MainHeaderComp
             title="Update Franchise Profile"
             subTitle={selectedUserData?.customer_name || selectedUserData?.username || undefined}
@@ -194,7 +230,7 @@ const UpdateUser = () => {
 
     if (selectedUserLoading) {
         return (
-            <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
+            <div className={embedded ? "relative overflow-x-hidden antialiased" : "page-content relative min-h-full overflow-x-hidden py-0 antialiased"}>
                 {header}
                 <Loader message="Loading customer…" fullscreen={false} />
             </div>
@@ -202,11 +238,26 @@ const UpdateUser = () => {
     }
 
     return (
-        <div className="page-content relative min-h-full overflow-x-hidden py-0 antialiased">
+        <div ref={wrapRef} className={embedded ? "relative overflow-x-hidden antialiased" : "page-content relative min-h-full overflow-x-hidden py-0 antialiased"}>
+            {hlFields.length > 0 && (
+                <style>{hlFields.map((f) => `[name="${f}"]`).join(',') + ` { border-color: ${highlight.color} !important; box-shadow: 0 0 0 3px ${highlight.color}55 !important; }`}</style>
+            )}
             {header}
-            <div className="container-fluid relative z-10 pb-4">
+            <div className={embedded ? "container-fluid relative z-10 px-0 pb-2" : "container-fluid relative z-10 pb-4"}>
                 <div>
                     <div>
+                        {showPostpaid && (
+                            <label className="mb-3 flex cursor-pointer items-center gap-2 rounded-md border border-white/8 p-3 text-sm font-semibold">
+                                <input
+                                    type="checkbox"
+                                    name="postpaid_payment"
+                                    checked={!!updatedData.postpaid_payment}
+                                    onChange={(e) => { setIsUpdated(true); setUpdatedData((prev) => ({ ...prev, postpaid_payment: e.target.checked })); }}
+                                />
+                                Postpaid payment
+                                <span className="font-normal text-ink-muted">(bill later; no wallet balance needed)</span>
+                            </label>
+                        )}
                         <EditUserInfo
                             formData={updatedData}
                             handleChange={(e) => handleChange(e, "info")}
@@ -277,7 +328,8 @@ const UpdateUser = () => {
                 <ModalHeader toggle={toggle}>Confirm Changes</ModalHeader>
                 <ModalBody>
                     {selectedUserData && renderUpdatedDataJSX(
-                        getModifiedFields(selectedUserData, updatedData)
+                        getModifiedFields(baseline, updatedData),
+                        baseline
                     )}
                 </ModalBody>
                 <ModalFooter>
@@ -299,6 +351,14 @@ const UpdateUser = () => {
             </Modal>
         </div>
     );
+};
+
+UpdateUser.propTypes = {
+    customerId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+    embedded: PropTypes.bool,
+    onSaved: PropTypes.func,
+    showPostpaid: PropTypes.bool,
+    highlight: PropTypes.shape({ fields: PropTypes.array, color: PropTypes.string }),
 };
 
 export default UpdateUser;

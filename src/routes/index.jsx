@@ -19,6 +19,8 @@ const AdminBooking = lazy(() => import("../pages/Dashboard/Reports/AdminBooking"
 const UserManagementList = lazy(() => import("../pages/Dashboard/UserManagementList"));
 const ViewUser = lazy(() => import("../pages/Dashboard/ViewUser"));
 const AddUser = lazy(() => import("../pages/Dashboard/AddUser"));
+const CustomerOnboarding = lazy(() => import("../pages/Customers/Onboarding"));
+const CustomerOnboardingWizard = lazy(() => import("../pages/Customers/Onboarding/Wizard"));
 const UpdateUser = lazy(() => import("../pages/Dashboard/UpdateUser"));
 // Masters - Service Centres
 const ServiceCentreList = lazy(() => import("../pages/Masters/ServiceCentreList"));
@@ -26,6 +28,7 @@ const AddServiceCentre = lazy(() => import("../pages/Masters/AddServiceCentre"))
 const EditServiceCentre = lazy(() => import("../pages/Masters/EditServiceCentre"));
 const ServiceCentrePincodes = lazy(() => import("../pages/Masters/ServiceCentrePincodes"));
 const RiderStoreRoutes = lazy(() => import("../pages/Masters/RiderStoreRoutes"));
+const DarkstoreConversion = lazy(() => import("../pages/Masters/DarkstoreConversion"));
 const AllPincodes = lazy(() => import("../pages/Masters/AllPincodes"));
 const PincodeMasterHome = lazy(() => import("../pages/Masters/PincodeMasterHome"));
 const VehicleMaster = lazy(() => import("../pages/Masters/VehicleMaster"));
@@ -53,6 +56,7 @@ const PendingReport = lazy(() => import("../pages/Dashboard/Reports/PendingRepor
 const PickupPendingReport = lazy(() => import("../pages/Dashboard/Reports/PickupPendingReport"));
 const MobileAppReport = lazy(() => import("../pages/Dashboard/Reports/MobileAppReport"));
 const StatusDailyReport = lazy(() => import("../pages/Dashboard/Reports/StatusDailyReport"));
+const ExceptionList = lazy(() => import("../pages/Dashboard/Reports/ExceptionList"));
 const CustomerPerformance = lazy(() => import("../pages/Dashboard/Reports/CustomerPerformance"));
 const OperationPerformance = lazy(() => import("../pages/Dashboard/Reports/OperationPerformance"));
 const PickupPerformance = lazy(() => import("../pages/Dashboard/Reports/PickupPeformance"));
@@ -180,6 +184,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/pickup-pending-report", component: <PickupPendingReport /> },
     { path: "/mobile-app-report", component: <MobileAppReport /> },
     { path: "/status-daily-report", component: <StatusDailyReport /> },
+    { path: "/exceptions", component: <ExceptionList /> },
     { path: "/customer-performance", component: <CustomerPerformance /> },
     { path: "/operation-performance", component: <OperationPerformance /> },
     { path: "/pickup-performance", component: <PickupPerformance /> },
@@ -204,6 +209,8 @@ const getAuthProtectedRoutes = () => {
     { path: "/add-franchisee", component: <AddFranchisee /> },
     { path: "/user-list", component: <UserManagementList /> },
     { path: "/add-user", component: <AddUser /> },
+    { path: "/customer-onboarding", component: <CustomerOnboarding /> },
+    { path: "/customer-onboarding/:customerId", component: <CustomerOnboardingWizard /> },
     { path: "/user/:id", component: <ViewUser /> },
     { path: "/edit-user/:id", component: <UpdateUser /> },
     // Masters - Service Centres
@@ -212,6 +219,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/service-centres/edit/:id", component: <EditServiceCentre /> },
     { path: "/service-centres/pincodes", component: <ServiceCentrePincodes /> },
     { path: "/rider-store-routes", component: <RiderStoreRoutes /> },
+    { path: "/darkstore-conversion", component: <DarkstoreConversion /> },
     { path: "/pincode-master", component: <PincodeMasterHome /> },
     { path: "/pincode-service-centers", component: <AllPincodes /> },
     { path: "/vehicle-master", component: <VehicleMaster /> },

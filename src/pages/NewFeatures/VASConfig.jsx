@@ -7,9 +7,10 @@ import usePostApiCall from "../../hooks/usePostApiCall"
 import { useDeleteApiCall } from "../../hooks/useDeleteApiCall"
 import { CORPORATE_BILLING_VAS, CORPORATE_CUSTOMERS_LIST, GET_CORPORATE_CUSTOMER_PRODUCTS } from "../../api"
 import TableContainer from "../../components/Table/TableContainer"
-import { MdDelete, MdVisibility, MdEdit } from "react-icons/md"
+import { FaEye, FaEdit, FaTrash } from "react-icons/fa"
 
-const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeader = false }) => {
+// extraActions: extra buttons shown in the header row, before Add New VAS (the onboarding wizard puts "Copy from the default setup" there)
+const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeader = false, extraActions = null, externalCustomerName = "" }) => {
     const { apifunc: fetchCustomers, data: customerData, loading: customersLoading } = useGetApiCall()
     const { apifunc: fetchProducts, data: productData, loading: productsLoading } = useGetApiCall()
     const { apifunc: fetchConfigs, data: configData, loading: configsLoading } = useGetApiCall()
@@ -67,6 +68,8 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
         if (externalCustomerId && externalCustomerId !== selectedCustomerId) {
             setSelectedCustomerId(externalCustomerId)
         }
+        // the add form starts on this customer (the wizard fixes it)
+        if (externalCustomerId) setFormData(prev => ({ ...prev, customer_id: externalCustomerId }))
     }, [externalCustomerId])
 
     useEffect(() => {
@@ -155,7 +158,7 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
 
     const resetForm = () => {
         setFormData({
-            customer_id: "",
+            customer_id: externalCustomerId || selectedCustomerId || "",
             product_id: "",
             charge_name: "",
             charge_type: "FLAT",
@@ -168,6 +171,11 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
         setErrors({})
         setIsEdit(false)
         setIsOthers(false)
+    }
+
+    const closeForm = () => {
+        setIsListView(true)
+        resetForm()
     }
 
     const toggleDeleteModal = () => setIsDeleteModalOpen(!isDeleteModalOpen)
@@ -255,14 +263,15 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
             enableSorting: false,
             cell: (cell) => (
                 <div className="flex gap-2 justify-center">
-                    <Button color="info" size="sm" title="View Details" onClick={() => handleView(cell.row.original)}>
-                        <MdVisibility size={16} />
+                    {/* same buttons as the Rates table: outline view / edit / delete */}
+                    <Button color="primary" size="sm" outline title="View Details" aria-label="View details" onClick={() => handleView(cell.row.original)}>
+                        <FaEye />
                     </Button>
-                    <Button color="warning" size="sm" title="Edit" onClick={() => handleEdit(cell.row.original)}>
-                        <MdEdit size={16} />
+                    <Button color="info" size="sm" outline title="Edit Details" aria-label="Edit" onClick={() => handleEdit(cell.row.original)}>
+                        <FaEdit />
                     </Button>
-                    <Button color="danger" size="sm" title="Delete" onClick={() => handleDelete(cell.row.original)} disabled={deleting}>
-                        <MdDelete size={16} />
+                    <Button color="danger" size="sm" outline title="Delete" aria-label="Delete" onClick={() => handleDelete(cell.row.original)} disabled={deleting}>
+                        <FaTrash />
                     </Button>
                 </div>
             )
@@ -271,7 +280,7 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
 
     return (
         <React.Fragment>
-            <div className='page-content py-0 px-0'>
+            <div className={hideHeader ? '' : 'page-content py-0 px-0'}>
                 {!hideHeader && (
                     <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
                         <MainHeaderComp
@@ -279,26 +288,26 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                         />
                     </div>
                 )}
-                <div className="container-fluid px-4 py-4">
-                    <div className="flex justify-between items-center mb-4">
-                        <h5 className="mb-0">{isListView ? "VAS List" : (isEdit ? "Edit VAS" : "Add VAS")}</h5>
-                        <Button 
-                            color={isListView ? "primary" : "secondary"} 
+                <div className={hideHeader ? "container-fluid px-0 py-0" : "container-fluid px-4 py-4"}>
+                    <div className={`flex flex-wrap items-center justify-between gap-2 ${hideHeader ? "mb-2" : "mb-4"}`}>
+                        <h5 className="m-0 text-base">VAS list</h5>
+                        <div className="flex flex-wrap gap-2">
+                        {isListView && extraActions}
+                        <Button
+                            size="sm"
+                            className="flex items-center gap-1 whitespace-nowrap"
+                            color="primary"
                             onClick={() => {
-                                if (isListView) {
-                                    resetForm()
-                                    setIsListView(false)
-                                } else {
-                                    setIsListView(true)
-                                }
+                                resetForm()
+                                setIsListView(false)
                             }}
                         >
-                            {isListView ? "Add New VAS" : "Back to List"}
+                            Add new VAS
                         </Button>
+                        </div>
                     </div>
 
-                    {isListView ? (
-                        <Card className="shadow-sm">
+                        <Card className={hideHeader ? "border-0 bg-transparent shadow-none" : "shadow-sm"}>
                             <CardBody className={selectedCustomerId ? "p-0" : "p-3"}>
                                 {!hideHeader && (
                                     <div className="p-4 bg-canvas border-bottom">
@@ -349,14 +358,20 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                                 )}
                             </CardBody>
                         </Card>
-                    ) : (
-                        <Card className="shadow-sm">
-                            <CardBody>
-                                <Form onSubmit={handleSubmit}>
+                </div>
+            </div>
+            {/* Add / edit form: a popup over the list. It closes by itself once the save succeeds (see handleSubmit). */}
+            <Modal isOpen={!isListView} toggle={closeForm} size="lg" centered className="flex max-h-[85vh] flex-col">
+                <ModalHeader toggle={closeForm}>{isEdit ? "Edit VAS" : "Add VAS"}</ModalHeader>
+                <Form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col">
+                    <ModalBody className="overflow-y-auto">
                                     <Row>
                                         <Col md={6} className="mb-4">
                                             <FormGroup>
                                                 <Label className="font-bold">Customer</Label>
+                                                {externalCustomerId ? (
+                                                    <Input type="text" value={externalCustomerName || customers.find(c => c.id === externalCustomerId)?.name || `Customer #${externalCustomerId}`} disabled readOnly />
+                                                ) : (
                                                 <SearchableDropdown
                                                     onChange={(val) => setFormData(prev => ({ ...prev, customer_id: val?.id || "" }))}
                                                     locations={customers}
@@ -364,6 +379,7 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                                                     className="w-full"
                                                     value={isEdit ? (customers.find(c => c.id === formData.customer_id)?.name || "N/A") : (formData.customer_id ? customers.find(c => c.id === formData.customer_id)?.name : "select")}
                                                 />
+                                                )}
                                                 {errors.customer_id && <div className="text-danger-500 text-xs mt-1">{errors.customer_id}</div>}
                                             </FormGroup>
                                         </Col>
@@ -508,19 +524,18 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                                             </FormGroup>
                                         </Col>
                                     </Row>
-                                    <div className="flex justify-end mt-6">
-                                        <Button color="primary" type="submit" disabled={submitting} className="px-12" style={{ minWidth: "150px" }}>
-                                            {submitting ? (
-                                                <><Spinner size="sm" className="mr-2" /> Saving...</>
-                                            ) : (isEdit ? "Update VAS" : "Save VAS")}
-                                        </Button>
-                                    </div>
-                                </Form>
-                            </CardBody>
-                        </Card>
-                    )}
-                </div>
-            </div>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="secondary" type="button" onClick={closeForm} disabled={submitting}>Cancel</Button>
+                        <Button color="primary" type="submit" disabled={submitting}>
+                            {submitting ? (
+                                <><Spinner size="sm" className="mr-2" /> Saving...</>
+                            ) : (isEdit ? "Update VAS" : "Save VAS")}
+                        </Button>
+                    </ModalFooter>
+                </Form>
+            </Modal>
+
 
             <Modal isOpen={isViewModalOpen} toggle={toggleViewModal} size="lg" centered>
                 <ModalHeader toggle={toggleViewModal}>VAS Details</ModalHeader>

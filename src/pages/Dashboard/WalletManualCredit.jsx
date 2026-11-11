@@ -11,6 +11,7 @@
 // method, payment_id) -- manual-credits is simply a filtered view of the
 // same ledger, so both tables share TRANSACTION_COLUMNS. /transactions/
 // additionally returns current_balance/total_credited alongside the rows.
+import PropTypes from "prop-types"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import AsyncSelect from "react-select/async"
 import { Badge, Button, FormGroup, Input, Label, Nav, NavItem, NavLink, TabContent, TabPane } from "@/components/ui"
@@ -77,12 +78,19 @@ const TABS = [
     { key: "transactions", label: "Transactions" },
 ]
 
-const WalletManualCredit = () => {
-    useEffect(() => { document.title = "Wallet" }, [])
+// Props are for the onboarding wizard: externalCustomer {id, name} fixes the customer and hides the header and picker,
+// onChanged runs after a credit is added.
+// openAddSignal: a number that opens the Add Credit popup each time it goes up (the wizard has the button in its own row).
+const WalletManualCredit = ({ externalCustomer, onChanged, openAddSignal = 0 } = {}) => {
+    const embedded = !!externalCustomer
+    // the full page fills the window; embedded in the wizard everything takes its natural height
+    const fit = embedded ? "" : "page-fit-body"
+    const tableFit = embedded ? {} : { fillHeight: true, tableHeight: "60vh" }
+    useEffect(() => { if (!embedded) document.title = "Wallet" }, [])
 
     const { SucceesToaster, ErrorToaster } = ToasterProvider()
 
-    const [selectedCustomer, setSelectedCustomer] = useState(null)
+    const [selectedCustomer, setSelectedCustomer] = useState(externalCustomer ? { value: externalCustomer.id, label: externalCustomer.name } : null)
     const [activeTab, setActiveTab] = useState(TABS[0].key)
 
     const customerSearchTimeout = useRef(null)
@@ -180,6 +188,7 @@ const WalletManualCredit = () => {
     const [saving, setSaving] = useState(false)
 
     const openForm = () => { setForm(EMPTY_FORM); setFormOpen(true) }
+    useEffect(() => { if (openAddSignal > 0) openForm() }, [openAddSignal])
 
     const handleSave = async () => {
         const amount = Number(form.amount)
@@ -202,6 +211,7 @@ const WalletManualCredit = () => {
                 setFormOpen(false)
                 loadCreditHistory(selectedCustomer.value)
                 loadTransactions()
+                onChanged?.()
             } else {
                 ErrorToaster(data?.detail || data?.error || data?.message || "Failed to add credit")
             }
@@ -214,7 +224,7 @@ const WalletManualCredit = () => {
 
     return (
         <div className="page-content page-fit relative min-h-full overflow-x-hidden py-0 antialiased">
-            <MainHeaderComp
+            {!embedded && <MainHeaderComp
                 title="Wallet"
                 subTitle="A customer's full wallet transaction history, plus manual credits for offline payments."
                 extraFields={
@@ -222,10 +232,10 @@ const WalletManualCredit = () => {
                         <Button color="primary" onClick={openForm}>+ Add Credit</Button>
                     )
                 }
-            />
+            />}
 
             <div className="page-fit-body relative z-10 pb-4">
-                <div className="flex flex-wrap items-end gap-3 border-b border-white/8 pb-4">
+                {!embedded && <div className="flex flex-wrap items-end gap-3 border-b border-white/8 pb-4">
                     <div className="flex w-full flex-col gap-1.5 sm:w-80">
                         <Label className="form-label m-0 font-bold text-ink-muted">Customer</Label>
                         <AsyncSelect
@@ -240,20 +250,20 @@ const WalletManualCredit = () => {
                             isClearable
                         />
                     </div>
-                </div>
+                </div>}
 
                 {!selectedCustomer ? (
                     <p className="text-ink-muted py-6 text-center text-xs">Select a customer to view their wallet</p>
                 ) : (
                     <>
-                        <Nav tabs className="nav-tabs-custom nav-justified mt-3">
+                        <Nav tabs className={embedded ? "nav-tabs-custom mt-1" : "nav-tabs-custom nav-justified mt-3"}>
                             {TABS.map((tab) => (
                                 <NavItem key={tab.key}>
                                     <NavLink
                                         active={activeTab === tab.key}
                                         style={{ cursor: "pointer" }}
                                         onClick={() => setActiveTab(tab.key)}
-                                        className={activeTab === tab.key ? "bg-[#3B82F6]/12 text-[15px] font-bold" : "text-[15px] font-bold"}
+                                        className={`${embedded ? "text-sm" : "text-[15px]"} font-bold ${activeTab === tab.key ? "bg-brand-500/10 text-brand-500" : ""}`}
                                     >
                                         {tab.label}
                                     </NavLink>
@@ -261,10 +271,10 @@ const WalletManualCredit = () => {
                             ))}
                         </Nav>
 
-                        <TabContent activeTab={activeTab} className="page-fit-body mt-3">
-                            <TabPane key="transactions" tabId="transactions" className="page-fit-body">
+                        <TabContent activeTab={activeTab} className={`${fit} mt-3`}>
+                            <TabPane key="transactions" tabId="transactions" className={fit}>
                                 {activeTab === "transactions" && (
-                                    <div className="page-fit-body">
+                                    <div className={fit}>
                                         <div className="flex flex-wrap items-end gap-3 mb-3">
                                             <div className="flex w-full flex-col gap-1.5 sm:w-72">
                                                 <Label className="form-label m-0 font-bold text-ink-muted">Date Range</Label>
@@ -284,7 +294,7 @@ const WalletManualCredit = () => {
 
                                         {txnLoading ? (
                                             <Loader message="Loading transactions…" fullscreen={false} />
-                                        ) : (
+                                        ) : embedded && txnLoaded && txnRows.length === 0 ? null : (
                                             <TableContainer
                                                 columns={TRANSACTION_COLUMNS}
                                                 data={txnRows}
@@ -299,23 +309,22 @@ const WalletManualCredit = () => {
                                                 theadClass="sticky top-0 z-10"
                                                 isStickyHeader={true}
                                                 stickyTop={0}
-                                                fillHeight
-                                                tableHeight="60vh"
+                                                {...tableFit}
                                             />
                                         )}
                                         {txnLoaded && !txnLoading && txnRows.length === 0 && (
-                                            <p className="text-ink-muted py-6 text-center text-xs">No transactions found for this date range</p>
+                                            <p className="m-0 rounded-md border border-white/8 py-6 text-center text-xs text-ink-muted">No transactions found for this date range</p>
                                         )}
                                     </div>
                                 )}
                             </TabPane>
 
-                            <TabPane key="manual-credits" tabId="manual-credits" className="page-fit-body">
+                            <TabPane key="manual-credits" tabId="manual-credits" className={fit}>
                                 {activeTab === "manual-credits" && (
-                                    <div className="page-fit-body">
+                                    <div className={fit}>
                                         {creditLoading ? (
                                             <Loader message="Loading credit history…" fullscreen={false} />
-                                        ) : (
+                                        ) : embedded && creditLoaded && creditRows.length === 0 ? null : (
                                             <TableContainer
                                                 columns={TRANSACTION_COLUMNS}
                                                 data={creditRows}
@@ -330,12 +339,11 @@ const WalletManualCredit = () => {
                                                 theadClass="sticky top-0 z-10"
                                                 isStickyHeader={true}
                                                 stickyTop={0}
-                                                fillHeight
-                                                tableHeight="60vh"
+                                                {...tableFit}
                                             />
                                         )}
                                         {creditLoaded && !creditLoading && creditRows.length === 0 && (
-                                            <p className="text-ink-muted py-6 text-center text-xs">No manual credits found for this customer</p>
+                                            <p className="m-0 rounded-md border border-white/8 py-6 text-center text-xs text-ink-muted">No manual credits found for this customer</p>
                                         )}
                                     </div>
                                 )}
@@ -384,6 +392,12 @@ const WalletManualCredit = () => {
             </SimpleModal>
         </div>
     )
+}
+
+WalletManualCredit.propTypes = {
+    externalCustomer: PropTypes.shape({ id: PropTypes.number, name: PropTypes.string }),
+    onChanged: PropTypes.func,
+    openAddSignal: PropTypes.number,
 }
 
 export default WalletManualCredit

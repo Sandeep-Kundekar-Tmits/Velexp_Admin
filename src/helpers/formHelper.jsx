@@ -55,270 +55,65 @@ function deepEqual(a, b) {
     return true;
 }
 
-export function renderUpdatedDataJSX(updatedData) {
-    const renderValue = (value) => {
-        if (value === null || value === undefined || value === "null") {
-            return <span style={{ color: '#999', fontStyle: 'italic' }}>null</span>;
-        }
-        if (typeof value === 'boolean') {
-            return (
-                <span 
-                    style={{ 
-                        color: value ? '#2e7d32' : '#c62828',
-                        fontWeight: '500',
-                        padding: '2px 6px',
-                        borderRadius: '4px',
-                        backgroundColor: value ? 'rgba(46, 125, 50, 0.1)' : 'rgba(198, 40, 40, 0.1)'
-                    }}
-                >
-                    {value.toString()}
-                </span>
-            );
-        }
-        if (typeof value === 'number') {
-            return <span style={{ color: '#1565c0', fontWeight: '500' }}>{value}</span>;
-        }
-        if (typeof value === 'string') {
-            // Check if it's a date string
-            if (!isNaN(Date.parse(value)) && value.length > 10) {
-                return (
-                    <span style={{ color: '#7b1fa2' }}>
-                        {new Date(value).toLocaleString()}
-                    </span>
-                );
-            }
-            return <span>{value}</span>;
-        }
-        if (typeof value === 'object') {
-            // Check if it's a File object
-            if (value instanceof File || (value.name && value.size && value.type)) {
-                return renderFileJSX(value);
-            }
-            // Handle empty objects
-            if (Object.keys(value).length === 0) {
-                return <span style={{ color: '#999', fontStyle: 'italic' }}>Empty object</span>;
-            }
-            return renderObjectJSX(value);
-        }
-        return <span>{value}</span>;
-    };
+// Confirm-changes list: one flat table, one row per changed field (old value struck through, new value after).
+// Nested changes (addresses, franchise profile) are flattened into "Group / field" labels.
+const labelOf = (key) => String(key).replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase());
 
-    const renderFileJSX = (file) => {
-        const fileSize = (file.size / 1024).toFixed(2) + ' KB';
-        
-        return (
-            <div style={{
-                padding: '12px',
-                border: '1px dashed #90caf9',
-                borderRadius: '8px',
-                backgroundColor: '#e3f2fd',
-                margin: '8px 0',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
-                    <span style={{ 
-                        marginRight: '10px',
-                        backgroundColor: '#bbdefb',
-                        borderRadius: '4px',
-                        padding: '4px 6px',
-                        fontSize: '0.8em'
-                    }}>
-                        {file.type.split('/')[1]?.toUpperCase() || 'FILE'}
-                    </span>
-                    <strong style={{ flex: 1 }}>{file.name}</strong>
-                    <span style={{ color: '#666', fontSize: '0.9em' }}>{fileSize}</span>
-                </div>
-                
-                {file.type.startsWith('image/') && (
-                    <div style={{ 
-                        marginTop: '12px',
-                        textAlign: 'center',
-                        borderTop: '1px solid #bbdefb',
-                        paddingTop: '12px'
-                    }}>
-                        <strong style={{ 
-                            display: 'block', 
-                            marginBottom: '8px',
-                            color: '#0d47a1'
-                        }}>Preview:</strong>
-                        <img
-                            src={URL.createObjectURL(file)}
-                            alt={file.name}
-                            style={{
-                                maxWidth: '100%',
-                                maxHeight: '200px',
-                                display: 'block',
-                                margin: '0 auto',
-                                borderRadius: '4px',
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                                border: '1px solid #e0e0e0'
-                            }}
-                        />
-                    </div>
-                )}
-            </div>
-        );
-    };
+const isFileLike = (v) => v instanceof File || (v && typeof v === 'object' && v.name && v.size !== undefined && v.type !== undefined);
 
-    const renderObjectJSX = (obj, parentKey = '') => {
-        if (!obj || Object.keys(obj).length === 0) {
-            return (
-                <div style={{ 
-                    color: '#999', 
-                    fontStyle: 'italic',
-                    padding: '8px',
-                    backgroundColor: '#f5f5f5',
-                    borderRadius: '4px',
-                    textAlign: 'center'
-                }}>
-                    No data available
-                </div>
-            );
+const showValue = (v) => {
+    if (v === null || v === undefined || v === '' || v === 'null') return '—';
+    if (typeof v === 'boolean') return v ? 'Yes' : 'No';
+    if (isFileLike(v)) return `${v.name} (${(v.size / 1024).toFixed(1)} KB)`;
+    if (typeof v === 'object') return v.name || v.label || v.type_of_cust || JSON.stringify(v);
+    return String(v);
+};
+
+const flattenChanges = (changes, original, trail = []) => {
+    const rows = [];
+    Object.entries(changes || {}).forEach(([key, value]) => {
+        const oldVal = original ? original[key] : undefined;
+        const plainObject = value && typeof value === 'object' && !Array.isArray(value) && !isFileLike(value);
+        // arrays index their items ("0"): that level adds nothing to the label
+        const label = /^\d+$/.test(key) ? trail : [...trail, labelOf(key)];
+        if (plainObject) {
+            rows.push(...flattenChanges(value, oldVal && typeof oldVal === 'object' ? oldVal : null, label));
+        } else {
+            rows.push({ label: label.join(' / '), oldVal, newVal: value });
         }
+    });
+    return rows;
+};
 
-        return (
-            <div style={{
-                marginLeft: parentKey ? '16px' : '0',
-                borderLeft: parentKey ? '1px solid #e0e0e0' : 'none',
-                padding: parentKey ? '8px 0 8px 12px' : '0',
-                transition: 'all 0.3s ease'
-            }}>
-                {Object.entries(obj).map(([key, value]) => {
-                    const isNestedSection = ['addresses', 'franchise_profile', 'cust_type'].includes(key);
-                    const shouldShowColon = key !== "0";
-                    const isModified = JSON.stringify(value) !== JSON.stringify({});
-
-                    return (
-                        <div
-                            className={`d-flex ${isNestedSection ? 'nested-section' : ''}`}
-                            key={`${parentKey}-${key}`}
-                            style={{
-                                marginBottom: '16px',
-                                flexDirection: isNestedSection ? 'column' : 'row',
-                                backgroundColor: isNestedSection ? '#f5f5f5' : 'transparent',
-                                borderRadius: '8px',
-                                padding: isNestedSection ? '16px' : '0',
-                                border: isNestedSection ? '1px solid #e0e0e0' : 'none',
-                                transition: 'all 0.2s ease',
-                                boxShadow: isNestedSection ? '0 2px 4px rgba(0,0,0,0.05)' : 'none',
-                                position: 'relative',
-                                overflow: 'hidden'
-                            }}
-                        >
-                            {isModified && (
-                                <div style={{
-                                    position: 'absolute',
-                                    top: '0',
-                                    right: '0',
-                                    backgroundColor: '#4caf50',
-                                    color: 'white',
-                                    fontSize: '0.7em',
-                                    padding: '2px 8px',
-                                    borderRadius: '0 0 0 4px',
-                                    boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
-                                }}>
-                                    Modified
-                                </div>
-                            )}
-                            
-                            <h5 className="capitalize" style={{
-                                color: isNestedSection ? '#333' : '#555',
-                                width: isNestedSection ? '100%' : '40%',
-                                marginBottom: isNestedSection ? '16px' : '0',
-                                fontWeight: isNestedSection ? '600' : '500',
-                                fontSize: isNestedSection ? '1.15rem' : '1rem',
-                                display: 'flex',
-                                alignItems: 'center',
-                                padding: isNestedSection ? '0 0 8px 0' : '0',
-                                borderBottom: isNestedSection ? '1px solid #e0e0e0' : 'none'
-                            }}>
-                                <span style={{
-                                    marginRight: '10px',
-                                    color: isNestedSection ? '#0d47a1' : '#666',
-                                    fontSize: '1em',
-                                    display: 'inline-flex',
-                                    alignItems: 'center'
-                                }}>
-                                    {isNestedSection ? (
-                                        <span style={{ marginRight: '6px' }}>📌</span>
-                                    ) : (
-                                        <span style={{
-                                            display: 'inline-block',
-                                            width: '6px',
-                                            height: '6px',
-                                            backgroundColor: '#1976d2',
-                                            borderRadius: '50%',
-                                            marginRight: '8px'
-                                        }}></span>
-                                    )}
-                                </span>
-                                {key.replace(/_/g, ' ')}{shouldShowColon ? ':' : ''}
-                            </h5>
-                            <div className="text-wrap" style={{
-                                width: isNestedSection ? '100%' : '60%',
-                                paddingLeft: isNestedSection ? '12px' : '0',
-                                color: isNestedSection ? '#333' : '#1976d2',
-                                fontWeight: isNestedSection ? '500' : '400',
-                                fontSize: isNestedSection ? '1rem' : '0.95rem',
-                                lineHeight: '1.6',
-                                wordBreak: 'break-word'
-                            }}>
-                                {renderValue(value)}
-                            </div>
-                        </div>
-                    );
-                })}
-            </div>
-        );
-    };
-
+export function renderUpdatedDataJSX(updatedData, original) {
+    const rows = flattenChanges(updatedData, original);
+    if (rows.length === 0) {
+        return <p className="m-0 py-3 text-center text-sm text-ink-muted">No changes yet.</p>;
+    }
     return (
-        <div style={{
-            fontFamily: "'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', sans-serif",
-            fontSize: '15px',
-            color: '#333',
-            padding: '20px',
-            backgroundColor: '#fff',
-            borderRadius: '8px',
-            maxHeight: '500px',
-            overflowY: 'auto',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.08)',
-            border: '1px solid #e0e0e0'
-        }}>
-            <div style={{
-                marginBottom: '20px',
-                paddingBottom: '10px',
-                borderBottom: '1px solid #eee',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
-            }}>
-                <h4 style={{ 
-                    margin: '0',
-                    color: '#0d47a1',
-                    fontWeight: '600',
-                    display: 'flex',
-                    alignItems: 'center'
-                }}>
-                    <span style={{ 
-                        marginRight: '10px',
-                        fontSize: '1.2em'
-                    }}>📋</span>
-                    Updated Data Preview
-                </h4>
-                <span style={{
-                    fontSize: '0.85em',
-                    color: '#666',
-                    backgroundColor: '#f5f5f5',
-                    padding: '4px 8px',
-                    borderRadius: '4px'
-                }}>
-                    {Object.keys(updatedData).length} fields
-                </span>
-            </div>
-            
-            {renderObjectJSX(updatedData)}
-        
+        <div className="max-h-[55vh] overflow-y-auto">
+            <p className="mb-2 mt-0 text-xs text-ink-muted">{rows.length} field{rows.length === 1 ? '' : 's'} will be updated.</p>
+            <table className="w-full text-sm">
+                <thead>
+                    <tr className="text-left text-xs text-ink-muted">
+                        <th className="w-1/3 pb-1 pr-3 font-semibold">Field</th>
+                        <th className="pb-1 font-semibold">Change</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {rows.map((r, i) => (
+                        <tr key={`${r.label}-${i}`} className="border-t border-white/8 align-top">
+                            <td className="py-1.5 pr-3 font-semibold">{r.label}</td>
+                            <td className="break-words py-1.5">
+                                {r.oldVal !== undefined && showValue(r.oldVal) !== showValue(r.newVal) && (
+                                    <><span className="text-ink-muted line-through">{showValue(r.oldVal)}</span><span className="mx-1.5 text-ink-muted" aria-hidden="true">&rarr;</span></>
+                                )}
+                                <span className="font-semibold text-brand-300">{showValue(r.newVal)}</span>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
     );
 }
