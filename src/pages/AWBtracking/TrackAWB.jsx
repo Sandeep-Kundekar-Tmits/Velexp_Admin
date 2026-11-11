@@ -100,6 +100,15 @@ const TrackAWB = () => {
 
     const timelineRef = useRef(null)
     const [histHeight, setHistHeight] = useState(360)
+    // Below lg the three info cards stack and the history is no longer a fixed-height inner box:
+    // the whole page scrolls instead, so every part of it can be reached on a phone.
+    const [isDesktop, setIsDesktop] = useState(() => (typeof window === "undefined" ? true : window.matchMedia("(min-width: 1024px)").matches))
+    useEffect(() => {
+        const mq = window.matchMedia("(min-width: 1024px)")
+        const onChange = (e) => setIsDesktop(e.matches)
+        mq.addEventListener("change", onChange)
+        return () => mq.removeEventListener("change", onChange)
+    }, [])
 
     useEffect(() => {
         document.title = "Shipment & Bag Tracking"
@@ -335,7 +344,7 @@ const TrackAWB = () => {
                 ) : bookingData && (
                     <div>
                         {/* sticky: the three cards stay put while the history scrolls underneath */}
-                        <div className="sticky top-0 z-20 bg-canvas pb-2">
+                        <div className="bg-canvas pb-2 lg:sticky lg:top-0 lg:z-20">
                             <BookingInfoPanels
                                 info={headerInfo}
                                 awb={activeAwb}
@@ -352,7 +361,7 @@ const TrackAWB = () => {
                                 <CallRecordings recordings={recordingList} />
                             </div>
 
-                            <div ref={timelineRef} className="scroll-slim min-w-0 flex-1" style={{ height: histHeight, overflowY: "auto" }}>
+                            <div ref={timelineRef} className="scroll-slim min-w-0 flex-1" style={isDesktop ? { height: histHeight, overflowY: "auto" } : undefined}>
                                 {dataList.map((item, index) => (
                                     <div key={index} className="relative flex items-stretch gap-1.5">
                                         <div className="self-start pb-4 text-center" style={{ minWidth: 110 }}>

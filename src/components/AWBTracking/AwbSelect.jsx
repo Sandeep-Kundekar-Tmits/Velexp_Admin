@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from "react"
 import PropTypes from "prop-types"
-import { Check, ChevronDown } from "lucide-react"
+import { Check, ChevronDown, Search } from "lucide-react"
 import { Dropdown, DropdownToggle, DropdownMenu } from "@/components/ui"
 
 /*
@@ -12,6 +12,7 @@ const AwbSelect = ({ options, value, onChange }) => {
     const [open, setOpen] = useState(false)
     const boxRef = useRef(null)
     const [maxH, setMaxH] = useState(288)
+    const [query, setQuery] = useState("")
 
     // Cap the list to the space left below the button, so opening it never pushes the
     // page into scrolling; anything longer scrolls inside the list instead.
@@ -28,8 +29,15 @@ const AwbSelect = ({ options, value, onChange }) => {
 
     const current = options.find((o) => o.value === value)
 
+    // search by AWB number or by its status
+    const q = query.trim().toLowerCase()
+    const shown = q
+        ? options.filter((o) => o.value.toLowerCase().includes(q) || (o.status || "").toLowerCase().includes(q))
+        : options
+
     const pick = (v) => {
         setOpen(false)
+        setQuery("")
         if (v !== value) onChange(v)
     }
 
@@ -37,8 +45,8 @@ const AwbSelect = ({ options, value, onChange }) => {
         <Dropdown
             ref={boxRef}
             isOpen={open}
-            toggle={() => setOpen((o) => !o)}
-            onKeyDown={(e) => { if (e.key === "Escape") setOpen(false) }}
+            toggle={() => { setOpen((o) => !o); setQuery("") }}
+            onKeyDown={(e) => { if (e.key === "Escape") { setOpen(false); setQuery("") } }}
         >
             <DropdownToggle
                 aria-label="AWB No"
@@ -54,7 +62,25 @@ const AwbSelect = ({ options, value, onChange }) => {
             </DropdownToggle>
 
             <DropdownMenu className="scroll-slim w-full !min-w-0 overflow-y-auto overscroll-contain !p-1" style={{ maxHeight: maxH }} role="listbox">
-                {options.map((o) => {
+                <div className="sticky top-0 z-10 bg-canvas pb-1">
+                    <div className="relative">
+                        <Search aria-hidden="true" size={13} className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-ink-muted" />
+                        <input
+                            type="text"
+                            autoFocus
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter" && shown.length === 1) pick(shown[0].value)
+                            }}
+                            placeholder="Search AWB"
+                            aria-label="Search AWB"
+                            className="form-control !h-7 w-full !py-0 !pl-7 text-[12px]"
+                        />
+                    </div>
+                </div>
+                {shown.length === 0 && <div className="px-2 py-1.5 text-[12px] text-ink-muted">No matching AWB</div>}
+                {shown.map((o) => {
                     const active = o.value === value
                     return (
                         <button
