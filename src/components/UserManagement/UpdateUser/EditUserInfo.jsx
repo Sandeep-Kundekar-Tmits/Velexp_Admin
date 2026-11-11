@@ -89,7 +89,7 @@ const EditUserInfo = ({ formData, handleChange, setUpdatedData, setIsUpdated, on
                 </Row>
                 <FormGroup style={{ cursor: "not-allowed" }}>
                     <Label>Customer Name</Label>
-                    <Input type="text" name="customer_name" disabled value={formData?.customer_name} style={{ cursor: "not-allowed" }} />
+                    <Input type="text" name="customer_name" value={formData?.customer_name || ""} onChange={handleChange} />
                     {/*  not allowed to change */}
                     <small className="text-ink-muted">User Not Allowed To Change</small>
                 </FormGroup>

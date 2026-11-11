@@ -13,9 +13,10 @@ import usePostApiCall from "../../hooks/usePostApiCall"
 import ToasterProvider from "../../helpers/ToasterProvider"
 
 
-const AddUser = () => {
+// onCreated(id, name): used by the onboarding wizard, which hosts this form as its first step
+const AddUser = ({ onCreated } = {}) => {
     useEffect(() => {
-        document.title = "Add New User";
+        if (!onCreated) document.title = "Add New User";
     }, []);
     const { ErrorToaster, SucceesToaster } = ToasterProvider()
     const [Errors, setErrors] = useState({})
@@ -328,8 +329,17 @@ const AddUser = () => {
                 if (isSucces.status) {
                     SucceesToaster("User Added Successfully")
                     await uploadQueuedDocuments(isSucces.data)
+                    // a new Corporate customer is created inactive: carry on with its onboarding wizard
+                    const d = isSucces.data
+                    const createdId = d?.id ?? d?.customer_id ?? d?.customer?.id ?? d?.user?.id ?? d?.data?.id
+                    const customerName = formData.customer_name
+                    const isCorporate = formData.cust_type === "2"
                     formRest()
                     setActiveTab(1)
+                    if (isCorporate && createdId) {
+                        if (onCreated) onCreated(createdId, customerName)
+                        else navigate(`/customer-onboarding/${createdId}?name=${encodeURIComponent(customerName || "")}`)
+                    }
                 }
                 else {
                     setShowError(true)
@@ -411,9 +421,11 @@ const AddUser = () => {
     };
 
     // Combine tabs based on condition
+    // inside the onboarding wizard (onCreated) documents are their own step, so this tab is left out there
+    const docTabs = onCreated ? [] : [documentsTab];
     const tabs = formData.cust_type === "3"
-        ? [...baseTabs, franchiseTab, documentsTab]
-        : [...baseTabs, documentsTab];
+        ? [...baseTabs, franchiseTab, ...docTabs]
+        : [...baseTabs, ...docTabs];
 
 
 

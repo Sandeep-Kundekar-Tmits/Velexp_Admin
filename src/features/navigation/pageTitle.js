@@ -44,6 +44,7 @@ const EXTRA_TITLES = {
   "/customer-attempt-wise-pickup-performance": { title: "Attempt-wise Customer Pickup", section: "Reports" },
   "/add-franchisee": { title: "Add Franchisee", section: null },
   "/add-user": { title: "Add User", section: null },
+  "/customer-onboarding/new": { title: "New Customer", section: null },
   "/int-rate-data": { title: "International Rate Data", section: null },
   "/corporate-pincode-upload": { title: "Corporate Pincode Upload", section: null },
   "/corporate-rate-upload": { title: "Corporate Rate Upload", section: null },

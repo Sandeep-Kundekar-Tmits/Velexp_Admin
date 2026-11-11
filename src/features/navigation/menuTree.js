@@ -190,6 +190,12 @@ export const MENU = [
         label: "Add User",
         url: "/add-user"
       },
+      // New corporate customers: setup wizard, go-live and credentials email.
+      // Needs a privileges menu row with link_url "/customer-onboarding" (the wizard route /customer-onboarding/:customerId shares it).
+      {
+        label: "Customer Onboarding",
+        url: "/customer-onboarding"
+      },
       {
         label: "Add Franchisee",
         url: "/add-franchisee"

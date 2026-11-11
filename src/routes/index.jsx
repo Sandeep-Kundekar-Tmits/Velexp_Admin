@@ -19,6 +19,8 @@ const AdminBooking = lazy(() => import("../pages/Dashboard/Reports/AdminBooking"
 const UserManagementList = lazy(() => import("../pages/Dashboard/UserManagementList"));
 const ViewUser = lazy(() => import("../pages/Dashboard/ViewUser"));
 const AddUser = lazy(() => import("../pages/Dashboard/AddUser"));
+const CustomerOnboarding = lazy(() => import("../pages/Customers/Onboarding"));
+const CustomerOnboardingWizard = lazy(() => import("../pages/Customers/Onboarding/Wizard"));
 const UpdateUser = lazy(() => import("../pages/Dashboard/UpdateUser"));
 // Masters - Service Centres
 const ServiceCentreList = lazy(() => import("../pages/Masters/ServiceCentreList"));
@@ -207,6 +209,8 @@ const getAuthProtectedRoutes = () => {
     { path: "/add-franchisee", component: <AddFranchisee /> },
     { path: "/user-list", component: <UserManagementList /> },
     { path: "/add-user", component: <AddUser /> },
+    { path: "/customer-onboarding", component: <CustomerOnboarding /> },
+    { path: "/customer-onboarding/:customerId", component: <CustomerOnboardingWizard /> },
     { path: "/user/:id", component: <ViewUser /> },
     { path: "/edit-user/:id", component: <UpdateUser /> },
     // Masters - Service Centres

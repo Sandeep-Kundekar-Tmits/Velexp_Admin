@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import Select from "react-select";
-import { Button, Col, FormGroup, Input, Label, Row, Spinner, Card, CardBody } from "@/components/ui";
+import { Button, Col, Input, Label, Row, Spinner, Card, CardBody, Modal, ModalHeader, ModalBody, ModalFooter } from "@/components/ui";
 import { FaFileExcel, FaUpload, FaDownload, FaPlus, FaTrash, FaEye, FaEdit } from "react-icons/fa";
 import MainHeaderCom from "../../components/MainHeaderCom";
 import SearchableDropdown from "../../components/Common/SearchableDropdown";
@@ -17,7 +17,26 @@ import { CORPORATE_CUSTOMERS_LIST, IMPORT_CORPORATE_PINCODE_DATA, GET_CORPORATE_
 import SimpleModal from "../../components/SimpleModal";
 import TableContainer from "../../components/Table/TableContainer";
 
-const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = null, hideHeader = false }) => {
+// Add / Edit Pincode popup: one labelled field, and the per-product switches
+const PIN_SERVICE_FLAGS = [
+    ["is_active", "Active"],
+    ["can_pickup", "Pickup"],
+    ["can_deliver", "Deliver"],
+    ["is_oda", "ODA"],
+    ["is_reverse_serviceable", "Reverse service"],
+    ["has_cod", "COD available"],
+    ["has_pop", "POP available"],
+];
+// eslint-disable-next-line react/prop-types
+const PinField = ({ label, children }) => (
+    <div className="flex flex-col gap-1">
+        <Label className="m-0 text-xs font-bold text-ink-muted">{label}</Label>
+        {children}
+    </div>
+);
+
+// extraActions: extra buttons shown in the table header, before Add Pincode (the onboarding wizard puts "Copy from the default setup" there)
+const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = null, hideHeader = false, extraActions = null }) => {
     const { ErrorToaster, SucceesToaster } = ToasterProvider();
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [excelData, setExcelData] = useState([]);
@@ -32,6 +51,12 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
     const { parseExcel, isLoading: parsingLoading } = useExcelParser();
     const { exportToExcel: downloadTemplate, isExporting: downloadingTemplate } = useExcelExport();
     const { apifunc: uploadData, loading: uploadingData } = usePostApiCall();
+    const [uploadModal, setUploadModal] = useState(false); // Excel upload popup
+    const wasUploading = useRef(false);
+    useEffect(() => {
+        if (wasUploading.current && !uploadingData) setUploadModal(false);
+        wasUploading.current = uploadingData;
+    }, [uploadingData]);
     const { apifunc: GetProducts, data: productListRaw } = useGetApiCall();
     const { apifunc: GetSinglePincode, data: singlePincodeRaw, loading: singlePincodeLoading } = useGetApiCall();
     const { apifunc: postSinglePincode, loading: postingSinglePincode } = usePostApiCall();
@@ -651,17 +676,15 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
     ], [selectedCustomer, productOptions, selectedPincodeIds, pincodeList, allSelected]);
 
     return (
-        <div className="page-content py-0 px-0">
+        <div className={hideHeader ? "" : "page-content py-0 px-0"}>
             {!hideHeader && <MainHeaderCom title="Pincode Upload" />}
-            <div className="container-fluid px-4 mt-6">
-                <Card className="shadow-sm">
-                    <CardBody>
-                        <Row>
-                            {!hideHeader && (
-                                <Col md={4}>
-                                    <FormGroup>
-                                        <Label>Select Corporate Customer</Label>
-                                        <Select
+            <div className={hideHeader ? "container-fluid px-0 mt-0" : "container-fluid px-4 mt-6"}>
+                {!hideHeader && (
+                    <Card className="shadow-sm">
+                        <CardBody className="p-2">
+                            <div className="w-full sm:w-72">
+                                <Label className="m-0 mb-1 text-xs font-bold text-ink-muted">Corporate customer</Label>
+                                <Select
                                             options={customerOptions}
                                             placeholder={customersLoading ? "Loading..." : "Search Customer"}
                                             value={selectedCustomer}
@@ -672,66 +695,20 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                                             isClearable={true}
                                             styles={customStyles}
                                         />
-                                    </FormGroup>
-                                </Col>
-                            )}
-                            <Col md={hideHeader ? 6 : 4}>
-                                <FormGroup>
-                                    <Label>File Upload (.xlsx)</Label>
-                                    <Input
-                                        type="file"
-                                        accept=".xlsx"
-                                        innerRef={fileInputRef}
-                                        onChange={handleFileChange}
-                                        disabled={!selectedCustomer}
-                                    />
-                                </FormGroup>
-                            </Col>
-                            <Col md={hideHeader ? 6 : 4} className="flex flex-col gap-2 mb-4 mt-6 items-start">
-                                <Button
-                                    color="primary"
-                                    onClick={validateAndUpload}
-                                    disabled={!file || parsingLoading || uploadingData || !selectedCustomer || excelData.length === 0}
-                                    className="w-full flex items-center justify-center"
-                                    style={{ height: "38px" }}
-                                >
-                                    {uploadingData ? (
-                                        <Spinner size="sm" className="mr-2" />
-                                    ) : (
-                                        <FaUpload className="mr-2" />
-                                    )}
-                                    {uploadingData ? "Importing..." : "Start Import"}
-                                </Button>
-                                <Button
-                                    color="success"
-                                    onClick={handleDownloadTemplate}
-                                    className="w-full flex items-center justify-center"
-                                    outline
-                                    style={{ height: "38px" }}
-                                >
-                                    <FaDownload className="mr-2" />
-                                    {downloadingTemplate ? "Generating..." : "Download Template"}
-                                </Button>
-                            </Col>
-                        </Row>
-
-                        {excelData.length > 0 && (
-                            <Row className="mt-6">
-                                <Col md={12}>
-                                    <div className="alert alert-info py-2">
-                                        <strong>Ready to Import:</strong> {excelData.length} rows found in file.
-                                    </div>
-                                </Col>
-                            </Row>
-                        )}
-                    </CardBody>
-                </Card>
+                            </div>
+                        </CardBody>
+                    </Card>
+                )}
 
                 {selectedCustomer && (
                     <>
-                        <div className="flex justify-between items-center mb-4 mt-6">
-                            <h5 className="mb-0">Existing Pincode Services: {selectedCustomer.label}</h5>
-                            <div className="flex gap-2">
+                        <div className={`mb-2 flex flex-wrap items-center justify-between gap-2 ${hideHeader ? "mt-0" : "mt-4"}`}>
+                            <h5 className="m-0 text-base">Existing pincode services <span className="text-sm font-normal text-ink-muted">({pincodeList.length})</span></h5>
+                            <div className="flex flex-wrap gap-2">
+                                {extraActions}
+                                <Button color="success" size="sm" outline onClick={() => setUploadModal(true)} className="flex items-center gap-1 whitespace-nowrap">
+                                    <FaFileExcel /> Excel upload
+                                </Button>
                                 {selectedPincodeIds.length > 0 && (
                                     <Button
                                         color="danger"
@@ -748,8 +725,9 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                                     color="primary"
                                     size="sm"
                                     onClick={() => setAddPincodeModal(true)}
+                                    className="flex items-center gap-1 whitespace-nowrap"
                                 >
-                                    Add Pincode
+                                    <FaPlus /> Add Pincode
                                 </Button>
                             </div>
                         </div>
@@ -792,6 +770,46 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                 </div>
             </SimpleModal>
 
+            <Modal isOpen={uploadModal} toggle={() => !uploadingData && setUploadModal(false)} size="lg" centered className="flex max-h-[85vh] flex-col">
+                <ModalHeader toggle={() => !uploadingData && setUploadModal(false)}>Excel upload{selectedCustomer?.label ? ` - ${selectedCustomer.label}` : ""}</ModalHeader>
+                <ModalBody className="overflow-y-auto">
+                    <div className="flex flex-col gap-3">
+                        <p className="m-0 text-sm text-ink-muted">Download the template, fill it in, then choose the file (.xlsx) and start the import.</p>
+                        <div>
+                            <Label className="m-0 mb-1 text-xs font-bold text-ink-muted">File upload (.xlsx)</Label>
+                            <Input
+                                type="file"
+                                accept=".xlsx"
+                                innerRef={fileInputRef}
+                                onChange={handleFileChange}
+                                disabled={!selectedCustomer}
+                            />
+                        </div>
+                        {excelData.length > 0 && (
+                            <p className="m-0 text-sm text-success-500"><strong>Ready to import:</strong> {excelData.length} rows found in file.</p>
+                        )}
+                    </div>
+                </ModalBody>
+                <ModalFooter className="justify-between">
+                    <Button color="success" outline onClick={handleDownloadTemplate} className="flex items-center">
+                        <FaDownload className="mr-2" />
+                        {downloadingTemplate ? "Generating..." : "Download template"}
+                    </Button>
+                    <div className="flex gap-2">
+                        <Button color="secondary" onClick={() => setUploadModal(false)} disabled={uploadingData}>Cancel</Button>
+                        <Button
+                            color="primary"
+                            onClick={validateAndUpload}
+                            disabled={!file || parsingLoading || uploadingData || !selectedCustomer || excelData.length === 0}
+                            className="flex items-center"
+                        >
+                            {uploadingData ? <Spinner size="sm" className="mr-2" /> : <FaUpload className="mr-2" />}
+                            {uploadingData ? "Importing..." : "Start import"}
+                        </Button>
+                    </div>
+                </ModalFooter>
+            </Modal>
+
             <SimpleModal
                 isOpen={addPincodeModal}
                 size="lg"
@@ -815,79 +833,40 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                 onSuccess={handleAddPincodeSubmit}
                 successButtonName={(postingSinglePincode || updatingSinglePincode) ? "Saving..." : (editingPincodeId ? "Update Pincode" : "Save Pincode")}
             >
-                <div className="p-4" style={{ minHeight: "300px" }}>
-                    <h5 className="mb-6 border-bottom pb-2">
-                        {editingPincodeId ? "Edit Pincode" : "Add Pincode"} for {selectedCustomer?.label}
-                    </h5>
-                    <h6 className="text-brand-500 mb-4">Pincode Details</h6>
-                    <Row>
-                        <Col md={4}>
-                            <FormGroup>
-                                <Label className="font-bold text-ink-muted text-xs">Pincode</Label>
+                <div className="flex flex-col gap-4 p-4">
+                    <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-white/8 pb-2">
+                        <h5 className="m-0">{editingPincodeId ? "Edit Pincode" : "Add Pincode"}</h5>
+                        <span className="text-sm text-ink-muted">{selectedCustomer?.label}</span>
+                    </div>
+
+                    <section className="flex flex-col gap-3">
+                        <h6 className="m-0 text-sm font-bold text-brand-500">Pincode details</h6>
+                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                            <PinField label="Pincode">
                                 <Input
                                     type="text"
                                     maxLength={6}
                                     value={newPincode.pincode}
                                     onChange={(e) => setNewPincode({ ...newPincode, pincode: e.target.value.replace(/\D/g, "") })}
-                                    placeholder="6 digit pincode"
+                                    placeholder="6 digits"
                                 />
-                            </FormGroup>
-                        </Col>
-                        <Col md={4}>
-                            <FormGroup>
-                                <Label className="font-bold text-ink-muted text-xs">City</Label>
-                                <Input
-                                    type="text"
-                                    value={newPincode.city}
-                                    onChange={(e) => setNewPincode({ ...newPincode, city: e.target.value })}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={4}>
-                            <FormGroup>
-                                <Label className="font-bold text-ink-muted text-xs">State</Label>
-                                <Input
-                                    type="text"
-                                    value={newPincode.state}
-                                    onChange={(e) => setNewPincode({ ...newPincode, state: e.target.value })}
-                                />
-                            </FormGroup>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col md={3}>
-                            <FormGroup>
-                                <Label className="font-bold text-ink-muted text-xs">Region</Label>
-                                <Input
-                                    type="text"
-                                    value={newPincode.region}
-                                    onChange={(e) => setNewPincode({ ...newPincode, region: e.target.value })}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={3}>
-                            <FormGroup>
-                                <Label className="font-bold text-ink-muted text-xs">Legacy Zone</Label>
-                                <Input
-                                    type="text"
-                                    value={newPincode.legacy_zone}
-                                    onChange={(e) => setNewPincode({ ...newPincode, legacy_zone: e.target.value })}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={2}>
-                            <FormGroup>
-                                <Label className="font-bold text-ink-muted text-xs">Zone Tag</Label>
-                                <Input
-                                    type="text"
-                                    value={newPincode.zone_tag}
-                                    onChange={(e) => setNewPincode({ ...newPincode, zone_tag: e.target.value })}
-                                />
-                            </FormGroup>
-                        </Col>
-                        <Col md={2}>
-                            <FormGroup>
-                                <Label className="font-bold text-ink-muted text-xs">Service Provider</Label>
+                            </PinField>
+                            <PinField label="City">
+                                <Input type="text" value={newPincode.city} onChange={(e) => setNewPincode({ ...newPincode, city: e.target.value })} />
+                            </PinField>
+                            <PinField label="State">
+                                <Input type="text" value={newPincode.state} onChange={(e) => setNewPincode({ ...newPincode, state: e.target.value })} />
+                            </PinField>
+                            <PinField label="Region">
+                                <Input type="text" value={newPincode.region} onChange={(e) => setNewPincode({ ...newPincode, region: e.target.value })} />
+                            </PinField>
+                            <PinField label="Legacy zone">
+                                <Input type="text" value={newPincode.legacy_zone} onChange={(e) => setNewPincode({ ...newPincode, legacy_zone: e.target.value })} />
+                            </PinField>
+                            <PinField label="Zone tag">
+                                <Input type="text" value={newPincode.zone_tag} onChange={(e) => setNewPincode({ ...newPincode, zone_tag: e.target.value })} />
+                            </PinField>
+                            <PinField label="Service provider">
                                 <Input
                                     type="select"
                                     value={newPincode.service_provider}
@@ -897,141 +876,52 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                                         <option key={opt.value} value={opt.value}>{opt.label}</option>
                                     ))}
                                 </Input>
-                            </FormGroup>
-                        </Col>
-                        <Col md={2}>
-                            <FormGroup className="h-full flex items-center mb-0 mt-2">
-                                <Label className="flex items-center gap-2 cursor-pointer mb-0">
-                                    <Input
-                                        type="checkbox"
-                                        checked={newPincode.is_metro}
-                                        onChange={(e) => setNewPincode({ ...newPincode, is_metro: e.target.checked })}
-                                    />
-                                    <strong>Metro</strong>
-                                </Label>
-                            </FormGroup>
-                        </Col>
-                    </Row>
+                            </PinField>
+                            <div className="flex items-end">
+                                <label className="flex min-h-[38px] cursor-pointer items-center gap-2 text-sm font-semibold">
+                                    <input type="checkbox" checked={newPincode.is_metro} onChange={(e) => setNewPincode({ ...newPincode, is_metro: e.target.checked })} />
+                                    Metro city
+                                </label>
+                            </div>
+                        </div>
+                    </section>
 
-                    <div className="mt-6 border-top pt-4 pb-12">
-                        <div className="flex justify-between items-center mb-4">
-                            <h6 className="mb-0">Product Services</h6>
+                    <section className="flex flex-col gap-3 pb-28">
+                        <div className="flex items-center justify-between gap-2">
+                            <h6 className="m-0 text-sm font-bold text-brand-500">Product services</h6>
                             <Button color="success" size="sm" onClick={addServiceRow} outline>
-                                <FaPlus className="mr-1" /> Add Product
+                                <FaPlus className="mr-1" /> Add product
                             </Button>
                         </div>
                         {newPincode.products.map((service, index) => (
-                            <Card key={index} className="shadow-none border mb-2 bg-canvas bg-opacity-10" style={{ overflow: "visible" }}>
-                                <CardBody className="py-2 px-4" style={{ overflow: "visible" }}>
-                                    <Row className="items-start gap-2" style={{ overflow: "visible" }}>
-                                        <Col md={12} className="mb-2" style={{ overflow: "visible" }}>
-                                            <div className="flex justify-between items-center">
-                                                <div style={{ width: "80%" }}>
-                                                    <SearchableDropdown
-                                                        locations={productOptions}
-                                                        value={service.product ? service.product.name : "select"}
-                                                        onChange={(val) => handleServiceChange(index, "product", val)}
-                                                        placeholder="Select Product"
-                                                        className="w-full"
-                                                    />
-                                                </div>
-                                                {newPincode.products.length > 1 && (
-                                                    <Button color="danger" size="sm" outline onClick={() => removeServiceRow(index)}>
-                                                        <FaTrash />
-                                                    </Button>
-                                                )}
-                                            </div>
-                                        </Col>
-                                        <Col md={3}>
-                                            <FormGroup check className="mb-0">
-                                                <Label check className="text-xs">
-                                                    <Input
-                                                        type="checkbox"
-                                                        checked={service.is_active}
-                                                        onChange={(e) => handleServiceChange(index, "is_active", e.target.checked)}
-                                                    />
-                                                    Active
-                                                </Label>
-                                            </FormGroup>
-                                        </Col>
-                                        <Col md={3}>
-                                            <FormGroup check className="mb-0">
-                                                <Label check className="text-xs">
-                                                    <Input
-                                                        type="checkbox"
-                                                        checked={service.can_pickup}
-                                                        onChange={(e) => handleServiceChange(index, "can_pickup", e.target.checked)}
-                                                    />
-                                                    Pickup
-                                                </Label>
-                                            </FormGroup>
-                                        </Col>
-                                        <Col md={3}>
-                                            <FormGroup check className="mb-0">
-                                                <Label check className="text-xs">
-                                                    <Input
-                                                        type="checkbox"
-                                                        checked={service.can_deliver}
-                                                        onChange={(e) => handleServiceChange(index, "can_deliver", e.target.checked)}
-                                                    />
-                                                    Deliver
-                                                </Label>
-                                            </FormGroup>
-                                        </Col>
-                                        <Col md={3}>
-                                            <FormGroup check className="mb-0">
-                                                <Label check className="text-xs">
-                                                    <Input
-                                                        type="checkbox"
-                                                        checked={service.is_oda}
-                                                        onChange={(e) => handleServiceChange(index, "is_oda", e.target.checked)}
-                                                    />
-                                                    ODA
-                                                </Label>
-                                            </FormGroup>
-                                        </Col>
-                                        <Col md={4} className="mt-2">
-                                            <FormGroup check className="mb-0">
-                                                <Label check className="text-xs">
-                                                    <Input
-                                                        type="checkbox"
-                                                        checked={service.is_reverse_serviceable}
-                                                        onChange={(e) => handleServiceChange(index, "is_reverse_serviceable", e.target.checked)}
-                                                    />
-                                                    Reverse Service
-                                                </Label>
-                                            </FormGroup>
-                                        </Col>
-                                        <Col md={4} className="mt-2">
-                                            <FormGroup check className="mb-0">
-                                                <Label check className="text-xs">
-                                                    <Input
-                                                        type="checkbox"
-                                                        checked={service.has_cod}
-                                                        onChange={(e) => handleServiceChange(index, "has_cod", e.target.checked)}
-                                                    />
-                                                    COD Available
-                                                </Label>
-                                            </FormGroup>
-                                        </Col>
-                                        <Col md={4} className="mt-2">
-                                            <FormGroup check className="mb-0">
-                                                <Label check className="text-xs">
-                                                    <Input
-                                                        type="checkbox"
-                                                        checked={service.has_pop}
-                                                        onChange={(e) => handleServiceChange(index, "has_pop", e.target.checked)}
-                                                    />
-                                                    POP Available
-                                                </Label>
-                                            </FormGroup>
-                                        </Col>
-                                    </Row>
-                                </CardBody>
-                            </Card>
+                            <div key={index} className="rounded-md border border-white/8 p-3" style={{ overflow: "visible" }}>
+                                <div className="mb-2 flex items-center gap-2">
+                                    <div className="min-w-0 flex-1">
+                                        <SearchableDropdown
+                                            locations={productOptions}
+                                            value={service.product ? service.product.name : "select"}
+                                            onChange={(val) => handleServiceChange(index, "product", val)}
+                                            placeholder="Select product"
+                                            className="w-full"
+                                        />
+                                    </div>
+                                    {newPincode.products.length > 1 && (
+                                        <Button color="danger" size="sm" outline onClick={() => removeServiceRow(index)} title="Remove product" aria-label="Remove product">
+                                            <FaTrash />
+                                        </Button>
+                                    )}
+                                </div>
+                                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                                    {PIN_SERVICE_FLAGS.map(([key, label]) => (
+                                        <label key={key} className="flex min-h-[34px] cursor-pointer items-center gap-2 rounded border border-white/8 px-2.5 text-xs">
+                                            <input type="checkbox" checked={!!service[key]} onChange={(e) => handleServiceChange(index, key, e.target.checked)} />
+                                            {label}
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
                         ))}
-                        <div style={{ height: "150px" }}></div>
-                    </div>
+                    </section>
                 </div>
             </SimpleModal>
 

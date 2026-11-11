@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import Select from "react-select";
-import { Button, Col, FormGroup, Input, Label, Row, Spinner, Card, CardBody } from "@/components/ui";
-import { FaUpload, FaDownload, FaEye, FaEdit, FaTrash } from "react-icons/fa";
+import { Button, Col, FormGroup, Input, Label, Row, Spinner, Card, CardBody, Modal, ModalHeader, ModalBody, ModalFooter } from "@/components/ui";
+import { FaUpload, FaDownload, FaEye, FaEdit, FaTrash, FaFileExcel, FaPlus } from "react-icons/fa";
 import MainHeaderCom from "../../components/MainHeaderCom";
 import SearchableDropdown from "../../components/Common/SearchableDropdown";
 import DeleteModal from "../../components/Common/DeleteModal";
@@ -17,7 +17,8 @@ import { CORPORATE_CUSTOMERS_LIST, IMPORT_CORPORATE_RATE_DATA, GET_CUSTOMER_RATE
 import SimpleModal from "../../components/SimpleModal";
 import TableContainer from "../../components/Table/TableContainer";
 
-const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null, hideHeader = false }) => {
+// extraActions: extra buttons shown in the table header, before Excel upload (the onboarding wizard puts "Copy from the default setup" there)
+const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null, hideHeader = false, extraActions = null }) => {
     const { ErrorToaster, SucceesToaster } = ToasterProvider();
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [excelData, setExcelData] = useState([]);
@@ -31,6 +32,12 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
     const { parseExcel, isLoading: parsingLoading } = useExcelParser();
     const { exportToExcel: downloadTemplate, isExporting: downloadingTemplate } = useExcelExport();
     const { apifunc: uploadData, loading: uploadingData } = usePostApiCall();
+    const [uploadModal, setUploadModal] = useState(false); // Excel upload popup
+    const wasUploading = useRef(false);
+    useEffect(() => {
+        if (wasUploading.current && !uploadingData) setUploadModal(false);
+        wasUploading.current = uploadingData;
+    }, [uploadingData]);
     const { apifunc: GetRates, data: customerRates, loading: ratesLoading } = useGetApiCall();
     const { apifunc: GetSingleRate, data: singleRateData, loading: singleRateLoading } = useGetApiCall();
     const { apifunc: GetProducts, data: productListRaw } = useGetApiCall();
@@ -349,17 +356,15 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
     };
 
     return (
-        <div className="page-content py-0 px-0">
+        <div className={hideHeader ? "" : "page-content py-0 px-0"}>
             {!hideHeader && <MainHeaderCom title="Rate Upload" />}
-            <div className="container-fluid px-4 mt-6">
-                <Card className="shadow-sm">
-                    <CardBody>
-                        <Row>
-                            {!hideHeader && (
-                                <Col md={4}>
-                                    <FormGroup>
-                                        <Label>Select Corporate Customer</Label>
-                                        <Select
+            <div className={hideHeader ? "container-fluid px-0 mt-0" : "container-fluid px-4 mt-6"}>
+                <Card className={hideHeader ? "border-0 bg-transparent shadow-none" : "shadow-sm"}>
+                    <CardBody className={hideHeader ? "p-0" : undefined}>
+                        {!hideHeader && (
+                            <div className="mb-2 w-full sm:w-72">
+                                <Label className="m-0 mb-1 text-xs font-bold text-ink-muted">Corporate customer</Label>
+                                <Select
                                             options={customerOptions}
                                             placeholder={customersLoading ? "Loading..." : "Search Customer"}
                                             value={selectedCustomer}
@@ -370,64 +375,18 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
                                             isClearable={true}
                                             styles={customStyles}
                                         />
-                                    </FormGroup>
-                                </Col>
-                            )}
-                            <Col md={hideHeader ? 6 : 4}>
-                                <FormGroup>
-                                    <Label>File Upload (.xlsx)</Label>
-                                    <Input
-                                        type="file"
-                                        accept=".xlsx"
-                                        innerRef={fileInputRef}
-                                        onChange={handleFileChange}
-                                        disabled={!selectedCustomer}
-                                    />
-                                </FormGroup>
-                            </Col>
-                            <Col md={hideHeader ? 6 : 4} className="flex flex-col gap-2 mb-4 mt-6 items-start">
-                                <Button
-                                    color="primary"
-                                    onClick={validateAndUpload}
-                                    disabled={!file || parsingLoading || uploadingData || !selectedCustomer || excelData.length === 0}
-                                    className="w-full flex items-center justify-center"
-                                    style={{ height: "38px" }}
-                                >
-                                    {uploadingData ? (
-                                        <Spinner size="sm" className="mr-2" />
-                                    ) : (
-                                        <FaUpload className="mr-2" />
-                                    )}
-                                    {uploadingData ? "Importing..." : "Start Import"}
-                                </Button>
-                                <Button
-                                    color="success"
-                                    onClick={handleDownloadTemplate}
-                                    className="w-full flex items-center justify-center"
-                                    outline
-                                    style={{ height: "38px" }}
-                                >
-                                    <FaDownload className="mr-2" />
-                                    {downloadingTemplate ? "Generating..." : "Download Template"}
-                                </Button>
-                            </Col>
-                        </Row>
-
-                        {excelData.length > 0 && (
-                            <Row className="mt-6">
-                                <Col md={12}>
-                                    <div className="alert alert-info py-2">
-                                        <strong>Ready to Import:</strong> {excelData.length} rows found in file.
-                                    </div>
-                                </Col>
-                            </Row>
+                            </div>
                         )}
 
                         {selectedCustomer && (
                             <>
-                                <div className="flex justify-between items-center mb-4 mt-6">
-                                    <h5 className="mb-0">Existing Rates for {selectedCustomer.label}</h5>
-                                    <div className="flex gap-2">
+                                <div className={`mb-2 flex flex-wrap items-center justify-between gap-2 ${hideHeader ? "mt-0" : "mt-4"}`}>
+                                    <h5 className="m-0 text-base">Existing rates for {selectedCustomer.label}</h5>
+                                    <div className="flex flex-wrap gap-2">
+                                        {extraActions}
+                                        <Button color="success" size="sm" outline onClick={() => setUploadModal(true)} className="flex items-center gap-1 whitespace-nowrap">
+                                            <FaFileExcel /> Excel upload
+                                        </Button>
                                         {selectedRateIds.length > 0 && (
                                             <Button
                                                 color="danger"
@@ -444,8 +403,9 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
                                             color="primary"
                                             size="sm"
                                             onClick={() => setAddRateModal(true)}
+                                            className="flex items-center gap-1 whitespace-nowrap"
                                         >
-                                            Add Rate
+                                            <FaPlus /> Add Rate
                                         </Button>
                                     </div>
                                 </div>
@@ -582,6 +542,46 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
                     </CardBody>
                 </Card>
             </div>
+            <Modal isOpen={uploadModal} toggle={() => !uploadingData && setUploadModal(false)} size="lg" centered className="flex max-h-[85vh] flex-col">
+                <ModalHeader toggle={() => !uploadingData && setUploadModal(false)}>Excel upload{selectedCustomer?.label ? ` - ${selectedCustomer.label}` : ""}</ModalHeader>
+                <ModalBody className="overflow-y-auto">
+                    <div className="flex flex-col gap-3">
+                        <p className="m-0 text-sm text-ink-muted">Download the template, fill it in, then choose the file (.xlsx) and start the import.</p>
+                        <div>
+                            <Label className="m-0 mb-1 text-xs font-bold text-ink-muted">File upload (.xlsx)</Label>
+                            <Input
+                                type="file"
+                                accept=".xlsx"
+                                innerRef={fileInputRef}
+                                onChange={handleFileChange}
+                                disabled={!selectedCustomer}
+                            />
+                        </div>
+                        {excelData.length > 0 && (
+                            <p className="m-0 text-sm text-success-500"><strong>Ready to import:</strong> {excelData.length} rows found in file.</p>
+                        )}
+                    </div>
+                </ModalBody>
+                <ModalFooter className="justify-between">
+                    <Button color="success" outline onClick={handleDownloadTemplate} className="flex items-center">
+                        <FaDownload className="mr-2" />
+                        {downloadingTemplate ? "Generating..." : "Download template"}
+                    </Button>
+                    <div className="flex gap-2">
+                        <Button color="secondary" onClick={() => setUploadModal(false)} disabled={uploadingData}>Cancel</Button>
+                        <Button
+                            color="primary"
+                            onClick={validateAndUpload}
+                            disabled={!file || parsingLoading || uploadingData || !selectedCustomer || excelData.length === 0}
+                            className="flex items-center"
+                        >
+                            {uploadingData ? <Spinner size="sm" className="mr-2" /> : <FaUpload className="mr-2" />}
+                            {uploadingData ? "Importing..." : "Start import"}
+                        </Button>
+                    </div>
+                </ModalFooter>
+            </Modal>
+
             <SimpleModal
                 isOpen={showErrorModal}
                 setIsOpen={setShowErrorModal}

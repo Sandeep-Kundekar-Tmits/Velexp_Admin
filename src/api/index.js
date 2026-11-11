@@ -920,3 +920,16 @@ export const EXCEPTION_CATEGORY_LIST = `${BASE_URL}/exception-category/get-list/
 // Darkstore conversion - change the pick / drop store of shipments (admin-panel JWT). Omit apply for a dry run; apply:true writes and needs reason
 export const DARKSTORE_CONVERSION = `${BASE_URL}/api/admin-panel/darkstore-conversion/`; // POST { awbs, pick_store, drop_store | rows:[{awb,pick_store,drop_store}], apply, reason }
 export const DARKSTORE_CONVERSION_STORES = `${BASE_URL}/api/admin-panel/darkstore-conversion/stores/`; // GET ?type=DARK_STORE|LOCAL_STORE&search=
+
+// Corporate customer onboarding wizard (admin-panel user). See CUSTOMER_ONBOARDING_FLOW.md
+export const ONBOARDING_BASE = `${BASE_URL}/corporate-billing/onboarding/`;
+export const ONBOARDING_CUSTOMERS = `${ONBOARDING_BASE}customers/`; // GET ?status=PENDING|LIVE
+export const ONBOARDING_DEFAULTS = `${ONBOARDING_BASE}defaults/`; // GET what corporatedefault holds per product
+export const ONBOARDING_APPLY_DEFAULTS = `${ONBOARDING_BASE}apply-defaults/`; // POST { customer_id, products?, components?, replace? }
+export const ONBOARDING_CHECKLIST = `${ONBOARDING_BASE}checklist/`; // POST { customer_id, test_routes?, test_weight_kg? }
+export const ONBOARDING_EMAIL_PREVIEW = `${ONBOARDING_BASE}email-preview/`; // GET ?customer_id=
+export const ONBOARDING_GO_LIVE = `${ONBOARDING_BASE}go-live/`; // POST { customer_id, acknowledge_warnings, password?, test_routes?, test_weight_kg? }
+export const ONBOARDING_RESEND_CREDENTIALS = `${ONBOARDING_BASE}resend-credentials/`; // POST { customer_id, password? }
+export const ONBOARDING_EMAIL_HISTORY = `${ONBOARDING_BASE}email-history/`; // GET ?customer_id=
+export const ONBOARDING_ADD_LOGIN = `${ONBOARDING_BASE}add-login/`; // POST { customer_id, username, password, email?, first_name?, last_name?, phone? }
+export const ONBOARDING_LOGINS = `${ONBOARDING_BASE}logins/`; // GET ?customer_id=

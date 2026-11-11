@@ -28,7 +28,8 @@ const toList = (d) => {
     return d.customer_id != null ? [d] : []
 }
 
-const InvoiceConfig = ({ externalCustomer, onCustomerChange, customerOptions }) => {
+// hideHeader: embedded in the onboarding wizard, so no page padding of its own
+const InvoiceConfig = ({ externalCustomer, onCustomerChange, customerOptions, hideHeader = false }) => {
     const { SuccessToaster, ErrorToaster } = ToasterProvider()
     const customerId = externalCustomer?.id
 
@@ -188,7 +189,7 @@ const InvoiceConfig = ({ externalCustomer, onCustomerChange, customerOptions }) 
     }
 
     return (
-        <div className="px-2 pt-3">
+        <div className={hideHeader ? "" : "px-2 pt-3"}>
             <InvoiceConfigBulkUpload customerOptions={customerOptions} onDone={() => { loadList(customerId); if (customerId) loadOne(customerId) }} />
 
             <Card className="mb-3">
@@ -313,6 +314,7 @@ const InvoiceConfig = ({ externalCustomer, onCustomerChange, customerOptions }) 
 }
 
 InvoiceConfig.propTypes = {
+    hideHeader: PropTypes.bool,
     externalCustomer: PropTypes.shape({
         id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
         name: PropTypes.string,
