@@ -914,4 +914,9 @@ export const SHIPMENT_TRANSFER_LOGS = `${BASE_URL}/api/admin-panel/shipment-tran
 export const SHIPMENT_EXCEPTION_LIST = `${BASE_URL}/shipment-exception/get-list/` // POST { exception_category, exception_status, service_center_ids, start_date, end_date, page, page_size }
 export const SHIPMENT_EXCEPTION_DETAIL = `${BASE_URL}/shipment-exception/get-detail/` // POST { id }
 export const SHIPMENT_EXCEPTION_STATUSES = `${BASE_URL}/shipment-exception/statuses/` // GET -> [{ code, label }]
+export const SHIPMENT_EXCEPTION_STATUS_UPDATE = `${BASE_URL}/shipment-exception-status/` // POST { exception: <id>, status_code, status_message }
 export const EXCEPTION_CATEGORY_LIST = `${BASE_URL}/exception-category/get-list/` // POST
+
+// Darkstore conversion - change the pick / drop store of shipments (admin-panel JWT). Omit apply for a dry run; apply:true writes and needs reason
+export const DARKSTORE_CONVERSION = `${BASE_URL}/api/admin-panel/darkstore-conversion/`; // POST { awbs, pick_store, drop_store | rows:[{awb,pick_store,drop_store}], apply, reason }
+export const DARKSTORE_CONVERSION_STORES = `${BASE_URL}/api/admin-panel/darkstore-conversion/stores/`; // GET ?type=DARK_STORE|LOCAL_STORE&search=

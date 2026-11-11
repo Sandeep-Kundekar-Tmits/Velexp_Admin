@@ -568,6 +568,7 @@ export const MENU = [
       { label: "Employee", url: "/employees" },
       { label: "Exit History", url: "/exit-history" },
       { label: "Rider Store Routes", url: "/rider-store-routes" },
+      { label: "Darkstore Conversion", url: "/darkstore-conversion" },
       { label: "Pincode Master", url: "/pincode-master" },
       { label: "All Pincodes", url: "/pincode-service-centers" }
     ]

@@ -26,6 +26,7 @@ const AddServiceCentre = lazy(() => import("../pages/Masters/AddServiceCentre"))
 const EditServiceCentre = lazy(() => import("../pages/Masters/EditServiceCentre"));
 const ServiceCentrePincodes = lazy(() => import("../pages/Masters/ServiceCentrePincodes"));
 const RiderStoreRoutes = lazy(() => import("../pages/Masters/RiderStoreRoutes"));
+const DarkstoreConversion = lazy(() => import("../pages/Masters/DarkstoreConversion"));
 const AllPincodes = lazy(() => import("../pages/Masters/AllPincodes"));
 const PincodeMasterHome = lazy(() => import("../pages/Masters/PincodeMasterHome"));
 const VehicleMaster = lazy(() => import("../pages/Masters/VehicleMaster"));
@@ -214,6 +215,7 @@ const getAuthProtectedRoutes = () => {
     { path: "/service-centres/edit/:id", component: <EditServiceCentre /> },
     { path: "/service-centres/pincodes", component: <ServiceCentrePincodes /> },
     { path: "/rider-store-routes", component: <RiderStoreRoutes /> },
+    { path: "/darkstore-conversion", component: <DarkstoreConversion /> },
     { path: "/pincode-master", component: <PincodeMasterHome /> },
     { path: "/pincode-service-centers", component: <AllPincodes /> },
     { path: "/vehicle-master", component: <VehicleMaster /> },

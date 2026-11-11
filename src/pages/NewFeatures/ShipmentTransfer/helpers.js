@@ -85,8 +85,8 @@ export const toneOf = (key, value) => {
     if (!/^(status|result|outcome|error|errors|message|detail|reason)$/i.test(key)) return ""
     const t = String(value ?? "").toLowerCase()
     if (!t) return ""
-    if (/error|fail|invalid|not found|cannot|can't|skip|reject|denied|blocked/.test(t)) return "text-danger-500"
-    if (/ok|success|transfer|applied|valid|ready|will/.test(t)) return "text-success-500"
+    if (/error|fail|invalid|not[ _]|cannot|can't|skip|reject|denied|blocked/.test(t)) return "text-danger-500"
+    if (/ok|success|transfer|applied|valid|ready|will|convert/.test(t)) return "text-success-500"
     return ""
 }
 
