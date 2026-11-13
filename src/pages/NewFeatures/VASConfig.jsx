@@ -10,6 +10,9 @@ import TableContainer from "../../components/Table/TableContainer"
 import { FaEye, FaEdit, FaTrash } from "react-icons/fa"
 
 // extraActions: extra buttons shown in the header row, before Add New VAS (the onboarding wizard puts "Copy from the default setup" there)
+// Inside the onboarding wizard the grid fills the card and only it scrolls, with a pinned header.
+const FILL_TABLE_PROPS = { fillHeight: true, isStickyHeader: true, stickyTop: 0, theadClass: "sticky top-0 z-10", tableHeight: "58vh" }
+
 const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeader = false, extraActions = null, externalCustomerName = "" }) => {
     const { apifunc: fetchCustomers, data: customerData, loading: customersLoading } = useGetApiCall()
     const { apifunc: fetchProducts, data: productData, loading: productsLoading } = useGetApiCall()
@@ -280,7 +283,7 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
 
     return (
         <React.Fragment>
-            <div className={hideHeader ? '' : 'page-content py-0 px-0'}>
+            <div className={hideHeader ? 'flex min-h-0 flex-1 flex-col' : 'page-content py-0 px-0'}>
                 {!hideHeader && (
                     <div className="bg-white" style={{ position: 'sticky', top: '0px', zIndex: 1001, width: '100%' }}>
                         <MainHeaderComp
@@ -288,8 +291,8 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                         />
                     </div>
                 )}
-                <div className={hideHeader ? "container-fluid px-0 py-0" : "container-fluid px-4 py-4"}>
-                    <div className={`flex flex-wrap items-center justify-between gap-2 ${hideHeader ? "mb-2" : "mb-4"}`}>
+                <div className={hideHeader ? "container-fluid flex min-h-0 flex-1 flex-col px-0 py-0" : "container-fluid px-4 py-4"}>
+                    <div className={`flex flex-wrap items-center justify-between gap-2 ${hideHeader ? "mb-2 shrink-0 px-2 pt-2" : "mb-4"}`}>
                         <h5 className="m-0 text-base">VAS list</h5>
                         <div className="flex flex-wrap gap-2">
                         {isListView && extraActions}
@@ -307,8 +310,8 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                         </div>
                     </div>
 
-                        <Card className={hideHeader ? "border-0 bg-transparent shadow-none" : "shadow-sm"}>
-                            <CardBody className={selectedCustomerId ? "p-0" : "p-3"}>
+                        <Card className={hideHeader ? "flex min-h-0 flex-1 flex-col rounded-none border-0 bg-transparent shadow-none" : "shadow-sm"}>
+                            <CardBody className={`${selectedCustomerId ? "p-0" : "p-3"} ${hideHeader ? "flex min-h-0 flex-1 flex-col" : ""}`}>
                                 {!hideHeader && (
                                     <div className="p-4 bg-canvas border-bottom">
                                         <Row>
@@ -354,6 +357,7 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                                         pagination="pagination pagination-rounded justify-content-end mb-2"
                                         paginationWrapper='dataTables_paginate paging_simple_numbers'
                                         tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline mb-0"
+                                        {...(hideHeader ? FILL_TABLE_PROPS : {})}
                                     />
                                 )}
                             </CardBody>

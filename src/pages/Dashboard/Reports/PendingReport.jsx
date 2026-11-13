@@ -4,6 +4,7 @@ import { Button, Col, FormGroup, Label, Row } from "@/components/ui";
 import Loader from "@/Loaders/Loader";
 import TableContainer from "../../../components/Table/TableContainer";
 import ServerPager from "../../../components/Common/ServerPager";
+import { FaFileExcel } from "react-icons/fa";
 import MainHeaderComp from "../../../components/MainHeaderCom";
 import DateRangeInput from "../../../components/Common/DateRangeInput";
 import {
@@ -74,7 +75,8 @@ const PendingReport = () => {
     }, [selectedRange]);
 
     // ── Report data ────────────────────────────────────────────────────────
-    const SERVER_PAGE_SIZE = 1000;
+    // 100 rows x 40 columns is ~4000 cells; 1000 rows was 40,000 cells in the DOM, which froze the page on load and on every click.
+    const SERVER_PAGE_SIZE = 100;
     const [reportData, setReportData] = useState([]);
     const [totalCount, setTotalCount] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
@@ -121,6 +123,7 @@ const PendingReport = () => {
     };
 
     const downloadExcel = async () => {
+        if (selectedSCs.length === 0) { alert("Please select at least one Service Center."); return; }
         setIsExporting(true);
         try {
             const fmt = YMD_DateFormate(effectiveRange());
@@ -128,14 +131,14 @@ const PendingReport = () => {
                 method: "POST",
                 credentials: "include",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(buildPayload(1, 5000)),
+                body: JSON.stringify({ ...buildPayload(1, 5000), file_format: "csv" }),
             });
             if (!res.ok) throw new Error(`Server error: ${res.status}`);
             const blob = await res.blob();
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = `Pending_Report_${fmt.from_date}_${fmt.to_date}.xlsx`;
+            a.download = `Pending_Report_${fmt.from_date}_${fmt.to_date}.csv`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -261,6 +264,16 @@ const PendingReport = () => {
                         >
                             {loading ? "Loading..." : "Check"}
                         </Button>
+                        <Button
+                            color="success"
+                            outline
+                            onClick={downloadExcel}
+                            disabled={isExporting}
+                            style={{ height: "2.2rem", whiteSpace: "nowrap" }}
+                        >
+                            {isExporting ? "Exporting..." : "Download Excel"}
+                            <FaFileExcel size={16} />
+                        </Button>
                         {!loading && totalCount > 0 && (
                             <span
                                 className="badge bg-canvas text-ink-muted border"
@@ -288,10 +301,7 @@ const PendingReport = () => {
                                 data={reportData}
                                 isGlobalFilter={true}
                                 isCustomPageSize={false}
-                                isDownloadExcle={true}
                                 isPagination={false}
-                                onDownloadExcle={downloadExcel}
-                                ExcleLoading={isExporting}
                                 SearchPlaceholder="Search from table..."
                                 pagination="pagination"
                                 paginationWrapper="dataTables_paginate paging_simple_numbers"

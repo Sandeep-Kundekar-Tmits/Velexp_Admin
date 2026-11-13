@@ -3,6 +3,7 @@
 // Steps 4-8 reuse the same screens as Bill Master, with the customer already chosen.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import PropTypes from "prop-types"
+import { createPortal } from "react-dom"
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { Button, Modal, ModalBody, ModalHeader } from "@/components/ui"
 import MainHeaderComp from "../../../components/MainHeaderCom"
@@ -23,9 +24,9 @@ import DefaultsPicker from "./DefaultsPicker"
 import ReviewStep from "./ReviewStep"
 import CompleteStep from "./CompleteStep"
 import { EmailHistory, Logins, ResendCredentials } from "./ManagePanels"
-import Stepper from "./Stepper"
+import Stepper, { Node as StepIcon } from "./Stepper"
 import StatusBar, { LoaderEdge } from "./StatusBar"
-import { RefreshCw } from "lucide-react"
+import { ChevronLeft, ChevronRight, Info, RefreshCw } from "lucide-react"
 import { MANAGE_RAIL, RAIL, STATUS_LABEL, STEP_COLOR, callApi, highlightOf, railKeyOf } from "./helpers"
 
 // checklist step key -> the key used in checklist.defaults_applied
@@ -69,6 +70,55 @@ const DefaultBadge = ({ applied }) => {
     )
 }
 DefaultBadge.propTypes = { applied: PropTypes.object }
+
+const LEGEND = [
+    ["done", "Done"],
+    ["blocked", "Blocked"],
+    ["attention", "Needs attention"],
+    ["optional", "Optional"],
+]
+
+// The "!" legend. The popup is drawn in document.body at a fixed position, so no card's overflow can clip it and it
+// always sits above everything else on the page.
+const LegendTip = () => {
+    const btnRef = useRef(null)
+    const [pos, setPos] = useState(null) // { top, right } in viewport px, or null when closed
+    const show = () => {
+        const r = btnRef.current?.getBoundingClientRect()
+        if (r) setPos({ top: r.bottom + 6, right: window.innerWidth - r.right })
+    }
+    const hide = () => setPos(null)
+    return (
+        <>
+            <button
+                ref={btnRef}
+                type="button"
+                aria-label="What the step icons mean"
+                onMouseEnter={show}
+                onMouseLeave={hide}
+                onFocus={show}
+                onBlur={hide}
+                className="flex h-6 w-6 items-center justify-center rounded-full border-0 bg-[rgb(var(--overlay-rgb)/0.08)] text-ink-muted"
+            >
+                <Info size={15} aria-hidden="true" />
+            </button>
+            {pos && createPortal(
+                <div
+                    role="tooltip"
+                    className="pointer-events-none fixed z-[9999] flex w-max flex-col gap-1.5 rounded-md border border-white/8 bg-surface px-3 py-2 text-xs text-ink shadow-lg"
+                    style={{ top: pos.top, right: pos.right }}
+                >
+                    {LEGEND.map(([status, text]) => (
+                        <span key={status} className="flex items-center gap-2">
+                            <StepIcon status={status} size={18} />{text}
+                        </span>
+                    ))}
+                </div>,
+                document.body,
+            )}
+        </>
+    )
+}
 
 const Wizard = () => {
     const { customerId } = useParams()
@@ -195,7 +245,7 @@ const Wizard = () => {
                     fix: <CustomerDocumentsModal inline customer={docCustomer} onChanged={() => runChecklist({ label: "Documents updated" })} />,
                 }
             case "source":
-                return { full: <DefaultsPicker customerId={customerId} onDone={() => runChecklist()} /> }
+                return { full: <DefaultsPicker fill customerId={customerId} onDone={() => runChecklist()} /> }
             case "pincodes":
             case "rates":
             case "product_config":
@@ -214,7 +264,7 @@ const Wizard = () => {
                         ? <Button size="sm" color="secondary" className="whitespace-nowrap" onClick={() => setReset({ only: comp })}>Reset to default</Button>
                         : null,
                     fix: (
-                        <div className="flex flex-col gap-1">
+                        <div className="flex min-h-0 flex-1 flex-col gap-1">
                             {comp && active !== "pincodes" && active !== "rates" && active !== "product_config" && active !== "vas" && <div>{copyButton}</div>}
                             {active === "pincodes" && <CorporatePincodeUpload externalCustomer={customer} {...embedded} extraActions={copyButton} />}
                             {active === "rates" && <CorporateRateUpload externalCustomer={customer} {...embedded} extraActions={copyButton} />}
@@ -305,11 +355,20 @@ const Wizard = () => {
                 )}
             />
 
-            <div className="page-fit-body relative z-10 flex flex-col gap-3 overflow-y-auto pb-4 lg:overflow-hidden">
+            <div className="page-fit-body relative z-10 flex flex-col gap-2 overflow-y-auto pb-1 lg:overflow-hidden">
                 <div className="relative shrink-0 overflow-hidden rounded-md border border-white/8 bg-surface px-3 pb-3 pt-4">
                     <Stepper items={RAIL} active={active} statusOf={railStatus} onSelect={setActive} locked={isNew} />
-                    <div className="mt-1 flex flex-wrap justify-center gap-x-4 text-xs text-ink-muted">
-                        <span>Check: done</span><span>Cross: blocked</span><span>Exclamation: needs attention</span><span>Dash: optional</span>
+                    <div className="mt-1 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                            <h6 className="m-0 text-sm font-bold">{activeIndex >= 0 ? `${activeIndex + 1}. ` : ""}{activeItem.title}</h6>
+                            {activeStatus && (
+                                <span className="rounded-full border px-2 py-0.5 text-xs font-semibold" style={{ color: STEP_COLOR[activeStatus], borderColor: STEP_COLOR[activeStatus] }}>
+                                    {STATUS_LABEL[activeStatus] || activeStatus}
+                                </span>
+                            )}
+                        </div>
+                        {/* legend: a "!" icon; hover or focus it to see what each step icon means */}
+                        <LegendTip />
                     </div>
                     {live && (
                         <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-white/8 pt-2">
@@ -322,19 +381,9 @@ const Wizard = () => {
                     {!isNew && <LoaderEdge notice={notice} />}
                 </div>
 
-                <div className="flex shrink-0 flex-wrap items-center justify-between gap-2">
-                    <div className="flex flex-wrap items-center gap-2">
-                        <h5 className="m-0">{activeIndex >= 0 ? `${activeIndex + 1}. ` : ""}{activeItem.title}</h5>
-                        {activeStatus && (
-                            <span className="rounded-full border px-2.5 py-0.5 text-xs font-semibold" style={{ color: STEP_COLOR[activeStatus], borderColor: STEP_COLOR[activeStatus] }}>
-                                {STATUS_LABEL[activeStatus] || activeStatus}
-                            </span>
-                        )}
-                    </div>
-                </div>
-
                 {body.full !== undefined ? (
-                    <section className={`${cardCls} lg:flex-1`}>{body.full}</section>
+                    // Setup source: the card itself must not scroll; the table inside does (fixed header)
+                    <section className={`${cardCls} lg:flex-1 ${active === "source" && !isNew ? "lg:flex lg:flex-col lg:overflow-y-hidden !p-0" : ""}`}>{body.full}</section>
                 ) : (
                     <div className="grid grid-cols-1 gap-3 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] lg:grid-rows-[minmax(0,1fr)]">
                         <section className={cardCls}>
@@ -345,11 +394,37 @@ const Wizard = () => {
                             {body.checks}
                             {!isNew && <StatusBar notice={notice} />}
                         </section>
-                        <section className={`${cardCls} !pt-2`}>
+                        {/* Pincodes / Rates / Config / VAS: the card doesn't scroll and has no padding; only the table does */}
+                        <section className={`${cardCls} ${DEFAULT_COMPONENT[active] ? "lg:flex lg:flex-col lg:overflow-y-hidden !p-0" : "!pt-2"}`}>
                             {body.fix}
                         </section>
                     </div>
                 )}
+
+                {/* Footer on every screen: Previous / Next move through the rail steps. Next waits until the
+                    customer exists (/new has only the account form). */}
+                <div className="flex shrink-0 items-center justify-between gap-2">
+                    <Button
+                        size="sm"
+                        color="secondary"
+                        outline
+                        disabled={isNew || (activeIndex <= 0 && activeIndex !== -1)}
+                        onClick={() => setActive(activeIndex === -1 ? "complete" : RAIL[activeIndex - 1].key)}
+                    >
+                        <ChevronLeft size={14} aria-hidden="true" />Previous
+                    </Button>
+                    <span className="text-xs text-ink-muted">
+                        {activeIndex >= 0 ? `Step ${activeIndex + 1} of ${RAIL.length}` : activeItem.short}
+                    </span>
+                    <Button
+                        size="sm"
+                        color="primary"
+                        disabled={isNew || activeIndex === -1 || activeIndex >= RAIL.length - 1}
+                        onClick={() => setActive(RAIL[activeIndex + 1].key)}
+                    >
+                        Next<ChevronRight size={14} aria-hidden="true" />
+                    </Button>
+                </div>
             </div>
 
             <Modal isOpen={!!reset} toggle={() => setReset(null)} size="lg" centered className="flex max-h-[85vh] flex-col">

@@ -14,6 +14,8 @@ import { TRACKING_CORRECTION } from "@/api"
 import { useServiceCenters, useTrackingStatuses } from "@/hooks/queries/useReferenceData"
 import ToasterProvider from "@/helpers/ToasterProvider"
 
+const SPD_WINDOW_MS = 24 * 60 * 60 * 1000
+
 const fmtDate = (val) => {
     if (!val) return "—"
     const d = new Date(val)
@@ -55,10 +57,23 @@ const TrackingRowCorrectionModal = ({ row, onClose, onCorrected }) => {
     const noFieldChosen = !status.trim() && !statusDate && !serviceCenter.trim()
     const fieldError = touched && noFieldChosen ? "Change at least one of status, date/time, or service center" : ""
 
+    // Changing a row to SPD is only allowed while that row's existing (old) status
+    // was recorded within the last 24 hours.
+    const spdDateError = (() => {
+        if (!row || status.trim().toUpperCase() !== "SPD") return ""
+        const old = new Date(row.status_date)
+        if (isNaN(old.getTime())) return "Current status date/time is invalid, cannot change to SPD"
+        if (Date.now() - old.getTime() > SPD_WINDOW_MS) {
+            return `Cannot change to SPD: the current status (${row.status} at ${fmtDate(row.status_date)}) is older than 24 hours`
+        }
+        return ""
+    })()
+
     const handleSubmit = async () => {
         setTouched(true)
         if (!remark.trim()) { ErrorToaster("Remark is required"); return }
         if (noFieldChosen) { ErrorToaster("Change at least one of status, date/time, or service center"); return }
+        if (spdDateError) { ErrorToaster(spdDateError); return }
 
         setSubmitting(true)
         setKnownStatuses(null)
@@ -139,6 +154,7 @@ const TrackingRowCorrectionModal = ({ row, onClose, onCorrected }) => {
                             <Input type="datetime-local" value={statusDate} onChange={(e) => setStatusDate(e.target.value)} />
                         </div>
 
+                        {spdDateError && <Alert color="danger" className="mb-4 py-2 text-xs">{spdDateError}</Alert>}
                         {fieldError && <Alert color="warning" className="mb-4 py-2 text-xs">{fieldError}</Alert>}
 
                         <div className="mb-2">
@@ -158,7 +174,7 @@ const TrackingRowCorrectionModal = ({ row, onClose, onCorrected }) => {
             </ModalBody>
             <ModalFooter>
                 <Button color="secondary" outline onClick={onClose} disabled={submitting}>Cancel</Button>
-                <Button color="primary" onClick={handleSubmit} disabled={submitting}>
+                <Button color="primary" onClick={handleSubmit} disabled={submitting || !!spdDateError}>
                     {submitting ? <Spinner size="sm" /> : "Submit Correction"}
                 </Button>
             </ModalFooter>

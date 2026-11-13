@@ -10,14 +10,14 @@ const ICON = {
     optional: "M4 8h8",
 }
 
-const Node = ({ status, n }) => {
+export const Node = ({ status, n, size = 34 }) => {
     const filled = status === "done" || status === "blocked" || status === "attention"
     const color = STEP_COLOR[status] || "#94a3b8"
     return (
         <span
             aria-hidden="true"
-            className="flex h-[34px] w-[34px] items-center justify-center rounded-full border-[3px] bg-surface text-xs font-bold text-ink-muted"
-            style={{ borderColor: color, backgroundColor: filled ? color : undefined }}
+            className="flex items-center justify-center rounded-full border-[3px] bg-surface text-xs font-bold text-ink-muted"
+            style={{ width: size, height: size, borderColor: color, backgroundColor: filled ? color : undefined }}
         >
             {ICON[status] ? (
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke={status === "attention" ? "#0f172a" : filled ? "#fff" : color} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
@@ -27,7 +27,7 @@ const Node = ({ status, n }) => {
         </span>
     )
 }
-Node.propTypes = { status: PropTypes.string, n: PropTypes.number }
+Node.propTypes = { status: PropTypes.string, n: PropTypes.number, size: PropTypes.number }
 
 const Stepper = ({ items, active, statusOf, onSelect, locked = false }) => {
     const count = items.length

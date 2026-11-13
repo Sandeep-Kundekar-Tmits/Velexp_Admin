@@ -18,6 +18,9 @@ import SimpleModal from "../../components/SimpleModal";
 import TableContainer from "../../components/Table/TableContainer";
 
 // extraActions: extra buttons shown in the table header, before Excel upload (the onboarding wizard puts "Copy from the default setup" there)
+// Inside the onboarding wizard the grid fills the card and only it scrolls, with a pinned header.
+const FILL_TABLE_PROPS = { fillHeight: true, isStickyHeader: true, stickyTop: 0, theadClass: "sticky top-0 z-10", tableHeight: "58vh" }
+
 const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null, hideHeader = false, extraActions = null }) => {
     const { ErrorToaster, SucceesToaster } = ToasterProvider();
     const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -356,11 +359,11 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
     };
 
     return (
-        <div className={hideHeader ? "" : "page-content py-0 px-0"}>
+        <div className={hideHeader ? "flex min-h-0 flex-1 flex-col" : "page-content py-0 px-0"}>
             {!hideHeader && <MainHeaderCom title="Rate Upload" />}
-            <div className={hideHeader ? "container-fluid px-0 mt-0" : "container-fluid px-4 mt-6"}>
-                <Card className={hideHeader ? "border-0 bg-transparent shadow-none" : "shadow-sm"}>
-                    <CardBody className={hideHeader ? "p-0" : undefined}>
+            <div className={hideHeader ? "container-fluid flex min-h-0 flex-1 flex-col px-0 mt-0" : "container-fluid px-4 mt-6"}>
+                <Card className={hideHeader ? "flex min-h-0 flex-1 flex-col border-0 bg-transparent shadow-none" : "shadow-sm"}>
+                    <CardBody className={hideHeader ? "flex min-h-0 flex-1 flex-col p-0" : undefined}>
                         {!hideHeader && (
                             <div className="mb-2 w-full sm:w-72">
                                 <Label className="m-0 mb-1 text-xs font-bold text-ink-muted">Corporate customer</Label>
@@ -380,7 +383,7 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
 
                         {selectedCustomer && (
                             <>
-                                <div className={`mb-2 flex flex-wrap items-center justify-between gap-2 ${hideHeader ? "mt-0" : "mt-4"}`}>
+                                <div className={`mb-2 flex flex-wrap items-center justify-between gap-2 ${hideHeader ? "mt-0 shrink-0 px-2 pt-2" : "mt-4"}`}>
                                     <h5 className="m-0 text-base">Existing rates for {selectedCustomer.label}</h5>
                                     <div className="flex flex-wrap gap-2">
                                         {extraActions}
@@ -409,8 +412,8 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
                                         </Button>
                                     </div>
                                 </div>
-                                <Card className="shadow-sm">
-                                    <CardBody className="p-0">
+                                <Card className={hideHeader ? "flex min-h-0 flex-1 flex-col rounded-none border-0 shadow-none" : "shadow-sm"}>
+                                    <CardBody className={hideHeader ? "flex min-h-0 flex-1 flex-col p-0" : "p-0"}>
                                         {ratesLoading ? (
                                             <div className="text-center p-12">
                                                 <Spinner color="primary" />
@@ -533,6 +536,7 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
                                                 pagination="pagination pagination-rounded justify-content-end mb-2"
                                                 paginationWrapper='dataTables_paginate paging_simple_numbers'
                                                 tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline mb-0"
+                                                {...(hideHeader ? FILL_TABLE_PROPS : {})}
                                             />
                                         )}
                                     </CardBody>

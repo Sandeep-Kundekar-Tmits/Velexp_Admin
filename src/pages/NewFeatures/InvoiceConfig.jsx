@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import PropTypes from "prop-types"
 import { Button, Card, CardBody, Input, Label, Spinner } from "@/components/ui"
 import { rawRequest } from "@/lib/http"
+import ConfirmModal from "../../components/Common/ConfirmModal"
 import ToasterProvider from "../../helpers/ToasterProvider"
 import { BILLING_INVOICE_CONFIG } from "../../api"
 import { DEFAULT_PLACEHOLDERS, DEFAULT_NOTE, findProblems, errText } from "./invoiceConfigHelpers"
@@ -41,6 +42,8 @@ const InvoiceConfig = ({ externalCustomer, onCustomerChange, customerOptions, hi
     const [placeholders, setPlaceholders] = useState(DEFAULT_PLACEHOLDERS)
     const [note, setNote] = useState(DEFAULT_NOTE)
     const inputRef = useRef(null)
+    const [confirmDeleteId, setConfirmDeleteId] = useState(null) // customer id waiting for delete confirmation
+    const [deleting, setDeleting] = useState(false)
     const [loading, setLoading] = useState(false)
     const [saving, setSaving] = useState(false)
     const [list, setList] = useState([])
@@ -144,7 +147,7 @@ const InvoiceConfig = ({ externalCustomer, onCustomerChange, customerOptions, hi
     }
 
     const handleDelete = async (id) => {
-        if (!window.confirm("Delete this invoice config? The customer goes back to the default layout.")) return
+        setDeleting(true)
         try {
             const { ok, data } = await rawRequest(`${BILLING_INVOICE_CONFIG}?customer_id=${id}`, { method: "DELETE", parseMode: "contentType" })
             if (!ok) { ErrorToaster(errText(data, "Failed to delete invoice config")); return }
@@ -153,6 +156,9 @@ const InvoiceConfig = ({ externalCustomer, onCustomerChange, customerOptions, hi
             loadList(customerId)
         } catch (e) {
             ErrorToaster(e?.message || "Failed to delete invoice config")
+        } finally {
+            setDeleting(false)
+            setConfirmDeleteId(null)
         }
     }
 
@@ -192,6 +198,15 @@ const InvoiceConfig = ({ externalCustomer, onCustomerChange, customerOptions, hi
         <div className={hideHeader ? "" : "px-2 pt-3"}>
             <InvoiceConfigBulkUpload customerOptions={customerOptions} onDone={() => { loadList(customerId); if (customerId) loadOne(customerId) }} />
 
+            <ConfirmModal
+                isOpen={confirmDeleteId != null}
+                title="Delete invoice config"
+                message="Delete this invoice config? The customer goes back to the default layout."
+                busy={deleting}
+                onCancel={() => setConfirmDeleteId(null)}
+                onConfirm={() => handleDelete(confirmDeleteId)}
+            />
+
             <Card className="mb-3">
                 <CardBody className="p-4">
                     {!customerId ? (
@@ -228,7 +243,7 @@ const InvoiceConfig = ({ externalCustomer, onCustomerChange, customerOptions, hi
                                     <Button color="primary" onClick={handleSave} disabled={saving} style={{ height: 36, whiteSpace: "nowrap" }}>
                                         {saving ? <><Spinner size="sm" /> Saving...</> : "Save"}
                                     </Button>
-                                    <Button color="danger" outline onClick={() => handleDelete(customerId)} style={{ height: 36, whiteSpace: "nowrap" }}>Delete</Button>
+                                    <Button color="danger" outline onClick={() => setConfirmDeleteId(customerId)} style={{ height: 36, whiteSpace: "nowrap" }}>Delete</Button>
                                 </div>
                             </div>
 
@@ -298,7 +313,7 @@ const InvoiceConfig = ({ externalCustomer, onCustomerChange, customerOptions, hi
                                                 <td className="py-2 pr-3">{r.is_saved === false ? "Default" : "Saved"}</td>
                                                 <td className="py-2 text-right whitespace-nowrap">
                                                     <Button size="sm" color="link" onClick={() => handlePick(r)}>Edit</Button>
-                                                    <Button size="sm" color="link" className="text-red-500" onClick={() => handleDelete(r.customer_id)}>Delete</Button>
+                                                    <Button size="sm" color="link" className="text-red-500" onClick={() => setConfirmDeleteId(r.customer_id)}>Delete</Button>
                                                 </td>
                                             </tr>
                                         ))}

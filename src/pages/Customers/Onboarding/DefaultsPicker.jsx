@@ -10,6 +10,11 @@ import { errText } from "../../NewFeatures/invoiceConfigHelpers"
 import { ONBOARDING_APPLY_DEFAULTS, ONBOARDING_DEFAULTS } from "../../../api"
 import { PRODUCT_COMPONENTS, callApi } from "./helpers"
 
+// Header cells stay pinned while the rows scroll. They need an opaque base (rows would show through a
+// translucent tint), so the old overlay tint is layered on top of the solid surface colour.
+const HEAD_CELL =
+    "sticky top-0 z-10 bg-surface bg-[linear-gradient(rgb(var(--overlay-rgb)/0.05),rgb(var(--overlay-rgb)/0.05))] px-3 py-2"
+
 const RESULT_TONE = { copied: "text-success-500", kept: "text-warning-500", not_in_default: "text-danger-500", needs_config: "text-danger-500" }
 const RESULT_TEXT = {
     copied: "Copied",
@@ -20,7 +25,8 @@ const RESULT_TEXT = {
 
 // `only`: show just one component ("rates", "pincodes", "config", "vas"), for use inside that step
 // stickyActions: pin the button row to the bottom of the scrolling area (used inside the popup, as its footer)
-const DefaultsPicker = ({ customerId, replace = false, only, onDone, stickyActions = false }) => {
+// fill: the picker takes the height of its container and only the table scrolls (the wizard's Setup source step)
+const DefaultsPicker = ({ customerId, replace = false, only, onDone, stickyActions = false, fill = false }) => {
     const comps = only ? PRODUCT_COMPONENTS.filter((c) => c.key === only) : PRODUCT_COMPONENTS
     const { SucceesToaster, ErrorToaster } = ToasterProvider()
     const [defaults, setDefaults] = useState(null)
@@ -115,33 +121,23 @@ const DefaultsPicker = ({ customerId, replace = false, only, onDone, stickyActio
     const eligibleCount = defaults.products.filter((p) => p.complete).length
     const actionsCls = stickyActions
         ? "sticky bottom-0 z-10 -mx-5 mt-3 flex items-center justify-between gap-2 border-t border-white/10 bg-surface px-5 py-3"
-        : "mt-3 flex items-center justify-between gap-2"
+        : `mt-2 flex shrink-0 items-center justify-between gap-2 ${fill ? "px-3 pb-2" : ""}`
 
     return (
-        <div>
-            <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-                <p className="m-0 text-sm text-ink-muted">
-                    {replace
-                        ? "Replaces the customer's own data for the ticked items with the default."
-                        : "Tick what should start as a copy of the default. Data the customer already has is kept; anything unticked is added on the next steps."}
-                </p>
-                {defaults.default_customer?.username && (
-                    <span className="whitespace-nowrap text-xs text-ink-muted">Default account: <strong className="text-ink">{defaults.default_customer.username}</strong></span>
-                )}
-            </div>
+        <div className={fill ? "flex min-h-0 flex-1 flex-col" : ""}>
 
             {defaults.products.length === 0 ? (
                 <p className="text-sm text-danger-500">The default account has no product data. Upload own data for this customer.</p>
             ) : (
-                <div className="overflow-x-auto rounded-md border border-white/8">
+                <div className={`overflow-auto rounded-md border border-white/8 ${fill ? "min-h-0 flex-1" : "max-h-[55vh]"}`}>
                     <table className="w-full text-sm">
                         <thead>
-                            <tr className="bg-[rgb(var(--overlay-rgb)/0.05)] text-left text-xs text-ink-muted">
-                                <th className="px-3 py-2 font-semibold">Product</th>
+                            <tr className="text-left text-xs text-ink-muted">
+                                <th className={`${HEAD_CELL} font-semibold`}>Product</th>
                                 {comps.map((c) => {
                                     const allOn = eligibleCount > 0 && defaults.products.filter((p) => p.complete).every((p) => sel[p.product]?.[c.key])
                                     return (
-                                        <th key={c.key} className="px-3 py-2 text-center font-semibold">
+                                        <th key={c.key} className={`${HEAD_CELL} text-center font-semibold`}>
                                             <label className="inline-flex cursor-pointer items-center gap-1.5">
                                                 <input type="checkbox" checked={allOn} disabled={busy || eligibleCount === 0} onChange={() => toggleColumn(c.key)} aria-label={`Use default ${c.label} for every product`} />
                                                 {c.label}
@@ -149,7 +145,7 @@ const DefaultsPicker = ({ customerId, replace = false, only, onDone, stickyActio
                                         </th>
                                     )
                                 })}
-                                <th className="px-3 py-2 font-semibold">In the default</th>
+                                <th className={`${HEAD_CELL} font-semibold`}>In the default</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -157,7 +153,7 @@ const DefaultsPicker = ({ customerId, replace = false, only, onDone, stickyActio
                                 <tr key={p.product} className="border-t border-white/8 align-top">
                                     <td className="px-3 py-2">
                                         <div className="font-semibold">{p.product}</div>
-                                        {!p.complete && <div className="text-xs text-danger-500">Default incomplete: upload own data</div>}
+                                        {!p.complete && <div className="text-xs text-danger-500">Not a Standard Product</div>}
                                     </td>
                                     {comps.map((c) => (
                                         <td key={c.key} className="px-3 py-2 text-center">
@@ -198,6 +194,13 @@ const DefaultsPicker = ({ customerId, replace = false, only, onDone, stickyActio
                 </Button>
             </div>
 
+            {/* The overwrite warning stays for "Reset to default"; the plain copy step needs no note. */}
+            {replace && (
+                <p className="m-0 mt-2 shrink-0 text-xs text-ink-muted">
+                    Replaces the customer&apos;s own data for the ticked items with the default.
+                </p>
+            )}
+
             <SimpleModal
                 isOpen={confirmOpen}
                 setIsOpen={setConfirmOpen}
@@ -218,6 +221,7 @@ DefaultsPicker.propTypes = {
     replace: PropTypes.bool,
     only: PropTypes.string,
     stickyActions: PropTypes.bool,
+    fill: PropTypes.bool,
     onDone: PropTypes.func,
 }
 

@@ -36,6 +36,9 @@ const PinField = ({ label, children }) => (
 );
 
 // extraActions: extra buttons shown in the table header, before Add Pincode (the onboarding wizard puts "Copy from the default setup" there)
+// Inside the onboarding wizard the grid fills the card and only it scrolls, with a pinned header.
+const FILL_TABLE_PROPS = { fillHeight: true, isStickyHeader: true, stickyTop: 0, theadClass: "sticky top-0 z-10", tableHeight: "58vh" }
+
 const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = null, hideHeader = false, extraActions = null }) => {
     const { ErrorToaster, SucceesToaster } = ToasterProvider();
     const [selectedCustomer, setSelectedCustomer] = useState(null);
@@ -676,9 +679,9 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
     ], [selectedCustomer, productOptions, selectedPincodeIds, pincodeList, allSelected]);
 
     return (
-        <div className={hideHeader ? "" : "page-content py-0 px-0"}>
+        <div className={hideHeader ? "flex min-h-0 flex-1 flex-col" : "page-content py-0 px-0"}>
             {!hideHeader && <MainHeaderCom title="Pincode Upload" />}
-            <div className={hideHeader ? "container-fluid px-0 mt-0" : "container-fluid px-4 mt-6"}>
+            <div className={hideHeader ? "container-fluid flex min-h-0 flex-1 flex-col px-0 mt-0" : "container-fluid px-4 mt-6"}>
                 {!hideHeader && (
                     <Card className="shadow-sm">
                         <CardBody className="p-2">
@@ -702,7 +705,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
 
                 {selectedCustomer && (
                     <>
-                        <div className={`mb-2 flex flex-wrap items-center justify-between gap-2 ${hideHeader ? "mt-0" : "mt-4"}`}>
+                        <div className={`mb-2 flex flex-wrap items-center justify-between gap-2 ${hideHeader ? "mt-0 shrink-0 px-2 pt-2" : "mt-4"}`}>
                             <h5 className="m-0 text-base">Existing pincode services <span className="text-sm font-normal text-ink-muted">({pincodeList.length})</span></h5>
                             <div className="flex flex-wrap gap-2">
                                 {extraActions}
@@ -731,8 +734,8 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                                 </Button>
                             </div>
                         </div>
-                        <Card className="shadow-sm">
-                            <CardBody className="p-0">
+                        <Card className={hideHeader ? "flex min-h-0 flex-1 flex-col rounded-none border-0 shadow-none" : "shadow-sm"}>
+                            <CardBody className={hideHeader ? "flex min-h-0 flex-1 flex-col p-0" : "p-0"}>
                                 {pincodesLoading ? (
                                     <div className="text-center p-12">
                                         <Spinner color="primary" />
@@ -750,6 +753,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                                         pagination="pagination pagination-rounded justify-content-end mb-2"
                                         paginationWrapper='dataTables_paginate paging_simple_numbers'
                                         tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline mb-0"
+                                        {...(hideHeader ? FILL_TABLE_PROPS : {})}
                                     />
                                 )}
                             </CardBody>

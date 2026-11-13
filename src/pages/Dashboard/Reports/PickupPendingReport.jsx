@@ -4,6 +4,7 @@ import { Button, Col, FormGroup, Input, Label, Row } from "@/components/ui";
 import Loader from "@/Loaders/Loader";
 import TableContainer from "../../../components/Table/TableContainer";
 import ServerPager from "../../../components/Common/ServerPager";
+import { FaFileExcel } from "react-icons/fa";
 import MainHeaderComp from "../../../components/MainHeaderCom";
 import {
     OPS_PICKUP_PENDING_REPORT,
@@ -299,6 +300,16 @@ const PickupPendingReport = () => {
                         >
                             {loading ? "Loading..." : "Check"}
                         </Button>
+                        <Button
+                            color="success"
+                            outline
+                            onClick={downloadExcel}
+                            disabled={isExporting}
+                            style={{ height: "2.2rem", whiteSpace: "nowrap" }}
+                        >
+                            {isExporting ? "Exporting..." : "Download Excel"}
+                            <FaFileExcel size={16} />
+                        </Button>
                         {!loading && totalCount > 0 && (
                             <span
                                 className="badge bg-canvas text-ink-muted border"
@@ -320,10 +331,7 @@ const PickupPendingReport = () => {
                                 data={reportData}
                                 isGlobalFilter={true}
                                 isCustomPageSize={!useAdmin}
-                                isDownloadExcle={true}
                                 isPagination={!useAdmin}
-                                onDownloadExcle={downloadExcel}
-                                ExcleLoading={isExporting}
                                 SearchPlaceholder="Search from table..."
                                 pagination="pagination"
                                 paginationWrapper="dataTables_paginate paging_simple_numbers"

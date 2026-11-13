@@ -6,6 +6,7 @@ import { authFetch } from "@/lib/http"
 import { CUSTOMER_DOCUMENTS_BASE, CUSTOMER_DOCUMENTS_UPLOAD } from "../../api"
 import ToasterProvider from "../../helpers/ToasterProvider"
 import CustomerDocumentsForm, { newRow } from "./CustomerDocumentsForm"
+import ConfirmModal from "../Common/ConfirmModal"
 
 // The list endpoint's envelope isn't pinned down, so accept the usual shapes.
 const toList = (json) => (Array.isArray(json) ? json : json?.results || json?.documents || json?.data || [])
@@ -30,6 +31,7 @@ const CustomerDocumentsModal = ({ customer, onClose, inline = false, onChanged }
     const [uploading, setUploading] = useState(false)
     const [busyId, setBusyId] = useState(null)
     const [addOpen, setAddOpen] = useState(false) // inline mode: the Add documents popup
+    const [confirmDoc, setConfirmDoc] = useState(null) // document waiting for remove confirmation
 
     const customerId = customer?.id
 
@@ -106,7 +108,6 @@ const CustomerDocumentsModal = ({ customer, onClose, inline = false, onChanged }
     }
 
     const remove = async (d) => {
-        if (!window.confirm(`Remove "${docName(d)}"? The file is kept on the server.`)) return
         setBusyId(d.id)
         try {
             const res = await authFetch(`${CUSTOMER_DOCUMENTS_BASE}${d.id}/remove/`, { method: "POST", credentials: "include" })
@@ -120,6 +121,22 @@ const CustomerDocumentsModal = ({ customer, onClose, inline = false, onChanged }
             setBusyId(null)
         }
     }
+
+    const confirmModal = (
+        <ConfirmModal
+            isOpen={!!confirmDoc}
+            title="Remove document"
+            message={confirmDoc && <>Remove <strong>{docName(confirmDoc)}</strong>? The file is kept on the server.</>}
+            confirmLabel="Remove"
+            busy={busyId === confirmDoc?.id}
+            onCancel={() => setConfirmDoc(null)}
+            onConfirm={async () => {
+                const d = confirmDoc
+                await remove(d)
+                setConfirmDoc(null)
+            }}
+        />
+    )
 
     const uploadButton = (
         <Button color="success" disabled={uploading} onClick={upload} className="flex items-center gap-2">
@@ -169,7 +186,7 @@ const CustomerDocumentsModal = ({ customer, onClose, inline = false, onChanged }
                                             <Button size="sm" color="primary" outline disabled={busyId === d.id} title="Download" aria-label="Download document" onClick={() => download(d)}>
                                                 <Download size={14} />
                                             </Button>{" "}
-                                            <Button size="sm" color="danger" outline disabled={busyId === d.id} title="Remove" aria-label="Remove document" onClick={() => remove(d)}>
+                                            <Button size="sm" color="danger" outline disabled={busyId === d.id} title="Remove" aria-label="Remove document" onClick={() => setConfirmDoc(d)}>
                                                 <Trash2 size={14} />
                                             </Button>
                                         </td>
@@ -189,6 +206,7 @@ const CustomerDocumentsModal = ({ customer, onClose, inline = false, onChanged }
         return (
             <div>
                 {content}
+                {confirmModal}
                 <Modal isOpen={addOpen} toggle={() => setAddOpen(false)} size="lg" centered scrollable>
                     <ModalHeader toggle={() => setAddOpen(false)}>Add documents</ModalHeader>
                     <ModalBody>{addForm}</ModalBody>
@@ -204,7 +222,7 @@ const CustomerDocumentsModal = ({ customer, onClose, inline = false, onChanged }
     return (
         <Modal isOpen={!!customer} toggle={onClose} size="lg" centered scrollable>
             <ModalHeader toggle={onClose}>Customer Documents — {customer?.customer_name || customer?.username || ""}</ModalHeader>
-            <ModalBody>{content}</ModalBody>
+            <ModalBody>{content}{confirmModal}</ModalBody>
             <ModalFooter>
                 <Button color="secondary" outline onClick={onClose}>Close</Button>
                 {uploadButton}
