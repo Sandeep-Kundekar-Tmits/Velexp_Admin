@@ -3,6 +3,7 @@ import Select from "react-select";
 import { Button, Col, FormGroup, Input, Label, Row, Spinner, Card, CardBody, Modal, ModalHeader, ModalBody, ModalFooter } from "@/components/ui";
 import { FaUpload, FaDownload, FaEye, FaEdit, FaTrash, FaFileExcel, FaPlus } from "react-icons/fa";
 import MainHeaderCom from "../../components/MainHeaderCom";
+import AddProductButton from "../../components/Common/AddProductButton";
 import SearchableDropdown from "../../components/Common/SearchableDropdown";
 import DeleteModal from "../../components/Common/DeleteModal";
 import { customStyles } from "../../helpers/CustomStyle";
@@ -17,11 +18,12 @@ import { CORPORATE_CUSTOMERS_LIST, IMPORT_CORPORATE_RATE_DATA, GET_CUSTOMER_RATE
 import SimpleModal from "../../components/SimpleModal";
 import TableContainer from "../../components/Table/TableContainer";
 
+// onChanged(message): called after rates are imported, added, edited or deleted (the wizard re-runs its checklist)
 // extraActions: extra buttons shown in the table header, before Excel upload (the onboarding wizard puts "Copy from the default setup" there)
 // Inside the onboarding wizard the grid fills the card and only it scrolls, with a pinned header.
 const FILL_TABLE_PROPS = { fillHeight: true, isStickyHeader: true, stickyTop: 0, theadClass: "sticky top-0 z-10", tableHeight: "58vh" }
 
-const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null, hideHeader = false, extraActions = null }) => {
+const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null, hideHeader = false, extraActions = null, onChanged = null }) => {
     const { ErrorToaster, SucceesToaster } = ToasterProvider();
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [excelData, setExcelData] = useState([]);
@@ -103,14 +105,17 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
         setNewRate(prev => ({ ...prev, product_id: null }));
     }, [selectedCustomer]);
 
+    const [addedProducts, setAddedProducts] = useState([]); // products created with the + button
     const productOptions = useMemo(() => {
         const data = productListRaw?.results || productListRaw?.result || (Array.isArray(productListRaw) ? productListRaw : []);
-        return data.map(ele => ({
+        const list = data.map(ele => ({
             id: ele.id,
             value: ele.id,
             name: ele.product_name || ele.name || "Unknown Product"
         }));
-    }, [productListRaw]);
+        addedProducts.forEach((ap) => { if (!list.some((m) => m.id === ap.id)) list.push(ap); });
+        return list;
+    }, [productListRaw, addedProducts]);
 
     const handleFileChange = async (e) => {
         const selectedFile = e.target.files[0];
@@ -175,6 +180,7 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
         setSelectedRateIds([]);
         if (successCount > 0) {
             SucceesToaster(`${successCount} rate(s) deleted successfully!`);
+            onChanged?.("Rates removed");
             if (selectedCustomer?.id) {
                 GetRates(`${GET_CUSTOMER_RATES}?customer_id=${selectedCustomer.id}`);
             }
@@ -188,6 +194,7 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
         const success = await deleteRate(`${GET_CUSTOMER_RATES}${rateIdToDelete}/`);
         if (success) {
             SucceesToaster("Rate deleted successfully!");
+            onChanged?.("Rate removed");
             setIsDeleteModalOpen(false);
             setRateIdToDelete(null);
             if (selectedCustomer?.id) {
@@ -229,6 +236,7 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
         const response = await patchRate(`${GET_CUSTOMER_RATES}${editingRate.id}/`, payload);
         if (response && !response.error) {
             setEditRateModal(false);
+            onChanged?.("Rate updated");
             if (selectedCustomer?.id) {
                 GetRates(`${GET_CUSTOMER_RATES}?customer_id=${selectedCustomer.id}`);
             }
@@ -260,6 +268,7 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
         if (response && !response.error) {
             SucceesToaster(response?.msg || response?.message || "Rate added successfully!");
             setAddRateModal(false);
+            onChanged?.("Rate added");
             // Refresh list
             if (selectedCustomer?.id) {
                 GetRates(`${GET_CUSTOMER_RATES}?customer_id=${selectedCustomer.id}`);
@@ -332,6 +341,7 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
             // setSelectedCustomer(null); // Keep customer selected to show the updated rates
             if (fileInputRef.current) fileInputRef.current.value = "";
             
+            onChanged?.("Rates imported");
             // Refresh rates
             GetRates(`${GET_CUSTOMER_RATES}?customer_id=${selectedCustomer.id}`);
         } else {
@@ -383,35 +393,6 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
 
                         {selectedCustomer && (
                             <>
-                                <div className={`mb-2 flex flex-wrap items-center justify-between gap-2 ${hideHeader ? "mt-0 shrink-0 px-2 pt-2" : "mt-4"}`}>
-                                    <h5 className="m-0 text-base">Existing rates for {selectedCustomer.label}</h5>
-                                    <div className="flex flex-wrap gap-2">
-                                        {extraActions}
-                                        <Button color="success" size="sm" outline onClick={() => setUploadModal(true)} className="flex items-center gap-1 whitespace-nowrap">
-                                            <FaFileExcel /> Excel upload
-                                        </Button>
-                                        {selectedRateIds.length > 0 && (
-                                            <Button
-                                                color="danger"
-                                                size="sm"
-                                                onClick={() => setIsBulkDeleteRateModalOpen(true)}
-                                                disabled={isBulkDeletingRates}
-                                                className="flex items-center gap-1"
-                                            >
-                                                {isBulkDeletingRates ? <Spinner size="sm" /> : <FaTrash />}
-                                                Delete Selected ({selectedRateIds.length})
-                                            </Button>
-                                        )}
-                                        <Button
-                                            color="primary"
-                                            size="sm"
-                                            onClick={() => setAddRateModal(true)}
-                                            className="flex items-center gap-1 whitespace-nowrap"
-                                        >
-                                            <FaPlus /> Add Rate
-                                        </Button>
-                                    </div>
-                                </div>
                                 <Card className={hideHeader ? "flex min-h-0 flex-1 flex-col rounded-none border-0 shadow-none" : "shadow-sm"}>
                                     <CardBody className={hideHeader ? "flex min-h-0 flex-1 flex-col p-0" : "p-0"}>
                                         {ratesLoading ? (
@@ -528,11 +509,29 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
                                                     }
                                                 ]}
                                                 data={customerRates?.results || []}
+                                                compact
+                                        searchClassName="w-40 shrink-0"
+                                                footerNote={<div className="text-sm font-semibold">Existing rates for {selectedCustomer.label} <span className="font-normal text-ink-muted">({customerRates?.results?.length || 0})</span></div>}
+                                                rightExtraFiled={
+                                                    <div className="flex flex-wrap items-center gap-1.5">
+                                                        {extraActions}
+                                                        <Button color="primary" size="sm" title="Add rate" onClick={() => setAddRateModal(true)} className="flex items-center gap-1 whitespace-nowrap">
+                                                            <FaPlus /> Add
+                                                        </Button>
+                                                        <Button color="success" size="sm" outline title="Import rates from Excel" onClick={() => setUploadModal(true)} className="flex items-center gap-1 whitespace-nowrap">
+                                                            <FaUpload /> Import
+                                                        </Button>
+                                                        {selectedRateIds.length > 0 && (
+                                                            <Button color="danger" size="sm" title="Delete selected rates" onClick={() => setIsBulkDeleteRateModalOpen(true)} disabled={isBulkDeletingRates} className="flex items-center gap-1 whitespace-nowrap">
+                                                                {isBulkDeletingRates ? <Spinner size="sm" /> : <FaTrash />} Delete ({selectedRateIds.length})
+                                                            </Button>
+                                                        )}
+                                                    </div>
+                                                }
                                                 isGlobalFilter={true}
                                                 isPagination={true}
-                                                isCustomPageSize={true}
-                                                defaultPageSize={10}
-                                                SearchPlaceholder="Search rates..."
+                                                defaultPageSize={100}
+                                                SearchPlaceholder="Search..."
                                                 pagination="pagination pagination-rounded justify-content-end mb-2"
                                                 paginationWrapper='dataTables_paginate paging_simple_numbers'
                                                 tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline mb-0"
@@ -680,13 +679,18 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
                         <Col md={12}>
                             <FormGroup>
                                 <Label>Product</Label>
-                                <SearchableDropdown
-                                    locations={productOptions}
-                                    placeholder="Select Product"
-                                    value={newRate.product_id ? newRate.product_id.name : "select"}
-                                    onChange={(val) => setNewRate({ ...newRate, product_id: val })}
-                                    className="w-full"
-                                />
+                                <div className="flex items-center gap-2">
+                                    <div className="min-w-0 flex-1">
+                                        <SearchableDropdown
+                                            locations={productOptions}
+                                            placeholder="Select Product"
+                                            value={newRate.product_id ? newRate.product_id.name : "select"}
+                                            onChange={(val) => setNewRate({ ...newRate, product_id: val })}
+                                            className="w-full"
+                                        />
+                                    </div>
+                                    <AddProductButton onAdded={(pr) => setAddedProducts((a) => [...a, { id: pr.id, value: pr.id, name: pr.name }])} />
+                                </div>
                             </FormGroup>
                         </Col>
                     </Row>
@@ -826,13 +830,18 @@ const CorporateRateUpload = ({ externalCustomer = null, onCustomerChange = null,
                             <Col md={12}>
                                 <FormGroup>
                                     <Label>Product</Label>
-                                    <SearchableDropdown
-                                        locations={productOptions}
-                                        placeholder="Select Product"
-                                        value={editingRate.product_id?.name || "select"}
-                                        onChange={(val) => setEditingRate({ ...editingRate, product_id: val, product_name: val?.name })}
-                                        className="w-full"
-                                    />
+                                    <div className="flex items-center gap-2">
+                                        <div className="min-w-0 flex-1">
+                                            <SearchableDropdown
+                                                locations={productOptions}
+                                                placeholder="Select Product"
+                                                value={editingRate.product_id?.name || "select"}
+                                                onChange={(val) => setEditingRate({ ...editingRate, product_id: val, product_name: val?.name })}
+                                                className="w-full"
+                                            />
+                                        </div>
+                                        <AddProductButton onAdded={(pr) => setAddedProducts((a) => [...a, { id: pr.id, value: pr.id, name: pr.name }])} />
+                                    </div>
                                 </FormGroup>
                             </Col>
                         </Row>

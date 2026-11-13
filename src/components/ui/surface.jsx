@@ -187,21 +187,26 @@ export const Table = forwardRef(function Table(
 const SPINNER_SIZES = { sm: "size-4 border-2", md: "size-6 border-2", lg: "size-8 border-[3px]" };
 
 export const Spinner = forwardRef(function Spinner(
-  { size = "md", color = "primary", className, ...rest },
+  { size = "md", color = "primary", className, children, ...rest },
   ref
 ) {
+  /* Callers write <Spinner>Loading...</Spinner>. That text used to sit inside the
+     spinning circle, so the words rotated with it. It is now screen-reader only. */
   return (
-    <span
-      ref={ref}
-      role="status"
-      aria-label="Loading"
-      className={cn(
-        "inline-block animate-spin rounded-full border-current border-r-transparent align-[-0.125em]",
-        SPINNER_SIZES[size] || SPINNER_SIZES.md,
-        color === "primary" ? "text-brand-500" : "text-current",
-        className
-      )}
-      {...rest}
-    />
+    <>
+      <span
+        ref={ref}
+        role="status"
+        aria-label="Loading"
+        className={cn(
+          "inline-block animate-spin rounded-full border-current border-r-transparent align-[-0.125em]",
+          SPINNER_SIZES[size] || SPINNER_SIZES.md,
+          color === "primary" ? "text-brand-500" : "text-current",
+          className
+        )}
+        {...rest}
+      />
+      {children ? <span className="sr-only">{children}</span> : null}
+    </>
   );
 });

@@ -1,5 +1,6 @@
 import PropTypes from "prop-types";
 import React, { useCallback, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import withRouter from "../Common/withRouter";
 
 import { withTranslation } from "react-i18next";
@@ -16,6 +17,17 @@ const Sidebar = (props) => {
   const { isMobile, mobileSidebarOpen, onMobileClose } = props;
   const [showLogo, setShowlogo] = useState(true);
   const menuScrollRef = useRef(null);
+  // collapsed rail: the label of the icon under the pointer, shown beside it
+  const [tip, setTip] = useState(null);
+
+  const showTip = (e) => {
+    if (isMobile || !document.body.classList.contains("vertical-collpsed")) return;
+    const link = e.target.closest?.(".metismenu li > a");
+    const label = link?.getAttribute("aria-label");
+    if (!link || !label) { setTip(null); return; }
+    const r = link.getBoundingClientRect();
+    setTip({ label, top: r.top + r.height / 2, left: r.right + 10 });
+  };
 
   /**
    * Bring the current page's menu entry into view.
@@ -53,6 +65,9 @@ const Sidebar = (props) => {
 
   function tToggle() {
     setShowlogo(!showLogo);
+    setTip(null);
+    // opening the rail by click: scroll the menu to the current page's entry
+    if (!showLogo) revealActiveMenu();
     var body = document.body;
     if (window.screen.width <= 998) {
       body.classList.toggle("sidebar-enable");
@@ -66,9 +81,9 @@ const Sidebar = (props) => {
     <React.Fragment>
       <div
         className="vertical-menu"
-        // Only while collapsed: expanded, the rail is already showing the tree
-        // and yanking it around under the cursor would be hostile.
-        onMouseEnter={showLogo ? undefined : revealActiveMenu}
+        onMouseOver={showTip}
+        onMouseLeave={() => setTip(null)}
+        onClick={() => setTip(null)}
         style={{
           // height/top are left to the stylesheet: the rail is inset from all
           // three edges via top/bottom, and an explicit height here would
@@ -157,6 +172,16 @@ const Sidebar = (props) => {
           )}
         </div>
       </div>
+      {tip && createPortal(
+        <div
+          role="tooltip"
+          style={{ top: tip.top, left: tip.left, transform: "translateY(-50%)" }}
+          className="pointer-events-none fixed z-[1200] whitespace-nowrap rounded-md border border-[rgb(var(--overlay-rgb)/0.15)] bg-surface px-2.5 py-1 text-xs font-semibold text-ink shadow-lg"
+        >
+          {tip.label}
+        </div>,
+        document.body
+      )}
     </React.Fragment>
   );
 };

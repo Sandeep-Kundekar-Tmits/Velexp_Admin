@@ -43,7 +43,16 @@ const AddPodModal = ({ toggle, formData, onChange, onImageRemove, errors, onSubm
         } else {
             setError("");
             const VarificationData = await VerifyAwb(VERIFY_AWB, { awbno: formData?.awbno });
-            if (VarificationData) setShowUploadFile(true);
+            if (VarificationData) {
+                // POD can only be attached to a delivered shipment (SPD).
+                const status = String(VarificationData?.current_status ?? "").trim().toUpperCase();
+                if (status === "SPD") {
+                    setShowUploadFile(true);
+                } else {
+                    setShowUploadFile(false);
+                    setError("Shipment is not delivered, POD cannot be added");
+                }
+            }
         }
     };
 
@@ -66,7 +75,7 @@ const AddPodModal = ({ toggle, formData, onChange, onImageRemove, errors, onSubm
                   * preview below it and the two edges never lined up.
                   */}
                 <FormGroup className="mb-0">
-                    <Label for="awbInput" className="mb-1.5 block text-[13px] font-semibold text-slate-200">
+                    <Label for="awbInput" className="mb-1.5 block text-[13px] font-semibold text-ink">
                         Enter AWB No.
                     </Label>
                     <div className="flex items-start gap-2">
@@ -99,7 +108,7 @@ const AddPodModal = ({ toggle, formData, onChange, onImageRemove, errors, onSubm
                             </Button>
                         )}
                     </div>
-                    <FormFeedback>{error}</FormFeedback>
+                    {error && <p className="mt-1.5 mb-0 text-[12px] text-danger-500">{error}</p>}
                 </FormGroup>
 
                 {/*
@@ -111,12 +120,12 @@ const AddPodModal = ({ toggle, formData, onChange, onImageRemove, errors, onSubm
                   * frames deep for one form.
                   */}
                 {showUploadFile && (
-                    <div className="mt-5 border-t border-white/10 pt-5">
+                    <div className="mt-5 border-t border-[rgb(var(--overlay-rgb)/0.1)] pt-5">
                         {/* AWB Response */}
                         {varificationApiData && <ResponseDisplay data={varificationApiData} />}
 
                         <FormGroup className="mt-4 mb-0">
-                            <Label for="gstUpload" className="mb-1.5 block text-[13px] font-semibold text-slate-200">
+                            <Label for="gstUpload" className="mb-1.5 block text-[13px] font-semibold text-ink">
                                 Upload File
                             </Label>
                             <Input
@@ -134,7 +143,7 @@ const AddPodModal = ({ toggle, formData, onChange, onImageRemove, errors, onSubm
                           * Shows a preview of the selected image file before submission.
                           */}
                         {formData?.pod_file && (
-                            <div className="relative mt-4 overflow-hidden rounded-xl border border-white/10 bg-black/20" style={{ height: '200px' }}>
+                            <div className="relative mt-4 overflow-hidden rounded-xl border border-[rgb(var(--overlay-rgb)/0.1)] bg-[rgb(var(--overlay-rgb)/0.05)]" style={{ height: '200px' }}>
                                 <button
                                     type="button"
                                     onClick={onImageRemove}
@@ -191,13 +200,13 @@ const ResponseDisplay = ({ data }) => {
     ];
 
     return (
-        <dl className="grid grid-cols-2 gap-x-4 gap-y-3 rounded-xl border border-white/8 bg-white/3 p-4">
+        <dl className="grid grid-cols-2 gap-x-4 gap-y-3 rounded-xl border border-[rgb(var(--overlay-rgb)/0.1)] bg-[rgb(var(--overlay-rgb)/0.05)] p-4">
             {fields.map(([label, value]) => (
                 <div key={label} className="min-w-0">
-                    <dt className="text-[11px] font-medium uppercase tracking-wider text-[#94A3B8]">
+                    <dt className="text-[11px] font-medium uppercase tracking-wider text-ink-muted">
                         {label}
                     </dt>
-                    <dd className="m-0 mt-0.5 truncate text-[13px] text-slate-200" title={value || undefined}>
+                    <dd className="m-0 mt-0.5 truncate text-[13px] text-ink" title={value || undefined}>
                         {value || "-"}
                     </dd>
                 </div>

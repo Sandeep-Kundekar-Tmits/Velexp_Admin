@@ -21,6 +21,8 @@ import locations from "../../data/locations.json"
 import Select from "react-select";
 import { VERIFY_GSTIN } from '../../api/index';
 import { authFetch } from "@/lib/http";
+import { scrollToFirstError } from "../../helpers/scrollToError";
+import { BILLING_TYPES, INDUSTRIES } from "../../data/customerOptions";
 // small section heading and required / optional label markers shared by the fields below
 const SectionTitle = ({ children }) => (
     <>
@@ -211,6 +213,8 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
         const { name, value, type, checked, files } = e.target;
         let error = {}
         if (serverErrors?.[name]) clearServerError?.(name)
+        // typing in a field clears its own error
+        setErrors((prev) => (prev && prev[name] ? { ...prev, [name]: undefined } : prev))
         if (name === "gst_no") {
             // Reset verification whenever user edits GST
             setGstVerified(false);
@@ -273,6 +277,11 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
             errors.email = 'Email is required';
         } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(formData.email.trim())) {
             errors.email = 'Email is invalid';
+        } else {
+            // a mistyped well-known domain (gamil.com, gmial.com ...) is almost always a typo
+            const typo = { 'gamil.com': 'gmail.com', 'gmial.com': 'gmail.com', 'gmai.com': 'gmail.com', 'gmail.co': 'gmail.com', 'gmail.con': 'gmail.com', 'gmail.in': 'gmail.com', 'yaho.com': 'yahoo.com', 'yahho.com': 'yahoo.com', 'hotmial.com': 'hotmail.com', 'outlok.com': 'outlook.com' }
+            const domain = formData.email.trim().toLowerCase().split('@')[1]
+            if (typo[domain]) errors.email = `Did you mean ${formData.email.trim().split('@')[0]}@${typo[domain]}?`
         }
 
         // if (formData.cust_type === "3") {
@@ -286,6 +295,8 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
             errors.phone = 'Phone number is required';
         } else if (!/^\d{10}$/.test(formData.phone)) {
             errors.phone = 'Phone number must be exactly 10 digits';
+        } else if (!/^[6-9]/.test(formData.phone)) {
+            errors.phone = 'Mobile number must start with 6, 7, 8 or 9';
         }
         // Username validation
         if (!formData.username) {
@@ -302,11 +313,11 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
         }
 
         // Account number validation
-        // if (!formData.accno) {
-        //     errors.accno = 'Account number is required';
-        // } else if (!/^\d{10,20}$/.test(formData.accno.trim())) {
-        //     errors.accno = 'Account number must be 10-20 digits';
-        // }
+        if (!String(formData.accno || '').trim()) {
+            errors.accno = 'Account number is required';
+        } else if (!/^\d{9,20}$/.test(String(formData.accno).trim())) {
+            errors.accno = 'Account number must be 9-20 digits';
+        }
 
         // Customer type validation
         if (!formData.cust_type) {
@@ -352,6 +363,7 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
             return true;
         }
         setErrors(errors);
+        scrollToFirstError();
         return false;
     };
     if (validateRef) validateRef.current = validate;
@@ -445,8 +457,15 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
                     <Col md={4}>
                         <FormGroup>
                             <Label>Phone{REQ}</Label>
-                            <Input type="text" name="phone" value={formData.phone} onChange={handleChange} invalid={!!errors?.phone} />
+                            <Input type="text" name="phone" inputMode="numeric" maxLength={10} value={formData.phone} onChange={(e) => handleChange({ target: { ...e.target, name: 'phone', value: e.target.value.replace(/\D/g, '').slice(0, 10) } })} invalid={!!errors?.phone} />
                             <FormFeedback>{errors?.phone}</FormFeedback>
+                        </FormGroup>
+                    </Col>
+                    <Col md={4}>
+                        <FormGroup>
+                            <Label>Account number{REQ}</Label>
+                            <Input type="text" name="accno" inputMode="numeric" maxLength={20} value={formData.accno || ''} onChange={(e) => handleChange({ target: { ...e.target, name: 'accno', value: e.target.value.replace(/\D/g, '').slice(0, 20) } })} invalid={!!(errors?.accno || serverErrors?.accno)} />
+                            <FormFeedback>{errors?.accno || serverErrors?.accno}</FormFeedback>
                         </FormGroup>
                     </Col>
                     <Col md={4}>
@@ -492,7 +511,10 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
                     <Col md={4}>
                         <FormGroup>
                             <Label>Type of Industry{REQ}</Label>
-                            <Input type="text" name="industry" value={formData?.industry} placeholder="Enter Type of Industry" onChange={handleChange} invalid={!!errors?.industry} />
+                            <Input type="select" name="industry" value={formData?.industry || ''} onChange={handleChange} invalid={!!errors?.industry}>
+                                <option value="">Select type of industry</option>
+                                {INDUSTRIES.map((t) => <option key={t} value={t}>{t}</option>)}
+                            </Input>
                             <FormFeedback>{errors?.industry}</FormFeedback>
                         </FormGroup>
                     </Col>
@@ -569,7 +591,10 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
                     <Col md={4}>
                         <FormGroup>
                             <Label>Billing Type{REQ}</Label>
-                            <Input type="text" name="billing_type" value={formData.billing_type} invalid={!!errors?.billing_type} onChange={handleChange} />
+                            <Input type="select" name="billing_type" value={formData.billing_type || ''} invalid={!!errors?.billing_type} onChange={handleChange}>
+                                <option value="">Select billing type</option>
+                                {BILLING_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                            </Input>
                             <FormFeedback>{errors?.billing_type}</FormFeedback>
                         </FormGroup>
                     </Col>

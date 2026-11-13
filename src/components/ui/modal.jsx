@@ -194,6 +194,7 @@ export const Offcanvas = forwardRef(function Offcanvas(
           "bg-[color-mix(in_srgb,var(--color-surface)_85%,transparent)] backdrop-blur-xl",
           "shadow-[0_30px_80px_-30px_var(--shadow-elevated-strong)]",
           OFFCANVAS_POS[direction],
+          `offcanvas-slide-${direction}`,
           className
         )}
         {...rest}

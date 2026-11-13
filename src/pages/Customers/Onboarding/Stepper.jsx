@@ -1,5 +1,6 @@
 // Horizontal stepper for the onboarding wizard: one node per step, a status icon in each, a line through them
 // that turns green up to the last finished step. Scrolls sideways on narrow screens.
+import { useEffect, useRef } from "react"
 import PropTypes from "prop-types"
 import { STATUS_LABEL, STEP_COLOR } from "./helpers"
 
@@ -31,6 +32,12 @@ Node.propTypes = { status: PropTypes.string, n: PropTypes.number, size: PropType
 
 const Stepper = ({ items, active, statusOf, onSelect, locked = false }) => {
     const count = items.length
+    const activeBtn = useRef(null)
+
+    // narrow screens scroll sideways: keep the open step in view (centred), without moving the page up or down
+    useEffect(() => {
+        activeBtn.current?.scrollIntoView?.({ inline: "center", block: "nearest", behavior: "smooth" })
+    }, [active])
     // the green part of the line runs to the end of the unbroken run of finished steps
     let lastDone = -1
     for (let i = 0; i < count; i += 1) {
@@ -41,8 +48,8 @@ const Stepper = ({ items, active, statusOf, onSelect, locked = false }) => {
     const doneWidth = lastDone <= 0 ? 0 : (lastDone / (count - 1)) * span
 
     return (
-        <div className="overflow-x-auto">
-            <ol className="relative m-0 grid list-none p-0" style={{ gridTemplateColumns: `repeat(${count}, minmax(78px, 1fr))` }}>
+        <div className="-mt-1.5 overflow-x-auto pt-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <ol className="relative m-0 grid list-none p-0" style={{ gridTemplateColumns: `repeat(${count}, minmax(66px, 1fr))`, minWidth: count * 66 }}>
                 <li aria-hidden="true" className="pointer-events-none absolute top-[15px] h-[3px] bg-[rgb(var(--overlay-rgb)/0.12)]" style={{ left: `${50 / count}%`, right: `${50 / count}%` }} />
                 <li aria-hidden="true" className="pointer-events-none absolute top-[15px] h-[3px]" style={{ left: `${50 / count}%`, width: `${doneWidth}%`, backgroundColor: STEP_COLOR.done }} />
                 {items.map((item, i) => {
@@ -52,6 +59,7 @@ const Stepper = ({ items, active, statusOf, onSelect, locked = false }) => {
                         <li key={item.key} className="relative flex justify-center">
                             <button
                                 type="button"
+                                ref={isActive ? activeBtn : undefined}
                                 onClick={() => onSelect(item.key)}
                                 aria-current={isActive ? "step" : undefined}
                                 title={`${item.title}${status ? ` - ${STATUS_LABEL[status] || status}` : ""}`}

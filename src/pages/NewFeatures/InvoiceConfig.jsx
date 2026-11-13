@@ -30,7 +30,7 @@ const toList = (d) => {
 }
 
 // hideHeader: embedded in the onboarding wizard, so no page padding of its own
-const InvoiceConfig = ({ externalCustomer, onCustomerChange, customerOptions, hideHeader = false }) => {
+const InvoiceConfig = ({ externalCustomer, onCustomerChange, customerOptions, hideHeader = false, onChanged = null }) => {
     const { SuccessToaster, ErrorToaster } = ToasterProvider()
     const customerId = externalCustomer?.id
 
@@ -136,6 +136,7 @@ const InvoiceConfig = ({ externalCustomer, onCustomerChange, customerOptions, hi
             const { ok, data } = await rawRequest(BILLING_INVOICE_CONFIG, { method: "POST", body })
             if (!ok) { ErrorToaster(errText(data, "Failed to save invoice config")); return }
             SuccessToaster("Invoice config saved")
+            onChanged?.("Invoice config saved")
             setIsSaved(true)
             await loadOne(customerId)
             loadList(customerId)
@@ -152,6 +153,7 @@ const InvoiceConfig = ({ externalCustomer, onCustomerChange, customerOptions, hi
             const { ok, data } = await rawRequest(`${BILLING_INVOICE_CONFIG}?customer_id=${id}`, { method: "DELETE", parseMode: "contentType" })
             if (!ok) { ErrorToaster(errText(data, "Failed to delete invoice config")); return }
             SuccessToaster("Invoice config deleted")
+            onChanged?.("Invoice config removed")
             if (id === customerId) loadOne(id)
             loadList(customerId)
         } catch (e) {
@@ -177,6 +179,7 @@ const InvoiceConfig = ({ externalCustomer, onCustomerChange, customerOptions, hi
             })
             if (!ok) { setMode(prev); ErrorToaster(errText(data, "Failed to change invoice mode")); return }
             SuccessToaster(`Invoice mode changed to ${modeLabel(next)}`)
+            onChanged?.("Invoice mode changed")
             await loadOne(customerId)
             loadList(customerId)
         } catch (e) {

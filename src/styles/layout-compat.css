@@ -88,45 +88,12 @@ body.vertical-collpsed .vertical-menu .metismenu li>a {
   margin: 0.25rem auto;
 }
 
-/*
- * Hover-to-reveal.
- *
- * A per-item flyout tooltip is not possible here: the menu lives inside the
- * [data-simplebar] scroll box, which needs overflow-y:auto, and CSS forces the
- * other axis to auto too -- so anything positioned outside the rail gets
- * clipped. Widening the rail itself sidesteps that entirely.
- *
- * Only `width` is overridden, never --sidebar-width, so .main-content keeps its
- * collapsed margin and the page underneath never reflows. The rail simply
- * floats over it, which is also why the shadow deepens while open.
- */
-body.vertical-collpsed .vertical-menu:hover {
-  width: var(--sidebar-width-expanded);
-  box-shadow: 0 30px 70px -20px var(--shadow-elevated-strong),
-    0 0 60px -24px rgb(59 130 246 / 0.75);
-}
-
-body.vertical-collpsed .vertical-menu:hover .metismenu li>a {
-  justify-content: flex-start;
-  width: auto;
-  height: auto;
-  padding: 0.4375rem 0.75rem;
-  margin: 0.125rem 0.625rem;
-}
-
-/* Nothing to restore here any more: the label and the caret are always in flow
-   now and collapse by width/opacity below, so hovering simply stops applying
-   the collapsed state and both animate back. */
-
-body.vertical-collpsed .vertical-menu:hover .metismenu .sub-menu.mm-show,
-body.vertical-collpsed .vertical-menu:hover .metismenu li.mm-active>.sub-menu {
-  display: block;
-}
+/* The collapsed rail stays collapsed until the toggle button is clicked: no hover-to-reveal. */
 
 /* While collapsed and untouched, sub-menus are hidden -- so an active child
    would leave no trace at all. Tinting the parent keeps the current section
    visible even when the page it belongs to is out of sight. */
-body.vertical-collpsed .vertical-menu:not(:hover) .metismenu li.mm-active>a {
+body.vertical-collpsed .vertical-menu .metismenu li.mm-active>a {
   background: rgb(59 130 246 / 0.18);
   color: var(--color-ink);
 }
@@ -153,11 +120,11 @@ body.vertical-collpsed .vertical-menu:not(:hover) .metismenu li.mm-active>a {
  * sits half a gap left of the pill's centre. Collapsing the gap with it puts
  * the icon back on the axis.
  */
-body.vertical-collpsed .vertical-menu:not(:hover) .metismenu li>a {
+body.vertical-collpsed .vertical-menu .metismenu li>a {
   gap: 0;
 }
 
-body.vertical-collpsed .vertical-menu:not(:hover) .metismenu li>a>span {
+body.vertical-collpsed .vertical-menu .metismenu li>a>span {
   max-width: 0;
   opacity: 0;
   /* Only while collapsed: expanded, labels are allowed to wrap. Mid-collapse a
@@ -166,7 +133,7 @@ body.vertical-collpsed .vertical-menu:not(:hover) .metismenu li>a>span {
   white-space: nowrap;
 }
 
-body.vertical-collpsed .vertical-menu:not(:hover) .metismenu .has-arrow::after {
+body.vertical-collpsed .vertical-menu .metismenu .has-arrow::after {
   opacity: 0;
 }
 
@@ -673,17 +640,17 @@ body.vertical-collpsed .vertical-menu .metismenu li>a>i {
  * problem. Both logos are in the DOM in every state now; this just swaps
  * which one is visible.
  */
-body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-header {
+body.vertical-collpsed .vertical-menu .sidebar-header {
   height: 3.5rem;
   justify-content: center;
   margin-inline: 0;
 }
 
-body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-brand-full {
+body.vertical-collpsed .vertical-menu .sidebar-brand-full {
   display: none;
 }
 
-body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-brand-collapsed {
+body.vertical-collpsed .vertical-menu .sidebar-brand-collapsed {
   display: block;
 }
 
@@ -1029,7 +996,7 @@ body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-brand-collapsed {
    justify-content as well as align-items: in a column the two swap axes, so
    align-items alone centres them across the rail but leaves the stack itself
    sitting at the top of whatever height the row has. */
-body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-foot {
+body.vertical-collpsed .vertical-menu .sidebar-foot {
   flex-direction: column;
   justify-content: center;
   padding: 0.5rem 0;
@@ -1046,13 +1013,13 @@ body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-foot {
 
 /* Label beside the avatar. Present in the DOM in every state; this is what
    hides it on the collapsed rail, and hovering brings it back with the logo. */
-body.vertical-collpsed .vertical-menu:not(:hover) .user-info {
+body.vertical-collpsed .vertical-menu .user-info {
   display: none;
 }
 
 /* Collapsed there is no room for avatar and logout side by side, so they
    stack -- as does the collapse arrow below them, from .sidebar-foot. */
-body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-footer {
+body.vertical-collpsed .vertical-menu .sidebar-footer {
   flex-direction: column;
   justify-content: center;
   gap: 0.375rem;
@@ -1075,7 +1042,7 @@ body.vertical-collpsed .vertical-menu:not(:hover) .sidebar-footer {
   justify-content: flex-start;
 }
 
-body.vertical-collpsed .vertical-menu:not(:hover) .user-badge {
+body.vertical-collpsed .vertical-menu .user-badge {
   justify-content: center;
   flex: 0 0 auto;
   padding: 0.25rem;

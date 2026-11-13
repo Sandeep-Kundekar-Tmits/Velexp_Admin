@@ -3,9 +3,13 @@ import TabProvider from "../../components/Table/TabProvider"
 import AddFranchiseeForm from "../../components/UserManagement/AddFranchiseeForm"
 import AddUserForm from "../../components/UserManagement/AddUserForm"
 import CustomerDocumentsForm, { newRow } from "../../components/UserManagement/CustomerDocumentsForm"
+import { scrollToFirstError } from "../../helpers/scrollToError"
 import MultipleAddressForm from "../../components/UserManagement/MultipleAddressForm"
+import MisConfigFields, { EMPTY_MIS, validateMis } from "../../components/UserManagement/MisConfigFields"
+import CustomerServicePicker from "../../components/Common/CustomerServicePicker"
+import BillingAddressFields, { EMPTY_BILLING, billingBody, validateBilling } from "../../components/UserManagement/BillingAddressFields"
 import usePostFileApicall from "../../hooks/usePostFileApicall"
-import { Alert, Button, Modal, ModalBody, ModalFooter, ModalHeader } from "@/components/ui"
+import { Alert, Button, Col, FormGroup, Label, Modal, ModalBody, ModalFooter, ModalHeader, Row } from "@/components/ui"
 import { POST_USER_API, CUSTOMER_DOCUMENTS_UPLOAD } from "../../api"
 import Loader from "@/Loaders/Loader";
 import { useNavigate } from "react-router-dom"
@@ -13,7 +17,7 @@ import usePostApiCall from "../../hooks/usePostApiCall"
 import ToasterProvider from "../../helpers/ToasterProvider"
 
 
-const CODE_FIELDS = ['sales_head_emp_code', 'lead_generated_by_emp_code']
+const CODE_FIELDS = ['sales_head_emp_code', 'lead_generated_by_emp_code', 'accno']
 
 // onCreated(id, name): used by the onboarding wizard, which hosts this form as its first step
 const AddUser = ({ onCreated } = {}) => {
@@ -23,6 +27,13 @@ const AddUser = ({ onCreated } = {}) => {
     const { ErrorToaster, SucceesToaster } = ToasterProvider()
     const [Errors, setErrors] = useState({})
     const [showError, setShowError] = useState(false)
+    // Corporate customers also need a billing address (sent as billing_addresses)
+    const [billing, setBilling] = useState(EMPTY_BILLING)
+    const [billingErrors, setBillingErrors] = useState({})
+    // Corporate also needs a customer service user and the daily MIS settings
+    const [customerService, setCustomerService] = useState('')
+    const [mis, setMis] = useState(EMPTY_MIS)
+    const [misErrors, setMisErrors] = useState({})
     const [fieldErrors, setFieldErrors] = useState({}) // server messages for the employee-code inputs
     const { apifunc: addNewUserWithFile, data: FormUserData, error: FormDataError, loading: FormDataLoading } = usePostFileApicall()
     // const { apifunc: addNewJsonUser, data: JsonUserData, error: JsonDataError, loading: JsonDataLoading } = usePostApiCall()
@@ -40,7 +51,7 @@ const AddUser = ({ onCreated } = {}) => {
         phone: '',
         username: '',
         password: '', // Always keep blank for security
-        // accno: '',
+        accno: '',
         // otp: '',
         cust_type: '',
         customer_name: '',
@@ -129,6 +140,11 @@ const AddUser = ({ onCreated } = {}) => {
     const formRest = () => {
         setDocuments([newRow()])
         setDocumentRemarks("")
+        setBilling(EMPTY_BILLING)
+        setBillingErrors({})
+        setCustomerService('')
+        setMis(EMPTY_MIS)
+        setMisErrors({})
         setFormData({
             first_name: '',
             last_name: '',
@@ -136,7 +152,7 @@ const AddUser = ({ onCreated } = {}) => {
             phone: '',
             username: '',
             password: '', // Always keep blank for security
-            // accno: '',
+            accno: '',
             // otp: '',
             cust_type: '',
             customer_name: '',
@@ -242,7 +258,7 @@ const AddUser = ({ onCreated } = {}) => {
         formDataToSend.append('password', data.password);
         // formDataToSend.append('otp', data.otp);
         // Corporate accounts get their account number (VELO + timestamp) and secret code from the backend; don't send one
-        if (data.cust_type !== "2") formDataToSend.append('accno', "123456789");
+        formDataToSend.append('accno', String(data.accno || '').trim());
         formDataToSend.append('phone', data.phone);
         formDataToSend.append('cust_type', data.cust_type);
         formDataToSend.append('customer_name', data.customer_name);
@@ -282,6 +298,11 @@ const AddUser = ({ onCreated } = {}) => {
         // Append nested JSON as strings
         if (data?.addresses) {
             formDataToSend.append('addresses', JSON.stringify(data.addresses));
+        }
+        if (data?.customer_service_user) formDataToSend.append('customer_service_user', String(data.customer_service_user))
+        if (data?.mis_config) formDataToSend.append('mis_config', JSON.stringify(data.mis_config))
+        if (data?.billing_addresses) {
+            formDataToSend.append('billing_addresses', JSON.stringify(data.billing_addresses))
         }
         if (data?.franchise_profile) {
             formDataToSend.append('franchise_profile', JSON.stringify(data.franchise_profile));
@@ -330,6 +351,19 @@ const AddUser = ({ onCreated } = {}) => {
         const own = {}
         const rest = {}
         Object.entries(all).forEach(([k, v]) => {
+            if (k === 'customer_service_user') {
+                own.customer_service_user = Array.isArray(v) ? v.join(' ') : String(v)
+                return
+            }
+            if (k === 'mis_config') {
+                setMisErrors(v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([f, m]) => [f, Array.isArray(m) ? m.join(' ') : String(m)])) : { emails: String(v) })
+                return
+            }
+            if (k === 'billing_addresses') {
+                const first = Array.isArray(v) ? (v.find((x) => x && typeof x === 'object' && Object.keys(x).length) || {}) : { _: String(v) }
+                setBillingErrors(Object.fromEntries(Object.entries(first).map(([f, m]) => [f, Array.isArray(m) ? m.join(' ') : String(m)])))
+                return
+            }
             if (CODE_FIELDS.includes(k)) own[k] = Array.isArray(v) ? v.join(' ') : String(v)
             else rest[k] = v
         })
@@ -337,6 +371,7 @@ const AddUser = ({ onCreated } = {}) => {
         if (Object.keys(own).length) setActiveTab(1)
         setErrors(rest)
         setShowError(Object.keys(rest).length > 0)
+        scrollToFirstError()
         ErrorToaster(Object.keys(own).length && !Object.keys(rest).length
             ? "Fix the employee codes and submit again"
             : "User Failed To Add Check All Credentials")
@@ -345,7 +380,7 @@ const AddUser = ({ onCreated } = {}) => {
     //  api call
     const SumitAddUserForm = async () => {
         if (formData.cust_type !== "3") {
-            const data = { ...formData, addresses: addresses }
+            const data = { ...formData, addresses: addresses, ...(formData.cust_type === "2" ? { billing_addresses: [{ ...billingBody(billing), is_default: true }], customer_service_user: customerService, mis_config: { emails: mis.emails, schedule_time: mis.schedule_time } } : {}) }
             let formatedData = PostData(data)
 
             if (formatedData.isFormData) {
@@ -456,7 +491,18 @@ const AddUser = ({ onCreated } = {}) => {
     const validateAll = () => {
         const userOk = userValidate.current ? userValidate.current() : true
         const addressOk = addressValidate.current ? addressValidate.current() : true
-        return userOk && addressOk
+        let billingOk = true
+        if (formData.cust_type === "2") {
+            const e = validateBilling(billing)
+            setBillingErrors(e)
+            const m = validateMis(mis)
+            setMisErrors(m)
+            if (!customerService) setFieldErrors((prev) => ({ ...prev, customer_service_user: 'Customer service user is required.' }))
+            billingOk = Object.keys(e).length === 0 && Object.keys(m).length === 0 && !!customerService
+        }
+        const all = userOk && addressOk && billingOk
+        if (!all) scrollToFirstError()
+        return all
     }
     const submitSinglePage = () => { if (validateAll()) SumitAddUserForm() }
 
@@ -479,6 +525,37 @@ const AddUser = ({ onCreated } = {}) => {
                 addresses={addresses}
                 setAddresses={setAddresses}
                 cust_type={formData.cust_type} />
+            {formData.cust_type === "2" && (
+                <div>
+                    <div role="separator" className="my-3 h-px w-full bg-[rgb(var(--overlay-rgb)/0.15)]" />
+                    <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                        <div className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Billing address</div>
+                        <Button size="sm" color="secondary" onClick={() => setBilling((b) => ({ ...b, address: addresses.address || "", city: addresses.city || "", state: addresses.state || "", pincode: addresses.pincode || "", gst_no: formData.gst_no || b.gst_no, legal_name: formData.customer_name || b.legal_name }))}>Same as account address</Button>
+                    </div>
+                    {billingErrors._ && <p className="text-sm text-danger-500">{billingErrors._}</p>}
+                    <BillingAddressFields value={billing} onChange={(p) => { setBilling((b) => ({ ...b, ...p })); setBillingErrors({}) }} errors={billingErrors} />
+
+                    <div role="separator" className="my-3 h-px w-full bg-[rgb(var(--overlay-rgb)/0.15)]" />
+                    <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-muted">Customer service</div>
+                    <Row>
+                        <Col md={6}>
+                            <FormGroup>
+                                <Label>Customer service user<span className="text-danger-500"> *</span></Label>
+                                <CustomerServicePicker
+                                    value={customerService}
+                                    invalid={!!fieldErrors.customer_service_user}
+                                    onChange={(id) => { setCustomerService(id); setFieldErrors((prev) => ({ ...prev, customer_service_user: undefined })) }}
+                                />
+                                {fieldErrors.customer_service_user && <div className="mt-1 text-xs text-danger-500">{fieldErrors.customer_service_user}</div>}
+                            </FormGroup>
+                        </Col>
+                    </Row>
+
+                    <div role="separator" className="my-3 h-px w-full bg-[rgb(var(--overlay-rgb)/0.15)]" />
+                    <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-muted">Daily MIS</div>
+                    <MisConfigFields value={mis} onChange={(p) => { setMis((m) => ({ ...m, ...p })); setMisErrors({}) }} errors={misErrors} />
+                </div>
+            )}
             {isFranchise ? (
                 <AddFranchiseeForm
                     hidePrev

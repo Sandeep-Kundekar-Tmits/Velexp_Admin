@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Button, Card, CardBody, CardHeader, Col, FormGroup, Input, Label, Row, FormFeedback } from "@/components/ui"
+import { Col, FormGroup, Input, Label, Row, FormFeedback } from "@/components/ui"
 import { Country, State, City } from "country-state-city";
 import Select from "react-select";
 import { customStyles } from "../../../helpers/CustomStyle";
@@ -53,20 +53,19 @@ const EditAddress = ({ formData, onInputChange ,onSelectChange }) => {
     };
 
     return (
-        <Card className="mb-6">
-            <CardHeader className="flex justify-between">
-                <p>Edit Address</p>
-                {/* <Button color="primary">Update Address</Button> */}
-            </CardHeader>
-            <CardBody>
+        <div className="mb-1">
+            <div role="separator" className="my-2 h-px w-full bg-[rgb(var(--overlay-rgb)/0.15)]" />
+            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-muted">Address details</div>
+            <div>
 
 
                 <Row>
-                    <Col md={12}>
+                    <Col md={6}>
                         <FormGroup>
                             <Label>Address</Label>
                             <Input
                                 type="textarea"
+                                rows={2}
                                 name="address"
                                 value={formData?.address}
                                 onChange={handleAddressInputChange}
@@ -76,7 +75,7 @@ const EditAddress = ({ formData, onInputChange ,onSelectChange }) => {
                         </FormGroup>
                     </Col>
 
-                    <Col md={6}>
+                    <Col md={3}>
                         <FormGroup>
                             <Label>Country</Label>
                             <Input
@@ -101,7 +100,7 @@ const EditAddress = ({ formData, onInputChange ,onSelectChange }) => {
 
                     </Col>
 
-                    <Col md={6}>
+                    <Col md={3}>
                         <FormGroup>
                             <Label>State</Label>
                             <Select
@@ -121,7 +120,7 @@ const EditAddress = ({ formData, onInputChange ,onSelectChange }) => {
                         </FormGroup>
                     </Col>
 
-                    <Col md={6}>
+                    <Col md={3}>
                         <FormGroup>
 
 
@@ -150,7 +149,7 @@ const EditAddress = ({ formData, onInputChange ,onSelectChange }) => {
                         </FormGroup>
                     </Col>
 
-                    <Col md={6}>
+                    <Col md={3}>
                         <FormGroup>
                             <Label>Pincode</Label>
                             <Input
@@ -164,7 +163,7 @@ const EditAddress = ({ formData, onInputChange ,onSelectChange }) => {
                         </FormGroup>
                     </Col>
 
-                    <Col md={12}>
+                    <Col md={6}>
                         <FormGroup>
                             <Label>Landmark (optional)</Label>
                             <Input
@@ -178,8 +177,8 @@ const EditAddress = ({ formData, onInputChange ,onSelectChange }) => {
                         </FormGroup>
                     </Col>
                 </Row>
-            </CardBody>
-        </Card>
+            </div>
+        </div>
     )
 }
 

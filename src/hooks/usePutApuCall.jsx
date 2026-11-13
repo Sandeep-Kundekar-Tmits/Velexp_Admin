@@ -34,7 +34,8 @@ export const usePutApiCall = (successMessage, toggle = null) => {
         toggle();
       }
       setData(result);
-      return result;
+      // an OK answer with an empty body still means "saved": callers test the return value for success
+      return result ?? true;
     } catch (err) {
       console.log(err, "SeletedTitles");
       return null;

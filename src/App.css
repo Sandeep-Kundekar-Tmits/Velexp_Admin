@@ -56,3 +56,17 @@ button {
 /* thead tr th:empty {
   display: none !important;
 } */
+
+
+/* Offcanvas panels slide in from their edge */
+@keyframes offcanvas-slide-end { from { transform: translateX(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes offcanvas-slide-start { from { transform: translateX(-40px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes offcanvas-slide-top { from { transform: translateY(-40px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes offcanvas-slide-bottom { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+.offcanvas-slide-end { animation: offcanvas-slide-end 0.22s ease-out; }
+.offcanvas-slide-start { animation: offcanvas-slide-start 0.22s ease-out; }
+.offcanvas-slide-top { animation: offcanvas-slide-top 0.22s ease-out; }
+.offcanvas-slide-bottom { animation: offcanvas-slide-bottom 0.22s ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .offcanvas-slide-end, .offcanvas-slide-start, .offcanvas-slide-top, .offcanvas-slide-bottom { animation: none; }
+}

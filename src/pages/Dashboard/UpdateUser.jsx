@@ -26,7 +26,7 @@ import { ArrowLeft } from 'lucide-react';
 // embedded hides the page header, onSaved replaces the redirect to the customer page.
 // highlight {fields, color}: field names (input name attributes) to ring, for checks that point at them.
 // showPostpaid: adds a "Postpaid payment" checkbox (the onboarding Payment mode step) that is sent as postpaid_payment.
-const UpdateUser = ({ customerId, embedded = false, onSaved, highlight, showPostpaid = false } = {}) => {
+const UpdateUser = ({ customerId, embedded = false, onSaved, highlight, showPostpaid = false, extra = null } = {}) => {
     const wrapRef = useRef(null);
     useEffect(() => {
         if (!embedded) document.title = "Edit User";
@@ -38,7 +38,7 @@ const UpdateUser = ({ customerId, embedded = false, onSaved, highlight, showPost
     const [modal, setModal] = useState(false);
     const [isUpdated, setIsUpdated] = useState(false);
     const toggle = () => setModal(!modal);
-    const { apifunc: updateUserFunc, loading: updateUserLoading, error: updateErrors } = usePutApiCall(userUpdateSuccessMessage, toggle);
+    const { apifunc: updateUserFunc, loading: updateUserLoading, error: updateErrors } = usePutApiCall(userUpdateSuccessMessage);
     const params = useParams();
     const id = customerId ?? params.id;
 
@@ -100,7 +100,7 @@ const UpdateUser = ({ customerId, embedded = false, onSaved, highlight, showPost
         // Append basic user info
         Object.entries(data).forEach(([key, value]) => {
             // the *_name fields are read-only (the backend fills them from the employee master)
-            if (key !== 'sales_head_name' && key !== 'lead_generated_by_name' && key !== 'addresses' && key !== 'franchise_profile' && key !== 'kyc_document' && key !== 'customer_agreement_doc' && key !== 'finance_emails' && !(showPostpaid && key === 'postpaid_payment')) {
+            if (key !== 'sales_head_name' && key !== 'lead_generated_by_name' && key !== 'customer_service_name' && key !== 'addresses' && key !== 'franchise_profile' && key !== 'kyc_document' && key !== 'customer_agreement_doc' && key !== 'finance_emails' && !(showPostpaid && key === 'postpaid_payment')) {
                 formDataToSend.append(key, value || '');
             }
         });
@@ -158,6 +158,7 @@ const UpdateUser = ({ customerId, embedded = false, onSaved, highlight, showPost
             );
 
             if (updatedValue) {
+                setModal(false);
                 setIsUpdated(false);
                 if (onSaved) onSaved(); else navigate(`/user/${id}`);
             }
@@ -296,6 +297,8 @@ const UpdateUser = ({ customerId, embedded = false, onSaved, highlight, showPost
                             }}
                         />
 
+                        {extra}
+
                         {selectedUserData?.cust_type?.type_of_cust === "Franchise" && (
                             <EditFranchisee
                                 formData={updatedData}
@@ -336,12 +339,13 @@ const UpdateUser = ({ customerId, embedded = false, onSaved, highlight, showPost
                 <ModalFooter>
                     {isUpdated && (
                         <Button
-                            className='flex justify-center content-center'
+                            className='flex items-center justify-center gap-2'
                             color="primary"
                             onClick={updateUserInfo}
+                            disabled={updateUserLoading}
                         >
                             {updateUserLoading ? (
-                                <Spinner size="sm">Loading...</Spinner>
+                                <><Spinner size="sm" color="light" /> Saving...</>
                             ) : "Confirm Changes"}
                         </Button>
                     )}
@@ -357,6 +361,7 @@ const UpdateUser = ({ customerId, embedded = false, onSaved, highlight, showPost
 UpdateUser.propTypes = {
     customerId: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     embedded: PropTypes.bool,
+    extra: PropTypes.node,
     onSaved: PropTypes.func,
     showPostpaid: PropTypes.bool,
     highlight: PropTypes.shape({ fields: PropTypes.array, color: PropTypes.string }),

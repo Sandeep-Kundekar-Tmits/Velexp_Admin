@@ -42,6 +42,7 @@ const DebouncedInput = ({
     value: initialValue,
     onChange,
     debounce = 500,
+    compact = false,
     ...props
 }) => {
     const [value, setValue] = useState(initialValue);
@@ -59,7 +60,7 @@ const DebouncedInput = ({
     }, [debounce, onChange, value]);
 
     return (
-        <div className="table-search relative flex items-center w-full " style={{ borderLeft: "1px solid var(--color-line)", paddingLeft: "10px", height: "45px" }}>
+        <div className="table-search relative flex items-center w-full " style={{ borderLeft: "1px solid var(--color-line)", paddingLeft: "10px", height: compact ? "34px" : "45px" }}>
             <FaSearch
                 className="absolute ml-1 text-ink-muted"
                 style={{ zIndex: 1, fontSize: "14px" }}
@@ -69,7 +70,7 @@ const DebouncedInput = ({
                 value={value}
                 onChange={e => setValue(e.target.value)}
                 className={`${props.className} ps-4 pe-4 border-none`}
-                style={{ ...props.style, height: "38px" }}
+                style={{ ...props.style, height: compact ? "28px" : "38px" }}
             />
             {value && (
                 <FaTimes
@@ -123,6 +124,9 @@ const TableContainer = ({
     isStickyFooter = false,
     stickyTop = 0,
     rightExtraFiled = null,
+    compact = false, // slimmer toolbar and header row (more room for the rows)
+    searchClassName = "w-full", // width of the search box (a screen with many toolbar buttons narrows it)
+    footerNote = null, // shown under "Showing x to y of z Results"
     autoResetPageIndex = true,
     /**
      * Number of lines a cell may use before it is cut off with an ellipsis.
@@ -304,7 +308,7 @@ const TableContainer = ({
             )}
 
             <div className="rounded-1 mt-0">
-                <div className="table-toolbar flex flex-wrap mb-0 items-center  p-0 justify-between" style={{ height: "45px" }} >
+                <div className="table-toolbar flex flex-wrap mb-0 items-center  p-0 justify-between" style={{ height: compact ? "36px" : "45px" }} >
                     {/* Left section (page size + whatever the screen adds).
                         Was w-3/4 back when the export buttons lived here; it
                         now takes only what it needs so the search field can use
@@ -350,7 +354,7 @@ const TableContainer = ({
                             ShowClearBtn && <Button onClick={OnClearClick} className="bg-danger-500 border-0 mb-0 mr-2" style={{ height: "34px", width: "100px" }}>Clear</Button>
                         }
                         {rightExtraFiled && (
-                            <div className="mr-1" style={{ borderRight: "1px solid var(--color-line)", paddingRight: "8px", height: "45px", display: "flex", alignItems: "center" }}>
+                            <div className="mr-1" style={{ borderRight: "1px solid var(--color-line)", paddingRight: "8px", height: compact ? "34px" : "45px", display: "flex", alignItems: "center" }}>
                                 {rightExtraFiled}
                             </div>
                         )}
@@ -358,10 +362,11 @@ const TableContainer = ({
                             <input> has a default intrinsic width of ~20
                             characters, so without this the search box refuses
                             to shrink and widens the toolbar instead. */}
-                        <div className="mb-0 w-full min-w-0" >
+                        <div className={`mb-0 min-w-0 ${searchClassName}`}>
                             {isGlobalFilter && (
                                 <DebouncedInput
                                     value={globalFilter ?? ""}
+                                    compact={compact}
                                     onChange={value => setGlobalFilter(String(value))}
                                     className="form-control border-0"
                                     placeholder={SearchPlaceholder}
@@ -413,6 +418,7 @@ const TableContainer = ({
                                                     verticalAlign: 'middle',
                                                     textAlign: headerAlign,
                                                     backgroundColor: 'var(--color-surface)',
+                                                    ...(compact ? { padding: '4px 10px', fontSize: '12.5px', lineHeight: 1.25 } : {}),
                                                     cursor: header.column.getCanSort() ? "pointer" : "default",
                                                     // Under table-layout:fixed the header row is what
                                                     // sets the column widths, so this is where the
@@ -549,8 +555,9 @@ const TableContainer = ({
             {
                 isPagination && (
                     <Row className="table-pagination mx-2" style={{ marginTop: "0px" }}>
-                        <Col sm={12} md={5} style={{ alignItems: "center", display: "flex", marginLeft: "0px" }}>
+                        <Col sm={12} md={5} style={{ alignItems: "flex-start", display: "flex", flexDirection: "column", justifyContent: "center", marginLeft: "0px" }}>
                             <div className="dataTables_info">Showing {getState().pagination.pageIndex * getState().pagination.pageSize + 1} to {Math.min((getState().pagination.pageIndex + 1) * getState().pagination.pageSize, data.length)} of {data.length} Results</div>
+                            {footerNote}
                         </Col>
                         <Col sm={12} md={7}>
                             <div className={paginationWrapper}>

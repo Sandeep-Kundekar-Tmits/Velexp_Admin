@@ -20,6 +20,7 @@ import InvoiceConfig from "../../NewFeatures/InvoiceConfig"
 import { errText } from "../../NewFeatures/invoiceConfigHelpers"
 import { ONBOARDING_CHECKLIST } from "../../../api"
 import CheckList from "./CheckList"
+import AccountExtras from "./AccountExtras"
 import DefaultsPicker from "./DefaultsPicker"
 import ReviewStep from "./ReviewStep"
 import CompleteStep from "./CompleteStep"
@@ -27,7 +28,7 @@ import { EmailHistory, Logins, ResendCredentials } from "./ManagePanels"
 import Stepper, { Node as StepIcon } from "./Stepper"
 import StatusBar, { LoaderEdge } from "./StatusBar"
 import { ChevronLeft, ChevronRight, Info, RefreshCw } from "lucide-react"
-import { MANAGE_RAIL, RAIL, STATUS_LABEL, STEP_COLOR, callApi, highlightOf, railKeyOf } from "./helpers"
+import { MANAGE_RAIL, RAIL, STATUS_LABEL, STEP_COLOR, callApi, highlightOf, railKeyOf, stepFrom } from "./helpers"
 
 // checklist step key -> the key used in checklist.defaults_applied
 const DEFAULT_COMPONENT = { pincodes: "pincodes", rates: "rates", product_config: "config", vas: "vas" }
@@ -138,6 +139,7 @@ const Wizard = () => {
     const [reset, setReset] = useState(null) // popup: reset to default; { only } (only: one component key, or "" for all)
     const [defaultsOpen, setDefaultsOpen] = useState(false) // popup: copy this step's data from the default setup
     const [creditSignal, setCreditSignal] = useState(0) // bumps to open the wallet's Add Credit popup
+    const [checksHidden, setChecksHidden] = useState(false) // minimise the Checks card: the working panel takes the whole width
     const [payPanel, setPayPanel] = useState(null) // payment step: "edit" | "wallet" shown under the checklist
     const opened = useRef(false)
     const activeRef = useRef("account")
@@ -161,7 +163,7 @@ const Wizard = () => {
     // What the checklist says about the step the user is on, as a notice for the bar under the checks.
     const outcomeOf = (data, label) => {
         const item = RAIL.find((r) => r.key === activeRef.current)
-        const step = (data?.steps || []).find((s) => s.key === item?.check)
+        const step = stepFrom(data, item?.check)
         const prefix = label ? `${label}. ` : ""
         if (!step) return { phase: "success", text: `${prefix}Checklist updated.` }
         const checks = step.checks || []
@@ -205,7 +207,7 @@ const Wizard = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [customerId])
 
-    const stepOf = (checkKey) => (checklist?.steps || []).find((s) => s.key === checkKey)
+    const stepOf = (checkKey) => stepFrom(checklist, checkKey)
     const railStatus = (item) => {
         if (item.check) return stepOf(item.check)?.status
         if (item.key === "source") return Object.keys(checklist?.defaults_applied || {}).length ? "done" : undefined
@@ -222,7 +224,7 @@ const Wizard = () => {
     // Each step answers with { checks, fix } (two cards: what the checks say, and where to fix it)
     // or { full } (one wide card, for steps that are a screen of their own).
     // opens the popup that copies this step's data from the default setup
-    const copyButton = <Button size="sm" color="secondary" onClick={() => setDefaultsOpen(true)} className="flex items-center gap-1 whitespace-nowrap">Copy this from the default setup</Button>
+    const copyButton = <Button size="sm" color="secondary" title="Copy this from the default setup" onClick={() => setDefaultsOpen(true)} className="flex items-center gap-1 whitespace-nowrap">Copy default</Button>
 
     const panel = () => {
         if (isNew) {
@@ -236,7 +238,7 @@ const Wizard = () => {
                 return {
                     checks: <CheckList step={stepOf("account")} hideHead />,
                     // the customer's own edit form, filled in; fields the checks complain about are ringed
-                    fix: <UpdateUser customerId={customerId} embedded highlight={highlightOf(stepOf("account"))} onSaved={() => runChecklist({ label: "Customer updated" })} />,
+                    fix: <UpdateUser customerId={customerId} embedded highlight={highlightOf(stepOf("account"))} onSaved={() => runChecklist({ label: "Customer updated" })} extra={<AccountExtras customerId={customerId} onChanged={(m) => runChecklist({ label: m })} />} />,
                 }
             case "documents":
                 return {
@@ -266,11 +268,11 @@ const Wizard = () => {
                     fix: (
                         <div className="flex min-h-0 flex-1 flex-col gap-1">
                             {comp && active !== "pincodes" && active !== "rates" && active !== "product_config" && active !== "vas" && <div>{copyButton}</div>}
-                            {active === "pincodes" && <CorporatePincodeUpload externalCustomer={customer} {...embedded} extraActions={copyButton} />}
-                            {active === "rates" && <CorporateRateUpload externalCustomer={customer} {...embedded} extraActions={copyButton} />}
-                            {active === "product_config" && <CustomerProductConfig externalCustomerId={customer.id} externalCustomerName={customer.name} {...embedded} extraActions={copyButton} />}
-                            {active === "vas" && <VASConfig externalCustomerId={customer.id} externalCustomerName={customer.name} {...embedded} extraActions={copyButton} />}
-                            {active === "invoice_config" && <InvoiceConfig externalCustomer={customer} customerOptions={[customer]} {...embedded} />}
+                            {active === "pincodes" && <CorporatePincodeUpload externalCustomer={customer} {...embedded} extraActions={copyButton} onChanged={(m) => runChecklist({ label: m })} />}
+                            {active === "rates" && <CorporateRateUpload externalCustomer={customer} {...embedded} extraActions={copyButton} onChanged={(m) => runChecklist({ label: m })} />}
+                            {active === "product_config" && <CustomerProductConfig externalCustomerId={customer.id} externalCustomerName={customer.name} {...embedded} extraActions={copyButton} onChanged={(m) => runChecklist({ label: m })} />}
+                            {active === "vas" && <VASConfig externalCustomerId={customer.id} externalCustomerName={customer.name} {...embedded} extraActions={copyButton} onChanged={(m) => runChecklist({ label: m })} />}
+                            {active === "invoice_config" && <InvoiceConfig externalCustomer={customer} customerOptions={[customer]} {...embedded} onChanged={(m) => runChecklist({ label: m })} />}
                         </div>
                     ),
                 }
@@ -358,8 +360,8 @@ const Wizard = () => {
             <div className="page-fit-body relative z-10 flex flex-col gap-2 overflow-y-auto pb-1 lg:overflow-hidden">
                 <div className="relative shrink-0 overflow-hidden rounded-md border border-white/8 bg-surface px-3 pb-3 pt-4">
                     <Stepper items={RAIL} active={active} statusOf={railStatus} onSelect={setActive} locked={isNew} />
-                    <div className="mt-1 flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
-                        <div className="flex flex-wrap items-center gap-2">
+                    <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 lg:flex-nowrap">
+                        <div className="flex shrink-0 items-center gap-2 whitespace-nowrap">
                             <h6 className="m-0 text-sm font-bold">{activeIndex >= 0 ? `${activeIndex + 1}. ` : ""}{activeItem.title}</h6>
                             {activeStatus && (
                                 <span className="rounded-full border px-2 py-0.5 text-xs font-semibold" style={{ color: STEP_COLOR[activeStatus], borderColor: STEP_COLOR[activeStatus] }}>
@@ -367,17 +369,18 @@ const Wizard = () => {
                                 </span>
                             )}
                         </div>
+                        {/* after go-live: the manage buttons share the title's line, pushed to the right */}
+                        {live && (
+                            <div className="flex flex-wrap items-center gap-2 border-l border-white/8 pl-4 lg:ml-auto lg:flex-nowrap">
+                                <span className="whitespace-nowrap text-xs font-semibold text-ink-muted">After go-live</span>
+                                {MANAGE_RAIL.filter((r) => r.key !== "reset").map((r) => (
+                                    <Button key={r.key} size="sm" className="whitespace-nowrap" color={active === r.key ? "primary" : "secondary"} onClick={() => (r.key === "reset" ? setReset({ only: "" }) : setActive(r.key))}>{r.short}</Button>
+                                ))}
+                            </div>
+                        )}
                         {/* legend: a "!" icon; hover or focus it to see what each step icon means */}
-                        <LegendTip />
+                        <span className={live ? "" : "lg:ml-auto"}><LegendTip /></span>
                     </div>
-                    {live && (
-                        <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-white/8 pt-2">
-                            <span className="text-xs font-semibold text-ink-muted">After go-live</span>
-                            {MANAGE_RAIL.filter((r) => r.key !== "reset").map((r) => (
-                                <Button key={r.key} size="sm" color={active === r.key ? "primary" : "secondary"} onClick={() => (r.key === "reset" ? setReset({ only: "" }) : setActive(r.key))}>{r.short}</Button>
-                            ))}
-                        </div>
-                    )}
                     {!isNew && <LoaderEdge notice={notice} />}
                 </div>
 
@@ -385,15 +388,29 @@ const Wizard = () => {
                     // Setup source: the card itself must not scroll; the table inside does (fixed header)
                     <section className={`${cardCls} lg:flex-1 ${active === "source" && !isNew ? "lg:flex lg:flex-col lg:overflow-y-hidden !p-0" : ""}`}>{body.full}</section>
                 ) : (
-                    <div className="grid grid-cols-1 gap-3 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] lg:grid-rows-[minmax(0,1fr)]">
+                    <div className={`grid grid-cols-1 gap-3 lg:min-h-0 lg:flex-1 ${checksHidden ? "lg:grid-cols-[2.5rem_minmax(0,1fr)]" : "lg:grid-cols-[minmax(0,0.8fr)_minmax(0,2fr)]"} lg:grid-rows-[minmax(0,1fr)]`}>
+                        {checksHidden ? (
+                            <section className={`${cardCls} flex items-start justify-center !px-0 !py-2`}>
+                                <button type="button" title="Show checks" aria-label="Show checks" onClick={() => setChecksHidden(false)} className="flex flex-col items-center gap-2 border-0 bg-transparent p-1 text-ink-muted hover:text-ink">
+                                    <ChevronRight size={16} aria-hidden="true" />
+                                    <span className="text-xs font-semibold [writing-mode:vertical-rl]">Checks</span>
+                                </button>
+                            </section>
+                        ) : (
                         <section className={cardCls}>
                             <div className="mb-2 flex items-center justify-between gap-2">
                                 <h6 className="m-0 text-sm font-bold">Checks</h6>
-                                {body.checksAction}
+                                <div className="flex items-center gap-2">
+                                    {body.checksAction}
+                                    <button type="button" title="Hide checks" aria-label="Hide checks" onClick={() => setChecksHidden(true)} className="inline-flex h-6 w-6 items-center justify-center rounded border-0 bg-transparent p-0 text-ink-muted hover:text-ink">
+                                        <ChevronLeft size={16} aria-hidden="true" />
+                                    </button>
+                                </div>
                             </div>
                             {body.checks}
                             {!isNew && <StatusBar notice={notice} />}
                         </section>
+                        )}
                         {/* Pincodes / Rates / Config / VAS: the card doesn't scroll and has no padding; only the table does */}
                         <section className={`${cardCls} ${DEFAULT_COMPONENT[active] ? "lg:flex lg:flex-col lg:overflow-y-hidden !p-0" : "!pt-2"}`}>
                             {body.fix}

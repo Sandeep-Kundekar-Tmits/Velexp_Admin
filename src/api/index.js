@@ -934,3 +934,6 @@ export const ONBOARDING_RESEND_CREDENTIALS = `${ONBOARDING_BASE}resend-credentia
 export const ONBOARDING_EMAIL_HISTORY = `${ONBOARDING_BASE}email-history/`; // GET ?customer_id=
 export const ONBOARDING_ADD_LOGIN = `${ONBOARDING_BASE}add-login/`; // POST { customer_id, username, password, email?, first_name?, last_name?, phone? }
 export const ONBOARDING_LOGINS = `${ONBOARDING_BASE}logins/`; // GET ?customer_id=
+export const ONBOARDING_PRODUCTS = `${ONBOARDING_BASE}products/`; // GET list; POST { name, reactivate? } creates a product (201), 409 exists (can_reactivate), 400 bad name
+export const ONBOARDING_BILLING_ADDRESSES = `${ONBOARDING_BASE}billing-addresses/`; // GET ?customer_id=&include_inactive=1, POST {customer_id, ...}; PATCH <id>/; POST <id>/deactivate/
+export const CUSTOMER_SERVICE_LOOKUP = `${BASE_URL}/api/admin-panel/customer-service-users/lookup/` // GET ?q=&limit=20 -> {results:[{id,username,name,email}]}

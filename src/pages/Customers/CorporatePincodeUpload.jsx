@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import Select from "react-select";
+import { createPortal } from "react-dom";
 import { Button, Col, Input, Label, Row, Spinner, Card, CardBody, Modal, ModalHeader, ModalBody, ModalFooter } from "@/components/ui";
-import { FaFileExcel, FaUpload, FaDownload, FaPlus, FaTrash, FaEye, FaEdit } from "react-icons/fa";
+import { FaFilter, FaFileExcel, FaUpload, FaDownload, FaPlus, FaTrash, FaEye, FaEdit } from "react-icons/fa";
 import MainHeaderCom from "../../components/MainHeaderCom";
+import AddProductButton from "../../components/Common/AddProductButton";
 import SearchableDropdown from "../../components/Common/SearchableDropdown";
 import { customStyles } from "../../helpers/CustomStyle";
 import { useGetApiCall } from "../../hooks/useGetApiCall";
 import usePostApiCall from "../../hooks/usePostApiCall";
 import useExcelParser from "../../hooks/useExcelParser";
 import { useExcelExport } from "../../hooks/useExcelExport";
+import { flattenRows } from "../../helpers/flattenRows";
 import { usePutApiCall } from "../../hooks/usePutApuCall";
 import { useDeleteApiCall } from "../../hooks/useDeleteApiCall";
 import ToasterProvider from "../../helpers/ToasterProvider";
@@ -35,11 +38,14 @@ const PinField = ({ label, children }) => (
     </div>
 );
 
-// extraActions: extra buttons shown in the table header, before Add Pincode (the onboarding wizard puts "Copy from the default setup" there)
+// onChanged(message): called after pincodes are imported, saved or deleted (the wizard re-runs its checklist)
+// extraActions: extra buttons shown in the table toolbar, before Add (the onboarding wizard puts "Copy from the default setup" there)
 // Inside the onboarding wizard the grid fills the card and only it scrolls, with a pinned header.
 const FILL_TABLE_PROPS = { fillHeight: true, isStickyHeader: true, stickyTop: 0, theadClass: "sticky top-0 z-10", tableHeight: "58vh" }
 
-const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = null, hideHeader = false, extraActions = null }) => {
+const EMPTY_PIN_FILTERS = { pincode: "", city: "", state: "", region: "", legacy_zone: "", zone_tag: "", service_provider: "", products: "" };
+
+const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = null, hideHeader = false, extraActions = null, onChanged = null }) => {
     const { ErrorToaster, SucceesToaster } = ToasterProvider();
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [excelData, setExcelData] = useState([]);
@@ -53,6 +59,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
     const { apifunc: GetPincodes, data: pincodeDataRaw, loading: pincodesLoading } = useGetApiCall();
     const { parseExcel, isLoading: parsingLoading } = useExcelParser();
     const { exportToExcel: downloadTemplate, isExporting: downloadingTemplate } = useExcelExport();
+    const { exportToExcel: exportRows, isExporting: exporting } = useExcelExport();
     const { apifunc: uploadData, loading: uploadingData } = usePostApiCall();
     const [uploadModal, setUploadModal] = useState(false); // Excel upload popup
     const wasUploading = useRef(false);
@@ -125,6 +132,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
         ]
     });
 
+    const [addedProducts, setAddedProducts] = useState([]); // products created with the + button
     const productOptions = useMemo(() => {
         const parseData = (raw) => raw?.results || raw?.result || (Array.isArray(raw) ? raw : []);
         
@@ -139,13 +147,14 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
             );
             if (!exists) merged.push(gp);
         });
+        addedProducts.forEach((ap) => { if (!merged.some((m) => m.id === ap.id)) merged.push(ap); });
 
         return merged.map(p => ({
             id: p.id,
             value: p.id,
             name: p.product_name || p.name || "Unknown Product"
         }));
-    }, [productListRaw, globalProductsRaw]);
+    }, [productListRaw, globalProductsRaw, addedProducts]);
 
     useEffect(() => {
         if (pincodeDataRaw) {
@@ -326,6 +335,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
             if (selectedCustomer?.id) {
                 fetchPincodes(selectedCustomer.id);
             }
+            onChanged?.("Pincodes imported");
             if (fileInputRef.current) fileInputRef.current.value = "";
         } else {
             ErrorToaster(response?.msg || response?.message || "Failed to import data.");
@@ -439,6 +449,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                 ]
             });
             fetchPincodes(selectedCustomer.id);
+            onChanged?.("Pincode saved");
         } else if (!Array.isArray(response) && !response?.error && !response?.msg && !response?.detail) {
             // error bodies (array / error / msg / detail) were already toasted by the API hook
             ErrorToaster(response?.message || "Failed to save pincode.");
@@ -472,6 +483,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                 setIsDeleteModalOpen(false);
                 setPincodeIdToDelete(null);
                 fetchPincodes(selectedCustomer.id);
+                onChanged?.("Pincode removed");
             }
         }
     };
@@ -491,6 +503,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
         if (successCount > 0) {
             SucceesToaster(`${successCount} pincode(s) deleted successfully!`);
             fetchPincodes(selectedCustomer.id);
+            onChanged?.("Pincodes removed");
         } else {
             ErrorToaster("Failed to delete selected pincodes.");
         }
@@ -563,7 +576,70 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
         downloadTemplate(templateData, "Corporate_Pincode_Import_Template");
     };
 
-    const allSelected = pincodeList.length > 0 && pincodeList.every(p => selectedPincodeIds.includes(p.id));
+    // ── filter (the funnel button next to Export Excel) ────────────────
+    const productNamesOf = (row) => {
+        const list = row.products || row.services
+        return Array.isArray(list) ? list.map((x) => x.product_name || "N/A") : []
+    }
+    const [filters, setFilters] = useState(EMPTY_PIN_FILTERS)
+    const [draft, setDraft] = useState(EMPTY_PIN_FILTERS)
+    const [filterOpen, setFilterOpen] = useState(false)
+    const filterBox = useRef(null)
+    const filterPanel = useRef(null)
+    const [filterPos, setFilterPos] = useState({ top: 0, right: 8, maxH: 400 })
+    // the panel is drawn on the page itself (not inside the table card), so the card's edges never cut it off
+    const placeFilter = () => {
+        const r = filterBox.current?.getBoundingClientRect()
+        if (!r) return
+        setFilterPos({ top: r.bottom + 4, right: Math.max(8, window.innerWidth - r.right), maxH: Math.max(220, window.innerHeight - r.bottom - 16) })
+    }
+    // the panel hangs under the button: a click outside it, or Escape, closes it (no backdrop)
+    useEffect(() => {
+        if (!filterOpen) return undefined
+        placeFilter()
+        const close = (e) => {
+            if (filterBox.current?.contains(e.target) || filterPanel.current?.contains(e.target)) return
+            setFilterOpen(false)
+        }
+        const esc = (e) => { if (e.key === "Escape") setFilterOpen(false) }
+        document.addEventListener("mousedown", close)
+        document.addEventListener("keydown", esc)
+        window.addEventListener("resize", placeFilter)
+        return () => { document.removeEventListener("mousedown", close); document.removeEventListener("keydown", esc); window.removeEventListener("resize", placeFilter) }
+    }, [filterOpen])
+    const activeFilterCount = Object.values(filters).filter(Boolean).length
+    // another customer: start with no filter
+    useEffect(() => { setFilters(EMPTY_PIN_FILTERS); setDraft(EMPTY_PIN_FILTERS) }, [selectedCustomer?.id])
+
+    // the choices in each dropdown come from the customer's own pincodes
+    const filterChoices = useMemo(() => {
+        const uniq = (get) => [...new Set(pincodeList.flatMap((r) => [].concat(get(r))).filter((v) => v != null && v !== ""))].sort((a, b) => String(a).localeCompare(String(b)))
+        return {
+            state: uniq((r) => r.state),
+            region: uniq((r) => r.region),
+            legacy_zone: uniq((r) => r.legacy_zone),
+            zone_tag: uniq((r) => r.zone_tag),
+            service_provider: uniq((r) => r.service_provider),
+            products: uniq(productNamesOf),
+        }
+    }, [pincodeList])
+
+    const visibleList = useMemo(() => {
+        const has = (v, q) => String(v ?? "").toLowerCase().includes(q.trim().toLowerCase())
+        const same = (v, q) => String(v ?? "") === q
+        return pincodeList.filter((r) =>
+            (!filters.pincode || has(r.pincode, filters.pincode)) &&
+            (!filters.city || has(r.city, filters.city)) &&
+            (!filters.state || same(r.state, filters.state)) &&
+            (!filters.region || same(r.region, filters.region)) &&
+            (!filters.legacy_zone || same(r.legacy_zone, filters.legacy_zone)) &&
+            (!filters.zone_tag || same(r.zone_tag, filters.zone_tag)) &&
+            (!filters.service_provider || same(r.service_provider, filters.service_provider)) &&
+            (!filters.products || productNamesOf(r).includes(filters.products))
+        )
+    }, [pincodeList, filters])
+
+    const allSelected = visibleList.length > 0 && visibleList.every(p => selectedPincodeIds.includes(p.id));
 
     const columns = useMemo(() => [
         {
@@ -575,7 +651,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                     checked={allSelected}
                     onChange={(e) => {
                         if (e.target.checked) {
-                            setSelectedPincodeIds(pincodeList.map(p => p.id));
+                            setSelectedPincodeIds(visibleList.map(p => p.id));
                         } else {
                             setSelectedPincodeIds([]);
                         }
@@ -676,7 +752,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                 </div>
             )
         }
-    ], [selectedCustomer, productOptions, selectedPincodeIds, pincodeList, allSelected]);
+    ], [selectedCustomer, productOptions, selectedPincodeIds, visibleList, allSelected]);
 
     return (
         <div className={hideHeader ? "flex min-h-0 flex-1 flex-col" : "page-content py-0 px-0"}>
@@ -705,35 +781,6 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
 
                 {selectedCustomer && (
                     <>
-                        <div className={`mb-2 flex flex-wrap items-center justify-between gap-2 ${hideHeader ? "mt-0 shrink-0 px-2 pt-2" : "mt-4"}`}>
-                            <h5 className="m-0 text-base">Existing pincode services <span className="text-sm font-normal text-ink-muted">({pincodeList.length})</span></h5>
-                            <div className="flex flex-wrap gap-2">
-                                {extraActions}
-                                <Button color="success" size="sm" outline onClick={() => setUploadModal(true)} className="flex items-center gap-1 whitespace-nowrap">
-                                    <FaFileExcel /> Excel upload
-                                </Button>
-                                {selectedPincodeIds.length > 0 && (
-                                    <Button
-                                        color="danger"
-                                        size="sm"
-                                        onClick={() => setIsBulkDeleteModalOpen(true)}
-                                        disabled={isBulkDeleting}
-                                        className="flex items-center gap-1"
-                                    >
-                                        {isBulkDeleting ? <Spinner size="sm" /> : <FaTrash />}
-                                        Delete Selected ({selectedPincodeIds.length})
-                                    </Button>
-                                )}
-                                <Button
-                                    color="primary"
-                                    size="sm"
-                                    onClick={() => setAddPincodeModal(true)}
-                                    className="flex items-center gap-1 whitespace-nowrap"
-                                >
-                                    <FaPlus /> Add Pincode
-                                </Button>
-                            </div>
-                        </div>
                         <Card className={hideHeader ? "flex min-h-0 flex-1 flex-col rounded-none border-0 shadow-none" : "shadow-sm"}>
                             <CardBody className={hideHeader ? "flex min-h-0 flex-1 flex-col p-0" : "p-0"}>
                                 {pincodesLoading ? (
@@ -744,12 +791,70 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                                 ) : (
                                     <TableContainer
                                         columns={columns}
-                                        data={pincodeList}
+                                        data={visibleList}
+                                        footerNote={<div className="text-sm font-semibold">Existing pincode services <span className="font-normal text-ink-muted">({activeFilterCount ? `${visibleList.length} of ${pincodeList.length}` : pincodeList.length})</span></div>}
+                                        compact
+                                        searchClassName="w-40 shrink-0"
+                                        rightExtraFiled={
+                                <div className="flex flex-wrap items-center gap-1.5">
+                                {extraActions}
+                                <Button color="primary" size="sm" title="Add pincode" onClick={() => setAddPincodeModal(true)} className="flex items-center gap-1 whitespace-nowrap">
+                                    <FaPlus /> Add
+                                </Button>
+                                <Button color="success" size="sm" outline title="Import pincodes from Excel" onClick={() => setUploadModal(true)} className="flex items-center gap-1 whitespace-nowrap">
+                                    <FaUpload /> Import
+                                </Button>
+                                <Button color="success" size="sm" outline title="Export to Excel" disabled={!visibleList.length || exporting} onClick={() => exportRows(flattenRows(visibleList), `Pincodes_${selectedCustomer?.label || selectedCustomer?.id || ""}`.replace(/\s+/g, "_"))} className="flex items-center gap-1 whitespace-nowrap">
+                                    <FaFileExcel /> Export
+                                </Button>
+                                {selectedPincodeIds.length > 0 && (
+                                    <Button color="danger" size="sm" title="Delete selected pincodes" onClick={() => setIsBulkDeleteModalOpen(true)} disabled={isBulkDeleting} className="flex items-center gap-1 whitespace-nowrap">
+                                        {isBulkDeleting ? <Spinner size="sm" /> : <FaTrash />} Delete ({selectedPincodeIds.length})
+                                    </Button>
+                                )}
+                                <div ref={filterBox} className="relative">
+                                <Button color={activeFilterCount ? "primary" : "secondary"} size="sm" outline disabled={!pincodeList.length} title="Filter pincodes" aria-label="Filter pincodes" onClick={() => { setDraft(filters); setFilterOpen((o) => !o) }} className="flex items-center gap-1 whitespace-nowrap">
+                                    <FaFilter /> Filter{activeFilterCount ? ` (${activeFilterCount})` : ""}
+                                </Button>
+                                    {filterOpen && createPortal(
+                                        <div ref={filterPanel} style={{ top: filterPos.top, right: filterPos.right, maxHeight: filterPos.maxH }} className="offcanvas-slide-top fixed z-[1050] flex w-80 max-w-[calc(100vw-1rem)] flex-col overflow-hidden rounded-md border border-[rgb(var(--overlay-rgb)/0.15)] bg-surface shadow-lg">
+                                            <div className="flex shrink-0 items-center justify-between border-b border-[rgb(var(--overlay-rgb)/0.1)] px-4 py-2.5">
+                                                <span className="text-sm font-semibold">Filter pincodes</span>
+                                                <button type="button" aria-label="Close" onClick={() => setFilterOpen(false)} className="border-0 bg-transparent p-0 text-lg leading-none text-ink-muted">&times;</button>
+                                            </div>
+                                            <div className="scroll-slim min-h-0 flex-1 overflow-y-auto px-4 py-3">
+                                                {[
+                                                    ["pincode", "Pincode", "text"], ["city", "City", "text"],
+                                                    ["state", "State"], ["region", "Region"], ["legacy_zone", "Legacy Zone"],
+                                                    ["zone_tag", "Zone Tag"], ["service_provider", "Service Provider"], ["products", "Products"],
+                                                ].map(([key, label, kind]) => (
+                                                    <div key={key} className="mb-3">
+                                                        <Label>{label}</Label>
+                                                        {kind === "text" ? (
+                                                            <Input type="text" value={draft[key]} placeholder="Contains..." onChange={(e) => setDraft((d) => ({ ...d, [key]: e.target.value }))} />
+                                                        ) : (
+                                                            <Input type="select" value={draft[key]} onChange={(e) => setDraft((d) => ({ ...d, [key]: e.target.value }))}>
+                                                                <option value="">All</option>
+                                                                {filterChoices[key].map((v) => <option key={v} value={v}>{v}</option>)}
+                                                            </Input>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <div className="flex shrink-0 justify-end gap-2 border-t border-[rgb(var(--overlay-rgb)/0.1)] px-4 py-2.5">
+                                                <Button size="sm" color="secondary" outline onClick={() => { setDraft(EMPTY_PIN_FILTERS); setFilters(EMPTY_PIN_FILTERS); setFilterOpen(false) }}>Clear all</Button>
+                                                <Button size="sm" color="primary" onClick={() => { setFilters(draft); setFilterOpen(false) }}>Apply</Button>
+                                            </div>
+                                        </div>,
+                                        document.body
+                                    )}
+                                </div>
+                                </div>
+                                        }
                                         isGlobalFilter={true}
                                         isPagination={true}
-                                        isCustomPageSize={true}
-                                        defaultPageSize={10}
-                                        SearchPlaceholder="Search pincodes..."
+                                        defaultPageSize={100}
+                                        SearchPlaceholder="Search..."
                                         pagination="pagination pagination-rounded justify-content-end mb-2"
                                         paginationWrapper='dataTables_paginate paging_simple_numbers'
                                         tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline mb-0"
@@ -909,6 +1014,7 @@ const CorporatePincodeUpload = ({ externalCustomer = null, onCustomerChange = nu
                                             className="w-full"
                                         />
                                     </div>
+                                    <AddProductButton onAdded={(pr) => setAddedProducts((a) => [...a, { id: pr.id, value: pr.id, name: pr.name }])} />
                                     {newPincode.products.length > 1 && (
                                         <Button color="danger" size="sm" outline onClick={() => removeServiceRow(index)} title="Remove product" aria-label="Remove product">
                                             <FaTrash />

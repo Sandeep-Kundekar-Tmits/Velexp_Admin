@@ -79,6 +79,8 @@ export const highlightOf = (step) => {
     let color = CHECK_COLOR_WARN
     ;(step?.checks || []).forEach((c) => {
         if (c.state !== "blocker" && c.state !== "warning") return
+        // billing addresses, MIS and customer service have their own sections, not a field of the Edit form
+        if (ACCOUNT_CODES.includes(c.code)) return
         const text = `${c.code || ""} ${c.detail || ""} ${c.fix || ""}`.toLowerCase()
         const rule = FIELD_RULES.find(([re]) => re.test(text))
         if (!rule) return
@@ -100,3 +102,24 @@ export const PRODUCT_COMPONENTS = [
 ]
 
 export const asList = (d) => (Array.isArray(d) ? d : d?.results?.results || d?.results || d?.data || d?.logins || [])
+
+// Checklist rows that belong to the Account step although the server lists them on their own:
+// billing addresses, the daily MIS and the customer service user.
+const ACCOUNT_CODES = ["billing_addresses", "auto_mis", "customer_service_user"]
+
+// The step of a checklist response for a rail check key. The Account step also carries the extra rows above, wherever
+// the server put them, so everything about the account is read in one place.
+export const stepFrom = (data, key) => {
+    const step = (data?.steps || []).find((x) => x.key === key)
+    if (key !== "account") return step
+    const have = new Set((step?.checks || []).map((c) => c.code))
+    const extra = [...(data?.checks || []), ...(data?.steps || []).flatMap((x) => x.checks || [])]
+        .filter((c) => ACCOUNT_CODES.includes(c.code) && !have.has(c.code))
+        .filter((c, i, all) => all.findIndex((o) => o.code === c.code) === i)
+    if (!step && !extra.length) return undefined
+    const checks = [...(step?.checks || []), ...extra]
+    // the extra rows never block go-live: a warning on one makes the step "needs attention" at most
+    let status = step?.status
+    if (extra.some((c) => c.state === "warning") && (!status || status === "done")) status = "attention"
+    return { ...(step || { key, title: "Account details", required: true }), status: status || "done", checks }
+}

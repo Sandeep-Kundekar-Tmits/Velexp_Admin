@@ -113,6 +113,7 @@ const MultipleAddressForm = ({ addresses, setAddresses, onNextButtonClick, onPre
         ...addresses,
         [name !== "address" && name]: value
       })
+      setAddressErrors((prev) => ({ ...(prev || {}), [name]: undefined }))
     }
 
   };
@@ -140,6 +141,7 @@ const MultipleAddressForm = ({ addresses, setAddresses, onNextButtonClick, onPre
       ...prevAddresses,
       [field]: option?.label
     }));
+    setAddressErrors((prev) => ({ ...(prev || {}), [field]: undefined }))
 
 
 

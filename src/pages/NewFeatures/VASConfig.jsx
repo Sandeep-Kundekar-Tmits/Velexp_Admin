@@ -1,19 +1,23 @@
 import React, { useEffect, useMemo, useState } from "react"
 import { Button, Card, CardBody, Col, Container, Form, FormGroup, Input, Label, Row, FormFeedback, Spinner, Modal, ModalHeader, ModalBody, ModalFooter, Table } from "@/components/ui"
 import MainHeaderComp from "../../components/MainHeaderCom"
+import AddProductButton from "../../components/Common/AddProductButton"
 import SearchableDropdown from "../../components/Common/SearchableDropdown"
 import { useGetApiCall } from "../../hooks/useGetApiCall"
 import usePostApiCall from "../../hooks/usePostApiCall"
 import { useDeleteApiCall } from "../../hooks/useDeleteApiCall"
 import { CORPORATE_BILLING_VAS, CORPORATE_CUSTOMERS_LIST, GET_CORPORATE_CUSTOMER_PRODUCTS } from "../../api"
 import TableContainer from "../../components/Table/TableContainer"
-import { FaEye, FaEdit, FaTrash } from "react-icons/fa"
+import { FaEye, FaEdit, FaTrash, FaFileExcel, FaPlus } from "react-icons/fa"
+import { useExcelExport } from "../../hooks/useExcelExport"
+import { flattenRows } from "../../helpers/flattenRows"
 
+// onChanged(message): called after a VAS is saved or removed (the onboarding wizard re-runs its checklist)
 // extraActions: extra buttons shown in the header row, before Add New VAS (the onboarding wizard puts "Copy from the default setup" there)
 // Inside the onboarding wizard the grid fills the card and only it scrolls, with a pinned header.
 const FILL_TABLE_PROPS = { fillHeight: true, isStickyHeader: true, stickyTop: 0, theadClass: "sticky top-0 z-10", tableHeight: "58vh" }
 
-const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeader = false, extraActions = null, externalCustomerName = "" }) => {
+const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeader = false, extraActions = null, externalCustomerName = "", onChanged = null }) => {
     const { apifunc: fetchCustomers, data: customerData, loading: customersLoading } = useGetApiCall()
     const { apifunc: fetchProducts, data: productData, loading: productsLoading } = useGetApiCall()
     const { apifunc: fetchConfigs, data: configData, loading: configsLoading } = useGetApiCall()
@@ -25,6 +29,7 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
     const [customers, setCustomers] = useState([])
     const [products, setProducts] = useState([])
     const [configList, setConfigList] = useState([])
+    const { exportToExcel: exportRows, isExporting: exporting } = useExcelExport()
     const [isViewModalOpen, setIsViewModalOpen] = useState(false)
     const [viewData, setViewData] = useState(null)
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
@@ -155,6 +160,7 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                 }
                 setIsListView(true)
                 resetForm()
+                onChanged?.("VAS updated")
             }
         }
     }
@@ -197,6 +203,7 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
             if (result) {
                 loadConfigs(selectedCustomerId)
                 toggleDeleteModal()
+                onChanged?.("VAS removed")
             }
         }
     }
@@ -281,6 +288,19 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
         }
     ], [configList, deleting])
 
+    // the buttons above the list: inside the table's toolbar in the onboarding wizard, in the page header elsewhere
+    const actionButtons = (
+        <div className="flex flex-wrap items-center gap-1.5">
+            {isListView && extraActions}
+            <Button size="sm" color="primary" title="Add VAS" className="flex items-center gap-1 whitespace-nowrap" onClick={() => { resetForm(); setIsListView(false) }}>
+                <FaPlus /> Add
+            </Button>
+            <Button color="success" size="sm" outline title="Export to Excel" disabled={!configList.length || exporting} onClick={() => exportRows(flattenRows(configList), `VAS_${externalCustomerName || externalCustomerId || "customer"}`.replace(/\s+/g, "_"))} className="flex items-center gap-1 whitespace-nowrap">
+                <FaFileExcel /> Export
+            </Button>
+        </div>
+    )
+
     return (
         <React.Fragment>
             <div className={hideHeader ? 'flex min-h-0 flex-1 flex-col' : 'page-content py-0 px-0'}>
@@ -292,23 +312,12 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                     </div>
                 )}
                 <div className={hideHeader ? "container-fluid flex min-h-0 flex-1 flex-col px-0 py-0" : "container-fluid px-4 py-4"}>
-                    <div className={`flex flex-wrap items-center justify-between gap-2 ${hideHeader ? "mb-2 shrink-0 px-2 pt-2" : "mb-4"}`}>
-                        <h5 className="m-0 text-base">VAS list</h5>
-                        <div className="flex flex-wrap gap-2">
-                        {isListView && extraActions}
-                        <Button
-                            size="sm"
-                            className="flex items-center gap-1 whitespace-nowrap"
-                            color="primary"
-                            onClick={() => {
-                                resetForm()
-                                setIsListView(false)
-                            }}
-                        >
-                            Add new VAS
-                        </Button>
+                    {!hideHeader && (
+                        <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+                            <h5 className="m-0 text-base">VAS list</h5>
+                            {actionButtons}
                         </div>
-                    </div>
+                    )}
 
                         <Card className={hideHeader ? "flex min-h-0 flex-1 flex-col rounded-none border-0 bg-transparent shadow-none" : "shadow-sm"}>
                             <CardBody className={`${selectedCustomerId ? "p-0" : "p-3"} ${hideHeader ? "flex min-h-0 flex-1 flex-col" : ""}`}>
@@ -349,11 +358,14 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                                     <TableContainer
                                         columns={columns}
                                         data={configList}
+                                        compact
+                                        searchClassName="w-40 shrink-0"
+                                        rightExtraFiled={hideHeader ? actionButtons : null}
+                                        footerNote={hideHeader ? <div className="text-sm font-semibold">VAS list <span className="font-normal text-ink-muted">({configList.length})</span></div> : null}
                                         isGlobalFilter={true}
                                         isPagination={true}
-                                        isCustomPageSize={true}
-                                        defaultPageSize={10}
-                                        SearchPlaceholder="Search VAS..."
+                                        defaultPageSize={100}
+                                        SearchPlaceholder="Search..."
                                         pagination="pagination pagination-rounded justify-content-end mb-2"
                                         paginationWrapper='dataTables_paginate paging_simple_numbers'
                                         tableClass="table-bordered table-nowrap dt-responsive nowrap w-full dataTable no-footer dtr-inline mb-0"
@@ -390,13 +402,18 @@ const VASConfig = ({ externalCustomerId = "", onCustomerChange = null, hideHeade
                                         <Col md={6} className="mb-4">
                                             <FormGroup>
                                                 <Label className="font-bold">Product</Label>
-                                                <SearchableDropdown
-                                                    onChange={(val) => setFormData(prev => ({ ...prev, product_id: val?.id || "" }))}
-                                                    locations={products}
-                                                    placeholder={productsLoading ? "Loading..." : "Select Product"}
-                                                    className="w-full"
-                                                    value={isEdit ? (products.find(p => p.id === formData.product_id)?.name || "N/A") : (formData.product_id ? products.find(p => p.id === formData.product_id)?.name : "select")}
-                                                />
+                                                <div className="flex items-center gap-2">
+                                                    <div className="min-w-0 flex-1">
+                                                    <SearchableDropdown
+                                                        onChange={(val) => setFormData(prev => ({ ...prev, product_id: val?.id || "" }))}
+                                                        locations={products}
+                                                        placeholder={productsLoading ? "Loading..." : "Select Product"}
+                                                        className="w-full"
+                                                        value={isEdit ? (products.find(p => p.id === formData.product_id)?.name || "N/A") : (formData.product_id ? products.find(p => p.id === formData.product_id)?.name : "select")}
+                                                    />
+                                                    </div>
+                                                    <AddProductButton onAdded={(pr) => setProducts((list) => (list.some((x) => x.id === pr.id) ? list : [...list, { id: pr.id, value: pr.id, name: pr.name }]))} />
+                                                </div>
                                                 {errors.product_id && <div className="text-danger-500 text-xs mt-1">{errors.product_id}</div>}
                                             </FormGroup>
                                         </Col>
