@@ -82,6 +82,7 @@ export const GET_SERVICE_CENTRE_DETAIL = `${BASE_URL}/service-centers/get-detail
 // rawRequest directly instead of relying on a {status:1}/{msg} body shape.
 // all pincode -> service centre mapping (read-only, paginated via `next`)
 export const GET_PINCODE_SERVICE_CENTERS = `${BASE_URL}/pincode-service-centers/`
+export const EMPLOYEE_LOOKUP = `${BASE_URL}/api/admin-panel/employees/lookup/` // GET ?q=&limit= -> {results:[{employee_code,name,designation,department}]}; assignable employees only
 export const SERVICE_CENTRE_PINCODE_LIST = `${BASE_URL}/api/admin-panel/service-center-pincodes/` // GET ?service_center=&active=
 export const BULK_ASSIGN_SERVICE_CENTRE_PINCODES = `${BASE_URL}/api/admin-panel/service-center-pincodes/bulk-assign/` // POST {service_center, pincodes, mode, region?, state?}
 

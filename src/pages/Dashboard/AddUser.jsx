@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import TabProvider from "../../components/Table/TabProvider"
 import AddFranchiseeForm from "../../components/UserManagement/AddFranchiseeForm"
 import AddUserForm from "../../components/UserManagement/AddUserForm"
@@ -13,6 +13,8 @@ import usePostApiCall from "../../hooks/usePostApiCall"
 import ToasterProvider from "../../helpers/ToasterProvider"
 
 
+const CODE_FIELDS = ['sales_head_emp_code', 'lead_generated_by_emp_code']
+
 // onCreated(id, name): used by the onboarding wizard, which hosts this form as its first step
 const AddUser = ({ onCreated } = {}) => {
     useEffect(() => {
@@ -21,10 +23,14 @@ const AddUser = ({ onCreated } = {}) => {
     const { ErrorToaster, SucceesToaster } = ToasterProvider()
     const [Errors, setErrors] = useState({})
     const [showError, setShowError] = useState(false)
+    const [fieldErrors, setFieldErrors] = useState({}) // server messages for the employee-code inputs
     const { apifunc: addNewUserWithFile, data: FormUserData, error: FormDataError, loading: FormDataLoading } = usePostFileApicall()
     // const { apifunc: addNewJsonUser, data: JsonUserData, error: JsonDataError, loading: JsonDataLoading } = usePostApiCall()
     const { apifunc: uploadCustomerDocs } = usePostFileApicall()
     const navigate = useNavigate()
+    // single-page mode (onboarding wizard): each section validates itself through these
+    const userValidate = useRef(null)
+    const addressValidate = useRef(null)
     const [documents, setDocuments] = useState(() => [newRow()])
     const [documentRemarks, setDocumentRemarks] = useState("")
     const [formData, setFormData] = useState({
@@ -46,13 +52,12 @@ const AddUser = ({ onCreated } = {}) => {
         pan_no: '',
         city: '',
         pincode: '',
-        referred_by: '',
+        sales_head_emp_code: '',
+        lead_generated_by_emp_code: '',
         industry: '',
         soft_limit: '',
         customer_potential: '',
         expected_business: '',
-        sales_head: '',
-        emp_code: '',
         finance_emails: '',
         customer_agreement_doc: null
     });
@@ -143,13 +148,12 @@ const AddUser = ({ onCreated } = {}) => {
             pan_no: '',
             city: '',
             pincode: '',
-            referred_by: '',
+            sales_head_emp_code: '',
+            lead_generated_by_emp_code: '',
             industry: '',
             soft_limit: '',
             customer_potential: '',
             expected_business: '',
-            sales_head: '',
-            emp_code: '',
             finance_emails: '',
             customer_agreement_doc: null
         })
@@ -237,7 +241,8 @@ const AddUser = ({ onCreated } = {}) => {
         formDataToSend.append('username', data.username);
         formDataToSend.append('password', data.password);
         // formDataToSend.append('otp', data.otp);
-        formDataToSend.append('accno', "123456789");
+        // Corporate accounts get their account number (VELO + timestamp) and secret code from the backend; don't send one
+        if (data.cust_type !== "2") formDataToSend.append('accno', "123456789");
         formDataToSend.append('phone', data.phone);
         formDataToSend.append('cust_type', data.cust_type);
         formDataToSend.append('customer_name', data.customer_name);
@@ -245,10 +250,12 @@ const AddUser = ({ onCreated } = {}) => {
         formDataToSend.append('billing_type', data.billing_type);
         formDataToSend.append('gst_no', data.gst_no);
         formDataToSend.append('pan_no', data.pan_no);
-        formDataToSend.append('city', data.city);
-        formDataToSend.append('pincode', data.pincode);
+        formDataToSend.append('city', data.city || data.addresses?.city || '');
+        formDataToSend.append('pincode', data.pincode || data.addresses?.pincode || '');
         formDataToSend.append('payment_mode', "COD");
-        formDataToSend.append('referred_by', data.referred_by);
+        // Employee codes only: the backend fills the names in from the employee master
+        formDataToSend.append('sales_head_emp_code', (data.sales_head_emp_code || '').trim());
+        formDataToSend.append('lead_generated_by_emp_code', (data.lead_generated_by_emp_code || '').trim());
         formDataToSend.append('industry', data.industry);
 
 
@@ -265,8 +272,6 @@ const AddUser = ({ onCreated } = {}) => {
         formDataToSend.append('soft_limit', data.soft_limit || 0);
         formDataToSend.append('customer_potential', data.customer_potential || '');
         formDataToSend.append('expected_business', data.expected_business || 0);
-        formDataToSend.append('sales_head', data.sales_head || '');
-        formDataToSend.append('emp_code', data.emp_code || '');
 
         // Handle finance_emails (JSONField in backend, expect array/list)
         if (data.finance_emails) {
@@ -318,6 +323,25 @@ const AddUser = ({ onCreated } = {}) => {
         else ErrorToaster("User added, but document upload failed")
     }
 
+    // Backend 400s name fields: the two employee-code messages go under their own inputs on the first tab,
+    // anything else stays in the error popup.
+    const handleCreateError = (data) => {
+        const all = data && typeof data === 'object' ? data : {}
+        const own = {}
+        const rest = {}
+        Object.entries(all).forEach(([k, v]) => {
+            if (CODE_FIELDS.includes(k)) own[k] = Array.isArray(v) ? v.join(' ') : String(v)
+            else rest[k] = v
+        })
+        setFieldErrors(own)
+        if (Object.keys(own).length) setActiveTab(1)
+        setErrors(rest)
+        setShowError(Object.keys(rest).length > 0)
+        ErrorToaster(Object.keys(own).length && !Object.keys(rest).length
+            ? "Fix the employee codes and submit again"
+            : "User Failed To Add Check All Credentials")
+    }
+
     //  api call
     const SumitAddUserForm = async () => {
         if (formData.cust_type !== "3") {
@@ -342,9 +366,7 @@ const AddUser = ({ onCreated } = {}) => {
                     }
                 }
                 else {
-                    setShowError(true)
-                    setErrors(isSucces.data)
-                    ErrorToaster("User Failed To Add Check All Credentials")
+                    handleCreateError(isSucces.data)
                 }
             }
 
@@ -362,9 +384,7 @@ const AddUser = ({ onCreated } = {}) => {
                     setActiveTab(1)
                 }
                 else {
-                    setShowError(true)
-                    setErrors(isSucces.data)
-                    ErrorToaster("User Failed To Add Check All Credentials")
+                    handleCreateError(isSucces.data)
                 }
             }
         }
@@ -377,6 +397,9 @@ const AddUser = ({ onCreated } = {}) => {
                 formData={formData}
                 setFormData={setFormData}
                 setFrachiseeData={setFrachiseeData}
+                setAddresses={setAddresses}
+                serverErrors={fieldErrors}
+                clearServerError={(k) => setFieldErrors((prev) => ({ ...prev, [k]: undefined }))}
                 onNextButtonClick={(id) => toggle(id)} />
         },
         {
@@ -429,9 +452,50 @@ const AddUser = ({ onCreated } = {}) => {
 
 
 
+    // Both sections are checked on every Submit so every error shows at once.
+    const validateAll = () => {
+        const userOk = userValidate.current ? userValidate.current() : true
+        const addressOk = addressValidate.current ? addressValidate.current() : true
+        return userOk && addressOk
+    }
+    const submitSinglePage = () => { if (validateAll()) SumitAddUserForm() }
+
+    const isFranchise = formData.cust_type === "3"
+    const singlePage = (
+        <div>
+            <AddUserForm
+                embedded
+                validateRef={userValidate}
+                formData={formData}
+                setFormData={setFormData}
+                setFrachiseeData={setFrachiseeData}
+                setAddresses={setAddresses}
+                serverErrors={fieldErrors}
+                clearServerError={(k) => setFieldErrors((prev) => ({ ...prev, [k]: undefined }))}
+                onNextButtonClick={() => {}} />
+            <MultipleAddressForm
+                embedded
+                validateRef={addressValidate}
+                addresses={addresses}
+                setAddresses={setAddresses}
+                cust_type={formData.cust_type} />
+            {isFranchise ? (
+                <AddFranchiseeForm
+                    hidePrev
+                    formData={frachiseeData}
+                    setFormData={setFrachiseeData}
+                    SubmitForm={submitSinglePage} />
+            ) : (
+                <div className="mt-4 flex justify-end">
+                    <Button color="primary" className="px-6 py-2" onClick={submitSinglePage}>Submit</Button>
+                </div>
+            )}
+        </div>
+    )
+
     return (
         <>
-            <TabProvider tabs={tabs} toggle={toggle} activeTab={activeTab} />
+            {onCreated ? singlePage : <TabProvider tabs={tabs} toggle={toggle} activeTab={activeTab} />}
             <Modal isOpen={FormDataLoading} >
                 <ModalBody>
                     {/* compact, so it sizes to the modal instead of stretching

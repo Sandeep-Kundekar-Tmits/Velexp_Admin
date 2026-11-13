@@ -16,7 +16,7 @@ import { customStyles } from '../../helpers/CustomStyle';
 import Select from "react-select";
 import { useGetApiCall } from '../../hooks/useGetApiCall';
 import { GET_ADDRESS } from '../../api';
-const AddFranchiseeForm = ({ formData, setFormData, SubmitForm, onPreButtonClick }) => {
+const AddFranchiseeForm = ({ formData, setFormData, SubmitForm, onPreButtonClick, hidePrev = false }) => {
     const [errors, setErrors] = useState()
     const [velexpAddress, setVelexpAddress] = useState()
     // api callings
@@ -361,9 +361,9 @@ const AddFranchiseeForm = ({ formData, setFormData, SubmitForm, onPreButtonClick
                     </Col>
                 </Row>
                 <div className='flex gap-4 mt-12 justify-end'>
-                    <Button color="primary" className='px-6 py-2' onClick={() => {
+                    {!hidePrev && <Button color="primary" className='px-6 py-2' onClick={() => {
                         onPreButtonClick(2)
-                    }}>Prev</Button>
+                    }}>Prev</Button>}
                     <Button color="primary" className='px-6 py-2' onClick={handleSubmit}>Submit</Button>
                 </div>
             </div>

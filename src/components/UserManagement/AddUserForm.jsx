@@ -15,12 +15,44 @@ import {
     ModalBody,
     ModalFooter
 } from "@/components/ui";
+import EmployeeCodePicker from '../Common/EmployeeCodePicker';
 import { customStyles } from '../../helpers/CustomStyle';
 import locations from "../../data/locations.json"
 import Select from "react-select";
 import { VERIFY_GSTIN } from '../../api/index';
 import { authFetch } from "@/lib/http";
-const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeData }) => {
+// small section heading and required / optional label markers shared by the fields below
+const SectionTitle = ({ children }) => (
+    <>
+        <div role="separator" className="my-3 h-px w-full bg-[rgb(var(--overlay-rgb)/0.15)]" />
+        <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-muted">{children}</div>
+    </>
+);
+const REQ = <span className="text-danger-500"> *</span>;
+
+// Turn a GSTIN verification result into the form's address values. The GST data has no usable city (it is often
+// blank), so the city is matched from city / district / location against the app's own city list for that state.
+const locationFromGst = (data) => {
+    const d = data?.address_details || {};
+    const up = (v) => String(v || '').trim().toUpperCase();
+    const stateRow = locations.find((s) => up(s.state) === up(d.state_name));
+    let city = '';
+    if (stateRow) {
+        for (const cand of [d.city, d.district, d.location].map(up).filter(Boolean)) {
+            const exact = stateRow.cities.find((c) => up(c.name) === cand);
+            // "MUMBAI SUBURBAN" -> MUMBAI: the longest listed city whose name is inside the text
+            const inside = [...stateRow.cities].filter((c) => cand.includes(up(c.name))).sort((a, b) => b.name.length - a.name.length)[0];
+            const hit = exact || inside;
+            if (hit) { city = hit.name; break; }
+        }
+    }
+    // the address box only accepts letters, numbers, spaces and , . - / ' and holds 200 characters
+    const address = String(data?.address || '').replace(/[^a-zA-Z0-9\s,.\-/']/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 200);
+    const pincode = /^\d{6}$/.test(String(d.pincode || '').trim()) ? String(d.pincode).trim() : '';
+    return { address, state: stateRow?.state || '', city, pincode };
+};
+
+const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeData, setAddresses, serverErrors = {}, clearServerError, embedded = false, validateRef }) => {
 
 
     // const [formData, setFormData] = useState({
@@ -122,12 +154,24 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
                 const panFromGst = /^\d{2}[A-Z]{5}\d{4}[A-Z]/i.test(gstin) ? gstin.slice(2, 12).toUpperCase() : '';
                 setGstVerified(true);
                 setGstVerifyData(data);
+                const loc = locationFromGst(data);
                 setFormData((prev) => ({
                     ...prev,
                     customer_name: name || prev.customer_name,
                     pan_no: prev.pan_no || panFromGst,
+                    // the user form's own city / pincode (the tabbed Add User page); the wizard fills them via the address
+                    city: loc.city || prev.city,
+                    pincode: loc.pincode || prev.pincode,
                 }));
                 setCustomerCharCount(name.trim().length);
+                // registered address -> the Address section
+                setAddresses?.((prev) => ({
+                    ...prev,
+                    address: loc.address || prev.address,
+                    state: loc.state || prev.state,
+                    city: loc.city || prev.city,
+                    pincode: loc.pincode || prev.pincode,
+                }));
             } else if ((json.success || json.already_exists) && hasDetails) {
                 setGstVerifyError(
                     `GST is not active. Current status: "${data?.status || 'Unknown'}". Please use an active GST number.`
@@ -166,6 +210,7 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
     const handleChange = (e) => {
         const { name, value, type, checked, files } = e.target;
         let error = {}
+        if (serverErrors?.[name]) clearServerError?.(name)
         if (name === "gst_no") {
             // Reset verification whenever user edits GST
             setGstVerified(false);
@@ -205,8 +250,8 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
         }
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
+    // Returns true when the form is valid; shows the errors otherwise. `embedded` pages call it through validateRef.
+    const validate = () => {
         const errors = {};
 
         // First Name validation
@@ -273,43 +318,58 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
         }
 
         //  
-        if (!formData?.city) {
+        if (!embedded && !formData?.city) {
             errors.city = 'City name is required';
         }
 
-        if (!formData?.pincode) {
+        if (!embedded && !formData?.pincode) {
             errors.pincode = 'Pincode is required';
         }
-        if (!formData?.referred_by) {
-            errors.referred_by = 'referred by is required';
+        // Every field of the form is required except the KYC Approved tick box (the backend checks that the
+        // employee codes belong to an active employee).
+        if (!formData.sales_head_emp_code?.trim()) errors.sales_head_emp_code = 'Sales head employee code is required';
+        if (!formData.lead_generated_by_emp_code?.trim()) errors.lead_generated_by_emp_code = 'Lead generated by employee code is required';
+        if (!formData.gst_no?.trim()) errors.gst_no = 'GST No is required';
+        if (!formData.pan_no?.trim()) errors.pan_no = 'PAN No is required';
+        if (!formData.billing_type?.trim()) errors.billing_type = 'Billing type is required';
+        if (!formData.customer_potential?.trim()) errors.customer_potential = 'Customer potential is required';
+        if (formData.soft_limit === '' || formData.soft_limit == null) errors.soft_limit = 'Soft limit is required';
+        if (formData.expected_business === '' || formData.expected_business == null) errors.expected_business = 'Expected business is required';
+        if (!formData.finance_emails?.trim()) {
+            errors.finance_emails = 'Finance email is required';
+        } else if (formData.finance_emails.split(',').some((m) => !/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(m.trim()))) {
+            errors.finance_emails = 'Enter valid email addresses separated by commas';
         }
+        if (!formData.customer_agreement_doc) errors.customer_agreement_doc = 'Customer agreement document is required';
+        if (!formData.kyc_document) errors.kyc_document = 'KYC document is required';
         if (!formData?.industry) {
             errors.industry = 'industry is required';
         }
         // GST is optional
 
-        console.log(errors, "errors")
-
-
         if (Object.keys(errors).length === 0) {
-            console.log(errors, formData)
-            onNextButtonClick(2)
             setErrors(null);
-        } else {
-            setErrors(errors);
+            return true;
         }
+        setErrors(errors);
+        return false;
+    };
+    if (validateRef) validateRef.current = validate;
+
+    const handleSubmit = (e) => {
+        e?.preventDefault?.();
+        if (validate()) onNextButtonClick(2);
     };
 
     return (
-        <div className="mt-6">
-            <h4>Add New User</h4>
+        <div className="mt-1">
             {/* add user form */}
             <div>
                 {/* GST Validation — at top of form */}
                 <Row>
-                    <Col md={6}>
+                    <Col md={4}>
                         <FormGroup>
-                            <Label>GST No (Optional)</Label>
+                            <Label>GST No{REQ}</Label>
                             <div className="flex gap-2 items-start">
                                 <div style={{ flex: 1 }}>
                                     <Input
@@ -337,86 +397,79 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
                                     }
                                 </Button>
                             </div>
-                            {gstVerifyError && (
-                                <Alert color="danger" className="mt-2 py-2 px-4 mb-0" style={{ fontSize: '0.85rem' }}>
-                                    {gstVerifyError}
-                                </Alert>
-                            )}
-                            {gstVerified && gstVerifyData && (
-                                <Alert color="success" className="mt-2 py-2 px-4 mb-0" style={{ fontSize: '0.85rem' }}>
-                                    <strong>{gstVerifyData.legal_name}</strong> — Status: <strong>{gstVerifyData.status}</strong>
-                                    {gstVerifyData.registration_date && ` | Reg: ${gstVerifyData.registration_date}`}
-                                </Alert>
-                            )}
                         </FormGroup>
                     </Col>
+                    {/* the verification result sits beside the GST input, on the same row */}
+                    {(gstVerifyError || (gstVerified && gstVerifyData)) && (
+                        <Col md={8}>
+                            <FormGroup>
+                                <Label>&nbsp;</Label>
+                                {gstVerifyError && (
+                                    <Alert color="danger" className="py-2 px-4 mb-0" style={{ fontSize: '0.85rem' }}>
+                                        {gstVerifyError}
+                                    </Alert>
+                                )}
+                                {gstVerified && gstVerifyData && (
+                                    <Alert color="success" className="py-2 px-4 mb-0" style={{ fontSize: '0.85rem' }}>
+                                        <strong>{gstVerifyData.legal_name}</strong> — Status: <strong>{gstVerifyData.status}</strong>
+                                        {gstVerifyData.registration_date && ` | Reg: ${gstVerifyData.registration_date}`}
+                                    </Alert>
+                                )}
+                            </FormGroup>
+                        </Col>
+                    )}
                 </Row>
-                <hr className="mb-4" />
+                <SectionTitle>Contact details</SectionTitle>
                 <Row>
-                    <Col md={6}>
+                    <Col md={4}>
                         <FormGroup>
-                            <Label>First Name</Label>
+                            <Label>First Name{REQ}</Label>
                             <Input type="text" name="first_name" value={formData.first_name} onChange={handleChange} invalid={!!errors?.first_name} />
                             <FormFeedback>{errors?.first_name}</FormFeedback>
                         </FormGroup>
                     </Col>
-                    <Col md={6}>
+                    <Col md={4}>
                         <FormGroup>
-                            <Label>Last Name</Label>
+                            <Label>Last Name{REQ}</Label>
                             <Input type="text" name="last_name" value={formData.last_name} onChange={handleChange} invalid={!!errors?.last_name} />
                             <FormFeedback>{errors?.last_name}</FormFeedback>
                         </FormGroup>
                     </Col>
-                </Row>
-                <Row>
-                    <Col md={6}>
+                    <Col md={4}>
                         <FormGroup>
-                            <Label>Email</Label>
+                            <Label>Email{REQ}</Label>
                             <Input type="email" name="email" value={formData.email} onChange={handleChange} invalid={!!errors?.email} />
                             <FormFeedback>{errors?.email}</FormFeedback>
                         </FormGroup>
                     </Col>
-                    <Col md={6}>
+                    <Col md={4}>
                         <FormGroup>
-                            <Label>Phone</Label>
+                            <Label>Phone{REQ}</Label>
                             <Input type="text" name="phone" value={formData.phone} onChange={handleChange} invalid={!!errors?.phone} />
                             <FormFeedback>{errors?.phone}</FormFeedback>
                         </FormGroup>
                     </Col>
-                </Row>
-                <Row>
-                    <Col md={6}>
+                    <Col md={4}>
                         <FormGroup>
-                            <Label>Username</Label>
+                            <Label>Username{REQ}</Label>
                             <Input type="text" name="username" value={formData.username} onChange={handleChange} invalid={!!errors?.username} />
                             <FormFeedback>{errors?.username}</FormFeedback>
                         </FormGroup>
                     </Col>
-                    <Col md={6}>
+                    <Col md={4}>
                         <FormGroup>
-                            <Label>Password</Label>
+                            <Label>Password{REQ}</Label>
                             <Input type="password" name="password" value={formData.password} onChange={handleChange} invalid={!!errors?.password} />
                             <FormFeedback>{errors?.password}</FormFeedback>
                         </FormGroup>
                     </Col>
-                    {/* <Col md={6}>
-                        <FormGroup>
-                            <Label>Account No</Label>
-                            <Input type="text" name="accno" value={formData.accno} onChange={handleChange} invalid={!!errors?.accno} />
-                            <FormFeedback>{errors?.accno}</FormFeedback>
-                        </FormGroup>
-                    </Col> */}
                 </Row>
+
+                <SectionTitle>Customer details</SectionTitle>
                 <Row>
-                    {/* <Col md={6}>
+                    <Col md={4}>
                         <FormGroup>
-                            <Label>OTP (Optional)</Label>
-                            <Input type="text" name="otp" value={formData.otp} onChange={handleChange} />
-                        </FormGroup>
-                    </Col> */}
-                    <Col md={6}>
-                        <FormGroup>
-                            <Label>Customer Type</Label>
+                            <Label>Customer Type{REQ}</Label>
                             <Input type="select" name="cust_type" value={formData.cust_type} onChange={handleChange} invalid={!!errors?.cust_type}>
                                 <option value="">Select Type</option>
                                 <option value="2">Corporate</option>
@@ -426,160 +479,148 @@ const AddUserForm = ({ formData, setFormData, onNextButtonClick, setFrachiseeDat
                             <FormFeedback>{errors?.cust_type}</FormFeedback>
                         </FormGroup>
                     </Col>
-                </Row>
-                <FormGroup>
-                    <Label>Customer Name</Label>
-                    <Input type="text" name="customer_name" value={formData.customer_name} onChange={handleChange} invalid={!!errors?.customer_name} />
-                    <small>{CustomerCharCount}/50</small>
-                    <FormFeedback>{errors?.customer_name}</FormFeedback>
-                </FormGroup>
-                <Row>
-                    <Col md={6}>
+                    <Col md={4}>
                         <FormGroup>
-                            <Label>Lead Generated By</Label>
-                            <Input type="text" name="referred_by" value={formData?.referred_by} placeholder='Enter Lead Generated By' onChange={handleChange} invalid={!!errors?.referred_by} />
-                            <FormFeedback>{errors?.referred_by}</FormFeedback>
+                            <Label className="flex items-center justify-between">
+                                <span>Customer Name{REQ}</span>
+                                <small className="text-ink-muted">{CustomerCharCount}/50</small>
+                            </Label>
+                            <Input type="text" name="customer_name" value={formData.customer_name} onChange={handleChange} invalid={!!errors?.customer_name} />
+                            <FormFeedback>{errors?.customer_name}</FormFeedback>
                         </FormGroup>
                     </Col>
-                    <Col md={6}>
+                    <Col md={4}>
                         <FormGroup>
-                            <Label>Type of Industry</Label>
-                            <Input type="text" name="industry" value={formData?.industry} placeholder='Enter Type of Industry' onChange={handleChange} invalid={!!errors?.industry} />
+                            <Label>Type of Industry{REQ}</Label>
+                            <Input type="text" name="industry" value={formData?.industry} placeholder="Enter Type of Industry" onChange={handleChange} invalid={!!errors?.industry} />
                             <FormFeedback>{errors?.industry}</FormFeedback>
                         </FormGroup>
                     </Col>
-                </Row>
-                <Row>
                     <Col md={4}>
                         <FormGroup>
-                            <Label>Soft Limit</Label>
-                            <Input type="number" name="soft_limit" value={formData.soft_limit} placeholder="Enter Soft Limit" onChange={handleChange} />
-                        </FormGroup>
-                    </Col>
-                    <Col md={4}>
-                        <FormGroup>
-                            <Label>Customer Potential</Label>
-                            <Input type="text" name="customer_potential" value={formData.customer_potential} placeholder="Enter Potential" onChange={handleChange} />
+                            <Label>Sales Head{REQ}</Label>
+                            <EmployeeCodePicker name="sales_head_emp_code" label="sales head" value={formData.sales_head_emp_code} onChange={handleChange} invalid={!!(errors?.sales_head_emp_code || serverErrors?.sales_head_emp_code)} />
+                            <small className="text-danger-500">{errors?.sales_head_emp_code || serverErrors?.sales_head_emp_code}</small>
                         </FormGroup>
                     </Col>
                     <Col md={4}>
                         <FormGroup>
-                            <Label>Expected Business</Label>
-                            <Input type="number" name="expected_business" value={formData.expected_business} placeholder="Expected Business" onChange={handleChange} />
+                            <Label>Lead Generated By{REQ}</Label>
+                            <EmployeeCodePicker name="lead_generated_by_emp_code" label="lead owner" value={formData.lead_generated_by_emp_code} onChange={handleChange} invalid={!!(errors?.lead_generated_by_emp_code || serverErrors?.lead_generated_by_emp_code)} />
+                            <small className="text-danger-500">{errors?.lead_generated_by_emp_code || serverErrors?.lead_generated_by_emp_code}</small>
                         </FormGroup>
                     </Col>
+                    {/* on the single page the Address section below already asks for city and pincode */}
+                    {!embedded && (
+                        <>
+                            <Col md={4}>
+                                <FormGroup>
+                                    <Label>City{REQ}</Label>
+                                    <Select
+                                        options={AllCities}
+                                        onChange={(option) => {
+                                            handleSelectDropdownChange("city", option)
+                                            setSelectedCity(option.value)
+                                        }}
+                                        value={{
+                                            value: formData.city,
+                                            label: formData.city,
+                                        }}
+                                        placeholder="Select Cities"
+                                        styles={customStyles}
+                                    />
+                                    <small className="text-danger-500">{errors?.city}</small>
+                                </FormGroup>
+                            </Col>
+                            <Col md={4}>
+                                <FormGroup>
+                                    <Label>Pincode{REQ}</Label>
+                                    <Input type="text" name="pincode" value={formData.pincode} onChange={(e) => { isNumber(e.target.value) && handleChange(e) }} invalid={!!errors?.pincode} />
+                                    <FormFeedback>{errors?.pincode}</FormFeedback>
+                                </FormGroup>
+                            </Col>
+                        </>
+                    )}
                 </Row>
+
+                <SectionTitle>Other details</SectionTitle>
                 <Row>
-                    <Col md={6}>
+                    <Col md={4}>
                         <FormGroup>
-                            <Label>Sales Head</Label>
-                            <Input type="text" name="sales_head" value={formData.sales_head} placeholder="Enter Sales Head" onChange={handleChange} />
+                            <Label>Soft Limit{REQ}</Label>
+                            <Input type="number" name="soft_limit" value={formData.soft_limit} placeholder="Enter Soft Limit" invalid={!!errors?.soft_limit} onChange={handleChange} />
+                            <FormFeedback>{errors?.soft_limit}</FormFeedback>
                         </FormGroup>
                     </Col>
-                    <Col md={6}>
+                    <Col md={4}>
                         <FormGroup>
-                            <Label>Employee Code</Label>
-                            <Input type="text" name="emp_code" value={formData.emp_code} placeholder="Enter Employee Code" onChange={handleChange} />
+                            <Label>Customer Potential{REQ}</Label>
+                            <Input type="text" name="customer_potential" value={formData.customer_potential} placeholder="Enter Potential" invalid={!!errors?.customer_potential} onChange={handleChange} />
+                            <FormFeedback>{errors?.customer_potential}</FormFeedback>
                         </FormGroup>
                     </Col>
-                </Row>
-                <Row>
-                    <Col md={6}>
+                    <Col md={4}>
                         <FormGroup>
-                            <Label>Finance Emails (Comma separated)</Label>
-                            <Input type="text" name="finance_emails" value={formData.finance_emails} placeholder="email1@example.com, email2@example.com" onChange={handleChange} />
+                            <Label>Expected Business{REQ}</Label>
+                            <Input type="number" name="expected_business" value={formData.expected_business} placeholder="Expected Business" invalid={!!errors?.expected_business} onChange={handleChange} />
+                            <FormFeedback>{errors?.expected_business}</FormFeedback>
                         </FormGroup>
                     </Col>
-                    <Col md={6}>
+                    <Col md={4}>
                         <FormGroup>
-                            <Label>Customer Agreement Document</Label>
-                            <Input type="file" name="customer_agreement_doc" onChange={handleChange} />
+                            <Label>Billing Type{REQ}</Label>
+                            <Input type="text" name="billing_type" value={formData.billing_type} invalid={!!errors?.billing_type} onChange={handleChange} />
+                            <FormFeedback>{errors?.billing_type}</FormFeedback>
                         </FormGroup>
                     </Col>
-                </Row>
-                <Row>
-                    <Col md={6}>
+                    <Col md={4}>
                         <FormGroup>
-                            <Label>KYC Document (Optional)</Label>
-                            <Input type="file" name="kyc_document" onChange={handleChange} />
+                            <Label>PAN No{REQ}</Label>
+                            <Input type="text" name="pan_no" value={formData.pan_no} invalid={!!errors?.pan_no} onChange={handleChange} />
+                            <FormFeedback>{errors?.pan_no}</FormFeedback>
                         </FormGroup>
                     </Col>
-                    <Col md={6}>
-                        <FormGroup check className="mt-6">
-                            <Label check>
+                    <Col md={4}>
+                        <FormGroup>
+                            <Label>Finance Emails (comma separated){REQ}</Label>
+                            <Input type="text" name="finance_emails" value={formData.finance_emails} placeholder="email1@example.com, email2@example.com" invalid={!!errors?.finance_emails} onChange={handleChange} />
+                            <FormFeedback>{errors?.finance_emails}</FormFeedback>
+                        </FormGroup>
+                    </Col>
+                    <Col md={4}>
+                        <FormGroup>
+                            <Label>Customer Agreement Document{REQ}</Label>
+                            <Input type="file" name="customer_agreement_doc" invalid={!!errors?.customer_agreement_doc} onChange={handleChange} />
+                            <FormFeedback>{errors?.customer_agreement_doc}</FormFeedback>
+                        </FormGroup>
+                    </Col>
+                    <Col md={4}>
+                        <FormGroup>
+                            <Label>KYC Document{REQ}</Label>
+                            <Input type="file" name="kyc_document" invalid={!!errors?.kyc_document} onChange={handleChange} />
+                            <FormFeedback>{errors?.kyc_document}</FormFeedback>
+                        </FormGroup>
+                    </Col>
+                    <Col md={4}>
+                        <FormGroup>
+                            {/* a blank label keeps the checkbox level with the inputs beside it */}
+                            <Label>&nbsp;</Label>
+                            <Label check className="flex h-9.5 items-center gap-2">
                                 <Input type="checkbox" name="kyc_approved" checked={formData.kyc_approved} onChange={handleChange} />
-                                KYC Approved (Optional)
+                                KYC Approved
                             </Label>
                         </FormGroup>
                     </Col>
                 </Row>
-                <Row>
-                    {/* <Col md={6}>
-                        <FormGroup>
-                            <Label>Wallet Amount</Label>
-                            <Input type="number" step="0.01" name="wallet_amount" value={formData.wallet_amount} onChange={handleChange} />
-                        </FormGroup>
-                    </Col> */}
-                    <Col md={6}>
-                        <FormGroup>
-                            <Label>Billing Type (Optional)</Label>
-                            <Input type="text" name="billing_type" value={formData.billing_type} onChange={handleChange} />
-                        </FormGroup>
-                    </Col>
-                    <Col md={6}>
-                        <FormGroup>
-                            <Label>City</Label>
-                            {/* <Input type="text" name="city" value={formData.city} onChange={handleChange} invalid={!!errors?.city} /> */}
-                            <Select
-                                options={AllCities}
-                                onChange={(option) => {
-                                    handleSelectDropdownChange("city", option)
-                                    setSelectedCity(option.value)
-                                    console.log(option, "dhsid")
-                                }}
-                                value={{
-                                    value: formData.city,
-                                    label: formData.city,
-                                }}
-                                placeholder="Select Cities"
-                                styles={customStyles}
-                            />
-                            <small className='text-danger-500'>{errors?.city}</small>
-                        </FormGroup>
-                    </Col>
-                    <Col md={6}>
-                        <FormGroup>
-                            <Label>Pincode</Label>
-                            <Input type="text" name="pincode" value={formData.pincode} onChange={(e) => { isNumber(e.target.value) && handleChange(e) }} invalid={!!errors?.pincode} />
-                            {/* <Select
-                                options={GetAllPinCodes}
-                                onChange={(option) => handleSelectDropdownChange("pincode", option)}
-                                value={{
-                                    value: formData.pincode,
-                                    label: formData.pincode,
-                                }}
-                                placeholder="Select Cities"
-                                styles={customStyles}
-                            /> */}
-                            <FormFeedback>{errors?.pincode}</FormFeedback>
-                        </FormGroup>
-                    </Col>
-                </Row>
-                <Row>
-                    <Col md={6}>
-                        <FormGroup>
-                            <Label>PAN No (Optional)</Label>
-                            <Input type="text" name="pan_no" value={formData.pan_no} onChange={handleChange} />
-                        </FormGroup>
-                    </Col>
-                </Row>
             </div>
 
 
 
-            <div className='flex gap-4 mt-12 justify-end'>
-                <Button color="primary" className='px-6 py-2' onClick={handleSubmit}>Next</Button>
-            </div>
+            {!embedded && (
+                <div className='flex gap-4 mt-4 justify-end'>
+                    <Button color="primary" className='px-6 py-2' onClick={handleSubmit}>Next</Button>
+                </div>
+            )}
 
             {/* GST Already Exists Modal */}
             <Modal isOpen={gstAlreadyExistsModal} toggle={() => setGstAlreadyExistsModal(false)} centered>

@@ -14,7 +14,7 @@ import locations from "../../data/locations.json"
 import Select from "react-select";
 import { customStyles } from '../../helpers/CustomStyle';
 
-const MultipleAddressForm = ({ addresses, setAddresses, onNextButtonClick, onPreButtonClick, cust_type, SubmiteForm }) => {
+const MultipleAddressForm = ({ addresses, setAddresses, onNextButtonClick, onPreButtonClick, cust_type, SubmiteForm, embedded = false, validateRef }) => {
 
 
   const [selectedStates, setSelectedStates] = useState("")
@@ -34,14 +34,19 @@ const MultipleAddressForm = ({ addresses, setAddresses, onNextButtonClick, onPre
   // get all filtered  Cities
   const AllCities = useMemo(() => {
 
-    if (!selectedStates) return []
-    return locations.filter((ele) => ele.state === selectedStates)
+    // follows the saved state, so a state filled in by the GST verification also lists its cities
+    const stateName = addresses.state || selectedStates
+    if (!stateName) return []
+    return locations.filter((ele) => ele.state === stateName)
       .flatMap(state => state.cities)
       .map(obj => ({
         value: obj.name,
         label: obj.name
       }));
-  }, [selectedStates])
+  }, [selectedStates, addresses.state])
+
+  // keep the 0/200 counter right when the address is filled in from outside (GST verification)
+  useEffect(() => { setAddressCount((addresses.address || '').trim().length) }, [addresses.address])
 
 
   // get all filtered Pincode
@@ -173,6 +178,15 @@ const MultipleAddressForm = ({ addresses, setAddresses, onNextButtonClick, onPre
 
 
   //  this function check all the error if their are no error then will go to next step
+  // for a single-page host: true when the address is valid, shows the errors otherwise
+  if (validateRef) {
+    validateRef.current = () => {
+      const errors = validateAddresses(addresses);
+      setAddressErrors(errors);
+      return Object.keys(errors).length === 0;
+    };
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -201,28 +215,47 @@ const MultipleAddressForm = ({ addresses, setAddresses, onNextButtonClick, onPre
   }
 
   return (
-    <div className="mt-6">
-      <h4>Add Address</h4>
+    <div className={embedded ? "" : "mt-6"}>
+      {embedded ? (
+        <>
+          <div role="separator" className="my-3 h-px w-full bg-[rgb(var(--overlay-rgb)/0.15)]" />
+          <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-muted">Address details</div>
+        </>
+      ) : <h4>Add Address</h4>}
       <div>
-        <div className="  mb-6 rounded">
+        <div className={embedded ? "rounded" : "mb-6 rounded"}>
           <Row>
-            <Col md={12}>
+            <Col md={6}>
               <FormGroup>
-                <Label>Address</Label>
+                <Label className="flex items-center justify-between">
+                  <span>Address<span className="text-danger-500"> *</span></span>
+                  <small className="text-ink-muted">{AddressCount}/200</small>
+                </Label>
                 <Input
                   type="textarea"
+                  rows={2}
                   name="address"
                   value={addresses.address}
                   onChange={(e) => handleAddressChange(e)}
                   invalid={!!addressErrors?.address}
                 />
-                <small>{AddressCount}/200</small>
                 <FormFeedback>{addressErrors?.address}</FormFeedback>
               </FormGroup>
             </Col>
-            <Col md={6}>
+            <Col md={6} className={embedded ? "order-last" : ""}>
               <FormGroup>
-                <Label>Country</Label>
+                <Label>Landmark (optional)</Label>
+                <Input
+                  type="text"
+                  name="landmark"
+                  value={addresses.landmark || ''}
+                  onChange={(e) => handleAddressChange(e)}
+                />
+              </FormGroup>
+            </Col>
+            <Col sm={6} md={3}>
+              <FormGroup>
+                <Label>Country<span className="text-danger-500"> *</span></Label>
                 <Input
                   style={{ cursor: "not-allowed" }}
                   disabled
@@ -237,9 +270,9 @@ const MultipleAddressForm = ({ addresses, setAddresses, onNextButtonClick, onPre
             </Col>
 
 
-            <Col md={6}>
+            <Col sm={6} md={3}>
               <FormGroup>
-                <Label>State</Label>
+                <Label>State<span className="text-danger-500"> *</span></Label>
 
                 <Select
                   options={AllStates}
@@ -265,9 +298,9 @@ const MultipleAddressForm = ({ addresses, setAddresses, onNextButtonClick, onPre
               </FormGroup>
             </Col>
 
-            <Col md={6}>
+            <Col sm={6} md={3}>
               <FormGroup>
-                <Label>City</Label>
+                <Label>City<span className="text-danger-500"> *</span></Label>
 
                 <Select
                   options={AllCities}
@@ -294,9 +327,9 @@ const MultipleAddressForm = ({ addresses, setAddresses, onNextButtonClick, onPre
             </Col>
 
 
-            <Col md={6}>
+            <Col sm={6} md={3}>
               <FormGroup>
-                <Label>Pincode</Label>
+                <Label>Pincode<span className="text-danger-500"> *</span></Label>
 
                 <Input
                   type="text"
@@ -321,29 +354,13 @@ const MultipleAddressForm = ({ addresses, setAddresses, onNextButtonClick, onPre
                 <FormFeedback>{addressErrors?.pincode}</FormFeedback>
               </FormGroup>
             </Col>
-
-            <Col md={12}>
-              <FormGroup>
-                <Label>Landmark (optional)</Label>
-                <Input
-                  type="text"
-                  name="landmark"
-                  value={addresses.landmark || ''}
-                  onChange={(e) => handleAddressChange(e)}
-                />
-
-              </FormGroup>
-            </Col>
           </Row>
-
-
         </div>
 
 
 
 
-        {
-          cust_type === "3" ? <div className='flex gap-4 mt-12 justify-end'>
+        {embedded ? null : cust_type === "3" ? <div className='flex gap-4 mt-12 justify-end'>
             <Button color="primary" className='px-6 py-2' onClick={() => {
               onPreButtonClick(1)
             }}>Prev</Button>

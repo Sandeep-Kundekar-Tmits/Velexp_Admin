@@ -99,7 +99,8 @@ const UpdateUser = ({ customerId, embedded = false, onSaved, highlight, showPost
 
         // Append basic user info
         Object.entries(data).forEach(([key, value]) => {
-            if (key !== 'addresses' && key !== 'franchise_profile' && key !== 'kyc_document' && key !== 'customer_agreement_doc' && key !== 'finance_emails' && !(showPostpaid && key === 'postpaid_payment')) {
+            // the *_name fields are read-only (the backend fills them from the employee master)
+            if (key !== 'sales_head_name' && key !== 'lead_generated_by_name' && key !== 'addresses' && key !== 'franchise_profile' && key !== 'kyc_document' && key !== 'customer_agreement_doc' && key !== 'finance_emails' && !(showPostpaid && key === 'postpaid_payment')) {
                 formDataToSend.append(key, value || '');
             }
         });
